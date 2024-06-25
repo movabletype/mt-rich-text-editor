@@ -1,0 +1,12 @@
+id: MTRichTextEditor
+name: MTRichTextEditor
+version: 0.0.1
+author_link: http://www.movabletype.org/
+author_name: Six Apart Ltd.
+description: <MT_TRANS phrase="Movable Type Rich Text Editor.">
+l10n_class: MT::Plugin::MTRichTextEditor::L10N
+
+editors:
+    mt_rich_text_editor:
+        label: MTBlockEditor
+        template: mt_rich_text_editor.tmpl

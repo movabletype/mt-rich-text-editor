@@ -1,0 +1,55 @@
+# version control
+\bCVS
+(^|/)\.
+
+# CPAN chain files
+^MANIFEST
+^Makefile
+^META.yml$
+^MYMETA.yml$
+^MYMETA.json$
+^blib/
+
+# Artwork data for description
+^artwork/
+
+# Raw source file
+^src/
+
+# Build tools
+Gruntfile
+package.json
+package-lock.json
+tsconfig.json
+webpack.config.js
+i18next-parser.config.js
+^tools/
+docker-compose.yml
+Dockerfile
+
+# npm working directory
+^node_modules/
+
+# packages
+\.zip$
+\.tar\.gz$
+
+# Github pages
+^docs/
+
+# test
+^t/
+^cypress.json
+^cypress/
+
+# source files
+mt-static/plugins/MTRichTextEditor/typings/
+mt-static/plugins/MTRichTextEditor/src/
+
+# test
+plugins/MTRichTextEditor/t/
+plugins/MTRichTextEditor/xt/
+plugins/MTRichTextEditor/php/tests
+
+# distribution files and directories
+^MTRichTextEditor

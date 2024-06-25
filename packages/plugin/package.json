@@ -1,0 +1,19 @@
+{
+  "name": "@movabletype/mt-plugin-mt-rich-text-editor",
+  "version": "0.0.1",
+  "type": "module",
+  "main": "index.js",
+  "devDependencies": {
+    "@movabletype/mt-rich-text-editor": "^0.0.1",
+    "typescript": "^5.5.2",
+    "vite": "^5.3.1"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": ""
+}

@@ -1,0 +1,22 @@
+{
+  "name": "@movabletype/mt-rich-text-editor",
+  "private": true,
+  "version": "0.0.1",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build && npx tsc --emitDeclarationOnly --declaration",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "quill": "^2.0.2",
+    "typescript": "^5.4.5",
+    "vite": "^5.3.1",
+    "vitest": "^1.6.0"
+  },
+  "main": "dist/editor.js",
+  "types": "dist/editor.d.ts",
+  "author": "",
+  "license": "ISC",
+  "description": ""
+}

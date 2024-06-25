@@ -1,0 +1,9 @@
+{
+    "name": "mt-rich-text-editor",
+    "type": "module",
+    "license": "MIT",
+    "private": true,
+    "workspaces": [
+        "packages/*"
+    ]
+}
