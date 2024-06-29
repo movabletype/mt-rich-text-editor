@@ -1,4 +1,5 @@
 import { defineConfig } from "vite";
+import dts from "vite-plugin-dts";
 
 export default defineConfig({
   build: {
@@ -11,4 +12,5 @@ export default defineConfig({
     minify: true,
     target: "es2017",
   },
+  plugins: [dts()],
 });
