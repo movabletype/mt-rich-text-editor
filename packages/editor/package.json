@@ -6,11 +6,20 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build && npx tsc --emitDeclarationOnly --declaration",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "lint": "eslint",
+    "lint:fix": "eslint --fix",
+    "format": "prettier --check --cache \"src/**/*.ts\"",
+    "format:fix": "prettier --write --cache --cache-strategy metadata \"src/**/*.ts\""
   },
   "devDependencies": {
+    "@eslint/js": "^9.6.0",
+    "eslint": "^9.6.0",
+    "globals": "^15.6.0",
+    "prettier": "^3.3.2",
     "quill": "^2.0.2",
     "typescript": "^5.4.5",
+    "typescript-eslint": "^7.14.1",
     "vite": "^5.3.1",
     "vitest": "^1.6.0"
   },

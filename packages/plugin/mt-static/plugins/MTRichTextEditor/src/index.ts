@@ -1,15 +1,16 @@
-import "@movabletype/mt-rich-text-editor/dist/style.css"
-import { create } from "@movabletype/mt-rich-text-editor"
+import "@movabletype/mt-rich-text-editor/dist/style.css";
+import { create } from "@movabletype/mt-rich-text-editor";
 
-MT.Editor.MTRichTextEditor = function () {
-  MT.Editor.apply(this, arguments)
-}
+MT.Editor.MTRichTextEditor = function (...args) {
+  MT.Editor.apply(this, ...args);
+};
 Object.assign(MT.Editor.MTRichTextEditor, MT.Editor);
 Object.assign(MT.Editor.MTRichTextEditor.prototype, MT.Editor.prototype);
 Object.assign(MT.Editor.MTRichTextEditor.prototype, {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   initEditor: function (format) {
-    create('#' + this.id)
-  }
-})
+    create("#" + this.id);
+  },
+});
 
-MT.EditorManager.register('mt_rich_text_editor', MT.Editor.MTRichTextEditor)
+MT.EditorManager.register("mt_rich_text_editor", MT.Editor.MTRichTextEditor);

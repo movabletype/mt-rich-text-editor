@@ -4,14 +4,23 @@
   "type": "module",
   "main": "index.js",
   "devDependencies": {
+    "@eslint/js": "^9.6.0",
     "@movabletype/mt-rich-text-editor": "^0.0.1",
+    "eslint": "^9.6.0",
+    "globals": "^15.6.0",
+    "prettier": "^3.3.2",
     "typescript": "^5.5.2",
+    "typescript-eslint": "^7.14.1",
     "vite": "^5.3.1"
   },
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "lint": "eslint",
+    "lint:fix": "eslint --fix",
+    "format": "prettier --check --cache \"mt-static/plugins/MTRichTextEditor/src/**/*.ts\"",
+    "format:fix": "prettier --write --cache --cache-strategy metadata \"mt-static/plugins/MTRichTextEditor/src/**/*.ts\""
   },
   "author": "",
   "license": "ISC",
