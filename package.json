@@ -1,9 +1,14 @@
 {
-    "name": "mt-rich-text-editor",
-    "type": "module",
-    "license": "MIT",
-    "private": true,
-    "workspaces": [
-        "packages/*"
-    ]
+  "name": "mt-rich-text-editor",
+  "type": "module",
+  "license": "MIT",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "build:editor": "npm run build -w @movabletype/mt-rich-text-editor",
+    "build:plugin": "cd packages/plugin && perl Makefile.PL --version $(git describe --tags | sed -e 's/^v//') && make manifest && make zipdist && make dist && mkdir -p dist && mv MTRichTextEditor-* dist",
+    "build": "npm ci -ws && npm run build:editor && npm run build:plugin"
+  }
 }
