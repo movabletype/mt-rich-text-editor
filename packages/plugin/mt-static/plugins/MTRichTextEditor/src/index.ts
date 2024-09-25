@@ -6,8 +6,8 @@ interface MTRichTextEditor {
   initEditor: (format: unknown) => void;
 }
 
-MT.Editor.MTRichTextEditor = function (...args: unknown[]) {
-  MT.Editor.apply(this, ...args);
+MT.Editor.MTRichTextEditor = function (id: string, manager: unknown) {
+  MT.Editor.apply(this, [id, manager]);
 };
 Object.assign(MT.Editor.MTRichTextEditor, MT.Editor);
 Object.assign(MT.Editor.MTRichTextEditor.prototype, MT.Editor.prototype);
