@@ -1,6 +1,7 @@
-import "quill/dist/quill.core.css";
-import "quill/dist/quill.snow.css";
 import Quill from "quill";
+import "./blots";
+import "./themes/mt";
+import "./themes/mt.css";
 
 export const create = async (selector: string) => {
   const textarea = document.querySelector<HTMLTextAreaElement>(selector);
@@ -15,14 +16,25 @@ export const create = async (selector: string) => {
 
   const quill = new Quill(editor, {
     modules: {
-      toolbar: [[{ header: [1, 2, false] }], ["bold", "italic", "underline"]],
+      toolbar: [
+        ["bold", "italic", "underline", "strike"],
+        ["blockquote", { list: "ordered" }, { list: "bullet" }, "hr"],
+        ["link"],
+        ["undo", "redo"],
+        [{ color: [] }, { background: [] }, "clean"],
+        [{ align: [] }, { align: "center" }, { align: "right" }],
+        [{ indent: "-1" }, { indent: "+1" }],
+        [{ header: [] }],
+      ],
     },
-    theme: "snow",
+    theme: "mt",
   });
 
-  quill.on("text-change", () => {
-    textarea.value = editor.innerHTML;
-  });
-
-  return quill;
+  return {
+    save() {
+      const contents = quill.root.cloneNode(true) as HTMLElement;
+      textarea.value = contents.innerHTML;
+    },
+    quill,
+  };
 };

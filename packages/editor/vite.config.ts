@@ -1,5 +1,6 @@
 import { defineConfig } from "vite";
 import dts from "vite-plugin-dts";
+import postcssNesting from "postcss-nesting";
 
 export default defineConfig({
   build: {
@@ -13,4 +14,9 @@ export default defineConfig({
     target: "es2017",
   },
   plugins: [dts()],
+  css: {
+    postcss: {
+      plugins: [postcssNesting],
+    },
+  },
 });

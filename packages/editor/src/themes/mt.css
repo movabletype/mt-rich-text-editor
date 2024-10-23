@@ -1,0 +1,12 @@
+@import "quill/dist/quill.snow.css";
+@import "quill/dist/quill.snow.css";
+
+.ql-mt {
+  & hr:focus,
+  hr:active,
+  hr.ql-selected,
+  img.ql-selected {
+    outline: 1px solid #ccc;
+    box-shadow: 0 0 2px rgba(204, 204, 204, 0.5);
+  }
+}
