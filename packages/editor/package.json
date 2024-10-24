@@ -27,7 +27,7 @@
     "vitest": "^2.1.1"
   },
   "main": "dist/editor.js",
-  "types": "dist/editor.d.ts",
+  "types": "dist/src/index.d.ts",
   "author": "",
   "license": "ISC",
   "description": ""

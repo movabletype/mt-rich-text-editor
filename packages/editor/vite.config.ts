@@ -5,7 +5,7 @@ import postcssNesting from "postcss-nesting";
 export default defineConfig({
   build: {
     lib: {
-      entry: "src/editor.ts",
+      entry: "src/index.ts",
       fileName: "editor",
       formats: ["es"],
     },
