@@ -1,5 +1,5 @@
 import "@movabletype/mt-rich-text-editor/dist/style.css";
-import { create } from "@movabletype/mt-rich-text-editor";
+import MTBlockEditor from "@movabletype/mt-rich-text-editor";
 
 interface MTRichTextEditor {
   id: string;
@@ -14,7 +14,7 @@ Object.assign(MT.Editor.MTRichTextEditor.prototype, MT.Editor.prototype);
 Object.assign(MT.Editor.MTRichTextEditor.prototype, {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   initEditor: function (this: MTRichTextEditor, _: unknown) {
-    create("#" + this.id);
+    MTBlockEditor.create({ id: this.id });
   },
 });
 
