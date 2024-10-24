@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -8,8 +8,8 @@
   <body>
     <textarea id="editor"></textarea>
     <script type="module">
-      import { create } from '/src/editor.ts';
-      create('#editor')
+      import MTBlockEditor from "/src/index.ts";
+      MTBlockEditor.create({ id: "editor" });
     </script>
   </body>
 </html>
