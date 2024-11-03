@@ -17,14 +17,14 @@ export interface EditorOptions {
 }
 
 export class EditorManager {
-  public static version = version;
+  public static version: string = version;
   public static Editors: Record<string, Editor> = {};
 
-  public static setIcons(icons: Record<string, string>) {
+  public static setIcons(icons: Record<string, string>): void {
     Object.assign(globalIcons, icons);
   }
 
-  public static async create({ id }: EditorOptions) {
+  public static async create({ id }: EditorOptions): Promise<Editor> {
     if (EditorManager.Editors[id]) {
       throw new Error("Editor already exists");
     }
@@ -54,13 +54,20 @@ export class EditorManager {
       },
       theme: "mt",
     });
-    EditorManager.Editors[id] = new Editor({
+    return (EditorManager.Editors[id] = new Editor({
       quill,
       textarea,
-    });
+    }));
   }
 
-  public static save() {
-    return Promise.all(Object.values(EditorManager.Editors).map((editor) => editor.save()));
+  public static unload({ id }: EditorOptions): void {
+    if (EditorManager.Editors[id]) {
+      EditorManager.Editors[id].destroy();
+      delete EditorManager.Editors[id];
+    }
+  }
+
+  public static async save(): Promise<void> {
+    await Promise.all(Object.values(EditorManager.Editors).map((editor) => editor.save()));
   }
 }
