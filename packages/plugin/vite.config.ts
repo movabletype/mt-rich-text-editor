@@ -1,4 +1,5 @@
 import { defineConfig } from "vite";
+import { svelte } from "@sveltejs/vite-plugin-svelte";
 
 export default defineConfig({
   build: {
@@ -13,4 +14,5 @@ export default defineConfig({
     minify: true,
     target: "es2017",
   },
+  plugins: [svelte()],
 });
