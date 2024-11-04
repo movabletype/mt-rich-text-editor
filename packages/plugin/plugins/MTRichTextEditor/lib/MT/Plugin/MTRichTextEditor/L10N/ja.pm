@@ -13,6 +13,15 @@ use utf8;
 use base 'MT::Plugin::MTRichTextEditor::L10N::en_us';
 use vars qw( %Lexicon );
 
-%Lexicon = ();
+%Lexicon = (
+    'Insert (s)'        => '挿入 (s)',
+    'Insert'            => '挿入',
+    'Cancel (x)'        => 'キャンセル (x)',
+    'Title'             => 'タイトル',
+    'Link Text'         => 'リンク元テキスト',
+    'Link Target'       => 'リンクの開き方...',
+    'LINK_TARGET_SELF'  => '同じウィンドウ',
+    'LINK_TARGET_BLANK' => '新規ウィンドウ',
+);
 
 1;

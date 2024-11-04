@@ -40,15 +40,21 @@ export default class SourceEditor {
     this.command = new MT.EditorCommand.Source(this.editor);
   }
 
-  public unload(): void {
+  private unmount(): void {
     if (this.toolbarMount) {
       unmount(this.toolbarMount);
+    }
+  }
+
+  public unload(): void {
+    if (this.toolbarMount) {
+      this.unmount();
       this.toolbar.remove();
     }
   }
 
   public setFormat(format: string): void {
-    this.unload();
+    this.unmount();
     this.command.setFormat(format);
     this.toolbarMount = mount(Toolbar, {
       target: this.toolbar,
@@ -58,7 +64,9 @@ export default class SourceEditor {
           toggleFullScreen(this.id);
         },
         openLinkDialog: () => {
-          const selectedText = this.editor.getSelectedText();
+          const selectedText = /^(?:0|__default__)$/.test(format)
+            ? this.editor.getSelectedText()
+            : "";
 
           const parser = new DOMParser();
           const doc = parser.parseFromString(selectedText, "text/html");

@@ -17,6 +17,21 @@
     onClose: () => void;
   } = $props();
 
+  let urlInput: HTMLInputElement;
+  $effect(() => {
+    urlInput?.focus();
+  });
+
+  let hasTextValue = text !== "";
+  const onLinkTextChange = () => {
+    hasTextValue = true;
+  };
+  $effect(() => {
+    if (!hasTextValue) {
+      text = url;
+    }
+  });
+
   let self: Modal;
   // svelte-ignore non_reactive_update FIXME:
   let close: () => void;
@@ -28,11 +43,23 @@
     <svelte:fragment slot="body">
       <div class="form-group mb-3">
         <label for="link-url" class="form-label">{window.trans("Link URL")}</label>
-        <input type="url" id="link-url" class="form-control" bind:value={url} />
+        <input
+          type="url"
+          id="link-url"
+          class="form-control"
+          bind:value={url}
+          bind:this={urlInput}
+        />
       </div>
       <div class="form-group mb-3">
         <label for="link-text" class="form-label">{window.trans("Link Text")}</label>
-        <input type="text" id="link-text" class="form-control" bind:value={text} />
+        <input
+          type="text"
+          id="link-text"
+          class="form-control"
+          bind:value={text}
+          onchange={onLinkTextChange}
+        />
       </div>
       <div class="form-group mb-3">
         <label for="link-title" class="form-label">{window.trans("Title")}</label>

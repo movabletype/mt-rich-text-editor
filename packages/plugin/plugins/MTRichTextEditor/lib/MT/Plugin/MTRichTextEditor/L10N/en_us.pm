@@ -12,6 +12,9 @@ use warnings;
 use base 'MT::Plugin::MTRichTextEditor::L10N';
 use vars qw( %Lexicon );
 
-%Lexicon = ();
+%Lexicon = (
+    'LINK_TARGET_SELF'  => 'Current window',
+    'LINK_TARGET_BLANK' => 'New window',
+);
 
 1;

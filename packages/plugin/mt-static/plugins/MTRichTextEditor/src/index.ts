@@ -4,12 +4,13 @@ import { MT } from "@movabletype/app";
 import MTRichTextEditor, { Editor } from "@movabletype/mt-rich-text-editor";
 import SourceEditor from "./source_editor";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-Object.assign((window as any).Lexicon, {
-  "Insert (s)": "挿入 (s)",
-  "Insert": "挿入",
-  "Cancel": "キャンセル",
-});
+(async () => {
+  const lang = document.querySelector("html")?.getAttribute("lang");
+  const localeLang = lang?.replace("-", "_");
+  const lexicon = await import(`../locales/${localeLang}.ts`);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  Object.assign((window as any).Lexicon, lexicon.default);
+})();
 
 const MTEditorClass = MT.Editor!; // MT.Editor is always defined
 

@@ -42,7 +42,12 @@
     </button>
   </div>
   <div class="mt-rich-text-editor-source-editor-toolbar-group">
-    <button type="button" onclick={toggleFullScreen} title="fullscreen">
+    <button
+      type="button"
+      onclick={toggleFullScreen}
+      title="full screen"
+      class="mt-rich-text-editor-source-editor-toolbar-button-full_screen"
+    >
       {@html fullScreenIcon}
     </button>
   </div>
@@ -56,8 +61,10 @@
     flex-wrap: wrap;
     background-image: url("../assets/toolbar-border.svg");
   }
-  .mt-rich-text-editor-source-editor-toolbar-group:not(:last-child) {
+  .mt-rich-text-editor-source-editor-toolbar-group {
     padding: 0 4px;
+  }
+  .mt-rich-text-editor-source-editor-toolbar-group:not(:last-child) {
     border-right: 1px solid #ccc;
     white-space: nowrap;
   }
@@ -68,6 +75,7 @@
     background: none;
     cursor: pointer;
     border-radius: 4px;
+    padding: 1px 5px;
   }
   button:hover {
     background: #dee0e2;

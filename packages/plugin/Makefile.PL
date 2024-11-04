@@ -28,11 +28,12 @@ build-locales:
 	mkdir -p mt-static/plugins/$(NAME)/locales
 	for f in plugins/$(NAME)/lib/MT/Plugin/$(NAME)/L10N/*.pm; do \
         l=$$(basename $$f .pm); \
-        d=mt-static/plugins/$(NAME)/locales/$${l}.js; \
+        ll=$$(echo $$l | sed -e 's/_.*//g'); \
+        d=mt-static/plugins/$(NAME)/locales/$${ll}.ts; \
         \
-        echo '(function() { var lexicon =' > $$d; \
+        echo 'const lexicon = ' > $$d; \
         perl -Iplugins/$(NAME)/lib -MJSON -e "BEGIN { package MT::Plugin::L10N { sub new {} } }; use MT::Plugin::$(NAME)::L10N::$$l; print(encode_json(\%MT::Plugin::$(NAME)::L10N::$$l::Lexicon))" >> $$d || exit 1; \
-        echo '; for (k in lexicon) { window.Lexicon[k] = lexicon[k] } })()' >> $$d; \
+        echo '; export default lexicon;' >> $$d; \
     done
 
 build: build-js build-locales
