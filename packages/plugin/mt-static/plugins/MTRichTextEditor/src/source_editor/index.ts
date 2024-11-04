@@ -50,6 +50,7 @@ export default class SourceEditor {
     if (this.toolbarMount) {
       this.unmount();
       this.toolbar.remove();
+      this.textarea.classList.remove("mt-rich-text-editor-source-editor");
     }
   }
 
