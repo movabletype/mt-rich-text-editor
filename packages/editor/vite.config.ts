@@ -1,6 +1,7 @@
 import { defineConfig } from "vite";
 import dts from "vite-plugin-dts";
 import postcssNesting from "postcss-nesting";
+import postcssInlineSvg from "postcss-inline-svg";
 
 export default defineConfig({
   build: {
@@ -16,7 +17,7 @@ export default defineConfig({
   plugins: [dts()],
   css: {
     postcss: {
-      plugins: [postcssNesting],
+      plugins: [postcssNesting, postcssInlineSvg],
     },
   },
 });

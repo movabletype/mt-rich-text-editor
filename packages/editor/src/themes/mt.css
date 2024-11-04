@@ -1,7 +1,40 @@
 @import "quill/dist/quill.snow.css";
 @import "quill/dist/quill.snow.css";
 
-.ql-mt {
+.ql-toolbar.ql-mt {
+  background-image: svg-load("./assets/toolbar-border.svg");
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+
+  & button {
+    margin: 3px;
+    padding: 5px 5px;
+    height: 34px;
+  }
+
+  & select,
+  & .ql-header.ql-picker {
+    margin: 3px;
+    padding: 5px 5px;
+    height: 34px;
+  }
+
+  & .ql-formats {
+    margin-right: 0;
+  }
+
+  & .ql-formats:empty {
+    flex-basis: 100%;
+  }
+
+  & .ql-formats:not(:last-child) {
+    border-right: 1px solid #ccc;
+    white-space: nowrap;
+  }
+}
+
+.ql-container.ql-mt {
   & hr:focus,
   hr:active,
   hr.ql-selected,
