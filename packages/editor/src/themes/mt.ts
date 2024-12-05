@@ -1,17 +1,90 @@
 import Quill from "quill";
+import Emitter from "quill/core/emitter";
 import type { ThemeOptions } from "quill/core/theme";
 import type Toolbar from "quill/modules/toolbar";
+import { BaseTooltip } from 'quill/themes/base';
 import SnowTheme from "quill/themes/snow";
-import icons from "quill/ui/icons";
-import hrIcon from "./icons/hr.svg?raw";
-import redoIcon from "./icons/redo.svg?raw";
-import undoIcon from "./icons/undo.svg?raw";
+import LinkBlot from "quill/formats/link";
+import {icons } from "./icons";
+import { mount, unmount } from "svelte";
 
-Object.assign(icons, {
-  hr: hrIcon,
-  redo: redoIcon,
-  undo: undoIcon,
-});
+import LinkModal from "./ui/link/Modal.svelte";
+import SourceModal from "./ui/source/Modal.svelte";
+import InsertHtmlModal from "./ui/insert_html/Modal.svelte";
+
+class SnowTooltip extends BaseTooltip {
+  static TEMPLATE = [
+    '<a class="ql-preview" rel="noopener noreferrer" target="_blank" href="about:blank"></a>',
+    '<input type="text" data-formula="e=mc^2" data-link="https://quilljs.com" data-video="Embed URL">',
+    '<a class="ql-action"></a>',
+    '<a class="ql-remove"></a>',
+  ].join('');
+
+  preview = this.root.querySelector('a.ql-preview');
+
+  listen() {
+    super.listen();
+    // @ts-expect-error Fix me later
+    this.root
+      .querySelector('a.ql-action')
+      .addEventListener('click', (event) => {
+        if (this.root.classList.contains('ql-editing')) {
+          this.save();
+        } else {
+          // @ts-expect-error Fix me later
+          this.edit('link', this.preview.textContent);
+        }
+        event.preventDefault();
+      });
+    // @ts-expect-error Fix me later
+    this.root
+      .querySelector('a.ql-remove')
+      .addEventListener('click', (event) => {
+        if (this.linkRange != null) {
+          const range = this.linkRange;
+          this.restoreFocus();
+          this.quill.formatText(range, 'link', false, Emitter.sources.USER);
+          delete this.linkRange;
+        }
+        event.preventDefault();
+        this.hide();
+      });
+    this.quill.on(
+      Emitter.events.SELECTION_CHANGE,
+      (range, oldRange, source) => {
+        if (range == null) return;
+        if (range.length === 0 && source === Emitter.sources.USER) {
+          const [link, offset] = this.quill.scroll.descendant(
+            LinkBlot,
+            range.index,
+          );
+          if (link != null) {
+            this.linkRange = new Range(range.index - offset, link.length());
+            const preview = LinkBlot.formats(link.domNode);
+            // @ts-expect-error Fix me later
+            this.preview.textContent = preview;
+            // @ts-expect-error Fix me later
+            this.preview.setAttribute('href', preview);
+            this.show();
+            const bounds = this.quill.getBounds(this.linkRange);
+            if (bounds != null) {
+              this.position(bounds);
+            }
+            return;
+          }
+        } else {
+          delete this.linkRange;
+        }
+        this.hide();
+      },
+    );
+  }
+
+  show() {
+    super.show();
+    this.root.removeAttribute('data-mode');
+  }
+}
 
 class MovableTypeTheme extends SnowTheme {
   constructor(quill: Quill, options: ThemeOptions) {
@@ -21,13 +94,31 @@ class MovableTypeTheme extends SnowTheme {
   }
 
   extendToolbar(toolbar: Toolbar) {
-    super.extendToolbar(toolbar);
-
     if (!toolbar.container) {
       return;
     }
 
+    toolbar.container.querySelectorAll(".ql-formats").forEach((formatListEl) => {
+      const buttons = formatListEl.querySelectorAll("button");
+      if (buttons.length === 1) {
+        formatListEl.classList.add(`ql-formats-${buttons[0].classList[0].replace("ql-", "")}`);
+      }
+    });
+    
+    toolbar.container.classList.add('ql-snow');
     toolbar.container.classList.add("ql-mt");
+    this.buildButtons(toolbar.container.querySelectorAll('button'), icons);
+    this.buildPickers(toolbar.container.querySelectorAll('select'), icons);
+    // @ts-expect-error
+    this.tooltip = new SnowTooltip(this.quill, this.options.bounds);
+    if (toolbar.container.querySelector('.ql-link')) {
+      this.quill.keyboard.addBinding(
+        { key: 'k', shortKey: true },
+        (_range: Range, context: Context) => {
+          toolbar.handlers.link.call(toolbar, !context.format.link);
+        },
+      );
+    }
   }
 
   handleSelectionChange() {
@@ -70,6 +161,63 @@ MovableTypeTheme.DEFAULTS = {
         },
         redo() {
           this.quill.history.redo();
+        },
+        mt_link() {
+          const range = this.quill.getSelection(true);
+          const linkModal = mount(LinkModal, {
+            target: document.body,
+            props: {
+              linkData: {
+                text: "",
+                url: "",
+                title: "",
+                target: "_self",
+              },
+              onSubmit: (linkData) => {
+                this.quill.deleteText(range.index, range.length);
+                const a = document.createElement("a");
+                a.href = linkData.url;
+                a.title = linkData.title;
+                a.target = linkData.target;
+                a.textContent = linkData.text;
+                this.quill.clipboard.dangerouslyPasteHTML(range.index, a.outerHTML);
+              },
+              onClose: () => {
+                unmount(linkModal);
+              },
+            },
+          });
+        },
+        source() {
+          const text = this.quill.getSemanticHTML();
+          const sourceModal = mount(SourceModal, {
+            target: document.body,
+            props: {
+              text,
+              onSubmit: (text) => {
+                this.quill.clipboard.dangerouslyPasteHTML(text);
+              },
+              onClose: () => {
+                unmount(sourceModal);
+              },
+            },
+          });
+        },
+        insert_html() {
+          const range = this.quill.getSelection(true);
+          const insertHtmlModal = mount(InsertHtmlModal, {
+            target: document.body,
+            props: {
+              text: "",
+              onSubmit: (text) => {
+                this.quill.deleteText(range.index, range.length);
+                this.quill.clipboard.dangerouslyPasteHTML(range.index, text);
+              },
+              onClose: () => {
+                unmount(insertHtmlModal);
+              },
+            },
+          });
         },
       },
     },

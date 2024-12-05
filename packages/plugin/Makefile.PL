@@ -29,11 +29,13 @@ build-locales:
 	for f in plugins/$(NAME)/lib/MT/Plugin/$(NAME)/L10N/*.pm; do \
         l=$$(basename $$f .pm); \
         ll=$$(echo $$l | sed -e 's/_.*//g'); \
-        d=mt-static/plugins/$(NAME)/locales/$${ll}.ts; \
+        mkdir -p mt-static/plugins/$(NAME)/locales/$${ll} ../editor/locales/$${ll}; \
+        plugin_locales=mt-static/plugins/$(NAME)/locales/$${ll}/translation.json; \
+        editor_locales=../editor/locales/$${ll}/translation.json; \
         \
-        echo 'const lexicon = ' > $$d; \
-        perl -Iplugins/$(NAME)/lib -MJSON -e "BEGIN { package MT::Plugin::L10N { sub new {} } }; use MT::Plugin::$(NAME)::L10N::$$l; print(encode_json(\%MT::Plugin::$(NAME)::L10N::$$l::Lexicon))" >> $$d || exit 1; \
-        echo '; export default lexicon;' >> $$d; \
+        json_data=$$(perl -Iplugins/$(NAME)/lib -MJSON -e "BEGIN { package MT::Plugin::L10N { sub new {} } }; use MT::Plugin::$(NAME)::L10N::$$l; print(encode_json(\%MT::Plugin::$(NAME)::L10N::$$l::Lexicon))") || exit 1; \
+        echo $$json_data > $$plugin_locales; \
+        echo $$json_data > $$editor_locales; \
     done
 
 build: build-js build-locales

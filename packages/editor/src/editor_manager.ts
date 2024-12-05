@@ -1,7 +1,9 @@
 import { version } from "../package.json";
 import Quill from "quill";
 import { Editor } from "./editor";
+import MovableTypeTheme from "./themes/mt";
 import globalIcons from "quill/ui/icons";
+import i18n from "./i18n";
 import "./blots";
 import "./themes/mt";
 import "./themes/mt.css";
@@ -14,6 +16,7 @@ export interface EditorOptions {
    * The ID of the textarea element to create the editor for.
    */
   id: string;
+  toolbar?: (string | Record<string, string | string[]>)[][];
 }
 
 export class EditorManager {
@@ -24,7 +27,18 @@ export class EditorManager {
     Object.assign(globalIcons, icons);
   }
 
-  public static async create({ id }: EditorOptions): Promise<Editor> {
+  public static setLanguage(language: string): void {
+    i18n.changeLanguage(language);
+  }
+
+  public static setHandlers(handlers: Record<string, (editor: Editor) => void>): void {
+    if (!MovableTypeTheme.DEFAULTS.modules.toolbar?.handlers) {
+      return;
+    }
+    Object.assign(MovableTypeTheme.DEFAULTS.modules.toolbar.handlers, handlers);
+  }
+
+  public static async create({ id, toolbar }: EditorOptions): Promise<Editor> {
     if (EditorManager.Editors[id]) {
       throw new Error("Editor already exists");
     }
@@ -37,21 +51,11 @@ export class EditorManager {
     textarea.style.display = "none";
     textarea.parentNode?.insertBefore(editor, textarea.nextSibling);
 
-    editor.innerHTML = textarea.value;
+    editor.innerHTML = textarea.value ?? "";
 
     const quill = new Quill(editor, {
       modules: {
-        toolbar: [
-          ["bold", "italic", "underline", "strike"],
-          ["blockquote", { list: "ordered" }, { list: "bullet" }, "hr"],
-          ["link"],
-          [],
-          ["undo", "redo"],
-          [{ color: [] }, { background: [] }, "clean"],
-          [{ align: "" }, { align: "center" }, { align: "right" }],
-          [{ indent: "-1" }, { indent: "+1" }],
-          [{ header: [] }],
-        ],
+        toolbar,
       },
       theme: "mt",
     });

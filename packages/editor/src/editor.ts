@@ -9,13 +9,20 @@ export class Editor {
     this.textarea = opts.textarea;
   }
 
-  public async save(): Promise<void> {
-    const contents = this.quill?.root.cloneNode(true) as HTMLElement;
-    this.textarea.value = contents.innerHTML;
+  public save(): void {
+    this.textarea.value = this.getContent();
+  }
+
+  public getContent(): string {
+    return this.quill?.getSemanticHTML() ?? "";
+  }
+
+  public setContent(content: string): void {
+    this.quill?.setContents(this.quill.clipboard.convert({ html: content }));
   }
 
   public focus(): void {
-    console.log("focus");
+    this.quill?.focus();
   }
 
   public destroy(): void {

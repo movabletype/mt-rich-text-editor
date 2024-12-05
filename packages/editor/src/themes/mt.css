@@ -6,6 +6,7 @@
   padding: 0;
   display: flex;
   flex-wrap: wrap;
+  position: relative;
 
   & button {
     margin: 3px;
@@ -22,6 +23,13 @@
 
   & .ql-formats {
     margin-right: 0;
+  }
+
+  & .ql-formats-source {
+    position: absolute;
+    top: 0;
+    right: 0;
+    border: none !important;
   }
 
   & .ql-formats:empty {

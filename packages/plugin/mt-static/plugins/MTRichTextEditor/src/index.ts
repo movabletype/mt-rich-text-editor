@@ -1,18 +1,47 @@
 import "@movabletype/mt-rich-text-editor/dist/style.css";
 import "../css/editor.css";
 import { MT } from "@movabletype/app";
-import MTRichTextEditor, { Editor } from "@movabletype/mt-rich-text-editor";
+import "@movabletype/mt-rich-text-editor/mt-rich-text-editor";
+import { Editor } from "@movabletype/mt-rich-text-editor";
 import SourceEditor from "./source_editor";
+import { currentLanguage } from "./l10n";
+import { toggleFullScreen } from "./utils/full_screen";
+import fullScreenIcon from "./assets/full_screen.svg?raw";
 
-(async () => {
-  const lang = document.querySelector("html")?.getAttribute("lang");
-  const localeLang = lang?.replace("-", "_");
-  const lexicon = await import(`../locales/${localeLang}.ts`);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  Object.assign((window as any).Lexicon, lexicon.default);
-})();
+const MTRichTextEditor = window.MTRichTextEditor;
+
+MTRichTextEditor.setIcons({
+  full_screen: fullScreenIcon,
+});
+MTRichTextEditor.setLanguage(currentLanguage);
+MTRichTextEditor.setHandlers({
+  full_screen() {
+    console.log(this);
+    toggleFullScreen("editor-input-content");
+  },
+});
 
 const MTEditorClass = MT.Editor!; // MT.Editor is always defined
+
+const createRichTextEditor = async (id: string): Promise<Editor> => {
+  return MTRichTextEditor.create({
+    id,
+    toolbar: [
+      ["bold", "italic", "underline", "strike"],
+      ["blockquote", { list: "ordered" }, { list: "bullet" }, "hr"],
+      ["mt_link", "mt_unlink"],
+      ["insert_html"],
+      ["source"],
+      [],
+      ["undo", "redo"],
+      [{ color: [] }, { background: [] }, "clean"],
+      [{ align: "" }, { align: "center" }, { align: "right" }],
+      [{ indent: "-1" }, { indent: "+1" }],
+      [{ header: [] }],
+      ["full_screen"]
+    ],
+  });
+};
 
 class MTRichTextEditorPlugin extends MTEditorClass {
   editor?: Editor | SourceEditor;
@@ -23,7 +52,7 @@ class MTRichTextEditorPlugin extends MTEditorClass {
 
   async initEditor(this: MTRichTextEditorPlugin, format: string) {
     const { id } = this;
-    this.editor = await MTRichTextEditor.create({ id });
+    this.editor = await createRichTextEditor(id);
     this.setFormat(format);
   }
 
@@ -33,7 +62,7 @@ class MTRichTextEditorPlugin extends MTEditorClass {
     if (mode === "wysiwyg") {
       if (this.editor instanceof SourceEditor) {
         this.editor.unload();
-        this.editor = await MTRichTextEditor.create({ id });
+        this.editor = await createRichTextEditor(id);
       }
     } else {
       if (this.editor instanceof Editor) {
