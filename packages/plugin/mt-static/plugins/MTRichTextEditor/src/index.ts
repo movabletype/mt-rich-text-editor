@@ -1,4 +1,4 @@
-import "@movabletype/mt-rich-text-editor/dist/style.css";
+import "@movabletype/mt-rich-text-editor/mt-rich-text-editor.css";
 import "../css/editor.css";
 import { MT } from "@movabletype/app";
 import "@movabletype/mt-rich-text-editor/mt-rich-text-editor";

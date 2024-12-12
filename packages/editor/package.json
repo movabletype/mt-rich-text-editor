@@ -43,6 +43,9 @@
     "./mt-rich-text-editor": {
       "types": "./dist/src/mt-rich-text-editor.d.ts",
       "import": "./dist/mt-rich-text-editor.js"
+    },
+    "./mt-rich-text-editor.css": {
+      "import": "./dist/mt-rich-text-editor.css"
     }
   },
   "author": "",
