@@ -16,6 +16,9 @@ jobs:
     - name: Install libs
       run: sudo apt-get install --no-install-recommends -y libjson-perl libyaml-perl zip
 
+    - name: Install @rollup/rollup-linux-x64-gnu explicitly
+      run: npm install @rollup/rollup-linux-x64-gnu --save-optional
+
     - name: Install dependencies
       run: npm install -ws
 
