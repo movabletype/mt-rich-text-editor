@@ -8,7 +8,8 @@
   ],
   "scripts": {
     "build:editor": "npm run build -w @movabletype/mt-rich-text-editor",
+    "build:locales": "cd packages/plugin && perl Makefile.PL --version $(git describe --tags | sed -e 's/^v//') && make build-locales",
     "build:plugin": "cd packages/plugin && perl Makefile.PL --version $(git describe --tags | sed -e 's/^v//') && make manifest && make zipdist && make dist && mkdir -p dist && mv MTRichTextEditor-* dist",
-    "build": "npm ci -ws && npm run build:editor && npm run build:plugin"
+    "build": "npm ci -ws && npm run build:locales && npm run build:editor && npm run build:plugin"
   }
 }

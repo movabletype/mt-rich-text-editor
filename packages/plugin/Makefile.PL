@@ -1,7 +1,7 @@
 use ExtUtils::MakeMaker;
 use YAML;
 
-my $config  = YAML::LoadFile((glob('./plugins/*/config.yaml'))[0]);
+my $config  = YAML::LoadFile((glob('./plugins/MTRichTextEditor/config.yaml'))[0]);
 my $version = $config->{version};
 
 use Getopt::Long 'GetOptions';
