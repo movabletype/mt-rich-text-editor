@@ -18,7 +18,6 @@ MTRichTextEditor.setIcons({
 MTRichTextEditor.setLanguage(currentLanguage);
 MTRichTextEditor.setHandlers({
   full_screen() {
-    console.log(this);
     toggleFullScreen("editor-input-content");
   },
 });
@@ -32,7 +31,6 @@ const createRichTextEditor = async (
   if (options?.toolbar) {
     options.toolbar = convertToolbar(options.toolbar);
   }
-  console.log(options);
   return MTRichTextEditor.create(
     Object.assign(
       {

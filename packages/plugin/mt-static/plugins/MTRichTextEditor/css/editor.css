@@ -16,7 +16,7 @@
   }
 }
 
-.mt-rich-text-editor-source-editor {
+.mt-rich-text-editor-source-editor:not(.d-none) {
   display: block !important;
   border: 1px solid #ccc;
 }
