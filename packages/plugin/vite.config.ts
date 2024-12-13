@@ -15,4 +15,7 @@ export default defineConfig({
     target: "es2017",
   },
   plugins: [svelte()],
+  test: {
+    globals: true,
+  },
 });

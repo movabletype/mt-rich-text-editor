@@ -1,6 +1,10 @@
 @import "quill/dist/quill.snow.css";
 @import "quill/dist/quill.snow.css";
 
+.ql-mt {
+  background-color: #fff;
+}
+
 .ql-toolbar.ql-mt {
   background-image: svg-load("./assets/toolbar-border.svg");
   padding: 0;
@@ -49,5 +53,43 @@
   img.ql-selected {
     outline: 1px solid #ccc;
     box-shadow: 0 0 2px rgba(204, 204, 204, 0.5);
+  }
+}
+
+.ql-toolbar.ql-mt-inline {
+  position: absolute;
+  z-index: 1000;
+  display: none;
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: -8px;
+    left: 30px;
+    border-style: solid;
+    border-width: 0 8px 8px 8px;
+    border-color: transparent transparent #ccc transparent;
+  }
+
+  &::after {
+    content: '';
+    position: absolute; 
+    top: -7px;
+    left: 30px;
+    border-style: solid;
+    border-width: 0 8px 8px 8px;
+    border-color: transparent transparent #fff transparent;
+  }
+  
+  &.ql-mt-selected {
+    display: block;
+  }
+  
+  & + .ql-container {
+    border-top: 1px solid #ccc !important;
+    border-radius: 4px;
   }
 }

@@ -17,6 +17,7 @@ export interface EditorOptions {
    */
   id: string;
   toolbar?: (string | Record<string, string | string[]>)[][];
+  inline?: boolean;
 }
 
 export class EditorManager {
@@ -38,7 +39,7 @@ export class EditorManager {
     Object.assign(MovableTypeTheme.DEFAULTS.modules.toolbar.handlers, handlers);
   }
 
-  public static async create({ id, toolbar }: EditorOptions): Promise<Editor> {
+  public static async create({ id, toolbar, inline }: EditorOptions): Promise<Editor> {
     if (EditorManager.Editors[id]) {
       throw new Error("Editor already exists");
     }
@@ -57,7 +58,7 @@ export class EditorManager {
       modules: {
         toolbar,
       },
-      theme: "mt",
+      theme: inline ? "mt-inline" : "mt",
     });
     return (EditorManager.Editors[id] = new Editor({
       quill,
