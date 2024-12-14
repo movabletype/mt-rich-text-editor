@@ -1,4 +1,5 @@
 import { MT } from "@movabletype/app";
+import { DEFAULT_HEIGHT } from "../constant";
 import { mount, unmount } from "svelte";
 import Toolbar from "./Toolbar.svelte";
 import LinkModal from "../link/Modal.svelte";
@@ -32,11 +33,17 @@ export default class SourceEditor {
     }
     this.textarea = textarea;
     textarea.classList.add("mt-rich-text-editor-source-editor");
+    if (!textarea.style.height) {
+      textarea.style.height = `${DEFAULT_HEIGHT}px`;
+    }
 
     this.toolbar = document.createElement("div");
     this.textarea.parentElement?.insertBefore(this.toolbar, this.textarea);
 
-    this.editor = new MT.Editor!.Source(id);
+    if (!MT.Editor) {
+      throw new Error("MT.Editor is not found");
+    }
+    this.editor = new MT.Editor.Source(id);
     this.command = new MT.EditorCommand.Source(this.editor);
   }
 
@@ -144,9 +151,23 @@ export default class SourceEditor {
     this.editor.insertContent(content);
   }
 
+  public getContent(): string {
+    return this.textarea.value;
+  }
+
+  public setContent(content: string): void {
+    this.textarea.value = content;
+  }
+
   public getHeight(): number {
-    console.log("getHeight");
     return this.textarea.scrollHeight;
+  }
+
+  public setHeight(height: number): void {
+    if (height === 0) {
+      return;
+    }
+    this.textarea.style.height = `${height}px`;
   }
 
   public focus(): void {

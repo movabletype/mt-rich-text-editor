@@ -18,6 +18,8 @@ export interface EditorOptions {
   id: string;
   toolbar?: (string | Record<string, string | string[]>)[][];
   inline?: boolean;
+  content?: string;
+  height?: number;
 }
 
 export class EditorManager {
@@ -39,7 +41,7 @@ export class EditorManager {
     Object.assign(MovableTypeTheme.DEFAULTS.modules.toolbar.handlers, handlers);
   }
 
-  public static async create({ id, toolbar, inline }: EditorOptions): Promise<Editor> {
+  public static async create({ id, toolbar, inline, content, height }: EditorOptions): Promise<Editor> {
     if (EditorManager.Editors[id]) {
       throw new Error("Editor already exists");
     }
@@ -52,7 +54,7 @@ export class EditorManager {
     textarea.style.display = "none";
     textarea.parentNode?.insertBefore(editor, textarea.nextSibling);
 
-    editor.innerHTML = textarea.value ?? "";
+    editor.innerHTML = content ?? textarea.value ?? "";
 
     const quill = new Quill(editor, {
       modules: {
@@ -60,6 +62,9 @@ export class EditorManager {
       },
       theme: inline ? "mt-inline" : "mt",
     });
+    if (height) {
+      quill.root.style.height = `${height}px`;
+    }
     return (EditorManager.Editors[id] = new Editor({
       quill,
       textarea,

@@ -4,19 +4,20 @@ import { MT } from "@movabletype/app";
 import "@movabletype/mt-rich-text-editor/mt-rich-text-editor";
 import type { EditorOptions } from "@movabletype/mt-rich-text-editor";
 import { Editor } from "@movabletype/mt-rich-text-editor";
+import { DEFAULT_HEIGHT } from "./constant";
 import SourceEditor from "./source_editor";
 import { currentLanguage } from "./l10n";
 import { toggleFullScreen } from "./utils/full_screen";
 import fullScreenIcon from "./assets/full_screen.svg?raw";
 import { convertToolbar } from "./tinymce";
 
-const MTRichTextEditor = window.MTRichTextEditor;
+const MTRichTextEditorManager = window.MTRichTextEditor;
 
-MTRichTextEditor.setIcons({
+MTRichTextEditorManager.setIcons({
   full_screen: fullScreenIcon,
 });
-MTRichTextEditor.setLanguage(currentLanguage);
-MTRichTextEditor.setHandlers({
+MTRichTextEditorManager.setLanguage(currentLanguage);
+MTRichTextEditorManager.setHandlers({
   full_screen() {
     toggleFullScreen("editor-input-content");
   },
@@ -26,12 +27,14 @@ const MTEditorClass = MT.Editor!; // MT.Editor is always defined
 
 const createRichTextEditor = async (
   id: string,
-  options?: Partial<EditorOptions>
+  options?: Partial<EditorOptions>,
+  content?: string,
+  height?: number
 ): Promise<Editor> => {
   if (options?.toolbar) {
     options.toolbar = convertToolbar(options.toolbar);
   }
-  return MTRichTextEditor.create(
+  return MTRichTextEditorManager.create(
     Object.assign(
       {
         id,
@@ -49,53 +52,65 @@ const createRichTextEditor = async (
           [{ header: [] }],
           ["full_screen"],
         ],
+        content,
+        height: height ?? (options?.inline ? undefined : DEFAULT_HEIGHT),
       },
       options
     )
   );
 };
 
-class MTRichTextEditorPlugin extends MTEditorClass {
-  editor?: Editor | SourceEditor;
+class MTRichTextEditor extends MTEditorClass {
+  editor?: Editor;
 
-  constructor(id: string, manager: unknown, options: Record<string, Record<string, unknown>>) {
-    super(id, manager, options);
+  static formats() {
+    return [
+      "richtext",
+      "blockeditor", // only for fallback, not used
+    ];
   }
 
-  async initEditor(this: MTRichTextEditorPlugin, format: string) {
-    this.editor = await createRichTextEditor(this.id, this.options?.["richtext"]);
-    this.setFormat(format);
+  async initEditor(format: string, content?: string, height?: number) {
+    this.editor = await createRichTextEditor(this.id, this.options?.[format], content, height);
   }
 
-  async setFormat(this: MTRichTextEditorPlugin, format: string) {
-    const { id, options } = this;
-    const mode = MT.EditorManager.toMode(format);
-    if (mode === "wysiwyg") {
-      if (this.editor instanceof SourceEditor) {
-        this.editor.unload();
-        this.editor = await createRichTextEditor(id, options?.["richtext"]);
-      }
-    } else {
-      if (this.editor instanceof Editor) {
-        await MTRichTextEditor.unload({ id });
-        this.editor = new SourceEditor({ id });
-      }
-      (this.editor as SourceEditor).setFormat(format);
-    }
+  async initOrShow(format: string, content?: string, height?: number) {
+    await this.initEditor(format, content, height);
   }
 
-  getHeight(): number {
-    console.log("getHeight");
-    return 0;
-  }
+  setFormat() {}
 
-  reload() {
-    console.log("reload");
-  }
-
-  insertContent(content: string) {
-    this.editor?.insertContent(content);
+  async hide() {
+    this.editor = undefined;
+    await MTRichTextEditorManager.unload({ id: this.id });
   }
 }
 
-MT.EditorManager.register("mt_rich_text_editor", MTRichTextEditorPlugin);
+MT.EditorManager.register("mt_rich_text_editor", MTRichTextEditor);
+
+class MTSourceEditor extends MTEditorClass {
+  editor?: SourceEditor;
+
+  static formats() {
+    return [
+      "source",
+      "textarea", // only for fallback, not used
+    ];
+  }
+
+  async initEditor(format: string) {
+    this.editor = new SourceEditor({ id: this.id });
+    this.editor.setFormat(format);
+  }
+
+  async initOrShow(format: string) {
+    await this.initEditor(format);
+  }
+
+  hide() {
+    this.editor?.unload();
+    this.editor = undefined;
+  }
+}
+
+MT.EditorManager.register("mt_source_editor", MTSourceEditor);

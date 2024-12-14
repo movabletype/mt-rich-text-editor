@@ -21,6 +21,17 @@ export class Editor {
     this.quill?.setContents(this.quill.clipboard.convert({ html: content }));
   }
 
+  public getHeight(): number {
+    return this.quill?.root.clientHeight ?? 0;
+  }
+
+  public setHeight(height: number): void {
+    if (height === 0) {
+      return;
+    }
+    (this.quill as Quill).root.style.height = `${height}px`;
+  }
+
   public focus(): void {
     this.quill?.focus();
   }
