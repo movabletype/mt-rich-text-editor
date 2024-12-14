@@ -8,5 +8,5 @@ l10n_class: MT::Plugin::MTRichTextEditor::L10N
 
 editors:
     mt_rich_text_editor:
-        label: MTBlockEditor
+        label: MTRichTextEditor
         template: mt_rich_text_editor.tmpl
