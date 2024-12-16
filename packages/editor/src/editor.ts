@@ -1,4 +1,7 @@
 import type Quill from "quill";
+import { GenericBlockBlot } from "./blots/generic-block";
+const tagNames = GenericBlockBlot.tagName.join("|");
+const replaceRe = new RegExp(`^<p>(<(${tagNames}).*<\/\\2>)<\/p>$`);
 
 export class Editor {
   private quill: Quill | null;
@@ -14,7 +17,7 @@ export class Editor {
   }
 
   public getContent(): string {
-    return this.quill?.getSemanticHTML() ?? "";
+    return (this.quill?.getSemanticHTML() ?? "").replace(replaceRe, "$1");
   }
 
   public setContent(content: string): void {

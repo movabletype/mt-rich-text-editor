@@ -1,0 +1,93 @@
+import { BaseHTMLBlot } from "./base-html";
+
+export class GenericBlockBlot extends BaseHTMLBlot {
+  static blotName = "generic-block";
+  static tagName = [
+    "a",
+    "div",
+    "p",
+    "h1",
+    "h2",
+    "h3",
+    "h4",
+    "h5",
+    "h6",
+    "blockquote",
+    "pre",
+    "ul",
+    "ol",
+    "li",
+    "dl",
+    "dt",
+    "dd",
+    "table",
+    "thead",
+    "tbody",
+    "tfoot",
+    "tr",
+    "td",
+    "th",
+    "article",
+    "section",
+    "nav",
+    "aside",
+    "header",
+    "footer",
+    "main",
+    "figure",
+    "figcaption",
+    "details",
+    "summary",
+    "form",
+    "fieldset",
+    "legend",
+    "label",
+    "input",
+    "button",
+    "select",
+    "option",
+    "textarea",
+    "iframe",
+    "audio",
+    "video",
+    "canvas",
+    "svg",
+    "math",
+    "script",
+    "noscript",
+    "template",
+    "slot",
+    "map",
+    "area",
+    "picture",
+    "source",
+    "track",
+    "wbr",
+  ];
+
+  static create(value: any) {
+    const node = super.create(value) as HTMLElement;
+    if (value.attributes) {
+      Object.entries(value.attributes).forEach(([key, val]) => {
+        node.setAttribute(key, val as string);
+      });
+    }
+    if (value.innerHTML) {
+      node.innerHTML = value.innerHTML;
+    }
+    return node;
+  }
+
+  static value(node: HTMLElement) {
+    const attributes: Record<string, string> = {};
+    Array.from(node.attributes).forEach(attr => {
+      attributes[attr.name] = attr.value;
+    });
+    return {
+      tagName: node.tagName.toLowerCase(),
+      attributes,
+      innerHTML: node.innerHTML
+    };
+  }
+
+}

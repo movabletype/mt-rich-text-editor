@@ -20,4 +20,8 @@ export default defineConfig({
       plugins: [postcssNesting, postcssInlineSvg],
     },
   },
+  test: {
+    environment: "jsdom",
+    globals: true,
+  }
 });
