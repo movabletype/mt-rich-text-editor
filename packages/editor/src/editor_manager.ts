@@ -1,5 +1,6 @@
 import { version } from "../package.json";
 import Quill from "quill";
+import type Toolbar from "quill/modules/toolbar";
 import { Editor } from "./editor";
 import MovableTypeTheme from "./themes/mt";
 import globalIcons from "quill/ui/icons";
@@ -16,10 +17,11 @@ export interface EditorOptions {
    * The ID of the textarea element to create the editor for.
    */
   id: string;
-  toolbar?: (string | Record<string, string | string[]>)[][];
+  toolbar?: (string | Record<string, string | string[]>)[][] | (string | Record<string, string | string[]>)[][][];
   inline?: boolean;
   content?: string;
   height?: number;
+  context?: Record<string, any>;
 }
 
 export class EditorManager {
@@ -32,25 +34,39 @@ export class EditorManager {
 
   public static setLanguage(language: string): void {
     i18n.changeLanguage(language);
+    document.documentElement.dataset.mtRichTextEditorLanguage = language;
   }
 
-  public static setHandlers(handlers: Record<string, (editor: Editor) => void>): void {
+  public static setHandlers(handlers: Record<string, (this: Toolbar) => void>): void {
     if (!MovableTypeTheme.DEFAULTS.modules.toolbar?.handlers) {
       return;
     }
     Object.assign(MovableTypeTheme.DEFAULTS.modules.toolbar.handlers, handlers);
   }
 
-  public static async create({ id, toolbar, inline, content, height }: EditorOptions): Promise<Editor> {
+  public static async create({ id, toolbar, inline, content, height, context }: EditorOptions): Promise<Editor> {
     if (EditorManager.Editors[id]) {
       throw new Error("Editor already exists");
     }
-    const textarea = document.getElementById(id) as HTMLTextAreaElement | null;
+    const textarea = document.querySelector<HTMLTextAreaElement>(`#${id}`);
     if (!textarea) {
       throw new Error("Textarea not found");
     }
 
+    toolbar = toolbar?.map((row) => {
+      if (Array.isArray(row)) {
+        return [...row, []]
+      }
+      else {
+        return [row];
+      }
+    }).flat(1) as EditorOptions["toolbar"];
+
     const editor = document.createElement("div");
+
+    editor.dataset.id = id;
+    (editor as any).context = context;
+
     textarea.style.display = "none";
     textarea.parentNode?.insertBefore(editor, textarea.nextSibling);
 

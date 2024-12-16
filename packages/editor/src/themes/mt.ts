@@ -11,6 +11,8 @@ import { mount, unmount } from "svelte";
 import LinkModal from "./ui/link/Modal.svelte";
 import SourceModal from "./ui/source/Modal.svelte";
 import InsertHtmlModal from "./ui/insert_html/Modal.svelte";
+import BoilerplatesModal from "./ui/boilerplate/Modal.svelte";
+import TableToolbarMenu from "./ui/mt_table/ToolbarMenu.svelte";
 
 class SnowTooltip extends BaseTooltip {
   static TEMPLATE = [
@@ -193,6 +195,15 @@ MovableTypeTheme.DEFAULTS = {
             this.quill.setSelection(range.index + 1, 0);
           }
         },
+        block(value: string) {
+          if (value.match(/^h\d$/)) {
+            this.quill.format("header", value);
+          } else if (value === "pre") {
+            this.quill.format("pre", true);
+          } else {
+            this.quill.format("block", value);
+          }
+        },
         undo() {
           this.quill.history.undo();
         },
@@ -245,13 +256,45 @@ MovableTypeTheme.DEFAULTS = {
           const insertHtmlModal = mount(InsertHtmlModal, {
             target: document.body,
             props: {
-              text: "",
               onSubmit: (text) => {
                 this.quill.deleteText(range.index, range.length);
                 this.quill.clipboard.dangerouslyPasteHTML(range.index, text);
               },
               onClose: () => {
                 unmount(insertHtmlModal);
+              },
+            },
+          });
+        },
+        boilerplate() {
+          const boilerplates = (this.quill.container as any).context.boilerplates;
+          const range = this.quill.getSelection(true);
+          const boilerplatesModal = mount(BoilerplatesModal, {
+            target: document.body,
+            props: {
+              boilerplates,
+              onSubmit: (text) => {
+                this.quill.deleteText(range.index, range.length);
+                this.quill.clipboard.dangerouslyPasteHTML(range.index, text);
+              },
+              onClose: () => {
+                unmount(boilerplatesModal);
+              },
+            },
+          });
+        },
+        mt_table() {
+          const button = this.container!.querySelector(".ql-mt_table")!;
+          const range = this.quill.getSelection(true);
+          const tableToolbarMenu = mount(TableToolbarMenu, {
+            target: button.parentElement!,
+            props: {
+              onSubmit: (text) => {
+                this.quill.deleteText(range.index, range.length);
+                this.quill.clipboard.dangerouslyPasteHTML(range.index, text);
+              },
+              onClose: () => {
+                unmount(tableToolbarMenu);
               },
             },
           });

@@ -53,6 +53,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "dompurify": "^3.2.3",
     "i18next": "^23.16.4"
   }
 }

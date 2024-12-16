@@ -14,18 +14,21 @@ use base 'MT::Plugin::MTRichTextEditor::L10N::en_us';
 use vars qw( %Lexicon );
 
 %Lexicon = (
-    'Insert (s)'        => '挿入 (s)',
-    'Insert'            => '挿入',
-    'Cancel (x)'        => 'キャンセル (x)',
-    'Cancel'            => 'キャンセル',
-    'Title'             => 'タイトル',
-    'Source Code'       => 'ソースコード',
-    'Insert Link'       => 'リンク挿入',
-    'Link URL'          => 'リンクURL',
-    'Link Text'         => 'リンク元テキスト',
-    'Link Target'       => 'リンクの開き方...',
-    'LINK_TARGET_SELF'  => '同じウィンドウ',
-    'LINK_TARGET_BLANK' => '新規ウィンドウ',
+    'Insert (s)'         => '挿入 (s)',
+    'Insert'             => '挿入',
+    'Cancel (x)'         => 'キャンセル (x)',
+    'Cancel'             => 'キャンセル',
+    'Title'              => 'タイトル',
+    'Source Code'        => 'ソースコード',
+    'Insert Link'        => 'リンク挿入',
+    'Link URL'           => 'リンクURL',
+    'Link Text'          => 'リンク元テキスト',
+    'Link Target'        => 'リンクの開き方...',
+    'LINK_TARGET_SELF'   => '同じウィンドウ',
+    'LINK_TARGET_BLANK'  => '新規ウィンドウ',
+    'Insert Boilerplate' => '定型文の挿入',
+    'Boilerplate'        => '定型文',
+    'Text'               => 'テキスト',
 );
 
 1;

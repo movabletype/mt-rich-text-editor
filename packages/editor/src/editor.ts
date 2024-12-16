@@ -43,6 +43,6 @@ export class Editor {
   }
 
   public insertContent(content: string): void {
-    this.quill?.insertText(0, content);
+    this.quill?.clipboard.dangerouslyPasteHTML(0, content);
   }
 }

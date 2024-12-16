@@ -32,7 +32,7 @@ export const convertToolbar = (
     return toolbar;
   }
 
-  const result: EditorOptions["toolbar"] = [];
+  const result: (string | Record<string, string | string[]>)[][] = [];
   toolbar.forEach((line) => {
     result.push([]);
     line.split("|").forEach((group) => {
