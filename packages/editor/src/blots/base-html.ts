@@ -22,6 +22,7 @@ export class BaseHTMLBlot extends EmbedBlot {
       attributes[attr.name] = attr.value;
     });
     return {
+      tagName: node.tagName.toLowerCase(),
       attributes,
       innerHTML: node.innerHTML
     };
