@@ -5,7 +5,6 @@ export class GenericBlockBlot extends BaseHTMLBlot {
   static tagName = [
     "a",
     "div",
-    "p",
     "h1",
     "h2",
     "h3",
