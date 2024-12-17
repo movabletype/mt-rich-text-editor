@@ -55,7 +55,6 @@
         transform: translateY(-75%) rotate(45deg);
       }
     }
-
   }
 
   & .ql-formats-source {
@@ -189,6 +188,24 @@
       & .ql-picker-label[data-value="p"]:before {
         content: "段落";
       }
+    }
+  }
+
+  .ql-picker:not(.ql-color-picker):not(.ql-icon-picker) {
+    &:after {
+      content: "";
+      position: absolute;
+      right: 8px;
+      top: 50%;
+      width: 6px;
+      height: 6px;
+      border-right: 2px solid #444;
+      border-bottom: 2px solid #444;
+      transform: translateY(-75%) rotate(45deg);
+    }
+
+    svg {
+      display: none;
     }
   }
 }
