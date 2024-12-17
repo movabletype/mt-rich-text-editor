@@ -4,7 +4,7 @@ const tagNames = GenericBlockBlot.tagName.join("|");
 const replaceRe = new RegExp(`^<p>(<(${tagNames}).*<\/\\2>)<\/p>$`);
 
 export class Editor {
-  private quill: Quill | null;
+  public quill: Quill | null;
   private textarea: HTMLTextAreaElement;
 
   constructor(opts: { quill: Quill; textarea: HTMLTextAreaElement }) {

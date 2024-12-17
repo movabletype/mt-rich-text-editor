@@ -1,6 +1,7 @@
 import { version } from "../package.json";
 import Quill from "quill";
 import type Toolbar from "quill/modules/toolbar";
+import type Uploader from "quill/modules/uploader";
 import { Editor } from "./editor";
 import MovableTypeTheme from "./themes/mt";
 import globalIcons from "quill/ui/icons";
@@ -17,7 +18,13 @@ export interface EditorOptions {
    * The ID of the textarea element to create the editor for.
    */
   id: string;
-  toolbar?: (string | Record<string, string | string[]>)[][] | (string | Record<string, string | string[]>)[][][];
+  modules?: {
+    toolbar?: (string | Record<string, string | string[]>)[][] | (string | Record<string, string | string[]>)[][][];
+    uploader?: {
+      handler: (this: Uploader, file: File) => void;
+    };
+    [key: string]: any;
+  };
   inline?: boolean;
   content?: string;
   height?: number;
@@ -44,7 +51,7 @@ export class EditorManager {
     Object.assign(MovableTypeTheme.DEFAULTS.modules.toolbar.handlers, handlers);
   }
 
-  public static async create({ id, toolbar, inline, content, height, context }: EditorOptions): Promise<Editor> {
+  public static async create({ id, modules, inline, content, height, context }: EditorOptions): Promise<Editor> {
     if (EditorManager.Editors[id]) {
       throw new Error("Editor already exists");
     }
@@ -53,14 +60,14 @@ export class EditorManager {
       throw new Error("Textarea not found");
     }
 
-    toolbar = toolbar?.map((row) => {
+    const toolbar = modules?.toolbar?.map((row) => {
       if (Array.isArray(row)) {
         return [...row, []]
       }
       else {
         return [row];
       }
-    }).flat(1) as EditorOptions["toolbar"];
+    }).flat(1) as NonNullable<EditorOptions["modules"]>["toolbar"];
 
     const editor = document.createElement("div");
 
@@ -74,6 +81,7 @@ export class EditorManager {
 
     const quill = new Quill(editor, {
       modules: {
+        ...modules,
         toolbar,
       },
       theme: inline ? "mt-inline" : "mt",

@@ -58,8 +58,11 @@ const createRichTextEditor = async (
   id: string,
   options?: Partial<EditorOptions>
 ): Promise<Editor> => {
-  if (options?.toolbar) {
-    options.toolbar = convertToolbar(options.toolbar);
+  if (options?.modules?.toolbar) {
+    options.modules = {
+      ...options.modules,
+      toolbar: convertToolbar(options.modules.toolbar),
+    };
   }
 
   return MTRichTextEditorManager.create({
@@ -74,24 +77,38 @@ class MTRichTextEditor extends (MT.Editor!) {
   editor?: Editor;
 
   static config: Partial<EditorOptions> = {
-    toolbar: [
-      [
-        ["bold", "italic", "underline", "strike"],
-        ["blockquote", { list: "bullet" }, { list: "ordered" }, "hr"],
-        ["mt_link", "mt_unlink"],
-        ["insert_html", "mt_file", "mt_image"],
-        ["mt_table"],
-        ["source"],
+    modules: {
+      toolbar: [
+        [
+          ["bold", "italic", "underline", "strike"],
+          ["blockquote", { list: "bullet" }, { list: "ordered" }, "hr"],
+          ["mt_link", "mt_unlink"],
+          ["insert_html", "mt_file", "mt_image"],
+          ["mt_table"],
+          ["source"],
+        ],
+        [
+          ["undo", "redo"],
+          [{ color: [] }, { background: [] }, "clean"],
+          [{ align: "" }, { align: "center" }, { align: "right" }],
+          [{ indent: "+1" }, { indent: "-1" }],
+          [{ block: ["p", "h1", "h2", "h3", "h4", "h5", "h6", "pre"] }],
+          ["full_screen"],
+        ],
       ],
-      [
-        ["undo", "redo"],
-        [{ color: [] }, { background: [] }, "clean"],
-        [{ align: "" }, { align: "center" }, { align: "right" }],
-        [{ indent: "+1" }, { indent: "-1" }],
-        [{ block: ["p", "h1", "h2", "h3", "h4", "h5", "h6", "pre"] }],
-        ["full_screen"],
-      ],
-    ],
+      uploader: {
+        handler(file) {
+          const blogId = document.querySelector<HTMLInputElement>("[name=blog_id]")?.value || 0;
+          const fieldId = this.quill.container.dataset.id;
+          // TODO: upload file
+          console.log(file);
+          openDialog(
+            "dialog_asset_modal",
+            `_type=asset&amp;edit_field=${fieldId}&amp;blog_id=${blogId}&amp;dialog_view=1&amp;can_multi=1`
+          );
+        },
+      },
+    },
   };
 
   static formats() {
@@ -129,5 +146,4 @@ class MTRichTextEditor extends (MT.Editor!) {
 }
 
 (MT.Editor as any).MTRichTextEditor = MTRichTextEditor;
-console.log((MT.Editor as any).MTRichTextEditor);
 MT.EditorManager.register("mt_rich_text_editor", MTRichTextEditor);
