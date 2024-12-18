@@ -22,12 +22,12 @@ const toolbarMigrationMap: Record<string, string | Record<string, string | strin
 };
 
 const isEditorOptionsToolbar = (
-  toolbar: string[] | EditorOptions["toolbar"]
-): toolbar is EditorOptions["toolbar"] => !toolbar || Array.isArray(toolbar[0]);
+  toolbar: string[] | NonNullable<EditorOptions["modules"]>["toolbar"]
+): toolbar is NonNullable<EditorOptions["modules"]>["toolbar"] => !toolbar || Array.isArray(toolbar[0]);
 
 export const convertToolbar = (
-  toolbar: string[] | EditorOptions["toolbar"]
-): EditorOptions["toolbar"] => {
+  toolbar: string[] | NonNullable<EditorOptions["modules"]>["toolbar"]
+): NonNullable<EditorOptions["modules"]>["toolbar"] => {
   if (isEditorOptionsToolbar(toolbar)) {
     return toolbar;
   }
