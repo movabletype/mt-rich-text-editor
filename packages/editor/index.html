@@ -12,9 +12,10 @@
     <title>mt-rich-text-editor</title>
   </head>
   <body>
-    <div id="editor"></div>
+    <textarea id="editor"></textarea>
     <script type="module">
       import MTRichTextEditor from "/src/index.ts";
+      window.MTRichTextEditor = MTRichTextEditor;
       MTRichTextEditor.setLanguage("ja");
       MTRichTextEditor.create({ id: "editor" });
     </script>

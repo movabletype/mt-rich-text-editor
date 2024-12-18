@@ -10,16 +10,21 @@
     "lint": "eslint",
     "lint:fix": "eslint --fix",
     "format": "prettier --check --cache \"src/**/*.ts\"",
-    "format:fix": "prettier --write --cache --cache-strategy metadata \"src/**/*.ts\""
+    "format:fix": "prettier --write --cache --cache-strategy metadata \"src/**/*.ts\"",
+    "test:unit": "vitest",
+    "test:playwright": "playwright test",
+    "test:all": "npm run test:unit && npm run test:playwright"
   },
   "devDependencies": {
     "@eslint/js": "^9.16.0",
     "@movabletype/app": "../../@movabletype/movabletype-app-0.0.1.tgz",
     "@movabletype/svelte-components": "../../@movabletype/movabletype-svelte-components-0.0.1.tgz",
+    "@playwright/test": "^1.49.1",
     "@sveltejs/vite-plugin-svelte": "^5.0.2",
     "eslint": "^9.16.0",
     "eslint-plugin-svelte": "^2.46.1",
     "globals": "^15.9.0",
+    "jsdom": "^25.0.1",
     "parchment": "^3.0.0",
     "postcss-inline-svg": "^6.0.0",
     "postcss-nesting": "^13.0.0",
