@@ -11,5 +11,13 @@
     "build:locales": "cd packages/plugin && perl Makefile.PL --version $(git describe --tags | sed -e 's/^v//') && make build-locales",
     "build:plugin": "cd packages/plugin && perl Makefile.PL --version $(git describe --tags | sed -e 's/^v//') && make manifest && make zipdist && make dist && mkdir -p dist && mv MTRichTextEditor-* dist",
     "build": "npm ci -ws && npm run build:locales && npm run build:editor && npm run build:plugin"
+  },
+  "devDependencies": {
+    "@tiptap/extension-link": "^2.10.3",
+    "@tiptap/extension-table": "^2.10.4",
+    "@tiptap/extension-table-cell": "^2.10.4",
+    "@tiptap/extension-table-header": "^2.10.4",
+    "@tiptap/extension-table-row": "^2.10.4",
+    "@tiptap/extension-underline": "^2.10.4"
   }
 }

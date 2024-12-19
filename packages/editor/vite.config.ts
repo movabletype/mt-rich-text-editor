@@ -14,7 +14,11 @@ export default defineConfig({
     minify: true,
     target: "es2017",
   },
-  plugins: [dts(), svelte()],
+  plugins: [dts(), svelte({
+    compilerOptions: {
+      customElement: true,
+    },
+  })],
   css: {
     postcss: {
       plugins: [postcssNesting, postcssInlineSvg],

@@ -1,7 +1,6 @@
-import Quill from "quill";
 import { Editor } from "../src/editor";
-import "../src/blots";
-import "../src/themes/mt";
+// import "../src/blots";
+// import "../src/themes/mt";
 
 describe("Blot HTML parsing", () => {
   let textarea: HTMLTextAreaElement;
@@ -10,8 +9,9 @@ describe("Blot HTML parsing", () => {
   beforeEach(() => {
     textarea = document.createElement("textarea");
     document.body.appendChild(textarea);
-    const quill = new Quill(textarea);
-    editor = new Editor({ quill, textarea });
+    editor = new Editor(textarea, {
+      toolbar: []
+    });
   });
 
   afterEach(() => {
@@ -20,7 +20,7 @@ describe("Blot HTML parsing", () => {
   });
 
   it.each([
-    "<a href='https://example.com'>test</a>",
+    "<p><a href='https://example.com'>test</a></p>",
     "<a href='https://example.com'><div>test</div></a>",
     '<p class="custom-class">test</p>',
     "<div><p>test <strong>bold</strong> text</p></div>",

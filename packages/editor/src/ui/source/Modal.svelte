@@ -1,21 +1,24 @@
 <script lang="ts">
-  import { t } from "../../../i18n";
+  import { t } from "../../i18n";
+  import { html } from "js-beautify";
   import { Modal, ModalContent } from "@movabletype/svelte-components";
 
   let {
+    text,
     onSubmit,
     onClose,
   }: {
+    text: string;
     onSubmit: (text: string) => void;
     onClose: () => void;
   } = $props();
 
+  text = html(text);
   let textarea: HTMLTextAreaElement;
   $effect(() => {
     textarea?.focus();
   });
 
-  let text = $state("");
   // svelte-ignore non_reactive_update FIXME:
   let close: () => void;
 </script>

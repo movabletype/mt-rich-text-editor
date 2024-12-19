@@ -1,57 +1,46 @@
+import type { Extension } from "@tiptap/core";
 import { version } from "../package.json";
-import Quill from "quill";
-import type Toolbar from "quill/modules/toolbar";
-import type Uploader from "quill/modules/uploader";
-import { Editor } from "./editor";
-import MovableTypeTheme from "./themes/mt";
-import globalIcons from "quill/ui/icons";
 import i18n from "./i18n";
-import "./blots";
-import "./themes/mt";
-import "./themes/mt.css";
+import { Editor } from "./editor";
 
-/**
- * Options for creating an editor.
- */
+type EventHandler = (...args: any[]) => void;
+
 export interface EditorOptions {
-  /**
-   * The ID of the textarea element to create the editor for.
-   */
   id: string;
-  modules?: {
-    toolbar?: (string | Record<string, string | string[]>)[][] | (string | Record<string, string | string[]>)[][][];
-    uploader?: {
-      handler: (this: Uploader, file: File) => void;
-    };
-    [key: string]: any;
-  };
+  language?: string;
   inline?: boolean;
-  content?: string;
-  height?: number;
-  context?: Record<string, any>;
+  toolbar?: string[][][];
+  toolbarContainer?: HTMLDivElement;
+  toolbarOptions?: Record<string, any>;
+  extensions?: Extension[];
+  extensionOptions?: Record<string, any>;
 }
 
 export class EditorManager {
   public static version: string = version;
   public static Editors: Record<string, Editor> = {};
+  private static eventHandlers: Record<string, EventHandler[]> = {};
 
-  public static setIcons(icons: Record<string, string>): void {
-    Object.assign(globalIcons, icons);
-  }
-
-  public static setLanguage(language: string): void {
-    i18n.changeLanguage(language);
-    document.documentElement.dataset.mtRichTextEditorLanguage = language;
-  }
-
-  public static setHandlers(handlers: Record<string, (this: Toolbar) => void>): void {
-    if (!MovableTypeTheme.DEFAULTS.modules.toolbar?.handlers) {
-      return;
+  public static on(name: "create", handler: (options: EditorOptions) => void): void;
+  public static on(name: "init", handler: (editor: Editor) => void): void;
+  public static on(name: string, handler: EventHandler): void {
+    if (!this.eventHandlers[name]) {
+      this.eventHandlers[name] = [];
     }
-    Object.assign(MovableTypeTheme.DEFAULTS.modules.toolbar.handlers, handlers);
+    this.eventHandlers[name].push(handler);
   }
 
-  public static async create({ id, modules, inline, content, height, context }: EditorOptions): Promise<Editor> {
+  public static emit(name: string, ...args: any[]): void {
+    const handlers = this.eventHandlers[name] || [];
+    handlers.forEach((handler) => handler(...args));
+  }
+
+  public static async create(options: EditorOptions): Promise<Editor> {
+    const { id, language } = options;
+
+    if (language && i18n.language !== language) {
+      i18n.changeLanguage(language);
+    }
     if (EditorManager.Editors[id]) {
       throw new Error("Editor already exists");
     }
@@ -60,39 +49,35 @@ export class EditorManager {
       throw new Error("Textarea not found");
     }
 
-    const toolbar = modules?.toolbar?.map((row) => {
-      if (Array.isArray(row)) {
-        return [...row, []]
-      }
-      else {
-        return [row];
-      }
-    }).flat(1) as NonNullable<EditorOptions["modules"]>["toolbar"];
+    this.emit("create", options);
 
-    const editor = document.createElement("div");
-
-    editor.dataset.id = id;
-    (editor as any).context = context;
-
-    textarea.style.display = "none";
-    textarea.parentNode?.insertBefore(editor, textarea.nextSibling);
-
-    editor.innerHTML = content ?? textarea.value ?? "";
-
-    const quill = new Quill(editor, {
-      modules: {
-        ...modules,
-        toolbar,
-      },
-      theme: inline ? "mt-inline" : "mt",
+    const editor = new Editor(textarea, {
+      toolbar: options.toolbar ?? [
+        [
+          ["bold", "italic", "underline", "strike"],
+          ["blockquote", "bulletList", "orderedList", "horizontalRule"],
+          ["link", "unlink"],
+          ["insertHtml"],
+          ["table"],
+          ["source"],
+        ],
+        [
+          ["undo", "redo"],
+          ["foregroundColor", "backgroundColor", "removeFormat"],
+          ["alignLeft", "alignCenter", "alignRight", "indent", "outdent"],
+          ["block"],
+        ],
+      ],
+      toolbarContainer: options.toolbarContainer,
+      toolbarOptions: options.toolbarOptions,
+      inline: options.inline ?? false,
+      extensions: options.extensions,
+      extensionOptions: options.extensionOptions,
     });
-    if (height) {
-      quill.root.style.height = `${height}px`;
-    }
-    return (EditorManager.Editors[id] = new Editor({
-      quill,
-      textarea,
-    }));
+
+    this.emit("init", editor);
+
+    return editor;
   }
 
   public static unload({ id }: EditorOptions): void {

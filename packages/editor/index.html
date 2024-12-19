@@ -12,12 +12,34 @@
     <title>mt-rich-text-editor</title>
   </head>
   <body>
-    <textarea id="editor"></textarea>
+    <textarea id="editor">
+      <p>Hello MTRichTextEditor</p>
+    </textarea>
     <script type="module">
       import MTRichTextEditor from "/src/index.ts";
       window.MTRichTextEditor = MTRichTextEditor;
-      MTRichTextEditor.setLanguage("ja");
-      MTRichTextEditor.create({ id: "editor" });
+      MTRichTextEditor.on("create", (createOptions) => {
+        console.log(`created with options:`, createOptions);
+      });
+      MTRichTextEditor.on("init", (editor) => {
+        console.log("editor initialized: `editor.editor` is an instance of the Tiptap editor");
+      });
+      MTRichTextEditor.create({
+        id: "editor",
+        language: "ja",
+        inline: false,
+        toolbarOptions: {
+          block: {
+            blocks: [
+              { value: "paragraph", label: "本文" },
+              { value: "h1", label: "見出し1" },
+              { value: "h2", label: "見出し2" },
+              { value: "h3", label: "見出し3" },
+              { value: "pre", label: "コードブロック" },
+            ],
+          },
+        },
+      });
     </script>
   </body>
 </html>

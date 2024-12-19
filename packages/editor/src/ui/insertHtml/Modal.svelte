@@ -1,13 +1,11 @@
 <script lang="ts">
-  import { t } from "../../../i18n";
+  import { t } from "../../i18n";
   import { Modal, ModalContent } from "@movabletype/svelte-components";
 
   let {
-    text,
     onSubmit,
     onClose,
   }: {
-    text: string;
     onSubmit: (text: string) => void;
     onClose: () => void;
   } = $props();
@@ -17,6 +15,7 @@
     textarea?.focus();
   });
 
+  let text = $state("");
   // svelte-ignore non_reactive_update FIXME:
   let close: () => void;
 </script>

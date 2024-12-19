@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { t } from "../../../i18n";
+  import { t } from "../../i18n";
   import TableInsertPanel from "./TableInsertPanel.svelte";
 
   let {
@@ -49,11 +49,10 @@
     </div>
   {/if}
 </div>
-
 <style>
   .mt_table_toolbar_menu {
     position: absolute;
-    top: 40px;
+    top: 0;
     left: 0;
     width: 80px;
     background-color: #fff;
@@ -73,3 +72,4 @@
     top: 0;
   }
 </style>
+
