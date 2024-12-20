@@ -9,12 +9,20 @@
       integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM"
       crossorigin="anonymous"
     />
+    <style>
+      #editor-container {
+        max-width: 800px;
+        margin: 20px auto;
+      }
+    </style>
     <title>mt-rich-text-editor</title>
   </head>
   <body>
-    <textarea id="editor">
-      <p>Hello MTRichTextEditor</p>
-    </textarea>
+    <div id="editor-container">
+      <textarea id="editor">
+        <p>Hello MTRichTextEditor</p>
+      </textarea>
+    </div>
     <script type="module">
       import MTRichTextEditor from "/src/index.ts";
       window.MTRichTextEditor = MTRichTextEditor;
@@ -24,7 +32,7 @@
       MTRichTextEditor.on("init", (editor) => {
         console.log("editor initialized: `editor.editor` is an instance of the Tiptap editor");
       });
-      MTRichTextEditor.create({
+      const editor = await MTRichTextEditor.create({
         id: "editor",
         language: "ja",
         inline: false,
@@ -40,6 +48,8 @@
           },
         },
       });
+      console.log(editor);
+      editor.setHeight(400);
     </script>
   </body>
 </html>

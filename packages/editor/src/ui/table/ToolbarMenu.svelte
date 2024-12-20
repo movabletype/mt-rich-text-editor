@@ -38,18 +38,25 @@
   }
 </script>
 
-<div class="mt_table_toolbar_menu">
-  <button type="button" onmouseenter={handleMouseEnter} onmouseleave={handleMouseLeave}>
-    {t("Table")}
-  </button>
+<div class="mt_table_toolbar_menu_container">
+  <div class="mt_table_toolbar_menu">
+    <button type="button" onmouseenter={handleMouseEnter} onmouseleave={handleMouseLeave}>
+      {t("Table")}
+    </button>
 
-  {#if showInsertPanel}
-    <div class="insert_panel_wrapper" bind:this={insertPanelRef} onmouseleave={handleMouseLeave}>
-      <TableInsertPanel onInsert={handleTableInsert} />
-    </div>
-  {/if}
+    {#if showInsertPanel}
+      <div class="insert_panel_wrapper" bind:this={insertPanelRef} onmouseleave={handleMouseLeave}>
+        <TableInsertPanel onInsert={handleTableInsert} />
+      </div>
+    {/if}
+  </div>
 </div>
+
 <style>
+  .mt_table_toolbar_menu_container {
+    position: relative;
+  }
+
   .mt_table_toolbar_menu {
     position: absolute;
     top: 0;
@@ -72,4 +79,3 @@
     top: 0;
   }
 </style>
-

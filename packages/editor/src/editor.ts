@@ -1,15 +1,24 @@
 import { Editor as TiptapEditor, Extension as TiptapExtension } from "@tiptap/core";
 import { Extension } from "./tiptap/extension";
 import { Toolbar } from "./toolbar";
-import { preprocessHTML, normalizeHTML } from "./util";
-import prosemirrorCss from "prosemirror-view/style/prosemirror.css?raw";
+import { Statusbar } from "./statusbar";
+import { preprocessHTML, normalizeHTML } from "./util/html";
+import { insertStylesheets } from "./util/dom";
 import "./editor.css";
+import prosemirrorCss from "prosemirror-view/style/prosemirror.css?raw";
+import contentCss from "./content.css?raw";
 
-interface EditorOptions {
+export interface EditorOptions {
   inline: boolean;
+  stylesheets?: string[];
   toolbar: string[][][];
   toolbarContainer?: HTMLDivElement;
   toolbarOptions?: Record<string, any>;
+  toolbarStylesheets?: string[];
+  statusbar?: string[][][];
+  statusbarContainer?: HTMLDivElement;
+  statusbarOptions?: Record<string, any>;
+  statusbarStylesheets?: string[];
   extensions?: TiptapExtension[];
   extensionOptions?: Record<string, any>;
 }
@@ -20,6 +29,7 @@ export class Editor {
   private wrapper: HTMLDivElement;
   private editorContainer: HTMLDivElement;
   private toolbar: Toolbar;
+  private statusbar: Statusbar;
 
   constructor(textarea: HTMLTextAreaElement, options: EditorOptions) {
     this.textarea = textarea;
@@ -28,17 +38,35 @@ export class Editor {
     this.wrapper.className = "mt-rich-text-editor";
     this.textarea.parentNode?.insertBefore(this.wrapper, this.textarea);
     this.textarea.style.display = "none";
-    const toolbarContainer = options.toolbarContainer ?? document.createElement("div");
-    this.wrapper.appendChild(toolbarContainer);
+
+    const initBar = (
+      _container: EditorOptions["toolbarContainer"],
+      stylesheets: EditorOptions["toolbarStylesheets"],
+      className: string
+    ) => {
+      const container =
+        _container ??
+        (() => {
+          const container = document.createElement("div");
+          container.className = className;
+          return container;
+        })();
+      this.wrapper.appendChild(container);
+      const shadow = container.attachShadow({ mode: "open" });
+      insertStylesheets(shadow, stylesheets ?? []);
+      const mount = document.createElement("div");
+      shadow.appendChild(mount);
+      return mount;
+    };
+    const toolbarMount = initBar(options.toolbarContainer, options.toolbarStylesheets, "mt-rich-text-editor-toolbar");
 
     this.editorContainer = document.createElement("div");
+    this.editorContainer.className = "mt-rich-text-editor-content";
     const shadow = this.editorContainer.attachShadow({ mode: "open" });
-
-    const styleSheet = document.createElement("style");
-    styleSheet.textContent = prosemirrorCss;
-    shadow.appendChild(styleSheet);
+    insertStylesheets(shadow, [prosemirrorCss + contentCss, ...(options.stylesheets ?? [])]);
 
     const editorMount = document.createElement("div");
+    editorMount.className = "mt-rich-text-editor-content-root";
     shadow.appendChild(editorMount);
     this.wrapper.appendChild(this.editorContainer);
 
@@ -52,10 +80,19 @@ export class Editor {
     });
 
     this.toolbar = new Toolbar({
-      target: toolbarContainer,
+      target: toolbarMount,
       editor: this.editor,
       toolbar: options.toolbar,
       options: options.toolbarOptions ?? {},
+      inline: options.inline,
+    });
+
+    const statusbarMount = initBar(options.statusbarContainer, options.statusbarStylesheets, "mt-rich-text-editor-statusbar");
+    this.statusbar = new Statusbar({
+      target: statusbarMount,
+      editor: this.editor,
+      statusbar: options.statusbar ?? [],
+      options: options.statusbarOptions ?? {},
       inline: options.inline,
     });
   }
@@ -90,6 +127,7 @@ export class Editor {
 
   public destroy(): void {
     this.toolbar.destroy();
+    this.statusbar.destroy();
     this.editor.destroy();
     this.wrapper.remove();
   }

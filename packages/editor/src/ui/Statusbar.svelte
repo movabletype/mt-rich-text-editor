@@ -9,20 +9,20 @@
 
   const {
     editor,
-    toolbar,
+    statusbar,
     options,
   }: {
     editor: Editor;
-    toolbar: string[][][];
+    statusbar: string[][][];
     options: Record<string, any>;
   } = $props();
 
   const buttonRefs: Record<string, HTMLElement> = {};
-  const buttons = toolbar.map((row) =>
+  const buttons = statusbar.map((row) =>
     row.map((group) =>
       group.map((name) => ({
         name,
-        elementName: getDefinedItem('toolbar',name),
+        elementName: getDefinedItem('statusbar', name),
         options: options[name] ?? {},
       }))
     )
@@ -55,12 +55,12 @@
   }
 </script>
 
-<div class="mt-rich-text-editor-toolbar">
+<div class="mt-rich-text-editor-statusbar">
   {#each buttons as row}
-    <div class="mt-rich-text-editor-toolbar-row">
+    <div class="mt-rich-text-editor-statusbar-row">
       {#each row as group}
         <div
-          class={`mt-rich-text-editor-toolbar-group ${group.length === 1 ? `mt-rich-text-editor-toolbar-group--${group[0].name}` : ""}`}
+          class={`mt-rich-text-editor-statusbar-group ${group.length === 1 ? `mt-rich-text-editor-statusbar-group--${group[0].name}` : ""}`}
         >
           {#each group as button}
             <svelte:element
@@ -83,20 +83,21 @@
 </div>
 
 <style>
-  .mt-rich-text-editor-toolbar {
+  .mt-rich-text-editor-statusbar {
     display: flex;
     flex-wrap: wrap;
     flex-direction: column;
+    height: 34px;
   }
-  .mt-rich-text-editor-toolbar-row {
+  .mt-rich-text-editor-statusbar-row {
     display: flex;
     flex-wrap: wrap;
-    background-image: url("./asset/toolbar-border.svg");
+    background-image: url("./asset/statusbar-border.svg");
   }
-  .mt-rich-text-editor-toolbar-group {
+  .mt-rich-text-editor-statusbar-group {
     padding: 0 4px;
   }
-  .mt-rich-text-editor-toolbar-group:not(:last-child) {
+  .mt-rich-text-editor-statusbar-group:not(:last-child) {
     border-right: 1px solid #ccc;
     white-space: nowrap;
   }
@@ -106,12 +107,8 @@
     height: 34px;
     border: none;
     background: none;
-    cursor: pointer;
     border-radius: 4px;
     padding: 1px 5px;
-  }
-  .button:not(.is-disabled):hover {
-    background: #dee0e2;
   }
   .button.is-active {
     background: #dee0e2;

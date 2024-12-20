@@ -19,6 +19,8 @@ import TableRow from "@tiptap/extension-table-row";
 import { Dropcursor } from "@tiptap/extension-dropcursor";
 import { Gapcursor } from "@tiptap/extension-gapcursor";
 import { TextAlign } from '@tiptap/extension-text-align'
+import { Color } from '@tiptap/extension-color'
+import TextStyle from '@tiptap/extension-text-style'
 import { Indent } from "./extension/indent";
 import { Div } from "./extension/div";
 import { BlockLink } from "./extension/block-link";
@@ -27,6 +29,7 @@ import { Paragraph } from "./extension/paragraph";
 import { TextBlock } from "./extension/text-block";
 import { Pre } from "./extension/pre";
 import { ListItem } from "./extension/list-item";
+import { BackgroundColor } from "./extension/background-color";
 
 const defaultLinkOptions = {
   openOnClick: false,
@@ -128,6 +131,14 @@ export const Extension = TiptapExtension.create({
       }));
     }
 
+    if (this.options.color !== false) {
+      extensions.push(Color.configure(this.options?.color));
+    }
+
+    if (this.options.textStyle !== false) {
+      extensions.push(TextStyle.configure(this.options?.textStyle));
+    }
+
     // custom
     if (this.options.indent !== false) {
       extensions.push(Indent.configure(this.options?.indent));
@@ -159,6 +170,10 @@ export const Extension = TiptapExtension.create({
 
     if (this.options.blockLink !== false) {
       extensions.push(BlockLink.configure(this.options?.blockLink ?? defaultLinkOptions));
+    }
+
+    if (this.options.backgroundColor !== false) {
+      extensions.push(BackgroundColor.configure(this.options?.backgroundColor));
     }
 
     return extensions;

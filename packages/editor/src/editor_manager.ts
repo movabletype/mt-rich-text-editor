@@ -1,19 +1,13 @@
-import type { Extension } from "@tiptap/core";
 import { version } from "../package.json";
 import i18n from "./i18n";
 import { Editor } from "./editor";
+import type { EditorOptions } from "./editor";
 
 type EventHandler = (...args: any[]) => void;
 
-export interface EditorOptions {
+export interface EditorCreateOptions extends EditorOptions {
   id: string;
   language?: string;
-  inline?: boolean;
-  toolbar?: string[][][];
-  toolbarContainer?: HTMLDivElement;
-  toolbarOptions?: Record<string, any>;
-  extensions?: Extension[];
-  extensionOptions?: Record<string, any>;
 }
 
 export class EditorManager {
@@ -21,7 +15,7 @@ export class EditorManager {
   public static Editors: Record<string, Editor> = {};
   private static eventHandlers: Record<string, EventHandler[]> = {};
 
-  public static on(name: "create", handler: (options: EditorOptions) => void): void;
+  public static on(name: "create", handler: (options: EditorCreateOptions) => void): void;
   public static on(name: "init", handler: (editor: Editor) => void): void;
   public static on(name: string, handler: EventHandler): void {
     if (!this.eventHandlers[name]) {
@@ -35,8 +29,8 @@ export class EditorManager {
     handlers.forEach((handler) => handler(...args));
   }
 
-  public static async create(options: EditorOptions): Promise<Editor> {
-    const { id, language } = options;
+  public static async create(options: EditorCreateOptions): Promise<Editor> {
+    const { id, language, ...editorOptions } = options;
 
     if (language && i18n.language !== language) {
       i18n.changeLanguage(language);
@@ -51,36 +45,43 @@ export class EditorManager {
 
     this.emit("create", options);
 
-    const editor = new Editor(textarea, {
-      toolbar: options.toolbar ?? [
-        [
-          ["bold", "italic", "underline", "strike"],
-          ["blockquote", "bulletList", "orderedList", "horizontalRule"],
-          ["link", "unlink"],
-          ["insertHtml"],
-          ["table"],
-          ["source"],
-        ],
-        [
-          ["undo", "redo"],
-          ["foregroundColor", "backgroundColor", "removeFormat"],
-          ["alignLeft", "alignCenter", "alignRight", "indent", "outdent"],
-          ["block"],
-        ],
-      ],
-      toolbarContainer: options.toolbarContainer,
-      toolbarOptions: options.toolbarOptions,
-      inline: options.inline ?? false,
-      extensions: options.extensions,
-      extensionOptions: options.extensionOptions,
-    });
+    const editor = new Editor(
+      textarea,
+      Object.assign(
+        {
+          toolbar: [
+            [
+              ["bold", "italic", "underline", "strike"],
+              ["blockquote", "bulletList", "orderedList", "horizontalRule"],
+              ["link", "unlink"],
+              ["insertHtml"],
+              ["table"],
+              ["source"],
+            ],
+            [
+              ["undo", "redo"],
+              ["foregroundColor", "backgroundColor", "removeFormat"],
+              ["alignLeft", "alignCenter", "alignRight", "indent", "outdent"],
+              ["block"],
+            ],
+          ],
+          statusbar: [
+            [
+              ["path"],
+            ],
+          ],
+          inline: false,
+        },
+        editorOptions
+      )
+    );
 
     this.emit("init", editor);
 
     return editor;
   }
 
-  public static unload({ id }: EditorOptions): void {
+  public static unload({ id }: { id: string }): void {
     if (EditorManager.Editors[id]) {
       EditorManager.Editors[id].destroy();
       delete EditorManager.Editors[id];

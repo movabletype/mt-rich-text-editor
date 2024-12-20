@@ -3,13 +3,13 @@ import { convertToolbar } from "./tinymce";
 describe("convertToolbar", () => {
   it("should convert a single toolbar line correctly", () => {
     const input = ["bold,italic | underline"];
-    const expected = [["bold", "italic"], ["underline"]];
+    const expected = [[["bold", "italic"], ["underline"]]];
 
     expect(convertToolbar(input)).toEqual(expected);
   });
 
   it("should return already converted toolbar as is", () => {
-    const input = [["bold", "italic"], [{ list: "bullet" }, { list: "ordered" }], ["clean"]];
+    const input = [[["bold", "italic"], ["bulletList", "orderedList"], ["clean"]]];
 
     expect(convertToolbar(input)).toEqual(input);
   });
@@ -17,8 +17,10 @@ describe("convertToolbar", () => {
   it("should handle space-separated items correctly", () => {
     const input = ["bold italic | underline strike"];
     const expected = [
-      ["bold", "italic"],
-      ["underline", "strike"],
+      [
+        ["bold", "italic"],
+        ["underline", "strike"],
+      ],
     ];
 
     expect(convertToolbar(input)).toEqual(expected);
@@ -31,26 +33,15 @@ describe("convertToolbar", () => {
       "alignleft,aligncenter,alignright | indent,outdent,blocks",
     ];
     const expected = [
-      ["strike", "mt_link", "mt_unlink"],
-      [{ list: "bullet" }, { list: "ordered" }],
-      [],
-      [{ color: [] }, { background: [] }, "clean"],
-      [],
-      [{ align: "" }, { align: "center" }, { align: "right" }],
-      [{ indent: "+1" }, { indent: "-1" }, { header: [] }],
-    ];
-
-    expect(convertToolbar(input)).toEqual(expected);
-  });
-
-  it("should convert multiple toolbar lines correctly", () => {
-    const input = ["bold,italic | underline", "bullist,numlist | blockquote"];
-    const expected = [
-      ["bold", "italic"],
-      ["underline"],
-      [],
-      [{ list: "bullet" }, { list: "ordered" }],
-      ["blockquote"],
+      [
+        ["strike", "link", "unlink"],
+        ["bulletList", "orderedList"],
+      ],
+      [["foregroundColor", "backgroundColor", "removeFormat"]],
+      [
+        ["alignLeft", "alignCenter", "alignRight"],
+        ["indent", "outdent", "block"],
+      ],
     ];
 
     expect(convertToolbar(input)).toEqual(expected);
@@ -59,8 +50,10 @@ describe("convertToolbar", () => {
   it("should handle whitespace correctly", () => {
     const input = ["bold , italic|underline , strikethrough"];
     const expected = [
-      ["bold", "italic"],
-      ["underline", "strike"],
+      [
+        ["bold", "italic"],
+        ["underline", "strike"],
+      ],
     ];
 
     expect(convertToolbar(input)).toEqual(expected);

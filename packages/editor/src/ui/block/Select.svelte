@@ -9,6 +9,7 @@
 <script lang="ts">
   import { Editor } from "@tiptap/core";
   import type { Level } from "@tiptap/extension-heading";
+  import { Event } from "../item/registry";
 
   let editor: Editor | undefined = undefined;
   let isOpen = $state(false);
@@ -73,8 +74,8 @@
   $effect(() => {
     rootNode = dropdownElement?.getRootNode();
     host = (rootNode as ShadowRoot).host as HTMLElement;
-    host.addEventListener("editor-button-init", handleEditorInit as EventListener);
-    host.addEventListener("editor-button-update", handleEditorUpdate as EventListener);
+    host.addEventListener(Event.Init, handleEditorInit as EventListener);
+    host.addEventListener(Event.Update, handleEditorUpdate as EventListener);
     document.addEventListener("click", handleClickOutside);
 
     const options = JSON.parse(host.dataset.options ?? "{}") as Options;
@@ -84,8 +85,8 @@
     }
 
     return () => {
-      host.removeEventListener("editor-button-init", handleEditorInit as EventListener);
-      host.removeEventListener("editor-button-update", handleEditorUpdate as EventListener);
+      host.removeEventListener(Event.Init, handleEditorInit as EventListener);
+      host.removeEventListener(Event.Update, handleEditorUpdate as EventListener);
       document.removeEventListener("click", handleClickOutside);
     };
   });

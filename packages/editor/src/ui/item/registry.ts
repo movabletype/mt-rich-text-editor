@@ -1,6 +1,6 @@
 import { Editor } from "@tiptap/core";
 import { undoDepth, redoDepth } from "@tiptap/pm/history";
-import { normalizeHTML, preprocessHTML } from "../../util";
+import { normalizeHTML, preprocessHTML } from "../../util/html";
 import { mount, unmount } from "svelte";
 
 import insertHtmlIcon from "../icon/insertHtml.svg?raw";
@@ -27,8 +27,6 @@ import blockquoteIcon from "../icon/blockquote.svg?raw";
 import unlinkIcon from "../icon/unlink.svg?raw";
 import undoIcon from "../icon/undo.svg?raw";
 import redoIcon from "../icon/redo.svg?raw";
-import foregroundColorIcon from "../icon/foregroundColor.svg?raw";
-import backgroundColorIcon from "../icon/backgroundColor.svg?raw";
 import removeFormatIcon from "../icon/removeFormat.svg?raw";
 import alignLeftIcon from "../icon/alignLeft.svg?raw";
 import alignCenterIcon from "../icon/alignCenter.svg?raw";
@@ -37,22 +35,30 @@ import indentIcon from "../icon/indent.svg?raw";
 import outdentIcon from "../icon/outdent.svg?raw";
 
 import "../block/Select.svelte";
+import "../color/ForegroundColor.svelte";
+import "../color/BackgroundColor.svelte";
 
-export class EditorButtonInitEvent extends CustomEvent<{ editor: Editor }> {
+export const Event = {
+  Init: "mt-rich-text-editor-panel-item-init",
+  Click: "mt-rich-text-editor-panel-item-click",
+  Update: "mt-rich-text-editor-panel-item-update",
+} as const;
+
+export class InitEvent extends CustomEvent<{ editor: Editor }> {
   constructor(editor: Editor) {
-    super("editor-button-init", { detail: { editor } });
+    super(Event.Init, { detail: { editor } });
   }
 }
 
-export class EditorButtonClickEvent extends CustomEvent<{ editor: Editor }> {
+export class ClickEvent extends CustomEvent<{ editor: Editor }> {
   constructor(editor: Editor) {
-    super("editor-button-click", { detail: { editor } });
+    super(Event.Click, { detail: { editor } });
   }
 }
 
-export class EditorButtonUpdateEvent extends CustomEvent<{ editor: Editor }> {
+export class UpdateEvent extends CustomEvent<{ editor: Editor }> {
   constructor(editor: Editor) {
-    super("editor-button-update", { detail: { editor } });
+    super(Event.Update, { detail: { editor } });
   }
 }
 
@@ -76,14 +82,14 @@ function createButtonClass(
     }
 
     connectedCallback() {
-      this.addEventListener("editor-button-click", (ev: Event) => {
-        const customEvent = ev as EditorButtonClickEvent;
+      this.addEventListener(Event.Click, (ev: Event) => {
+        const customEvent = ev as ClickEvent;
         (customEvent.detail.editor.chain().focus() as any)[method]().run();
       });
 
       if (stateClass !== false) {
-        this.addEventListener("editor-button-update", (ev: Event) => {
-          const customEvent = ev as EditorButtonUpdateEvent;
+        this.addEventListener(Event.Update, (ev: Event) => {
+          const customEvent = ev as UpdateEvent;
           this.classList.toggle(stateClass, checkState(customEvent.detail.editor));
         });
       }
@@ -103,8 +109,8 @@ function createTextAlignButtonClass(name: string, icon: string) {
     }
 
     connectedCallback() {
-      this.addEventListener("editor-button-click", (ev: Event) => {
-        const editor = (ev as EditorButtonClickEvent).detail.editor;
+      this.addEventListener(Event.Click, (ev: Event) => {
+        const editor = (ev as ClickEvent).detail.editor;
         const nodeType = editor.state.selection.$head.parent.type.name;
         const currentAlign = editor.getAttributes(nodeType).textAlign;
 
@@ -115,8 +121,8 @@ function createTextAlignButtonClass(name: string, icon: string) {
         }
       });
 
-      this.addEventListener("editor-button-update", (ev: Event) => {
-        const editor = (ev as EditorButtonUpdateEvent).detail.editor;
+      this.addEventListener(Event.Update, (ev: Event) => {
+        const editor = (ev as UpdateEvent).detail.editor;
         const nodeType = editor.state.selection.$head.parent.type.name;
         const currentAlign = editor.getAttributes(nodeType).textAlign;
         this.classList.toggle("is-active", currentAlign === targetAlign);
@@ -153,12 +159,10 @@ export const RedoButton = createButtonClass(
   "is-disabled",
   (editor: Editor) => redoDepth(editor.state) === 0
 );
-export const ForegroundColorButton = createButtonClass("foregroundColor", foregroundColorIcon);
-export const BackgroundColorButton = createButtonClass("backgroundColor", backgroundColorIcon);
 export const RemoveFormatButton = createButtonClass(
   "removeFormat",
   removeFormatIcon,
-  "unsetAllMarks",
+  "unsetAllMarks", // FIXME: and .clearNodes() ?
   false
 );
 export const AlignLeftButton = createTextAlignButtonClass("alignLeft", alignLeftIcon);
@@ -176,8 +180,8 @@ export class HorizontalRuleButton extends HTMLElement {
   }
 
   connectedCallback() {
-    this.addEventListener("editor-button-click", (ev: Event) => {
-      const customEvent = ev as EditorButtonClickEvent;
+    this.addEventListener(Event.Click, (ev: Event) => {
+      const customEvent = ev as ClickEvent;
       customEvent.detail.editor.chain().focus().setHorizontalRule().run();
     });
   }
@@ -192,8 +196,8 @@ export class LinkButton extends HTMLElement {
   }
 
   connectedCallback() {
-    this.addEventListener("editor-button-click", (ev: Event) => {
-      const customEvent = ev as EditorButtonClickEvent;
+    this.addEventListener(Event.Click, (ev: Event) => {
+      const customEvent = ev as ClickEvent;
 
       const { editor } = customEvent.detail;
       let linkData: LinkData;
@@ -260,8 +264,8 @@ export class LinkButton extends HTMLElement {
       });
     });
 
-    this.addEventListener("editor-button-update", (ev: Event) => {
-      const customEvent = ev as EditorButtonUpdateEvent;
+    this.addEventListener(Event.Update, (ev: Event) => {
+      const customEvent = ev as UpdateEvent;
       this.classList.toggle("is-active", customEvent.detail.editor.isActive("link"));
     });
   }
@@ -276,8 +280,8 @@ export class InsertHtmlButton extends HTMLElement {
   }
 
   connectedCallback() {
-    this.addEventListener("editor-button-click", (ev: Event) => {
-      const editor = (ev as EditorButtonClickEvent).detail.editor;
+    this.addEventListener(Event.Click, (ev: Event) => {
+      const editor = (ev as ClickEvent).detail.editor;
       const modal = mount(InsertHtmlModal, {
         target: document.body,
         props: {
@@ -306,11 +310,10 @@ export class TableButton extends HTMLElement {
 
   connectedCallback() {
     this.menuContainer = document.createElement("div");
-    this.menuContainer.classList.add("mt-rich-text-editor-table-menu-container");
     this.parentElement?.appendChild(this.menuContainer);
 
-    this.addEventListener("editor-button-click", (ev: Event) => {
-      const editor = (ev as EditorButtonClickEvent).detail.editor;
+    this.addEventListener(Event.Click, (ev: Event) => {
+      const editor = (ev as ClickEvent).detail.editor;
       const modal = mount(TableToolbarMenu, {
         target: this.menuContainer as HTMLElement,
         props: {
@@ -336,8 +339,8 @@ export class SourceButton extends HTMLElement {
   }
 
   connectedCallback() {
-    this.addEventListener("editor-button-click", (ev: Event) => {
-      const editor = (ev as EditorButtonClickEvent).detail.editor;
+    this.addEventListener(Event.Click, (ev: Event) => {
+      const editor = (ev as ClickEvent).detail.editor;
       const modal = mount(SourceModal, {
         target: document.body,
         props: {
@@ -355,44 +358,95 @@ export class SourceButton extends HTMLElement {
   }
 }
 
-const systemButtons: Record<string, typeof HTMLElement> = {
-  bold: BoldButton,
-  italic: ItalicButton,
-  underline: UnderlineButton,
-  strike: StrikeButton,
-  bulletList: BulletListButton,
-  orderedList: OrderedListButton,
-  horizontalRule: HorizontalRuleButton,
-  blockquote: BlockquoteButton,
-  link: LinkButton,
-  unlink: UnlinkButton,
-  insertHtml: InsertHtmlButton,
-  table: TableButton,
-  source: SourceButton,
-  undo: UndoButton,
-  redo: RedoButton,
-  foregroundColor: ForegroundColorButton,
-  backgroundColor: BackgroundColorButton,
-  removeFormat: RemoveFormatButton,
-  alignLeft: AlignLeftButton,
-  alignCenter: AlignCenterButton,
-  alignRight: AlignRightButton,
-  indent: IndentButton,
-  outdent: OutdentButton,
+export class PathItem extends HTMLElement {
+  connectedCallback() {
+    this.addEventListener(Event.Update, (ev: Event) => {
+      const editor = (ev as UpdateEvent).detail.editor;
+      const { selection } = editor.state;
+      const $head = selection.$head;
+      
+      const path: string[] = [];
+      for (let depth = 1; depth <= $head.depth; depth++) {
+        const node = $head.node(depth);
+        let nodeName = this.getHTMLTag(node.type.name);
+        if (!nodeName) {
+          continue;
+        }
+        
+        const textAlign = node.attrs.textAlign;
+        if (textAlign) {
+          nodeName += `[align=${textAlign}]`;
+        }
+        
+        path.push(nodeName);
+      }
+
+      this.textContent = path.join(' > ');
+    });
+  }
+
+  private getHTMLTag(nodeName: string): string {
+    const nodeToTagMap: Record<string, string> = {
+      paragraph: 'p',
+      heading: 'h1',
+      bulletList: 'ul',
+      orderedList: 'ol',
+      listItem: 'li',
+      blockquote: 'blockquote',
+      horizontalRule: 'hr',
+      table: 'table',
+      tableRow: 'tr',
+      tableCell: 'td',
+      tableHeader: 'th',
+      hardBreak: 'br',
+      text: '',
+      textBlock: '',
+    };
+
+    return nodeToTagMap[nodeName] ?? nodeName;
+  }
+}
+
+const systemItems: Record<"toolbar" | "statusbar", Record<string, typeof HTMLElement>> = {
+  toolbar: {
+    bold: BoldButton,
+    italic: ItalicButton,
+    underline: UnderlineButton,
+    strike: StrikeButton,
+    bulletList: BulletListButton,
+    orderedList: OrderedListButton,
+    horizontalRule: HorizontalRuleButton,
+    blockquote: BlockquoteButton,
+    link: LinkButton,
+    unlink: UnlinkButton,
+    insertHtml: InsertHtmlButton,
+    table: TableButton,
+    source: SourceButton,
+    undo: UndoButton,
+    redo: RedoButton,
+    removeFormat: RemoveFormatButton,
+    alignLeft: AlignLeftButton,
+    alignCenter: AlignCenterButton,
+    alignRight: AlignRightButton,
+    indent: IndentButton,
+    outdent: OutdentButton,
+  },
+  statusbar: {
+    path: PathItem,
+  },
 };
 
-export const prefix = "mt-rich-text-editor-toolbar-item-";
-export const getDefinedButton = (name: string): string => {
+export const getDefinedItem = (namespace: "toolbar" | "statusbar", name: string): string => {
   const lowerName = name.toLowerCase();
   if (lowerName.includes("-") && window.customElements.get(lowerName)) {
     // specified by full name
     return lowerName;
   }
 
-  const elementName = `${prefix}${lowerName}`;
+  const elementName = `mt-rich-text-editor-${namespace}-item-${lowerName}`;
   let elementConstructor = window.customElements.get(elementName);
   if (!elementConstructor) {
-    elementConstructor = systemButtons[name];
+    elementConstructor = systemItems[namespace][name];
     if (!elementConstructor) {
       throw new Error(`Button for ${name} is not found`);
     }

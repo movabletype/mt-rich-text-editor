@@ -1,6 +1,8 @@
 .mt-rich-text-editor {
   border: 1px solid #ccc;
   border-radius: 4px;
+  display: flex;
+  flex-direction: column;
 }
 
 .mt-rich-text-editor:focus-within {
@@ -8,6 +10,16 @@
   border-color: #0d6efd;
 }
 
-.mt-rich-text-editor-table-menu-container {
-  position: relative;
+.mt-rich-text-editor-content {
+  flex-grow: 1;
+  min-height: 0;
+  overflow: auto;
+}
+
+.mt-rich-text-editor-toolbar {
+  border-bottom: 1px solid #ccc;
+}
+
+.mt-rich-text-editor-statusbar {
+  border-top: 1px solid #ccc;
 }

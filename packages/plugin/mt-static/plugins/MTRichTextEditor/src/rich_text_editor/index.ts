@@ -6,25 +6,15 @@ import type { EditorOptions } from "@movabletype/mt-rich-text-editor";
 import { Editor } from "@movabletype/mt-rich-text-editor";
 import { DEFAULT_HEIGHT } from "../constant";
 import { currentLanguage } from "../l10n";
-import { toggleFullScreen } from "../utils/full_screen";
-import fullScreenIcon from "../assets/full_screen.svg?raw";
 import assetIcon from "../assets/asset.svg?raw";
 import imageIcon from "../assets/image.svg?raw";
-import { convertToolbar } from "../utils/tinymce";
+import { convertToolbar } from "../util/tinymce";
+
+import "./button/fullScreen.ts"
 
 const MTRichTextEditorManager = window.MTRichTextEditor;
 
-function openDialog(mode: string, param: string) {
-  var url = window.ScriptURI + "?" + "__mode=" + mode + "&amp;" + param;
-  window.jQuery.fn.mtModal.open(url, { large: true });
-  var modalClose = function (e: KeyboardEvent) {
-    if (e.keyCode == 27) {
-      window.jQuery.fn.mtModal.close();
-      window.jQuery("body").off("keyup", modalClose as any);
-    }
-  };
-  window.jQuery("body").on("keyup", modalClose as any);
-}
+
 
 MTRichTextEditorManager.setIcons({
   full_screen: fullScreenIcon,

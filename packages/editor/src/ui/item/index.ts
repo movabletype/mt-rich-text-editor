@@ -1,6 +1,6 @@
 export {
-  EditorButtonClickEvent,
-  EditorButtonUpdateEvent,
+  ClickEvent,
+  UpdateEvent,
   BoldButton,
   ItalicButton,
   UnderlineButton,
