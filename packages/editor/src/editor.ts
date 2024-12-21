@@ -22,6 +22,9 @@ export interface EditorOptions {
   extensionOptions?: Record<string, any>;
 }
 
+const DEFAULT_HEIGHT = 350;
+const MIN_HEIGHT = 100;
+
 export class Editor {
   private textarea: HTMLTextAreaElement;
   public editor: TiptapEditor;
@@ -35,6 +38,7 @@ export class Editor {
 
     this.wrapper = document.createElement("div");
     this.wrapper.className = "mt-rich-text-editor";
+    this.wrapper.style.height = `${DEFAULT_HEIGHT}px`;
     this.wrapper.dataset.mtRichTextEditorId = textarea.id;
     this.textarea.parentNode?.insertBefore(this.wrapper, this.textarea);
     this.textarea.style.display = "none";
@@ -45,10 +49,7 @@ export class Editor {
     editor.className = "mt-rich-text-editor-editor";
     editorShadow.appendChild(editor);
 
-    const initBar = (
-      _container: EditorOptions["toolbarContainer"],
-      className: string
-    ) => {
+    const initBarMount = (_container: EditorOptions["toolbarContainer"], className: string) => {
       const container =
         _container ??
         (() => {
@@ -63,12 +64,15 @@ export class Editor {
       shadow.appendChild(mount);
       return mount;
     };
-    const toolbarMount = initBar(options.toolbarContainer, "mt-rich-text-editor-toolbar");
+    const toolbarMount = initBarMount(options.toolbarContainer, "mt-rich-text-editor-toolbar");
 
     this.editorContainer = document.createElement("div");
     this.editorContainer.className = "mt-rich-text-editor-content";
     const shadow = this.editorContainer.attachShadow({ mode: "open" });
-    insertStylesheets(shadow, [prosemirrorCss + editorCss + contentCss, ...(options.stylesheets ?? [])]);
+    insertStylesheets(shadow, [
+      prosemirrorCss + editorCss + contentCss,
+      ...(options.stylesheets ?? []),
+    ]);
 
     const editorMount = document.createElement("div");
     editorMount.className = "mt-rich-text-editor-content-root";
@@ -92,7 +96,10 @@ export class Editor {
       inline: options.inline,
     });
 
-    const statusbarMount = initBar(options.statusbarContainer, "mt-rich-text-editor-statusbar");
+    const statusbarMount = initBarMount(
+      options.statusbarContainer,
+      "mt-rich-text-editor-statusbar"
+    );
     this.statusbar = new Statusbar({
       target: statusbarMount,
       editor: this.editor,
@@ -100,6 +107,8 @@ export class Editor {
       options: options.statusbarOptions ?? {},
       inline: options.inline,
     });
+
+    this.initResizeHandle(editor);
   }
 
   public save(): void {
@@ -139,5 +148,35 @@ export class Editor {
 
   public insertContent(content: string): void {
     this.editor.commands.insertContent(content);
+  }
+
+  private initResizeHandle(editor: HTMLDivElement): void {
+    const resizeHandle = document.createElement("div");
+    resizeHandle.className = "mt-rich-text-editor-resize-handle";
+    editor.appendChild(resizeHandle);
+
+    let startY = 0;
+    let startHeight = 0;
+
+    const onMouseDown = (e: MouseEvent) => {
+      e.preventDefault();
+      startY = e.clientY;
+      startHeight = this.getHeight();
+      document.addEventListener("mousemove", onMouseMove);
+      document.addEventListener("mouseup", onMouseUp);
+    };
+
+    const onMouseMove = (e: MouseEvent) => {
+      const deltaY = e.clientY - startY;
+      const newHeight = Math.max(MIN_HEIGHT, startHeight + deltaY);
+      this.setHeight(newHeight);
+    };
+
+    const onMouseUp = () => {
+      document.removeEventListener("mousemove", onMouseMove);
+      document.removeEventListener("mouseup", onMouseUp);
+    };
+
+    resizeHandle.addEventListener("mousedown", onMouseDown);
   }
 }
