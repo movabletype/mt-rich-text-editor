@@ -1,11 +1,28 @@
-.mt-rich-text-editor {
+.mt-rich-text-editor-editor {
   border: 1px solid #ccc;
   border-radius: 4px;
   display: flex;
   flex-direction: column;
+  height: 100%;
 }
 
-.mt-rich-text-editor:focus-within {
+.mt-rich-text-editor-content-root,
+.mt-rich-text-editor-content-root > .tiptap {
+  height: calc(100% - 10px);
+}
+
+.mt-rich-text-editor-content-root > .tiptap {
+  padding: 10px;
+  outline: none;
+}
+
+.mt-rich-text-editor-content-root > .tiptap:after {
+  content: "";
+  display: block;
+  height: 1px;
+}
+
+.mt-rich-text-editor-editor:focus-within {
   outline: none;
   border-color: #0d6efd;
 }

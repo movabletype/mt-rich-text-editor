@@ -55,19 +55,19 @@
   }
 </script>
 
-<div class="mt-rich-text-editor-toolbar">
+<div class="toolbar">
   {#each buttons as row}
-    <div class="mt-rich-text-editor-toolbar-row">
+    <div class="toolbar-row">
       {#each row as group}
         <div
-          class={`mt-rich-text-editor-toolbar-group ${group.length === 1 ? `mt-rich-text-editor-toolbar-group--${group[0].name}` : ""}`}
+          class={`toolbar-group ${group.length === 1 ? `toolbar-group--${group[0].name}` : ""}`}
         >
           {#each group as button}
             <svelte:element
               this={button.elementName}
               use:bindRef={button.elementName}
               data-options={JSON.stringify(button.options)}
-              class="button"
+              class="toolbar-item"
               class:is-active={isActiveMap[button.elementName]}
               class:is-disabled={isDisabledMap[button.elementName]}
               onclick={(ev) => {
@@ -83,24 +83,23 @@
 </div>
 
 <style>
-  .mt-rich-text-editor-toolbar {
+  .toolbar {
     display: flex;
     flex-wrap: wrap;
     flex-direction: column;
   }
-  .mt-rich-text-editor-toolbar-row {
+  .toolbar-row {
     display: flex;
     flex-wrap: wrap;
-    background-image: url("./asset/toolbar-border.svg");
   }
-  .mt-rich-text-editor-toolbar-group {
+  .toolbar-group {
     padding: 0 4px;
   }
-  .mt-rich-text-editor-toolbar-group:not(:last-child) {
+  .toolbar-group:not(:last-child) {
     border-right: 1px solid #ccc;
     white-space: nowrap;
   }
-  .button {
+  .toolbar-item {
     display: inline-block;
     margin: 2px 0 3px;
     height: 34px;
@@ -110,13 +109,13 @@
     border-radius: 4px;
     padding: 1px 5px;
   }
-  .button:not(.is-disabled):hover {
+  .toolbar-item:not(.is-disabled):hover {
     background: #dee0e2;
   }
-  .button.is-active {
+  .toolbar-item.is-active {
     background: #dee0e2;
   }
-  .button.is-disabled {
+  .toolbar-item.is-disabled {
     opacity: 0.5;
     pointer-events: none;
   }

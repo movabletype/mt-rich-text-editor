@@ -55,19 +55,19 @@
   }
 </script>
 
-<div class="mt-rich-text-editor-statusbar">
+<div class="statusbar">
   {#each buttons as row}
-    <div class="mt-rich-text-editor-statusbar-row">
+    <div class="statusbar-row">
       {#each row as group}
         <div
-          class={`mt-rich-text-editor-statusbar-group ${group.length === 1 ? `mt-rich-text-editor-statusbar-group--${group[0].name}` : ""}`}
+          class={`statusbar-group ${group.length === 1 ? `statusbar-group--${group[0].name}` : ""}`}
         >
           {#each group as button}
             <svelte:element
               this={button.elementName}
               use:bindRef={button.elementName}
               data-options={JSON.stringify(button.options)}
-              class="button"
+              class="statusbar-item"
               class:is-active={isActiveMap[button.elementName]}
               class:is-disabled={isDisabledMap[button.elementName]}
               onclick={(ev) => {
@@ -83,25 +83,25 @@
 </div>
 
 <style>
-  .mt-rich-text-editor-statusbar {
+  .statusbar {
     display: flex;
     flex-wrap: wrap;
     flex-direction: column;
     height: 34px;
   }
-  .mt-rich-text-editor-statusbar-row {
+  .statusbar-row {
     display: flex;
     flex-wrap: wrap;
     background-image: url("./asset/statusbar-border.svg");
   }
-  .mt-rich-text-editor-statusbar-group {
+  .statusbar-group {
     padding: 0 4px;
   }
-  .mt-rich-text-editor-statusbar-group:not(:last-child) {
+  .statusbar-group:not(:last-child) {
     border-right: 1px solid #ccc;
     white-space: nowrap;
   }
-  .button {
+  .statusbar-item {
     display: inline-block;
     margin: 2px 0 3px;
     height: 34px;
@@ -110,10 +110,10 @@
     border-radius: 4px;
     padding: 1px 5px;
   }
-  .button.is-active {
+  .statusbar-item.is-active {
     background: #dee0e2;
   }
-  .button.is-disabled {
+  .statusbar-item.is-disabled {
     opacity: 0.5;
     pointer-events: none;
   }
