@@ -1,10 +1,9 @@
 <script lang="ts">
-  import type { Editor } from "@tiptap/core";
+  import type { Editor } from "../editor";
   import {
-    getDefinedItem,
-    InitEvent,
-    ClickEvent,
-    UpdateEvent,
+    getPanelItem,
+    EditorEventType,
+    EditorEvent
   } from "./item/registry";
 
   const {
@@ -22,7 +21,7 @@
     row.map((group) =>
       group.map((name) => ({
         name,
-        elementName: getDefinedItem('statusbar', name),
+        elementName: getPanelItem('statusbar', name),
         options: options[name] ?? {},
       }))
     )
@@ -31,13 +30,13 @@
   const isDisabledMap: Record<string, boolean> = $state({});
   function update() {
     for (const key in buttonRefs) {
-      buttonRefs[key].dispatchEvent(new UpdateEvent(editor));
+      buttonRefs[key].dispatchEvent(new EditorEvent(EditorEventType.Update, editor));
       isActiveMap[key] = buttonRefs[key].classList.contains("is-active");
       isDisabledMap[key] = buttonRefs[key].classList.contains("is-disabled");
     }
   }
-  editor.on("selectionUpdate", update);
-  editor.on("update", update);
+  editor.tiptap.on("selectionUpdate", update);
+  editor.tiptap.on("update", update);
   $effect(() => {
     update();
   });
@@ -45,7 +44,7 @@
   function bindRef(node: HTMLElement, key: string) {
     buttonRefs[key] = node;
     setTimeout(() => {
-      node.dispatchEvent(new InitEvent(editor));
+      node.dispatchEvent(new EditorEvent(EditorEventType.Init, editor));
     });
     return {
       destroy() {
@@ -71,7 +70,7 @@
               class:is-active={isActiveMap[button.elementName]}
               class:is-disabled={isDisabledMap[button.elementName]}
               onclick={(ev) => {
-                ev.currentTarget.dispatchEvent(new ClickEvent(editor));
+                ev.currentTarget.dispatchEvent(new EditorEvent(EditorEventType.Click, editor));
                 update();
               }}
             />
@@ -92,7 +91,6 @@
   .statusbar-row {
     display: flex;
     flex-wrap: wrap;
-    background-image: url("./asset/statusbar-border.svg");
   }
   .statusbar-group {
     padding: 0 4px;

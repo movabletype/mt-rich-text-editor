@@ -3,7 +3,7 @@ import { DEFAULT_HEIGHT } from "../constant";
 import { mount, unmount } from "svelte";
 import Toolbar from "./Toolbar.svelte";
 import LinkModal from "../link/Modal.svelte";
-import { toggleFullScreen } from "../utils/full_screen";
+import { toggleFullScreen } from "../util/full_screen";
 
 function openDialog(mode: string, param: string) {
   var url = window.ScriptURI + "?" + "__mode=" + mode + "&amp;" + param;

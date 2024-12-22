@@ -1,18 +1,21 @@
 import { version } from "../package.json";
 import i18n from "./i18n";
 import { Editor } from "./editor";
+import { UI } from "./editor_manager/ui";
 import type { EditorOptions } from "./editor";
 
 type EventHandler = (...args: any[]) => void;
 
-export interface EditorCreateOptions extends EditorOptions {
+export interface EditorCreateOptions extends Omit<EditorOptions, 'toolbar'> {
   id: string;
   language?: string;
+  toolbar?: EditorOptions['toolbar'];
 }
 
 export class EditorManager {
   public static version: string = version;
   public static Editors: Record<string, Editor> = {};
+  public static ui: UI = new UI();
   private static eventHandlers: Record<string, EventHandler[]> = {};
 
   public static on(name: "create", handler: (options: EditorCreateOptions) => void): void;
@@ -24,7 +27,7 @@ export class EditorManager {
     this.eventHandlers[name].push(handler);
   }
 
-  public static emit(name: string, ...args: any[]): void {
+  private static emit(name: string, ...args: any[]): void {
     const handlers = this.eventHandlers[name] || [];
     handlers.forEach((handler) => handler(...args));
   }
@@ -63,6 +66,7 @@ export class EditorManager {
               ["foregroundColor", "backgroundColor", "removeFormat"],
               ["alignLeft", "alignCenter", "alignRight", "indent", "outdent"],
               ["block"],
+              ["fullScreen"],
             ],
           ],
           statusbar: [
@@ -77,6 +81,8 @@ export class EditorManager {
     );
 
     this.emit("init", editor);
+
+    EditorManager.Editors[id] = editor;
 
     return editor;
   }

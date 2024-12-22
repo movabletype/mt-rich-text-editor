@@ -20,7 +20,7 @@
     "@playwright/test": "^1.49.1",
     "@sveltejs/vite-plugin-svelte": "^5.0.2",
     "@types/js-beautify": "^1.14.3",
-    "eslint": "^9.16.0",
+    "eslint": "^9.17.0",
     "eslint-plugin-svelte": "^2.46.1",
     "globals": "^15.9.0",
     "jsdom": "^25.0.1",
@@ -46,8 +46,9 @@
       "types": "./dist/src/mt-rich-text-editor.d.ts",
       "import": "./dist/mt-rich-text-editor.js"
     },
-    "./mt-rich-text-editor.css": {
-      "import": "./dist/mt-rich-text-editor.css"
+    "./ui": {
+      "types": "./dist/src/ui/index.d.ts",
+      "import": "./dist/ui/index.js"
     }
   },
   "author": "",
@@ -68,6 +69,7 @@
     "@tiptap/extension-heading": "^2.10.3",
     "@tiptap/extension-history": "^2.10.4",
     "@tiptap/extension-horizontal-rule": "^2.10.3",
+    "@tiptap/extension-image": "^2.10.4",
     "@tiptap/extension-italic": "^2.10.3",
     "@tiptap/extension-link": "^2.10.3",
     "@tiptap/extension-list-item": "^2.10.4",

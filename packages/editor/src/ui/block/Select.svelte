@@ -1,20 +1,27 @@
-<svelte:options customElement="mt-rich-text-editor-toolbar-item-block" />
+<svelte:options
+  customElement={{
+    tag: "mt-rich-text-editor-toolbar-item-block",
+    extend: extend,
+  }}
+/>
 
 <script module lang="ts">
+  import { extend } from "../item/registry/svelte";
   export interface Options {
     readonly blocks?: { value: string; label: string }[];
   }
 </script>
 
 <script lang="ts">
-  import { Editor } from "@tiptap/core";
   import type { Level } from "@tiptap/extension-heading";
-  import { Event } from "../item/registry";
+  import type { Props } from "../item/registry/svelte";
 
-  let editor: Editor | undefined = undefined;
+  const { options, tiptap, onUpdate }: Props<Options> = $props();
   let isOpen = $state(false);
 
-  let blocks = $state([
+  console.log(options);
+
+  const blocks: Options["blocks"] = options.blocks ?? [
     { value: "paragraph", label: "本文" },
     { value: "h1", label: "見出し1" },
     { value: "h2", label: "見出し2" },
@@ -23,93 +30,70 @@
     { value: "h5", label: "見出し5" },
     { value: "h6", label: "見出し6" },
     { value: "pre", label: "コードブロック" },
-  ]);
+  ];
+  let selectedBlock = $state(blocks[0].value);
 
-  let selectedBlock = $state("paragraph");
-
-  // イベントハンドラーの設定
-  function handleEditorInit(event: CustomEvent) {
-    editor = event.detail.editor;
-  }
-
-  function handleEditorUpdate() {
-    if (!editor) return;
-
-    const { $head: head } = editor.state.selection;
+  onUpdate(() => {
+    const { $head: head } = tiptap.state.selection;
     const parent = head.parent;
 
     if (parent.type.name === "heading") {
       selectedBlock = `h${parent.attrs.level}`;
     } else {
       selectedBlock = parent.type.name;
+      if (!blocks.some((b) => b.value === selectedBlock)) {
+        selectedBlock = blocks[0].value;
+      }
     }
-  }
+  });
 
   function handleSelect(value: string) {
-    if (!editor) return;
-
     if (value === "paragraph" || value === "pre") {
-      editor.chain().focus().setNode(value).run();
+      tiptap.chain().focus().setNode(value).run();
     } else if (value.match(/^h[1-6]$/)) {
       const level = parseInt(value.substring(1)) as Level;
-      editor.chain().focus().setHeading({ level }).run();
+      tiptap.chain().focus().setHeading({ level }).run();
     }
     selectedBlock = value;
     isOpen = false;
   }
 
-  function toggleDropdown() {
+  function toggleDropdown(ev: MouseEvent) {
+    ev.stopPropagation();
     isOpen = !isOpen;
   }
 
-  let rootNode: Node;
-  let host: HTMLElement;
-  function handleClickOutside(ev: MouseEvent) {
-    if (ev.target !== host && (ev.target as Node).getRootNode() !== rootNode) {
-      isOpen = false;
-    }
+  function handleClickOutside() {
+    isOpen = false;
   }
 
   let dropdownElement: HTMLElement;
   $effect(() => {
-    rootNode = dropdownElement?.getRootNode();
-    host = (rootNode as ShadowRoot).host as HTMLElement;
-    host.addEventListener(Event.Init, handleEditorInit as EventListener);
-    host.addEventListener(Event.Update, handleEditorUpdate as EventListener);
     document.addEventListener("click", handleClickOutside);
-
-    const options = JSON.parse(host.dataset.options ?? "{}") as Options;
-    console.log(options);
-    if (options.blocks) {
-      blocks = options.blocks;
-    }
-
     return () => {
-      host.removeEventListener(Event.Init, handleEditorInit as EventListener);
-      host.removeEventListener(Event.Update, handleEditorUpdate as EventListener);
       document.removeEventListener("click", handleClickOutside);
     };
   });
 </script>
 
 <div class="dropdown" bind:this={dropdownElement}>
-  <div class="selected" on:click={toggleDropdown}>
+  <button class="selected" onclick={toggleDropdown}>
     {blocks.find((b) => b.value === selectedBlock)?.label}
     <span class="arrow"></span>
-  </div>
+  </button>
 
   {#if isOpen}
     <div class="options">
       {#each blocks as block}
-        <div
+        <button
           class="option"
           class:active={selectedBlock === block.value}
-          on:click={() => handleSelect(block.value)}
+          onclick={() => handleSelect(block.value)}
         >
           <div class={block.value}>
             {block.label}
           </div>
-        </div>
+        </button>
       {/each}
     </div>
   {/if}
@@ -122,6 +106,7 @@
   }
 
   .selected {
+    width: 100%;
     padding: 4px 8px;
     border: 1px solid #ccc;
     border-radius: 4px;
@@ -158,6 +143,11 @@
   }
 
   .option {
+    display: block;
+    width: 100%;
+    text-align: left;
+    border: none;
+    background: white;
     padding: 8px;
     cursor: pointer;
   }

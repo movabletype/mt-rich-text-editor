@@ -8,7 +8,8 @@
 
 <script lang="ts">
   import { Editor } from "@tiptap/core";
-  import { Event } from "../item/registry";
+  import type { EditorEvent } from "../item/registry";
+  import { EditorEventType } from "../item/registry";
   import icon from "../icon/backgroundColor.svg?raw";
   import Panel from "./Panel.svelte";
 
@@ -41,8 +42,8 @@
 
   let selectedColor = $state("#000000");
 
-  function handleEditorInit(event: CustomEvent) {
-    editor = event.detail.editor;
+  function handleEditorInit({ tiptap }: EditorEvent) {
+    editor = tiptap;
   }
 
   function handleEditorUpdate() {
@@ -62,7 +63,8 @@
     isOpen = false;
   }
 
-  function toggleColorPanel() {
+  function toggleColorPanel(ev: MouseEvent) {
+    ev.stopPropagation();
     isOpen = !isOpen;
   }
 
@@ -78,8 +80,8 @@
   $effect(() => {
     rootNode = containerEl?.getRootNode();
     host = (rootNode as ShadowRoot).host as HTMLElement;
-    host.addEventListener(Event.Init, handleEditorInit as EventListener);
-    host.addEventListener(Event.Update, handleEditorUpdate as EventListener);
+    host.addEventListener(EditorEventType.Init, handleEditorInit);
+    host.addEventListener(EditorEventType.Update, handleEditorUpdate);
     document.addEventListener("click", handleClickOutside);
 
     const options = JSON.parse(host.dataset.options ?? "{}") as Options;
@@ -88,14 +90,14 @@
     }
 
     return () => {
-      host.removeEventListener(Event.Init, handleEditorInit as EventListener);
-      host.removeEventListener(Event.Update, handleEditorUpdate as EventListener);
+      host.removeEventListener(EditorEventType.Init, handleEditorInit);
+      host.removeEventListener(EditorEventType.Update, handleEditorUpdate);
       document.removeEventListener("click", handleClickOutside);
     };
   });
 </script>
 
-<div bind:this={containerEl} onclick={toggleColorPanel}>
+<div bind:this={containerEl} onclick={toggleColorPanel} class="icon">
   {@html icon.replace(/fill="currentColor"/g, `fill="${selectedColor}"`)}
 </div>
 
@@ -106,6 +108,10 @@
 </div>
 
 <style>
+  .icon {
+    width: 24px;
+    height: 24px;
+  }
   .color-panel-container {
     position: relative;
   }

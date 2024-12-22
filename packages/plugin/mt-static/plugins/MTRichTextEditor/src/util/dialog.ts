@@ -1,5 +1,5 @@
 export function openDialog(params: URLSearchParams) {
-  const url = new URL(window.ScriptURI);
+  const url = new URL(window.CMSScriptURI, location.href);
   url.search = params.toString();
   window.jQuery.fn.mtModal.open(url.toString(), { large: true });
   const modalClose = (e: KeyboardEvent) => {

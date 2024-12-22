@@ -1,6 +1,4 @@
 export {
-  ClickEvent,
-  UpdateEvent,
   BoldButton,
   ItalicButton,
   UnderlineButton,
@@ -8,5 +6,4 @@ export {
   BlockquoteButton,
   LinkButton,
   SourceButton,
-  BlockSelect,
 } from "./registry";

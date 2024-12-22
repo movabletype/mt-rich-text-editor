@@ -1,6 +1,4 @@
 import { Editor } from "../src/editor";
-// import "../src/blots";
-// import "../src/themes/mt";
 
 describe("Blot HTML parsing", () => {
   let textarea: HTMLTextAreaElement;
@@ -10,7 +8,8 @@ describe("Blot HTML parsing", () => {
     textarea = document.createElement("textarea");
     document.body.appendChild(textarea);
     editor = new Editor(textarea, {
-      toolbar: []
+      toolbar: [],
+      inline: false,
     });
   });
 

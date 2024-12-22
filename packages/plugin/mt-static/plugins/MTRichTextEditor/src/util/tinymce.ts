@@ -2,7 +2,7 @@
  * Migration utility functions from TinyMCE
  */
 
-import type { EditorOptions } from "@movabletype/mt-rich-text-editor";
+import type { EditorCreateOptions } from "@movabletype/mt-rich-text-editor";
 
 const toolbarMigrationMap: Record<string, string> = {
   strikethrough: "strike",
@@ -18,12 +18,12 @@ const toolbarMigrationMap: Record<string, string> = {
 };
 
 const isEditorOptionsToolbar = (
-  toolbar: string[] | EditorOptions["toolbar"]
-): toolbar is EditorOptions["toolbar"] => !toolbar || Array.isArray(toolbar[0]);
+  toolbar: string[] | EditorCreateOptions["toolbar"]
+): toolbar is EditorCreateOptions["toolbar"] => !toolbar || Array.isArray(toolbar[0]);
 
 export const convertToolbar = (
-  toolbar: string[] | EditorOptions["toolbar"]
-): EditorOptions["toolbar"] => {
+  toolbar: string[] | EditorCreateOptions["toolbar"]
+): EditorCreateOptions["toolbar"] => {
   if (isEditorOptionsToolbar(toolbar)) {
     return toolbar;
   }

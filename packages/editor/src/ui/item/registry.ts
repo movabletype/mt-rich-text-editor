@@ -1,4 +1,6 @@
-import { Editor } from "@tiptap/core";
+import type { Editor } from "../../editor";
+import { EditorEl } from "../../editor";
+
 import { undoDepth, redoDepth } from "@tiptap/pm/history";
 import { normalizeHTML, preprocessHTML } from "../../util/html";
 import { mount, unmount } from "svelte";
@@ -33,32 +35,48 @@ import alignCenterIcon from "../icon/alignCenter.svg?raw";
 import alignRightIcon from "../icon/alignRight.svg?raw";
 import indentIcon from "../icon/indent.svg?raw";
 import outdentIcon from "../icon/outdent.svg?raw";
+import fullScreenIcon from "../icon/fullScreen.svg?raw";
 
 import "../block/Select.svelte";
 import "../color/ForegroundColor.svelte";
 import "../color/BackgroundColor.svelte";
 
-export const Event = {
+export interface PanelItemElement extends HTMLElement {
+  tiptap: Editor["tiptap"] | undefined;
+  onUpdate: (callback: (ev: { editor: Editor }) => void) => void;
+}
+
+type PanelNamespace = "toolbar" | "statusbar";
+
+export const EditorEventType = {
   Init: "mt-rich-text-editor-panel-item-init",
   Click: "mt-rich-text-editor-panel-item-click",
   Update: "mt-rich-text-editor-panel-item-update",
 } as const;
 
-export class InitEvent extends CustomEvent<{ editor: Editor }> {
-  constructor(editor: Editor) {
-    super(Event.Init, { detail: { editor } });
+export class EditorEvent extends Event {
+  public editor: Editor;
+  public get tiptap() {
+    return this.editor.tiptap;
+  }
+  constructor(type: (typeof EditorEventType)[keyof typeof EditorEventType], editor: Editor) {
+    super(type);
+    this.editor = editor;
   }
 }
 
-export class ClickEvent extends CustomEvent<{ editor: Editor }> {
-  constructor(editor: Editor) {
-    super(Event.Click, { detail: { editor } });
-  }
-}
-
-export class UpdateEvent extends CustomEvent<{ editor: Editor }> {
-  constructor(editor: Editor) {
-    super(Event.Update, { detail: { editor } });
+declare global {
+  interface HTMLElement {
+    addEventListener<K extends (typeof EditorEventType)[keyof typeof EditorEventType]>(
+      type: K,
+      listener: (this: HTMLElement, ev: EditorEvent) => any,
+      options?: boolean | AddEventListenerOptions
+    ): void;
+    removeEventListener<K extends (typeof EditorEventType)[keyof typeof EditorEventType]>(
+      type: K,
+      listener: (this: HTMLElement, ev: EditorEvent) => any,
+      options?: boolean | EventListenerOptions
+    ): void;
   }
 }
 
@@ -71,26 +89,22 @@ function createButtonClass(
 ) {
   method ??= `toggle${name.slice(0, 1).toUpperCase() + name.slice(1)}`;
   stateClass ??= `is-active`;
-  checkState ??= (editor: Editor) => editor.isActive(name);
+  checkState ??= (editor: Editor) => editor.tiptap.isActive(name);
 
   return class extends HTMLElement {
     constructor() {
       super();
-      const svg = document.createElement("svg");
-      svg.innerHTML = icon;
-      this.attachShadow({ mode: "open" }).appendChild(svg);
+      this.attachShadow({ mode: "open" }).innerHTML = icon;
     }
 
     connectedCallback() {
-      this.addEventListener(Event.Click, (ev: Event) => {
-        const customEvent = ev as ClickEvent;
-        (customEvent.detail.editor.chain().focus() as any)[method]().run();
+      this.addEventListener(EditorEventType.Click, ({ tiptap }) => {
+        (tiptap.chain().focus() as any)[method]().run();
       });
 
       if (stateClass !== false) {
-        this.addEventListener(Event.Update, (ev: Event) => {
-          const customEvent = ev as UpdateEvent;
-          this.classList.toggle(stateClass, checkState(customEvent.detail.editor));
+        this.addEventListener(EditorEventType.Update, ({ editor }) => {
+          this.classList.toggle(stateClass, checkState(editor));
         });
       }
     }
@@ -103,28 +117,24 @@ function createTextAlignButtonClass(name: string, icon: string) {
   return class extends HTMLElement {
     constructor() {
       super();
-      const svg = document.createElement("svg");
-      svg.innerHTML = icon;
-      this.attachShadow({ mode: "open" }).appendChild(svg);
+      this.attachShadow({ mode: "open" }).innerHTML = icon;
     }
 
     connectedCallback() {
-      this.addEventListener(Event.Click, (ev: Event) => {
-        const editor = (ev as ClickEvent).detail.editor;
-        const nodeType = editor.state.selection.$head.parent.type.name;
-        const currentAlign = editor.getAttributes(nodeType).textAlign;
+      this.addEventListener(EditorEventType.Click, ({ tiptap }) => {
+        const nodeType = tiptap.state.selection.$head.parent.type.name;
+        const currentAlign = tiptap.getAttributes(nodeType).textAlign;
 
         if (currentAlign === targetAlign) {
-          editor.chain().focus().unsetTextAlign().run();
+          tiptap.chain().focus().unsetTextAlign().run();
         } else {
-          editor.chain().focus().setTextAlign(targetAlign).run();
+          tiptap.chain().focus().setTextAlign(targetAlign).run();
         }
       });
 
-      this.addEventListener(Event.Update, (ev: Event) => {
-        const editor = (ev as UpdateEvent).detail.editor;
-        const nodeType = editor.state.selection.$head.parent.type.name;
-        const currentAlign = editor.getAttributes(nodeType).textAlign;
+      this.addEventListener(EditorEventType.Update, ({ tiptap }) => {
+        const nodeType = tiptap.state.selection.$head.parent.type.name;
+        const currentAlign = tiptap.getAttributes(nodeType).textAlign;
         this.classList.toggle("is-active", currentAlign === targetAlign);
       });
     }
@@ -140,7 +150,7 @@ export const UnlinkButton = createButtonClass(
   unlinkIcon,
   "unsetLink",
   "is-disabled",
-  (editor: Editor) => !editor.isActive("link")
+  (editor: Editor) => !editor.tiptap.isActive("link")
 );
 export const BulletListButton = createButtonClass("bulletList", bulletListIcon);
 export const OrderedListButton = createButtonClass("orderedList", orderedListIcon);
@@ -150,19 +160,19 @@ export const UndoButton = createButtonClass(
   undoIcon,
   "undo",
   "is-disabled",
-  (editor: Editor) => undoDepth(editor.state) === 0
+  (editor: Editor) => undoDepth(editor.tiptap.state) === 0
 );
 export const RedoButton = createButtonClass(
   "redo",
   redoIcon,
   "redo",
   "is-disabled",
-  (editor: Editor) => redoDepth(editor.state) === 0
+  (editor: Editor) => redoDepth(editor.tiptap.state) === 0
 );
 export const RemoveFormatButton = createButtonClass(
   "removeFormat",
   removeFormatIcon,
-  "unsetAllMarks", // FIXME: and .clearNodes() ?
+  "unsetAllMarks().clearNodes()",
   false
 );
 export const AlignLeftButton = createTextAlignButtonClass("alignLeft", alignLeftIcon);
@@ -174,15 +184,12 @@ export const OutdentButton = createButtonClass("outdent", outdentIcon, "outdent"
 export class HorizontalRuleButton extends HTMLElement {
   constructor() {
     super();
-    const svg = document.createElement("svg");
-    svg.innerHTML = horizontalRuleIcon;
-    this.attachShadow({ mode: "open" }).appendChild(svg);
+    this.attachShadow({ mode: "open" }).innerHTML = horizontalRuleIcon;
   }
 
   connectedCallback() {
-    this.addEventListener(Event.Click, (ev: Event) => {
-      const customEvent = ev as ClickEvent;
-      customEvent.detail.editor.chain().focus().setHorizontalRule().run();
+    this.addEventListener(EditorEventType.Click, ({ tiptap }) => {
+      tiptap.chain().focus().setHorizontalRule().run();
     });
   }
 }
@@ -190,26 +197,21 @@ export class HorizontalRuleButton extends HTMLElement {
 export class LinkButton extends HTMLElement {
   constructor() {
     super();
-    const svg = document.createElement("svg");
-    svg.innerHTML = linkIcon;
-    this.attachShadow({ mode: "open" }).appendChild(svg);
+    this.attachShadow({ mode: "open" }).innerHTML = linkIcon;
   }
 
   connectedCallback() {
-    this.addEventListener(Event.Click, (ev: Event) => {
-      const customEvent = ev as ClickEvent;
-
-      const { editor } = customEvent.detail;
+    this.addEventListener(EditorEventType.Click, ({ tiptap }) => {
       let linkData: LinkData;
-      if (editor.isActive("link")) {
-        editor.chain().extendMarkRange("link").run();
+      if (tiptap.isActive("link")) {
+        tiptap.chain().extendMarkRange("link").run();
 
-        const linkText = editor.state.doc.textBetween(
-          editor.state.selection.from,
-          editor.state.selection.to
+        const linkText = tiptap.state.doc.textBetween(
+          tiptap.state.selection.from,
+          tiptap.state.selection.to
         );
 
-        const attrs = editor.getAttributes("link");
+        const attrs = tiptap.getAttributes("link");
         linkData = {
           url: attrs.href || "",
           text: linkText,
@@ -219,9 +221,9 @@ export class LinkButton extends HTMLElement {
       } else {
         linkData = {
           url: "",
-          text: editor.state.selection.empty
+          text: tiptap.state.selection.empty
             ? ""
-            : editor.state.doc.textBetween(editor.state.selection.from, editor.state.selection.to),
+            : tiptap.state.doc.textBetween(tiptap.state.selection.from, tiptap.state.selection.to),
           title: "",
           target: "_self",
         };
@@ -232,9 +234,9 @@ export class LinkButton extends HTMLElement {
         props: {
           linkData,
           onSubmit: (linkData: LinkData) => {
-            const chain = editor.chain().focus();
+            const chain = tiptap.chain().focus();
 
-            if (editor.isActive("link")) {
+            if (tiptap.isActive("link")) {
               chain.extendMarkRange("link");
             }
 
@@ -264,9 +266,8 @@ export class LinkButton extends HTMLElement {
       });
     });
 
-    this.addEventListener(Event.Update, (ev: Event) => {
-      const customEvent = ev as UpdateEvent;
-      this.classList.toggle("is-active", customEvent.detail.editor.isActive("link"));
+    this.addEventListener(EditorEventType.Update, ({ tiptap }) => {
+      this.classList.toggle("is-active", tiptap.isActive("link"));
     });
   }
 }
@@ -274,20 +275,17 @@ export class LinkButton extends HTMLElement {
 export class InsertHtmlButton extends HTMLElement {
   constructor() {
     super();
-    const svg = document.createElement("svg");
-    svg.innerHTML = insertHtmlIcon;
-    this.attachShadow({ mode: "open" }).appendChild(svg);
+    this.attachShadow({ mode: "open" }).innerHTML = insertHtmlIcon;
   }
 
   connectedCallback() {
-    this.addEventListener(Event.Click, (ev: Event) => {
-      const editor = (ev as ClickEvent).detail.editor;
+    this.addEventListener(EditorEventType.Click, ({ tiptap }) => {
       const modal = mount(InsertHtmlModal, {
         target: document.body,
         props: {
-          text: normalizeHTML(editor.getHTML()),
+          text: normalizeHTML(tiptap.getHTML()),
           onSubmit: (html: string) => {
-            editor.commands.insertContent(preprocessHTML(html));
+            tiptap.commands.insertContent(preprocessHTML(html));
             unmount(modal);
           },
           onClose: () => {
@@ -303,22 +301,19 @@ export class TableButton extends HTMLElement {
   private menuContainer: HTMLElement | null = null;
   constructor() {
     super();
-    const svg = document.createElement("svg");
-    svg.innerHTML = tableIcon;
-    this.attachShadow({ mode: "open" }).appendChild(svg);
+    this.attachShadow({ mode: "open" }).innerHTML = tableIcon;
   }
 
   connectedCallback() {
     this.menuContainer = document.createElement("div");
     this.parentElement?.appendChild(this.menuContainer);
 
-    this.addEventListener(Event.Click, (ev: Event) => {
-      const editor = (ev as ClickEvent).detail.editor;
+    this.addEventListener(EditorEventType.Click, ({ tiptap }) => {
       const modal = mount(TableToolbarMenu, {
         target: this.menuContainer as HTMLElement,
         props: {
           onSubmit: (html: string) => {
-            editor.commands.insertContent(preprocessHTML(html));
+            tiptap.commands.insertContent(preprocessHTML(html));
             unmount(modal);
           },
           onClose: () => {
@@ -333,20 +328,17 @@ export class TableButton extends HTMLElement {
 export class SourceButton extends HTMLElement {
   constructor() {
     super();
-    const svg = document.createElement("svg");
-    svg.innerHTML = sourceIcon;
-    this.attachShadow({ mode: "open" }).appendChild(svg);
+    this.attachShadow({ mode: "open" }).innerHTML = sourceIcon;
   }
 
   connectedCallback() {
-    this.addEventListener(Event.Click, (ev: Event) => {
-      const editor = (ev as ClickEvent).detail.editor;
+    this.addEventListener(EditorEventType.Click, ({ tiptap }) => {
       const modal = mount(SourceModal, {
         target: document.body,
         props: {
-          text: normalizeHTML(editor.getHTML()),
+          text: normalizeHTML(tiptap.getHTML()),
           onSubmit: (html: string) => {
-            editor.commands.setContent(preprocessHTML(html));
+            tiptap.commands.setContent(preprocessHTML(html));
             unmount(modal);
           },
           onClose: () => {
@@ -358,13 +350,39 @@ export class SourceButton extends HTMLElement {
   }
 }
 
+export class FullScreenButton extends HTMLElement {
+  private styleElement: HTMLStyleElement
+  constructor() {
+    super();
+    this.styleElement = document.createElement("style");
+    this.styleElement.textContent = "body { overflow: hidden; }";
+    this.attachShadow({ mode: "open" }).innerHTML = fullScreenIcon;
+  }
+
+  connectedCallback() {
+    this.addEventListener(EditorEventType.Click, ({ editor }) => {
+      const isFullScreen = editor[EditorEl].classList.contains(
+        "mt-rich-text-editor-editor--fullscreen"
+      );
+
+      editor[EditorEl].classList.toggle("mt-rich-text-editor-editor--fullscreen");
+      this.classList.toggle("is-active", !isFullScreen);
+
+      if (!isFullScreen) {
+        document.body.appendChild(this.styleElement);
+      } else {
+        document.body.removeChild(this.styleElement);
+      }
+    });
+  }
+}
+
 export class PathItem extends HTMLElement {
   connectedCallback() {
-    this.addEventListener(Event.Update, (ev: Event) => {
-      const editor = (ev as UpdateEvent).detail.editor;
-      const { selection } = editor.state;
+    this.addEventListener(EditorEventType.Update, ({ tiptap }) => {
+      const { selection } = tiptap.state;
       const $head = selection.$head;
-      
+
       const path: string[] = [];
       for (let depth = 1; depth <= $head.depth; depth++) {
         const node = $head.node(depth);
@@ -372,42 +390,42 @@ export class PathItem extends HTMLElement {
         if (!nodeName) {
           continue;
         }
-        
+
         const textAlign = node.attrs.textAlign;
         if (textAlign) {
           nodeName += `[align=${textAlign}]`;
         }
-        
+
         path.push(nodeName);
       }
 
-      this.textContent = path.join(' > ');
+      this.textContent = path.join(" > ");
     });
   }
 
   private getHTMLTag(nodeName: string): string {
     const nodeToTagMap: Record<string, string> = {
-      paragraph: 'p',
-      heading: 'h1',
-      bulletList: 'ul',
-      orderedList: 'ol',
-      listItem: 'li',
-      blockquote: 'blockquote',
-      horizontalRule: 'hr',
-      table: 'table',
-      tableRow: 'tr',
-      tableCell: 'td',
-      tableHeader: 'th',
-      hardBreak: 'br',
-      text: '',
-      textBlock: '',
+      paragraph: "p",
+      heading: "h1",
+      bulletList: "ul",
+      orderedList: "ol",
+      listItem: "li",
+      blockquote: "blockquote",
+      horizontalRule: "hr",
+      table: "table",
+      tableRow: "tr",
+      tableCell: "td",
+      tableHeader: "th",
+      hardBreak: "br",
+      text: "",
+      textBlock: "",
     };
 
     return nodeToTagMap[nodeName] ?? nodeName;
   }
 }
 
-const systemItems: Record<"toolbar" | "statusbar", Record<string, typeof HTMLElement>> = {
+const systemItems: Record<PanelNamespace, Record<string, typeof HTMLElement>> = {
   toolbar: {
     bold: BoldButton,
     italic: ItalicButton,
@@ -430,13 +448,14 @@ const systemItems: Record<"toolbar" | "statusbar", Record<string, typeof HTMLEle
     alignRight: AlignRightButton,
     indent: IndentButton,
     outdent: OutdentButton,
+    fullScreen: FullScreenButton,
   },
   statusbar: {
     path: PathItem,
   },
 };
 
-export const getDefinedItem = (namespace: "toolbar" | "statusbar", name: string): string => {
+export const getPanelItem = (namespace: PanelNamespace, name: string): string => {
   const lowerName = name.toLowerCase();
   if (lowerName.includes("-") && window.customElements.get(lowerName)) {
     // specified by full name

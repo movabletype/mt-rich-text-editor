@@ -1,6 +1,9 @@
 import { Extension as TiptapExtension } from "@tiptap/core";
+
+// core
 import { Document } from "@tiptap/extension-document";
 import { Text } from "@tiptap/extension-text";
+import { Image } from "@tiptap/extension-image";
 import { History } from "@tiptap/extension-history";
 import { HardBreak } from "@tiptap/extension-hard-break";
 import { Bold } from "@tiptap/extension-bold";
@@ -21,6 +24,11 @@ import { Gapcursor } from "@tiptap/extension-gapcursor";
 import { TextAlign } from '@tiptap/extension-text-align'
 import { Color } from '@tiptap/extension-color'
 import TextStyle from '@tiptap/extension-text-style'
+
+// experiments
+import Iframe from "./extension/experiments/iframe";
+
+// custom
 import { Indent } from "./extension/indent";
 import { Div } from "./extension/div";
 import { BlockLink } from "./extension/block-link";
@@ -48,6 +56,10 @@ export const Extension = TiptapExtension.create({
 
     if (this.options.text !== false) {
       extensions.push(Text.configure(this.options?.text));
+    }
+
+    if (this.options.image !== false) {
+      extensions.push(Image.configure(this.options?.image));
     }
 
     if (this.options.history !== false) {
@@ -137,6 +149,11 @@ export const Extension = TiptapExtension.create({
 
     if (this.options.textStyle !== false) {
       extensions.push(TextStyle.configure(this.options?.textStyle));
+    }
+
+    // experiments
+    if (this.options.iframe !== false) {
+      extensions.push(Iframe.configure(this.options?.iframe));
     }
 
     // custom

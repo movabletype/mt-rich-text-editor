@@ -14,7 +14,13 @@ export default defineConfig({
     minify: true,
     target: "es2017",
   },
-  plugins: [svelte()],
+  plugins: [
+    svelte({
+      compilerOptions: {
+        customElement: true,
+      },
+    }),
+  ],
   test: {
     globals: true,
   },

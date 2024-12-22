@@ -1,8 +1,8 @@
 <script lang="ts">
-  import linkIcon from "../assets/link.svg?raw";
-  import assetIcon from "../assets/asset.svg?raw";
-  import imageIcon from "../assets/image.svg?raw";
-  import fullScreenIcon from "../assets/full_screen.svg?raw";
+  import linkIcon from "../asset/link.svg?raw";
+  import assetIcon from "../asset/asset.svg?raw";
+  import imageIcon from "../asset/image.svg?raw";
+  import fullScreenIcon from "../asset/full_screen.svg?raw";
 
   const {
     command,
@@ -59,7 +59,6 @@
     border: 1px solid #ccc;
     border-bottom: none;
     flex-wrap: wrap;
-    background-image: url("../assets/toolbar-border.svg");
   }
   .mt-rich-text-editor-source-editor-toolbar-group {
     padding: 0 4px;
