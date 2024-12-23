@@ -11,9 +11,9 @@
   type BlockItem = { value: string; label: string };
   type BlockInternalItem = { id: string; value: string; label: string };
 
-  const availableBlocks: BlockInternalItem[] = convertToItems(JSON.parse(
-    textarea.getAttribute("data-available-blocks") ?? "[]"
-  ));
+  const availableBlocks: BlockInternalItem[] = convertToItems(
+    JSON.parse(textarea.getAttribute("data-available-blocks") ?? "[]")
+  );
 
   function convertToItems(data: BlockItem[]): BlockInternalItem[] {
     return data.map((item) => ({
@@ -83,15 +83,17 @@
     >
       {#each blocksItems as item (item.id)}
         <div class="mt-rich-text-editor-blocks-settings-item">
-          <span class="mt-rich-text-editor-blocks-settings-move">
-            {@html moveIcon}
-          </span>
-          <input
-            type="text"
-            value={item.label}
-            oninput={(e) => handleUpdateLabel(item.id, e.currentTarget.value)}
-          />
-          <span class="mt-rich-text-editor-blocks-settings-value">{item.value}</span>
+          <div class="mt-rich-text-editor-blocks-settings-item-content">
+            <span class="mt-rich-text-editor-blocks-settings-move">
+              {@html moveIcon}
+            </span>
+            <input
+              type="text"
+              value={item.label}
+              oninput={(e) => handleUpdateLabel(item.id, e.currentTarget.value)}
+            />
+            <span class="mt-rich-text-editor-blocks-settings-value">{item.value}</span>
+          </div>
           <button
             class="mt-rich-text-editor-blocks-settings-remove"
             type="button"
@@ -139,13 +141,19 @@
 
   .mt-rich-text-editor-blocks-settings-item {
     display: flex;
-    gap: 0.5rem;
     align-items: center;
+    justify-content: space-between;
     padding: 0.5rem;
     margin-bottom: 0.5rem;
     cursor: move;
     border: 1px solid #ccc;
     border-radius: 4px;
+  }
+
+  .mt-rich-text-editor-blocks-settings-item-content {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
   }
 
   .mt-rich-text-editor-blocks-settings-value {
