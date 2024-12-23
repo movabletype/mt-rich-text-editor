@@ -9,12 +9,18 @@ export default defineConfig({
       name: "MTRichTextEditor",
       formats: ["iife"],
     },
-    outDir: "./mt-static/plugins/MTRichTextEditor/dist",
+    outDir: "./mt-static/plugins/MTRichTextEditor/dist/iife",
     sourcemap: true,
     minify: true,
     target: "es2017",
   },
-  plugins: [svelte()],
+  plugins: [
+    svelte({
+      compilerOptions: {
+        customElement: true,
+      },
+    }),
+  ],
   test: {
     globals: true,
   },

@@ -1,0 +1,65 @@
+.mt-rich-text-editor-editor {
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  position: relative;
+  background: #fff;
+}
+
+.mt-rich-text-editor-editor--fullscreen {
+  position: fixed;
+  top: -1px;
+  left: 0;
+  width: 100%;
+  z-index: 10000;
+}
+
+.mt-rich-text-editor-content-root,
+.mt-rich-text-editor-content-root > .tiptap {
+  height: calc(100% - 10px);
+}
+
+.mt-rich-text-editor-content-root > .tiptap {
+  padding: 10px;
+  outline: none;
+}
+
+.mt-rich-text-editor-content-root > .tiptap:after {
+  content: "";
+  display: block;
+  height: 1px;
+}
+
+.mt-rich-text-editor-editor:focus-within {
+  outline: none;
+}
+
+.mt-rich-text-editor-content {
+  flex-grow: 1;
+  min-height: 0;
+  overflow: auto;
+}
+
+.mt-rich-text-editor-toolbar {
+  border-bottom: 1px solid #ccc;
+}
+
+.mt-rich-text-editor-statusbar {
+  border-top: 1px solid #ccc;
+}
+
+.mt-rich-text-editor-resize-handle {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 15px;
+  height: 15px;
+  cursor: ns-resize;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='15' height='15' viewBox='0 0 15 15'%3E%3Cpath d='M11 15 L15 11 M7 15 L15 7' stroke='%23666666' stroke-width='1' fill='none'/%3E%3C/svg%3E");
+}
+
+.mt-rich-text-editor-editor--fullscreen .mt-rich-text-editor-resize-handle {
+  display: none;
+}

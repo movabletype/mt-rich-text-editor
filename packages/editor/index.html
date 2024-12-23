@@ -9,15 +9,53 @@
       integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM"
       crossorigin="anonymous"
     />
+    <style>
+      #editor-container {
+        max-width: 800px;
+        margin: 20px auto;
+      }
+    </style>
     <title>mt-rich-text-editor</title>
   </head>
   <body>
-    <textarea id="editor"></textarea>
+    <div id="editor-container">
+      <textarea id="editor">
+        <p>Hello MTRichTextEditor</p>
+      </textarea>
+    </div>
     <script type="module">
       import MTRichTextEditor from "/src/index.ts";
       window.MTRichTextEditor = MTRichTextEditor;
-      MTRichTextEditor.setLanguage("ja");
-      MTRichTextEditor.create({ id: "editor" });
+      MTRichTextEditor.on("create", (createOptions) => {
+        console.log(`created with options:`, createOptions);
+      });
+      MTRichTextEditor.on("init", (editor) => {
+        console.log("editor initialized: `editor.editor` is an instance of the Tiptap editor");
+      });
+      const editor = await MTRichTextEditor.create({
+        id: "editor",
+        language: "ja",
+        inline: false,
+        toolbarOptions: {
+          block: {
+            blocks: [
+              { value: "paragraph", label: "本文" },
+              { value: "h1", label: "見出し1" },
+              { value: "h2", label: "見出し2" },
+              { value: "h3", label: "見出し3" },
+              { value: "pre", label: "コードブロック" },
+            ],
+          },
+          foregroundColor: {
+            presetColors: ["#000000", "#ffffff"],
+          },
+          backgroundColor: {
+            presetColors: ["#000000", "#ffffff"],
+          },
+        },
+      });
+      console.log(editor);
+      editor.setHeight(400);
     </script>
   </body>
 </html>

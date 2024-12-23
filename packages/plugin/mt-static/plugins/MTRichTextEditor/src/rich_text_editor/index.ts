@@ -1,114 +1,85 @@
-import "@movabletype/mt-rich-text-editor/mt-rich-text-editor.css";
 import "../../css/editor.css";
 import { MT } from "@movabletype/app";
 import "@movabletype/mt-rich-text-editor/mt-rich-text-editor";
-import type { EditorOptions } from "@movabletype/mt-rich-text-editor";
+import type { EditorCreateOptions } from "@movabletype/mt-rich-text-editor";
 import { Editor } from "@movabletype/mt-rich-text-editor";
 import { DEFAULT_HEIGHT } from "../constant";
 import { currentLanguage } from "../l10n";
-import { toggleFullScreen } from "../utils/full_screen";
-import fullScreenIcon from "../assets/full_screen.svg?raw";
-import assetIcon from "../assets/asset.svg?raw";
-import imageIcon from "../assets/image.svg?raw";
-import { convertToolbar } from "../utils/tinymce";
+import { convertToolbar } from "../util/tinymce";
+import editorCss from "../../css/rich-text-editor.css?inline";
+
+import "./File.svelte";
+import "./Image.svelte";
 
 const MTRichTextEditorManager = window.MTRichTextEditor;
 
-function openDialog(mode: string, param: string) {
-  var url = window.ScriptURI + "?" + "__mode=" + mode + "&amp;" + param;
-  window.jQuery.fn.mtModal.open(url, { large: true });
-  var modalClose = function (e: KeyboardEvent) {
-    if (e.keyCode == 27) {
-      window.jQuery.fn.mtModal.close();
-      window.jQuery("body").off("keyup", modalClose as any);
-    }
-  };
-  window.jQuery("body").on("keyup", modalClose as any);
-}
-
-MTRichTextEditorManager.setIcons({
-  full_screen: fullScreenIcon,
-  mt_file: assetIcon,
-  mt_image: imageIcon,
-});
-MTRichTextEditorManager.setLanguage(currentLanguage);
-MTRichTextEditorManager.setHandlers({
-  full_screen() {
-    toggleFullScreen("editor-input-content");
-  },
-  mt_file() {
-    const blogId = document.querySelector<HTMLInputElement>("[name=blog_id]")?.value || 0;
-    const fieldId = this.quill.container.dataset.id;
-    openDialog(
-      "dialog_asset_modal",
-      `_type=asset&amp;edit_field=${fieldId}&amp;blog_id=${blogId}&amp;dialog_view=1&amp;filter=class&amp;filter_val=image&amp;can_multi=1`
-    );
-  },
-  mt_image() {
-    const blogId = document.querySelector<HTMLInputElement>("[name=blog_id]")?.value || 0;
-    const fieldId = this.quill.container.dataset.id;
-    openDialog(
-      "dialog_asset_modal",
-      `_type=asset&amp;edit_field=${fieldId}&amp;blog_id=${blogId}&amp;dialog_view=1&amp;can_multi=1`
-    );
-  },
-});
-
 const createRichTextEditor = async (
   id: string,
-  options?: Partial<EditorOptions>
+  options?: Partial<EditorCreateOptions>
 ): Promise<Editor> => {
-  if (options?.modules?.toolbar) {
-    options.modules = {
-      ...options.modules,
-      toolbar: convertToolbar(options.modules.toolbar),
-    };
+  if (options?.toolbar) {
+    options.toolbar = convertToolbar(options.toolbar);
   }
 
   return MTRichTextEditorManager.create({
     id,
-    height: options?.inline ? undefined : DEFAULT_HEIGHT,
     ...MTRichTextEditor.config,
     ...options,
-  });
+  } as EditorCreateOptions);
 };
 
-class MTRichTextEditor extends (MT.Editor!) {
+let customSettings: Record<string, any> | undefined = undefined;
+try {
+  customSettings = JSON.parse(document.querySelector<HTMLScriptElement>('[data-mt-rich-text-editor-settings]')?.dataset.mtRichTextEditorSettings || '{}');
+} catch (e) {
+  console.error(e);
+}
+
+const toolbarOptions: Record<string, any> = {}
+if (customSettings?.blocks) {
+  toolbarOptions.block = {
+    blocks: customSettings.blocks,
+  }
+}
+
+if (customSettings?.colors) {
+  toolbarOptions.foregroundColor = {
+    presetColors: customSettings.colors,
+  }
+  toolbarOptions.backgroundColor = {
+    presetColors: customSettings.colors,
+  }
+}
+
+const MTEditor = MT.Editor || (class {} as NonNullable<typeof MT.Editor>);
+
+class MTRichTextEditor extends MTEditor {
   editor?: Editor;
 
-  static config: Partial<EditorOptions> = {
-    modules: {
-      toolbar: [
-        [
-          ["bold", "italic", "underline", "strike"],
-          ["blockquote", { list: "bullet" }, { list: "ordered" }, "hr"],
-          ["mt_link", "mt_unlink"],
-          ["insert_html", "mt_file", "mt_image"],
-          ["mt_table"],
-          ["source"],
-        ],
-        [
-          ["undo", "redo"],
-          [{ color: [] }, { background: [] }, "clean"],
-          [{ align: "" }, { align: "center" }, { align: "right" }],
-          [{ indent: "+1" }, { indent: "-1" }],
-          [{ block: ["p", "h1", "h2", "h3", "h4", "h5", "h6", "pre"] }],
-          ["full_screen"],
-        ],
+  static config: Partial<EditorCreateOptions> = {
+    height: DEFAULT_HEIGHT,
+    inline: false,
+    language: currentLanguage,
+    editorStylesheets: [editorCss],
+    toolbar: customSettings?.toolbar || [
+      [
+        ["bold", "italic", "underline", "strike"],
+        ["blockquote", "bulletList", "orderedList", "horizontalRule"],
+        ["link", "unlink"],
+        ["insertHtml", "mtFile", "mtImage"],
+        ["table"],
+        ["source"],
       ],
-      uploader: {
-        handler(file) {
-          const blogId = document.querySelector<HTMLInputElement>("[name=blog_id]")?.value || 0;
-          const fieldId = this.quill.container.dataset.id;
-          // TODO: upload file
-          console.log(file);
-          openDialog(
-            "dialog_asset_modal",
-            `_type=asset&amp;edit_field=${fieldId}&amp;blog_id=${blogId}&amp;dialog_view=1&amp;can_multi=1`
-          );
-        },
-      },
-    },
+      [
+        ["undo", "redo"],
+        ["foregroundColor", "backgroundColor", "removeFormat"],
+        ["alignLeft", "alignCenter", "alignRight"],
+        ["indent", "outdent"],
+        ["block"],
+        ["fullScreen"],
+      ],
+    ],
+    toolbarOptions,
   };
 
   static formats() {
@@ -145,5 +116,5 @@ class MTRichTextEditor extends (MT.Editor!) {
   }
 }
 
-(MT.Editor as any).MTRichTextEditor = MTRichTextEditor;
-MT.EditorManager.register("mt_rich_text_editor", MTRichTextEditor);
+(MTEditor as any).MTRichTextEditor = MTRichTextEditor;
+MT.EditorManager?.register("mt_rich_text_editor", MTRichTextEditor);

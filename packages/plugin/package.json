@@ -16,13 +16,16 @@
     "prettier-plugin-svelte": "^3.3.2",
     "svelte": "^5.12.0",
     "svelte-check": "^4.1.1",
+    "svelte-dnd-action": "^0.9.53",
     "typescript": "^5.7.2",
     "typescript-eslint": "^8.18.0",
     "vite": "^6.0.3"
   },
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "build:iife": "tsc && vite build",
+    "build:es": "tsc && vite build --config vite.config.es.ts",
+    "build": "tsc && npm run build:iife && npm run build:es",
     "preview": "vite preview",
     "lint": "eslint",
     "lint:fix": "eslint --fix",

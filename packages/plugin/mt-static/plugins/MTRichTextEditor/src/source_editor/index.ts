@@ -1,7 +1,9 @@
 import { MT } from "@movabletype/app";
 import SourceEditor from "./editor";
 
-class MTSourceEditor extends MT.Editor! {
+const MTEditor = MT.Editor || (class {} as NonNullable<typeof MT.Editor>);
+
+class MTSourceEditor extends MTEditor {
   editor?: SourceEditor;
 
   static formats() {
@@ -26,4 +28,4 @@ class MTSourceEditor extends MT.Editor! {
   }
 }
 
-MT.EditorManager.register("mt_source_editor", MTSourceEditor);
+MT.EditorManager?.register("mt_source_editor", MTSourceEditor);
