@@ -1,0 +1,57 @@
+<mt:setvarblock name="page_title"><__trans phrase="MTRichTextEditor Settings"></mt:setvarblock>
+
+<mt:setvarblock name="system_msg">
+<mt:if name="saved">
+  <mtapp:statusmsg
+     id="saved"
+     class="success">
+    <__trans phrase="Your preferences have been saved.">
+  </mtapp:statusmsg>
+</mt:if>
+</mt:setvarblock>
+    
+<mt:setvarblock name="js_include" append="1">
+<script src="<mt:Var name="static_uri" />plugins/MTRichTextEditor/dist/iife/index.js?v=0.0.1"></script>
+<script src="<mt:Var name="static_uri" />plugins/MTRichTextEditor/dist/es/settings.js?v=0.0.1" type="module"></script>
+</mt:setvarblock>
+    
+<mt:setvarblock name="page_content">
+<form name="mt_rich_text_editor_settings_form" method="post" action="<mt:var name="script_url">">
+  <input type="hidden" name="__mode" value="mt_rich_text_editor_save_settings" />
+  <input type="hidden" name="return_args" value="<mt:var name="return_args" escape="html">" />
+  <input type="hidden" name="magic_token" value="<mt:var name="magic_token">" />
+
+  <mtapp:setting
+     id="mt_rich_text_editor_toolbar"
+     label="<__trans phrase="Toolbar">">
+  <textarea name="mt_rich_text_editor_toolbar" class="d-none" rows="10" data-available-items="<mt:var name="mt_rich_text_editor_toolbar_available_items" escape="html">"><mt:var name="mt_rich_text_editor_toolbar" escape="html"></textarea>
+  </mtapp:setting>
+
+  <mtapp:setting
+     id="mt_rich_text_editor_blocks"
+     label="<__trans phrase="Blocks">">
+  <textarea name="mt_rich_text_editor_blocks" class="form-control" rows="10"><mt:var name="mt_rich_text_editor_blocks" escape="html"></textarea>
+  </mtapp:setting>
+
+  <mtapp:setting
+     id="mt_rich_text_editor_colors"
+     label="<__trans phrase="Colors">">
+  <textarea name="mt_rich_text_editor_colors" class="form-control" rows="10"><mt:var name="mt_rich_text_editor_colors" escape="html"></textarea>
+  </mtapp:setting>
+
+<mt:setvarblock name="action_buttons">
+    <button
+        type="submit"
+        accesskey="s"
+        title="<__trans phrase="Save changes to these settings (s)">"
+        class="save action primary button btn btn-primary"
+        ><__trans phrase="Save Changes"></button>
+</mt:setvarblock>
+<mt:include name="include/actions_bar.tmpl" bar_position="bottom" hide_pager="1" settings_bar="1">
+
+</form>
+</mt:setvarblock>
+    
+<mt:include name="layout/default.tmpl">
+<mt:var name="layout">
+    

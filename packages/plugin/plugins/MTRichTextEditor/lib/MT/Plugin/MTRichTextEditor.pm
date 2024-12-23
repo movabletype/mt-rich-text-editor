@@ -1,0 +1,93 @@
+package MT::Plugin::MTRichTextEditor;
+
+use strict;
+use warnings;
+use utf8;
+
+use MT::Util;
+
+our @EXPORT_OK = qw(plugin translate);
+use base qw(Exporter);
+
+my @settings = qw(toolbar blocks colors);
+
+sub component {
+    __PACKAGE__ =~ m/::([^:]+)\z/;
+}
+
+sub translate {
+    MT->component(component())->translate(@_);
+}
+
+sub plugin {
+    MT->component(component());
+}
+
+sub settings {
+    my ($app) = @_;
+    my $plugin = plugin();
+    $app->add_breadcrumb(
+        $plugin->translate('MTRichTextEditor Settings'),
+        $app->uri(
+            'mode' => 'mt_rich_text_editor_settings',
+        ),
+    );
+    $plugin->load_tmpl(
+        'mt_rich_text_editor_settings.tmpl', {
+            saved                                       => $app->param('saved') ? 1 : 0,
+            mt_rich_text_editor_toolbar_available_items => MT::Util::to_json([qw(
+                bold
+                italic
+                underline
+                strike
+                blockquote
+                bulletList
+                orderedList
+                horizontalRule
+                link
+                unlink
+                insertHtml
+                mtFile
+                mtImage
+                table
+                source
+                undo
+                redo
+                foregroundColor
+                backgroundColor
+                removeFormat
+                alignLeft
+                alignCenter
+                alignRight
+                indent
+                outdent
+                block
+                fullScreen
+            )]),
+            map { "mt_rich_text_editor_" . $_ => $plugin->get_config_value($_) } @settings
+        });
+}
+
+sub save_settings {
+    my ($app) = @_;
+
+    my $plugin = plugin();
+    for my $key (@settings) {
+        $plugin->set_config_value($key, $app->param("mt_rich_text_editor_$key"));
+    }
+
+    $app->redirect($app->uri(
+        mode => 'mt_rich_text_editor_settings',
+        args => {
+            saved => 1,
+        }));
+}
+
+sub template_source_mt_rich_text_editor {
+    my ($cb, $app, $tmpl) = @_;
+
+    my $settings = MT::Util::encode_html(MT::Util::to_json({ map { $_ => MT::Util::from_json(plugin()->get_config_value($_)) } @settings }));
+    $$tmpl =~ s{(data-mt-rich-text-editor-settings)=""}{$1="$settings"}g;
+}
+
+1;

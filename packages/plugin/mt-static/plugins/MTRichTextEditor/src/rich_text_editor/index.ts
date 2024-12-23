@@ -28,14 +28,40 @@ const createRichTextEditor = async (
   } as EditorCreateOptions);
 };
 
-class MTRichTextEditor extends (MT.Editor!) {
+let customSettings: Record<string, any> | undefined = undefined;
+try {
+  customSettings = JSON.parse(document.querySelector<HTMLScriptElement>('[data-mt-rich-text-editor-settings]')?.dataset.mtRichTextEditorSettings || '{}');
+} catch (e) {
+  console.error(e);
+}
+
+const toolbarOptions: Record<string, any> = {}
+if (customSettings?.blocks) {
+  toolbarOptions.block = {
+    blocks: customSettings.blocks,
+  }
+}
+
+if (customSettings?.colors) {
+  toolbarOptions.foregroundColor = {
+    presetColors: customSettings.colors,
+  }
+  toolbarOptions.backgroundColor = {
+    presetColors: customSettings.colors,
+  }
+}
+
+const MTEditor = MT.Editor || (class {} as NonNullable<typeof MT.Editor>);
+
+class MTRichTextEditor extends MTEditor {
   editor?: Editor;
 
   static config: Partial<EditorCreateOptions> = {
     height: DEFAULT_HEIGHT,
     inline: false,
     language: currentLanguage,
-    toolbar: [
+    editorStylesheets: [editorCss],
+    toolbar: customSettings?.toolbar || [
       [
         ["bold", "italic", "underline", "strike"],
         ["blockquote", "bulletList", "orderedList", "horizontalRule"],
@@ -53,7 +79,7 @@ class MTRichTextEditor extends (MT.Editor!) {
         ["fullScreen"],
       ],
     ],
-    editorStylesheets: [editorCss],
+    toolbarOptions,
   };
 
   static formats() {
@@ -90,5 +116,5 @@ class MTRichTextEditor extends (MT.Editor!) {
   }
 }
 
-(MT.Editor as any).MTRichTextEditor = MTRichTextEditor;
-MT.EditorManager.register("mt_rich_text_editor", MTRichTextEditor);
+(MTEditor as any).MTRichTextEditor = MTRichTextEditor;
+MT.EditorManager?.register("mt_rich_text_editor", MTRichTextEditor);

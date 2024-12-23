@@ -6,7 +6,85 @@ author_name: Six Apart Ltd.
 description: <MT_TRANS phrase="Movable Type Rich Text Editor.">
 l10n_class: MT::Plugin::MTRichTextEditor::L10N
 
+settings:
+  toolbar:
+    scope: system
+    default: |
+      [
+        [
+          ["bold", "italic", "underline", "strike"],
+          ["blockquote", "bulletList", "orderedList", "horizontalRule"],
+          ["link", "unlink"],
+          ["insertHtml", "mtFile", "mtImage"],
+          ["table"],
+          ["source"],
+        ],
+        [
+          ["undo", "redo"],
+          ["foregroundColor", "backgroundColor", "removeFormat"],
+          ["alignLeft", "alignCenter", "alignRight"],
+          ["indent", "outdent"],
+          ["block"],
+          ["fullScreen"],
+        ]
+      ]
+  blocks:
+    scope: system
+    default: |
+      [
+        { "value": "paragraph", "label": "本文" },
+        { "value": "h1", "label": "見出し1" },
+        { "value": "h2", "label": "見出し2" },
+        { "value": "h3", "label": "見出し3" },
+        { "value": "h4", "label": "見出し4" },
+        { "value": "h5", "label": "見出し5" },
+        { "value": "h6", "label": "見出し6" },
+        { "value": "pre", "label": "整形済みテキスト" }
+      ]
+  colors:
+    scope: system
+    default: |
+      [
+        "#000000",
+        "#595959",
+        "#999999",
+        "#CCCCCC",
+        "#FFFFFF",
+        "#F06292",
+        "#E57373",
+        "#BA68C8",
+        "#9575CD",
+        "#7986CB",
+        "#64B5F6",
+        "#4FC3F7",
+        "#4DD0E1",
+        "#4DB6AC",
+        "#81C784",
+        "#AED581",
+        "#FFF176",
+        "#FFB74D",
+        "#FF8A65",
+        "#A1887F"
+      ]
+
 editors:
-    mt_rich_text_editor:
+  mt_rich_text_editor:
+    label: MTRichTextEditor
+    template: mt_rich_text_editor.tmpl
+
+applications:
+  cms:
+    menus:
+      settings::mt_rich_text_editor:
         label: MTRichTextEditor
-        template: mt_rich_text_editor.tmpl
+        order: 1000
+        mode: mt_rich_text_editor_settings
+        view:
+          - system
+    methods:
+      mt_rich_text_editor_settings:
+        handler: $MTRichTextEditor::MT::Plugin::MTRichTextEditor::settings
+      mt_rich_text_editor_save_settings:
+        handler: $MTRichTextEditor::MT::Plugin::MTRichTextEditor::save_settings
+    callbacks:
+      template_source.mt_rich_text_editor: $MTRichTextEditor::MT::Plugin::MTRichTextEditor::template_source_mt_rich_text_editor
