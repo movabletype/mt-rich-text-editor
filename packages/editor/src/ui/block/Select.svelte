@@ -19,8 +19,6 @@
   const { options, tiptap, onUpdate }: Props<Options> = $props();
   let isOpen = $state(false);
 
-  console.log(options);
-
   const blocks: Options["blocks"] = options.blocks ?? [
     { value: "paragraph", label: "本文" },
     { value: "h1", label: "見出し1" },
@@ -34,6 +32,10 @@
   let selectedBlock = $state(blocks[0].value);
 
   onUpdate(() => {
+    if (!tiptap) {
+      return;
+    }
+
     const { $head: head } = tiptap.state.selection;
     const parent = head.parent;
 
@@ -49,16 +51,19 @@
 
   function handleSelect(value: string) {
     if (value === "paragraph" || value === "pre") {
-      tiptap.chain().focus().setNode(value).run();
+      tiptap?.chain().focus().setNode(value).run();
     } else if (value.match(/^h[1-6]$/)) {
       const level = parseInt(value.substring(1)) as Level;
-      tiptap.chain().focus().setHeading({ level }).run();
+      tiptap?.chain().focus().setHeading({ level }).run();
     }
     selectedBlock = value;
     isOpen = false;
   }
 
   function toggleDropdown(ev: MouseEvent) {
+    if (!tiptap) {
+      return;
+    }
     ev.stopPropagation();
     isOpen = !isOpen;
   }

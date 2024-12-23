@@ -1,23 +1,26 @@
-<svelte:options customElement="mt-rich-text-editor-toolbar-item-foregroundcolor" />
+<svelte:options
+  customElement={{
+    tag: "mt-rich-text-editor-toolbar-item-foregroundcolor",
+    extend: extend,
+  }}
+/>
 
 <script module lang="ts">
+  import { extend } from "../item/registry/svelte";
   export interface Options {
     readonly presetColors?: string[];
   }
 </script>
 
 <script lang="ts">
-  import { Editor } from "@tiptap/core";
-  import type { EditorEvent } from "../item/registry";
-  import { EditorEventType } from "../item/registry";
   import icon from "../icon/foregroundColor.svg?raw";
   import Panel from "./Panel.svelte";
+  import type { Props } from "../item/registry/svelte";
 
-  let editor: Editor | undefined = undefined;
+  const { options, tiptap, onUpdate }: Props<Options> = $props();
   let isOpen = $state(false);
 
-  let presetColors = $state<string[]>([]);
-  const colors = [
+  const colors = options.presetColors ?? [
     "#000000",
     "#595959",
     "#999999",
@@ -42,62 +45,36 @@
 
   let selectedColor = $state("#000000");
 
-  function handleEditorInit({ tiptap }: EditorEvent) {
-    editor = tiptap;
-  }
-
-  function handleEditorUpdate() {
-    if (!editor) {
-      return;
-    }
-
-    selectedColor = editor.getAttributes("textStyle").color ?? "#000000";
-  }
+  onUpdate(() => {
+    selectedColor = tiptap?.getAttributes("textStyle").color ?? "#000000";
+  });
 
   function handleSelect(value: string) {
-    if (!editor) {
-      return;
-    }
-
-    editor.chain().focus().setColor(value).run();
+    tiptap?.chain().focus().setColor(value).run();
     isOpen = false;
   }
 
   function toggleColorPanel(ev: MouseEvent) {
+    if (!tiptap) {
+      return;
+    }
     ev.stopPropagation();
     isOpen = !isOpen;
   }
 
-  let rootNode: Node;
-  let host: HTMLElement;
-  function handleClickOutside(ev: MouseEvent) {
-    if (ev.target !== host && (ev.target as Node).getRootNode() !== rootNode) {
-      isOpen = false;
-    }
+  function handleClickOutside() {
+    isOpen = false;
   }
 
-  let containerEl: HTMLElement;
   $effect(() => {
-    rootNode = containerEl?.getRootNode();
-    host = (rootNode as ShadowRoot).host as HTMLElement;
-    host.addEventListener(EditorEventType.Init, handleEditorInit);
-    host.addEventListener(EditorEventType.Update, handleEditorUpdate);
     document.addEventListener("click", handleClickOutside);
-
-    const options = JSON.parse(host.dataset.options ?? "{}") as Options;
-    if (options.presetColors) {
-      presetColors = options.presetColors;
-    }
-
     return () => {
-      host.removeEventListener(EditorEventType.Init, handleEditorInit);
-      host.removeEventListener(EditorEventType.Update, handleEditorUpdate);
       document.removeEventListener("click", handleClickOutside);
     };
   });
 </script>
 
-<div bind:this={containerEl} onclick={toggleColorPanel} class="icon">
+<div onclick={toggleColorPanel} class="icon">
   {@html icon.replace(/fill="currentColor"/g, `fill="${selectedColor}"`)}
 </div>
 

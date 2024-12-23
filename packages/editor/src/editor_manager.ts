@@ -12,10 +12,11 @@ export interface EditorCreateOptions extends Omit<EditorOptions, 'toolbar'> {
   toolbar?: EditorOptions['toolbar'];
 }
 
+console.log(UI.getPanelItem);
 export class EditorManager {
   public static version: string = version;
   public static Editors: Record<string, Editor> = {};
-  public static ui: UI = new UI();
+  public static ui = UI;
   private static eventHandlers: Record<string, EventHandler[]> = {};
 
   public static on(name: "create", handler: (options: EditorCreateOptions) => void): void;
