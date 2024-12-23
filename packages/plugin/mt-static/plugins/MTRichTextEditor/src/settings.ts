@@ -1,7 +1,7 @@
 import { mount } from "svelte";
 import Toolbar from "./settings/Toolbar.svelte";
 import Blocks from "./settings/Blocks.svelte";
-
+import Colors from "./settings/Colors.svelte";
 [
   {
     id: "toolbar",
@@ -10,6 +10,10 @@ import Blocks from "./settings/Blocks.svelte";
   {
     id: "blocks",
     component: Blocks,
+  },
+  {
+    id: "colors",
+    component: Colors,
   },
 ].forEach(({ id: name, component }) => {
   const textarea = document.querySelector<HTMLTextAreaElement>(`[name="mt_rich_text_editor_${name}"]`);
