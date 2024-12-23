@@ -13,6 +13,8 @@
     "isolatedModules": true,
     "noEmit": true,
 
+    "types": ["vitest/globals"],
+
     /* Linting */
     "strict": true,
     "noUnusedLocals": true,

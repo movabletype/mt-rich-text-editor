@@ -1,28 +1,189 @@
-import "quill/dist/quill.core.css";
-import "quill/dist/quill.snow.css";
-import Quill from "quill";
+import { Editor as TiptapEditor, Extension as TiptapExtension, generateJSON } from "@tiptap/core";
+import { Extension } from "./tiptap/extension";
+import { Toolbar } from "./toolbar";
+import { Statusbar } from "./statusbar";
+import { preprocessHTML, normalizeHTML } from "./util/html";
+import { insertStylesheets } from "./util/dom";
+import prosemirrorCss from "prosemirror-view/style/prosemirror.css?raw";
+import editorCss from "./editor.css?inline";
+import contentCss from "./content.css?inline";
 
-export const create = async (selector: string) => {
-  const textarea = document.querySelector<HTMLTextAreaElement>(selector);
-  if (!textarea) {
-    throw new Error("Textarea not found");
+export interface EditorOptions {
+  inline: boolean;
+  height?: number;
+  stylesheets?: string[];
+  editorStylesheets?: string[];
+  toolbar: string[][][];
+  toolbarContainer?: HTMLDivElement;
+  toolbarOptions?: Record<string, any>;
+  statusbar?: string[][][];
+  statusbarContainer?: HTMLDivElement;
+  statusbarOptions?: Record<string, any>;
+  extensions?: TiptapExtension[];
+  extensionOptions?: Record<string, any>;
+}
+
+const DEFAULT_HEIGHT = 350;
+const MIN_HEIGHT = 100;
+
+export const EditorEl = Symbol("EditorEl");
+
+export class Editor {
+  public id: string;
+  public tiptap: TiptapEditor;
+  public [EditorEl]: HTMLDivElement;
+  #containerEl: HTMLDivElement;
+  #textarea: HTMLTextAreaElement;
+  #editorContainerEl: HTMLDivElement;
+  #toolbar: Toolbar;
+  #statusbar: Statusbar;
+
+  constructor(textarea: HTMLTextAreaElement, options: EditorOptions) {
+    this.id = textarea.id;
+    this.#textarea = textarea;
+
+    this.#containerEl = document.createElement("div");
+    this.#containerEl.className = "mt-rich-text-editor";
+    this.#containerEl.style.height = `${options.height ?? DEFAULT_HEIGHT}px`;
+    this.#containerEl.dataset.mtRichTextEditorId = textarea.id;
+    this.#textarea.parentNode?.insertBefore(this.#containerEl, this.#textarea);
+    this.#textarea.style.display = "none";
+
+    const editorShadow = this.#containerEl.attachShadow({ mode: "open" });
+    insertStylesheets(editorShadow, [editorCss, ...(options.editorStylesheets ?? [])]);
+    this[EditorEl] = document.createElement("div");
+    this[EditorEl].className = "mt-rich-text-editor-editor";
+    editorShadow.appendChild(this[EditorEl]);
+
+    const initBarMount = (_container: EditorOptions["toolbarContainer"], className: string) => {
+      const container =
+        _container ??
+        (() => {
+          const container = document.createElement("div");
+          container.className = className;
+          return container;
+        })();
+      this[EditorEl].appendChild(container);
+      const shadow = container.attachShadow({ mode: "open" });
+      insertStylesheets(shadow, options.editorStylesheets ?? []);
+      const mount = document.createElement("div");
+      shadow.appendChild(mount);
+      return mount;
+    };
+    const toolbarMount = initBarMount(options.toolbarContainer, "mt-rich-text-editor-toolbar");
+
+    this.#editorContainerEl = document.createElement("div");
+    this.#editorContainerEl.className = "mt-rich-text-editor-content";
+    const shadow = this.#editorContainerEl.attachShadow({ mode: "open" });
+    insertStylesheets(shadow, [
+      prosemirrorCss + editorCss + contentCss,
+      ...(options.stylesheets ?? []),
+    ]);
+
+    const editorMount = document.createElement("div");
+    editorMount.className = "mt-rich-text-editor-content-root";
+    shadow.appendChild(editorMount);
+    this[EditorEl].appendChild(this.#editorContainerEl);
+
+    this.tiptap = new TiptapEditor({
+      element: editorMount,
+      extensions: [Extension.configure(options.extensionOptions), ...(options.extensions ?? [])],
+      content: preprocessHTML(this.#textarea.value),
+      onUpdate: ({ editor }) => {
+        this.#textarea.value = editor.getHTML();
+      },
+    });
+
+    this.#toolbar = new Toolbar({
+      target: toolbarMount,
+      editor: this,
+      toolbar: options.toolbar,
+      options: options.toolbarOptions ?? {},
+      inline: options.inline,
+    });
+
+    const statusbarMount = initBarMount(
+      options.statusbarContainer,
+      "mt-rich-text-editor-statusbar"
+    );
+    this.#statusbar = new Statusbar({
+      target: statusbarMount,
+      editor: this,
+      statusbar: options.statusbar ?? [],
+      options: options.statusbarOptions ?? {},
+      inline: options.inline,
+    });
+
+    this.initResizeHandle(this[EditorEl]);
   }
-  const editor = document.createElement("div");
-  textarea.style.display = "none";
-  textarea.parentNode?.insertBefore(editor, textarea.nextSibling);
 
-  editor.innerHTML = textarea.value;
+  public save(): void {
+    this.#textarea.value = this.getContent();
+  }
 
-  const quill = new Quill(editor, {
-    modules: {
-      toolbar: [[{ header: [1, 2, false] }], ["bold", "italic", "underline"]],
-    },
-    theme: "snow",
-  });
+  public getContent(): string {
+    return normalizeHTML(this.tiptap.getHTML());
+  }
 
-  quill.on("text-change", () => {
-    textarea.value = editor.innerHTML;
-  });
+  public setContent(content: string): void {
+    this.tiptap.commands.setContent(preprocessHTML(content));
+    this.#textarea.value = content;
+  }
 
-  return quill;
-};
+  public getHeight(): number {
+    return this.#containerEl.clientHeight;
+  }
+
+  public setHeight(height: number): void {
+    if (height === 0) {
+      return;
+    }
+    this.#containerEl.style.height = `${height}px`;
+  }
+
+  public focus(): void {
+    this.tiptap.commands.focus();
+  }
+
+  public destroy(): void {
+    this.#toolbar.destroy();
+    this.#statusbar.destroy();
+    this.tiptap.destroy();
+    this.#containerEl.remove();
+  }
+
+  public insertContent(html: string): void {
+    const json = generateJSON(preprocessHTML(html), this.tiptap.extensionManager.extensions);
+    this.tiptap.commands.insertContent(json);
+  }
+
+  private initResizeHandle(editor: HTMLDivElement): void {
+    const resizeHandle = document.createElement("div");
+    resizeHandle.className = "mt-rich-text-editor-resize-handle";
+    editor.appendChild(resizeHandle);
+
+    let startY = 0;
+    let startHeight = 0;
+
+    const onMouseDown = (e: MouseEvent) => {
+      e.preventDefault();
+      startY = e.clientY;
+      startHeight = this.getHeight();
+      document.addEventListener("mousemove", onMouseMove);
+      document.addEventListener("mouseup", onMouseUp);
+    };
+
+    const onMouseMove = (e: MouseEvent) => {
+      const deltaY = e.clientY - startY;
+      const newHeight = Math.max(MIN_HEIGHT, startHeight + deltaY);
+      this.setHeight(newHeight);
+    };
+
+    const onMouseUp = () => {
+      document.removeEventListener("mousemove", onMouseMove);
+      document.removeEventListener("mouseup", onMouseUp);
+    };
+
+    resizeHandle.addEventListener("mousedown", onMouseDown);
+  }
+}

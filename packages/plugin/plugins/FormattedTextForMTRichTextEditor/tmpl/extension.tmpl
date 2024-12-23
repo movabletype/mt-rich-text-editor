@@ -1,0 +1,16 @@
+<mt:if name="formatted_texts">
+<mt:SetVarBlock name="formatted_text_templates">
+[
+<mt:loop name="formatted_texts" glue=",">
+{
+  "title": "<mt:var name="label" encode_json="1" />",
+  "url": "<mt:var name="script_url">?__mode=mt_rich_text_editor_view_formatted_text_text&blog_id=<mt:var name="blog_id"/>&id=<mt:var name="id"/>",
+  "description": "<mt:var name="description" encode_json="1" />"
+}
+</mt:loop>
+]
+</mt:SetVarBlock>
+<mt:setvarblock name="js_include" append="1">
+<script src="<mt:Var name="static_uri" />plugins/FormattedTextForMTRichTextEditor/extension.js?v=1" data-formatted-text-for-mt-rich-text-editor="<mt:var name="formatted_text_templates" escape="html" />"></script>
+</mt:setvarblock>
+</mt:if>

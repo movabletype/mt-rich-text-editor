@@ -1,0 +1,82 @@
+<script lang="ts">
+  import linkIcon from "../asset/link.svg?raw";
+  import assetIcon from "../asset/asset.svg?raw";
+  import imageIcon from "../asset/image.svg?raw";
+  import fullScreenIcon from "../asset/full_screen.svg?raw";
+
+  const {
+    command,
+    toggleFullScreen,
+    openFileDialog,
+    openImageDialog,
+    openLinkDialog,
+  }: {
+    command: any;
+    toggleFullScreen: () => void;
+    openFileDialog: () => void;
+    openImageDialog: () => void;
+    openLinkDialog: () => void;
+  } = $props();
+</script>
+
+<div class="mt-rich-text-editor-source-editor-toolbar">
+  <div class="mt-rich-text-editor-source-editor-toolbar-group">
+    <button type="button" onclick={() => command.execCommand("bold")}>strong</button>
+    <button type="button" onclick={() => command.execCommand("italic")}>em</button>
+    <button type="button" onclick={() => command.execCommand("blockquote")}>blockquote</button>
+    <button type="button" onclick={() => command.execCommand("insertUnorderedList")}>ul</button>
+    <button type="button" onclick={() => command.execCommand("insertOrderedList")}>ol</button>
+    {#if command.isSupported("insertListItem")}
+      <button type="button" onclick={() => command.execCommand("insertListItem")}>li</button>
+    {/if}
+  </div>
+  <div class="mt-rich-text-editor-source-editor-toolbar-group">
+    <button type="button" onclick={openLinkDialog} title="link">
+      {@html linkIcon}
+    </button>
+    <button type="button" onclick={openFileDialog} title="asset">
+      {@html assetIcon}
+    </button>
+    <button type="button" onclick={openImageDialog} title="image">
+      {@html imageIcon}
+    </button>
+  </div>
+  <div class="mt-rich-text-editor-source-editor-toolbar-group">
+    <button
+      type="button"
+      onclick={toggleFullScreen}
+      title="full screen"
+      class="mt-rich-text-editor-source-editor-toolbar-button-full_screen"
+    >
+      {@html fullScreenIcon}
+    </button>
+  </div>
+</div>
+
+<style>
+  .mt-rich-text-editor-source-editor-toolbar {
+    display: flex;
+    border: 1px solid #ccc;
+    border-bottom: none;
+    flex-wrap: wrap;
+  }
+  .mt-rich-text-editor-source-editor-toolbar-group {
+    padding: 0 4px;
+  }
+  .mt-rich-text-editor-source-editor-toolbar-group:not(:last-child) {
+    border-right: 1px solid #ccc;
+    white-space: nowrap;
+  }
+  button {
+    margin: 2px 0 3px;
+    height: 34px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    border-radius: 4px;
+    padding: 1px 5px;
+  }
+  button:hover {
+    background: #dee0e2;
+  }
+</style>

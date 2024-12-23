@@ -26,6 +26,8 @@ i18next-parser.config.js
 ^tools/
 docker-compose.yml
 Dockerfile
+eslint.config.js
+vite.config.ts
 
 # npm working directory
 ^node_modules/

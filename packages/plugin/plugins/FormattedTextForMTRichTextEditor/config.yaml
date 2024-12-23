@@ -1,0 +1,19 @@
+id: FormattedTextForMTRichTextEditor
+name: FormattedTextForMTRichTextEditor
+version: 1.0.0
+author_link: http://www.movabletype.org/
+author_name: Six Apart Ltd.
+description: <MT_TRANS phrase='Add the "Insert Boilerplate" button to the MTRichTextEditor.'>
+l10n_class: FormattedTextForMTRichTextEditor::L10N
+
+editors:
+    mt_rich_text_editor:
+        formatted_text:
+            enabled: true
+        extension: extension.tmpl
+
+applications:
+    cms:
+        methods:
+            mt_rich_text_editor_view_formatted_text_text:
+                code: $FormattedTextForMTRichTextEditor::FormattedTextForMTRichTextEditor::App::view_text

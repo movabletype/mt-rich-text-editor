@@ -1,4 +1,5 @@
 import { defineConfig } from "vite";
+import { svelte } from "@sveltejs/vite-plugin-svelte";
 
 export default defineConfig({
   build: {
@@ -8,9 +9,19 @@ export default defineConfig({
       name: "MTRichTextEditor",
       formats: ["iife"],
     },
-    outDir: "./mt-static/plugins/MTRichTextEditor/dist",
+    outDir: "./mt-static/plugins/MTRichTextEditor/dist/iife",
     sourcemap: true,
     minify: true,
     target: "es2017",
+  },
+  plugins: [
+    svelte({
+      compilerOptions: {
+        customElement: true,
+      },
+    }),
+  ],
+  test: {
+    globals: true,
   },
 });

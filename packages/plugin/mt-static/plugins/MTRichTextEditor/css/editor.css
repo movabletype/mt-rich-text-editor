@@ -1,0 +1,22 @@
+.mt-rich-text-editor-fullscreen {
+  background: #fff;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 1049;
+
+  & #field-convert_breaks {
+    display: none !important;
+  }
+
+  & .mt-rich-text-editor-source-editor-toolbar-button-full_screen {
+    background: #c8cbcf !important;
+  }
+}
+
+.mt-rich-text-editor-source-editor:not(.d-none) {
+  display: block !important;
+  border: 1px solid #ccc;
+}
