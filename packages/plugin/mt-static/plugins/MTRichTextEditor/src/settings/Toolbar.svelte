@@ -325,7 +325,6 @@
     min-width: 3rem;
   }
 
-  /* センチネルのみのグループのスタイル */
   .mt-rich-text-editor-group:has(.mt-rich-text-editor-buttons:empty) {
     min-width: 5rem;
     min-height: 3rem;

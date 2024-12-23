@@ -1,10 +1,15 @@
 import { mount } from "svelte";
 import Toolbar from "./settings/Toolbar.svelte";
+import Blocks from "./settings/Blocks.svelte";
 
 [
   {
     id: "toolbar",
     component: Toolbar,
+  },
+  {
+    id: "blocks",
+    component: Blocks,
   },
 ].forEach(({ id: name, component }) => {
   const textarea = document.querySelector<HTMLTextAreaElement>(`[name="mt_rich_text_editor_${name}"]`);

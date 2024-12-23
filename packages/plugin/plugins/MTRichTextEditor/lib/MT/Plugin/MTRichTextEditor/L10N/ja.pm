@@ -20,6 +20,7 @@ use vars qw( %Lexicon );
     'Blocks'                    => 'フォーマット',
     'Colors'                    => '文字色と背景色の選択肢',
     'Available Items'           => '追加可能なアイテム',
+    'Available Blocks'          => '追加可能なブロック',
     'Insert (s)'                => '挿入 (s)',
     'Insert'                    => '挿入',
     'Cancel (x)'                => 'キャンセル (x)',

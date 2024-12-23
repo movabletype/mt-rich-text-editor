@@ -64,6 +64,16 @@ sub settings {
                 block
                 fullScreen
             )]),
+            mt_rich_text_editor_block_available_blocks => MT::Util::to_json([
+                { value => 'paragraph', label => '本文' },
+                { value => 'h1',        label => '見出し1' },
+                { value => 'h2',        label => '見出し2' },
+                { value => 'h3',        label => '見出し3' },
+                { value => 'h4',        label => '見出し4' },
+                { value => 'h5',        label => '見出し5' },
+                { value => 'h6',        label => '見出し6' },
+                { value => 'pre',       label => '整形済みテキスト' },
+            ]),
             map { "mt_rich_text_editor_" . $_ => $plugin->get_config_value($_) } @settings
         });
 }
