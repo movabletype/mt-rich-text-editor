@@ -72,7 +72,9 @@
     tick().then(() => {
       for (let i = toolbarItems.length - 1; i >= 0; i--) {
         const row = toolbarItems[i];
-        if (row.filter((group) => group.filter((item) => !item.isSentinel).length !== 0).length === 0) {
+        if (
+          row.filter((group) => group.filter((item) => !item.isSentinel).length !== 0).length === 0
+        ) {
           toolbarItems.splice(i, 1);
         }
       }
@@ -207,30 +209,28 @@
 {#if unusedItems.length > 0}
   <div class="mt-rich-text-editor-available-items">
     <h4>{window.trans("Available Items")}</h4>
-    <div class="mt-rich-text-editor-available-buttons-container">
-      <div
-        class="mt-rich-text-editor-available-buttons"
-        use:dndzone={{
-          items: unusedItems,
-          flipDurationMs: 300,
-          dragDisabled: false,
-          dropFromOthersDisabled: false,
-        }}
-        onconsider={() => {
-          if (!isDragging) {
-            isDragging = true;
-            tick().then(() => {
-              addEmptyGroups();
-            });
-          }
-        }}
-      >
-        {#each unusedItems as item (item.id)}
-          <div class="mt-rich-text-editor-button">
-            <svelte:element this={item.element} />
-          </div>
-        {/each}
-      </div>
+    <div
+      class="mt-rich-text-editor-available-buttons"
+      use:dndzone={{
+        items: unusedItems,
+        flipDurationMs: 300,
+        dragDisabled: false,
+        dropFromOthersDisabled: false,
+      }}
+      onconsider={() => {
+        if (!isDragging) {
+          isDragging = true;
+          tick().then(() => {
+            addEmptyGroups();
+          });
+        }
+      }}
+    >
+      {#each unusedItems as item (item.id)}
+        <div class="mt-rich-text-editor-button">
+          <svelte:element this={item.element} />
+        </div>
+      {/each}
     </div>
   </div>
 {/if}
@@ -243,7 +243,7 @@
   .mt-rich-text-editor-row {
     margin-bottom: 1rem;
     padding: 0.5rem;
-    background: #f5f5f5;
+    border: 1px solid #ccc;
     border-radius: 4px;
     display: flex;
     flex-wrap: wrap;
@@ -255,7 +255,7 @@
     padding: 0.5rem;
     background: #fff;
     border-radius: 4px;
-    border: 1px solid #ddd;
+    background: #f5f5f5;
   }
 
   .mt-rich-text-editor-button {
@@ -263,9 +263,10 @@
     align-items: center;
     margin: 0.25rem;
     padding: 0.25rem 0.5rem;
-    background: #eee;
     border-radius: 3px;
     position: relative;
+    border: 1px solid #ccc;
+    background: #fff;
   }
 
   .mt-rich-text-editor-remove-button {
@@ -303,12 +304,6 @@
     color: #666;
   }
 
-  .mt-rich-text-editor-available-buttons-container {
-    padding: 0.5rem;
-    background: #f5f5f5;
-    border-radius: 4px;
-  }
-
   .mt-rich-text-editor-available-buttons {
     min-height: 50px;
     display: flex;
@@ -317,7 +312,7 @@
     padding: 0.5rem;
     background: #fff;
     border-radius: 4px;
-    border: 1px solid #ddd;
+    border: 1px solid #ccc;
   }
 
   .mt-rich-text-editor-buttons {
@@ -329,7 +324,7 @@
     min-width: 5rem;
     min-height: 3rem;
     background-color: #f8f8f8;
-    border: 2px dashed #ddd;
+    border: 1px dashed #ccc;
   }
 
   .mt-rich-text-editor-group:has(.mt-rich-text-editor-buttons:empty):hover {
