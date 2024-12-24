@@ -72,7 +72,7 @@
     tick().then(() => {
       for (let i = toolbarItems.length - 1; i >= 0; i--) {
         const row = toolbarItems[i];
-        if (row.length === 1 && row[0].length === 1 && row[0][0].isSentinel) {
+        if (row.filter((group) => group.filter((item) => !item.isSentinel).length !== 0).length === 0) {
           toolbarItems.splice(i, 1);
         }
       }
