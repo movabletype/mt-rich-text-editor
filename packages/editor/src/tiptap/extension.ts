@@ -38,6 +38,7 @@ import { TextBlock } from "./extension/text-block";
 import { Pre } from "./extension/pre";
 import { ListItem } from "./extension/list-item";
 import { BackgroundColor } from "./extension/background-color";
+import { Script } from "./extension/script";
 import { MovableType } from "./extension/movable-type";
 
 const defaultLinkOptions = {
@@ -192,6 +193,10 @@ export const Extension = TiptapExtension.create({
 
     if (this.options.backgroundColor !== false) {
       extensions.push(BackgroundColor.configure(this.options?.backgroundColor));
+    }
+
+    if (this.options.script !== false) {
+      extensions.push(Script.configure(this.options?.script));
     }
 
     if (this.options.movableType !== false) {

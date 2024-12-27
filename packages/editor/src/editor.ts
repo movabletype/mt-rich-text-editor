@@ -24,7 +24,7 @@ export interface EditorOptions {
 }
 
 const DEFAULT_HEIGHT = 350;
-const MIN_HEIGHT = 100;
+const MIN_HEIGHT = 300;
 
 export const EditorEl = Symbol("EditorEl");
 

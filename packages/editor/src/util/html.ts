@@ -1,12 +1,21 @@
 export function preprocessHTML(html: string): string {
   const parser = new DOMParser();
-  const doc = parser.parseFromString(html, "text/html");
+  const doc = parser.parseFromString(`<body>${html}</body>`, "text/html");
   const body = doc.body;
 
   body.querySelectorAll("a").forEach((a) => {
     if (a.querySelector("div")) {
       a.dataset.block = "true";
     }
+  });
+
+  body.querySelectorAll("script").forEach((script) => {
+    const element = document.createElement("mt-rich-text-editor-script");
+    element.textContent = script.textContent;
+    Array.from(script.attributes).forEach((attr) => {
+      element.setAttribute(attr.name, attr.value);
+    });
+    script.parentNode?.replaceChild(element, script);
   });
 
   body.querySelectorAll("div, blockquote, main, article").forEach((div) => {
