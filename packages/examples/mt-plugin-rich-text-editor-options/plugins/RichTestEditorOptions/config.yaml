@@ -1,0 +1,12 @@
+name: RichTestEditorOptions
+version: 1.0.0
+author_link: http://www.movabletype.org/
+author_name: Six Apart, Ltd.
+description: <MT_TRANS phrase="A plugin to change rich text editor options">
+l10n_lexicon:
+  ja:
+    A plugin to change rich text editor options: "リッチテキストエディタの設定を変更するプラグイン"
+
+editors:
+  mt_rich_text_editor:
+    extension: extension.tmpl

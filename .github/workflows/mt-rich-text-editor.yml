@@ -5,33 +5,42 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v2
+      - name: Checkout repository
+        uses: actions/checkout@v2
 
-    - name: Set up Node.js
-      uses: actions/setup-node@v2
-      with:
-        node-version: '22'
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: "22"
 
-    - name: Install libs
-      run: sudo apt-get install --no-install-recommends -y libjson-perl libyaml-perl zip
+      - name: Install libs
+        run: sudo apt-get install --no-install-recommends -y libjson-perl libyaml-perl zip
 
-    - name: Install @rollup/rollup-linux-x64-gnu explicitly
-      run: npm install @rollup/rollup-linux-x64-gnu --save-optional
+      - name: Install @rollup/rollup-linux-x64-gnu explicitly
+        run: npm install @rollup/rollup-linux-x64-gnu --save-optional
 
-    - name: Install dependencies
-      run: npm install -ws
+      - name: Install dependencies
+        run: npm install -ws
 
-    - name: Build plugin
-      run: npm run build
+      - name: Build plugin
+        run: npm run build
 
-    - name: Archive production artifacts
-      uses: actions/upload-artifact@v4
-      with:
-        name: plugin
-        path: |
-          packages/plugin/dist
+      - name: Archive plugin
+        uses: actions/upload-artifact@v4
+        with:
+          name: plugin
+          path: |
+            packages/plugin/dist
+
+      - name: Build examples
+        run: npm run build:examples
+
+      - name: Archive examples
+        uses: actions/upload-artifact@v4
+        with:
+          name: examples
+          path: |
+            packages/examples/dist
 
     # - name: Run tests
     #   run: npm test
-

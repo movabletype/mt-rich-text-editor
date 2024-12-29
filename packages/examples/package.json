@@ -1,0 +1,13 @@
+{
+  "name": "examples",
+  "private": true,
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "build": "rm -rf dist && mkdir dist && for d in *; do if [ -d $d ] && [ $d != 'dist' ]; then zip -r dist/$d.zip $d; fi; done",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": ""
+}
