@@ -6,10 +6,10 @@ import type { EditorOptions } from "./editor";
 
 type EventHandler = (...args: any[]) => void;
 
-export interface EditorCreateOptions extends Omit<EditorOptions, 'toolbar'> {
+export interface EditorCreateOptions extends Omit<EditorOptions, "toolbar"> {
   id: string;
   language?: string;
-  toolbar?: EditorOptions['toolbar'];
+  toolbar?: EditorOptions["toolbar"];
 }
 
 console.log(UI.getPanelItem);
@@ -70,11 +70,8 @@ export class EditorManager {
               ["fullScreen"],
             ],
           ],
-          statusbar: [
-            [
-              ["path"],
-            ],
-          ],
+          statusbar: [[["path"]]],
+          pasteMenu: ["embed", "html", "link", "text"],
           inline: false,
         },
         editorOptions

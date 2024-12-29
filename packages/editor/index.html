@@ -20,8 +20,22 @@
   <body>
     <div id="editor-container">
       <textarea id="editor">
-        <p>Hello MTRichTextEditor</p>
+        <!-- <p>Hello MTRichTextEditor</p> -->
       </textarea>
+
+
+      <!--
+        <div>
+          <h3>Data Attributes Example</h3>
+        <div id="data-attributes-example" contenteditable="true">
+          <div data-id="1">
+            x
+            <p data-id="1-1" data-color="red">Hello</p>
+            y
+          </div>
+        </div>
+        -->
+      </div>
     </div>
     <script type="module">
       import MTRichTextEditor from "/src/index.ts";
@@ -61,6 +75,22 @@
           },
           backgroundColor: {
             presetColors,
+          },
+        },
+        extensionOptions: {
+          embedObject: {
+            resolver: async ({ url, maxwidth, maxheight }) => {
+              const params = new URLSearchParams();
+              params.set('url', url);
+              if (maxwidth) {
+                params.set('maxwidth', String(maxwidth));
+              }
+              if (maxheight) {
+                params.set('maxheight', String(maxheight));
+              }
+              const res = await fetch(`https://noembed.com/embed?${params.toString()}`);
+              return await res.json();
+            },
           },
         },
       });

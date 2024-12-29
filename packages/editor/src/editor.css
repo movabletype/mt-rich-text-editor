@@ -16,6 +16,10 @@
   z-index: 10000;
 }
 
+.mt-rich-text-editor-content {
+  position: relative;
+}
+
 .mt-rich-text-editor-content-root,
 .mt-rich-text-editor-content-root > .tiptap {
   height: calc(100% - 10px);

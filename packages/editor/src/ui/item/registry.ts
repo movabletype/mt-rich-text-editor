@@ -41,12 +41,16 @@ import "../block/Select.svelte";
 import "../color/ForegroundColor.svelte";
 import "../color/BackgroundColor.svelte";
 
+import "../paste/Html.svelte";
+import "../paste/Link.svelte";
+import "../paste/Embed.svelte";
+
 export interface PanelItemElement extends HTMLElement {
   tiptap: Editor["tiptap"] | undefined;
   onUpdate: (callback: (ev: { editor: Editor }) => void) => void;
 }
 
-type PanelNamespace = "toolbar" | "statusbar";
+type PanelNamespace = "toolbar" | "statusbar" | "paste-menu";
 
 export const EditorEventType = {
   Init: "mt-rich-text-editor-panel-item-init",
@@ -351,7 +355,7 @@ export class SourceButton extends HTMLElement {
 }
 
 export class FullScreenButton extends HTMLElement {
-  private styleElement: HTMLStyleElement
+  private styleElement: HTMLStyleElement;
   constructor() {
     super();
     this.styleElement = document.createElement("style");
@@ -425,6 +429,87 @@ export class PathItem extends HTMLElement {
   }
 }
 
+export abstract class PasteMenuItem extends HTMLElement {
+  protected editor: Editor | undefined = undefined;
+  protected content:
+    | {
+        plainText: string;
+        htmlDocument: Document;
+        clipboardData: DataTransfer;
+        transaction: (cb: () => (void | Promise<void>)) => void;
+      }
+    | undefined = undefined;
+
+  get tiptap() {
+    if (!this.editor) {
+      throw new Error("Editor is not initialized");
+    }
+    return this.editor.tiptap;
+  }
+
+  mtRichTextEditorInit(editor: Editor) {
+    this.editor = editor;
+  }
+
+  mtRichTextEditorIsAvailable() {
+    return true;
+  }
+
+  mtRichTextEditorSetContent(content: {
+    plainText: string;
+    htmlDocument: Document;
+    clipboardData: DataTransfer;
+    transaction: (cb: () => (void | Promise<void>)) => void;
+  }) {
+    this.content = content;
+  }
+
+  mtRichTextEditorApply() {
+    this.shadowRoot?.querySelector("button")?.click();
+  }
+}
+
+export class AsText extends PasteMenuItem {
+  constructor() {
+    super();
+    const shadow = this.attachShadow({ mode: "open" });
+
+    const style = document.createElement("style");
+    style.textContent = `
+      :host {
+        display: flex;
+        flex-direction: row;
+        gap: 10px;
+      }
+      button {
+        background: none;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        text-align: left;
+        padding: 4px;
+      }
+      button:hover {
+        background: #f0f0f0;
+      }
+    `;
+    shadow.appendChild(style);
+
+    const insertButton = document.createElement("button");
+    insertButton.textContent = "テキストとして貼り付け";
+    insertButton.addEventListener("click", (ev) => {
+      ev.preventDefault();
+      this.content?.transaction(() => {
+        this.tiptap.chain().undo().focus().run();
+        const encoder = document.createElement("div");
+        encoder.textContent = this.content?.plainText ?? "";
+        this.tiptap.commands.insertContent(preprocessHTML(`<p>${encoder.innerHTML}</p>`));
+      });
+    });
+    shadow.appendChild(insertButton);
+  }
+}
+
 const systemItems: Record<PanelNamespace, Record<string, typeof HTMLElement>> = {
   toolbar: {
     bold: BoldButton,
@@ -453,6 +538,9 @@ const systemItems: Record<PanelNamespace, Record<string, typeof HTMLElement>> = 
   statusbar: {
     path: PathItem,
   },
+  "paste-menu": {
+    text: AsText,
+  },
 };
 
 export const getPanelItem = (namespace: PanelNamespace, name: string): string => {
@@ -467,7 +555,7 @@ export const getPanelItem = (namespace: PanelNamespace, name: string): string =>
   if (!elementConstructor) {
     elementConstructor = systemItems[namespace][name];
     if (!elementConstructor) {
-      throw new Error(`Button for ${name} is not found`);
+      throw new Error(`Item for ${name} is not found`);
     }
     window.customElements.define(elementName, elementConstructor);
   }

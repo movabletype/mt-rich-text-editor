@@ -1,7 +1,9 @@
 import { Editor as TiptapEditor, Extension as TiptapExtension, generateJSON } from "@tiptap/core";
+import type { EditorView } from "@tiptap/pm/view";
 import { Extension } from "./tiptap/extension";
 import { Toolbar } from "./toolbar";
 import { Statusbar } from "./statusbar";
+import { PasteMenu } from "./pasteMenu";
 import { preprocessHTML, normalizeHTML } from "./util/html";
 import { insertStylesheets } from "./util/dom";
 import prosemirrorCss from "prosemirror-view/style/prosemirror.css?raw";
@@ -21,6 +23,8 @@ export interface EditorOptions {
   statusbarOptions?: Record<string, any>;
   extensions?: TiptapExtension[];
   extensionOptions?: Record<string, any>;
+  pasteMenu?: string[];
+  pasteMenuOptions?: Record<string, any>;
 }
 
 const DEFAULT_HEIGHT = 350;
@@ -28,15 +32,19 @@ const MIN_HEIGHT = 300;
 
 export const EditorEl = Symbol("EditorEl");
 
+type OnPasteCallback = (view: EditorView, event: ClipboardEvent) => boolean;
+
 export class Editor {
   public id: string;
   public tiptap: TiptapEditor;
   public [EditorEl]: HTMLDivElement;
+  #onPasteCallback: OnPasteCallback | undefined;
   #containerEl: HTMLDivElement;
   #textarea: HTMLTextAreaElement;
   #editorContainerEl: HTMLDivElement;
   #toolbar: Toolbar;
   #statusbar: Statusbar;
+  #pasteMenu: PasteMenu;
 
   constructor(textarea: HTMLTextAreaElement, options: EditorOptions) {
     this.id = textarea.id;
@@ -61,9 +69,9 @@ export class Editor {
         (() => {
           const container = document.createElement("div");
           container.className = className;
+          this[EditorEl].appendChild(container);
           return container;
         })();
-      this[EditorEl].appendChild(container);
       const shadow = container.attachShadow({ mode: "open" });
       insertStylesheets(shadow, options.editorStylesheets ?? []);
       const mount = document.createElement("div");
@@ -85,12 +93,23 @@ export class Editor {
     shadow.appendChild(editorMount);
     this[EditorEl].appendChild(this.#editorContainerEl);
 
+    const onPaste = (callback: OnPasteCallback): void => {
+      this.#onPasteCallback = callback;
+    }
+    const handlePaste = (...args: Parameters<OnPasteCallback>) => {
+      return this.#onPasteCallback?.(...args) ?? false;
+    };
+
+    const pasteMenuContainer = document.createElement("div");
+    pasteMenuContainer.className = "mt-rich-text-editor-paste-menu";
+    shadow.appendChild(pasteMenuContainer);
+
     this.tiptap = new TiptapEditor({
       element: editorMount,
       extensions: [Extension.configure(options.extensionOptions), ...(options.extensions ?? [])],
       content: preprocessHTML(this.#textarea.value),
-      onUpdate: ({ editor }) => {
-        this.#textarea.value = editor.getHTML();
+      editorProps: {
+        handlePaste,
       },
     });
 
@@ -111,6 +130,19 @@ export class Editor {
       editor: this,
       statusbar: options.statusbar ?? [],
       options: options.statusbarOptions ?? {},
+      inline: options.inline,
+    });
+    
+    const pasteMenuMount = initBarMount(
+      pasteMenuContainer,
+      "mt-rich-text-editor-paste-menu"
+    );
+    this.#pasteMenu = new PasteMenu({
+      target: pasteMenuMount,
+      editor: this,
+      onPaste,
+      pasteMenu: options.pasteMenu ?? [],
+      options: options.pasteMenuOptions ?? {},
       inline: options.inline,
     });
 
@@ -146,8 +178,10 @@ export class Editor {
   }
 
   public destroy(): void {
+    this.#onPasteCallback = undefined;
     this.#toolbar.destroy();
     this.#statusbar.destroy();
+    this.#pasteMenu.destroy();
     this.tiptap.destroy();
     this.#containerEl.remove();
   }

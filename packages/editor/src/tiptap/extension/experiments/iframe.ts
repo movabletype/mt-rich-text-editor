@@ -13,7 +13,7 @@ declare module '@tiptap/core' {
       /**
        * Add an iframe
        */
-      setIframe: (options: { src: string }) => ReturnType,
+      setIframe: (options: { src: string, width?: string, height?: string }) => ReturnType,
     }
   }
 }
@@ -39,6 +39,12 @@ export default Node.create<IframeOptions>({
       src: {
         default: null,
       },
+      width: {
+        default: null,
+      },
+      height: {
+        default: null,
+      },
       frameborder: {
         default: 0,
       },
@@ -61,7 +67,7 @@ export default Node.create<IframeOptions>({
 
   addCommands() {
     return {
-      setIframe: (options: { src: string }) => ({ tr, dispatch }) => {
+      setIframe: (options: { src: string, width?: string, height?: string }) => ({ tr, dispatch }) => {
         const { selection } = tr
         const node = this.type.create(options)
 
