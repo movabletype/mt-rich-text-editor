@@ -47,8 +47,7 @@ export const InlineLink = Link.extend({
           if (!(element instanceof HTMLElement)) {
             return false
           }
-
-          // すべての属性を取得
+  
           const attrs: Record<string, string> = {};
           Array.from(element.attributes).forEach(attr => {
             attrs[attr.name] = attr.value;

@@ -50,6 +50,8 @@ export class Editor {
     this.id = textarea.id;
     this.#textarea = textarea;
 
+    const inline = options.inline ?? false;
+
     this.#containerEl = document.createElement("div");
     this.#containerEl.className = "mt-rich-text-editor";
     this.#containerEl.style.height = `${options.height ?? DEFAULT_HEIGHT}px`;
@@ -60,7 +62,10 @@ export class Editor {
     const editorShadow = this.#containerEl.attachShadow({ mode: "open" });
     insertStylesheets(editorShadow, [editorCss, ...(options.editorStylesheets ?? [])]);
     this[EditorEl] = document.createElement("div");
-    this[EditorEl].className = "mt-rich-text-editor-editor";
+    this[EditorEl].classList.add("mt-rich-text-editor-editor");
+    if (inline) {
+      this[EditorEl].classList.add("mt-rich-text-editor-editor--inline");
+    }
     editorShadow.appendChild(this[EditorEl]);
 
     const initBarMount = (_container: EditorOptions["toolbarContainer"], className: string) => {
@@ -69,6 +74,9 @@ export class Editor {
         (() => {
           const container = document.createElement("div");
           container.className = className;
+          if (inline) {
+            container.classList.add(`${className}--inline`);
+          }
           this[EditorEl].appendChild(container);
           return container;
         })();
@@ -95,7 +103,7 @@ export class Editor {
 
     const onPaste = (callback: OnPasteCallback): void => {
       this.#onPasteCallback = callback;
-    }
+    };
     const handlePaste = (...args: Parameters<OnPasteCallback>) => {
       return this.#onPasteCallback?.(...args) ?? false;
     };
@@ -118,7 +126,7 @@ export class Editor {
       editor: this,
       toolbar: options.toolbar,
       options: options.toolbarOptions ?? {},
-      inline: options.inline,
+      inline: inline && !options.toolbarContainer,
     });
 
     const statusbarMount = initBarMount(
@@ -130,20 +138,17 @@ export class Editor {
       editor: this,
       statusbar: options.statusbar ?? [],
       options: options.statusbarOptions ?? {},
-      inline: options.inline,
+      inline: inline && !options.statusbarContainer,
     });
-    
-    const pasteMenuMount = initBarMount(
-      pasteMenuContainer,
-      "mt-rich-text-editor-paste-menu"
-    );
+
+    const pasteMenuMount = initBarMount(pasteMenuContainer, "mt-rich-text-editor-paste-menu");
     this.#pasteMenu = new PasteMenu({
       target: pasteMenuMount,
       editor: this,
       onPaste,
       pasteMenu: options.pasteMenu ?? [],
       options: options.pasteMenuOptions ?? {},
-      inline: options.inline,
+      inline,
     });
 
     this.initResizeHandle(this[EditorEl]);

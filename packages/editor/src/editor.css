@@ -67,3 +67,17 @@
 .mt-rich-text-editor-editor--fullscreen .mt-rich-text-editor-resize-handle {
   display: none;
 }
+
+
+/**
+ * Inline
+ */
+
+.mt-rich-text-editor-toolbar--inline,
+.mt-rich-text-editor-statusbar--inline {
+  border: none;
+}
+
+.mt-rich-text-editor-editor--inline .mt-rich-text-editor-resize-handle {
+  display: none;
+}

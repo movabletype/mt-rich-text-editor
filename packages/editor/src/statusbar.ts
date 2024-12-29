@@ -14,7 +14,7 @@ export class Statusbar {
   private statusbar: ReturnType<typeof mount> | undefined;
 
   constructor({ target, editor, statusbar, options, inline }: StatusbarOptions) {
-    if (statusbar.length === 0) {
+    if (inline || statusbar.length === 0) {
       return;
     }
 

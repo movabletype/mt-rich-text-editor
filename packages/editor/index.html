@@ -56,10 +56,10 @@
         "#00ffff",
         "#ff00ff",
       ];
-      const editor = await MTRichTextEditor.create({
+      const searchParams = new URLSearchParams(location.search);
+      const createOptions = {
         id: "editor",
         language: "ja",
-        inline: false,
         toolbarOptions: {
           block: {
             blocks: [
@@ -93,7 +93,18 @@
             },
           },
         },
-      });
+      };
+      if (searchParams.has("inline")) {
+        createOptions.inline = true;
+        createOptions.toolbar = [
+            [
+              ["bold", "italic", "underline", "strike"],
+              ["blockquote", "bulletList", "orderedList", "horizontalRule"],
+              ["link", "unlink"],
+            ],
+          ];
+      }
+      const editor = await MTRichTextEditor.create(createOptions);
       editor.setHeight(600);
     </script>
   </body>
