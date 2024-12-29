@@ -25,15 +25,21 @@
   let toolbarRef: HTMLElement | null = null;
 
   const buttonRefs: Record<string, HTMLElement> = {};
-  const buttons = toolbar.map((row) =>
-    row.map((group) =>
-      group.map((name) => ({
-        name,
-        elementName: getPanelItem("toolbar", name),
-        options: options[name] ?? {},
-      }))
+  const buttons = toolbar
+    .map((row) =>
+      row
+        .map((group) =>
+          group
+            .map((name) => ({
+              name,
+              elementName: getPanelItem("toolbar", name),
+              options: options[name] ?? {},
+            }))
+            .filter((item) => item.options !== false)
+        )
+        .filter((group) => group.length > 0)
     )
-  );
+    .filter((row) => row.length > 0);
   const isActiveMap: Record<string, boolean> = $state({});
   const isDisabledMap: Record<string, boolean> = $state({});
   function update() {

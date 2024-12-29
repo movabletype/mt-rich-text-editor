@@ -6,6 +6,8 @@ author_name: Six Apart Ltd.
 description: <MT_TRANS phrase="Movable Type Rich Text Editor.">
 l10n_class: MT::Plugin::MTRichTextEditor::L10N
 
+schema_version: 1
+
 settings:
   toolbar:
     scope: system
@@ -17,7 +19,7 @@ settings:
           ["link", "unlink"],
           ["insertHtml", "mtFile", "mtImage"],
           ["table"],
-          ["source"],
+          ["source"]
         ],
         [
           ["undo", "redo"],
@@ -25,7 +27,7 @@ settings:
           ["alignLeft", "alignCenter", "alignRight"],
           ["indent", "outdent"],
           ["block"],
-          ["fullScreen"],
+          ["fullScreen"]
         ]
       ]
   blocks:
@@ -75,6 +77,34 @@ editors:
   mt_rich_text_editor:
     label: MTRichTextEditor
     template: mt_rich_text_editor.tmpl
+    toolbar_items:
+      - bold
+      - italic
+      - underline
+      - strike
+      - blockquote
+      - bulletList
+      - orderedList
+      - horizontalRule
+      - link
+      - unlink
+      - insertHtml
+      - mtFile
+      - mtImage
+      - table
+      - source
+      - undo
+      - redo
+      - foregroundColor
+      - backgroundColor
+      - removeFormat
+      - alignLeft
+      - alignCenter
+      - alignRight
+      - indent
+      - outdent
+      - block
+      - fullScreen
 
 applications:
   cms:

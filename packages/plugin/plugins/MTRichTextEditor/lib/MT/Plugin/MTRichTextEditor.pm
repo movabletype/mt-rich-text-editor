@@ -32,38 +32,13 @@ sub settings {
             'mode' => 'mt_rich_text_editor_settings',
         ),
     );
+
+    my $toolbar_items = [map { @$_ } @{$app->registry('editors', 'mt_rich_text_editor', 'toolbar_items')}];
+
     $plugin->load_tmpl(
         'mt_rich_text_editor_settings.tmpl', {
             saved                                       => $app->param('saved') ? 1 : 0,
-            mt_rich_text_editor_toolbar_available_items => MT::Util::to_json([qw(
-                bold
-                italic
-                underline
-                strike
-                blockquote
-                bulletList
-                orderedList
-                horizontalRule
-                link
-                unlink
-                insertHtml
-                mtFile
-                mtImage
-                table
-                source
-                undo
-                redo
-                foregroundColor
-                backgroundColor
-                removeFormat
-                alignLeft
-                alignCenter
-                alignRight
-                indent
-                outdent
-                block
-                fullScreen
-            )]),
+            mt_rich_text_editor_toolbar_available_items => MT::Util::to_json($toolbar_items),
             mt_rich_text_editor_block_available_blocks => MT::Util::to_json([
                 { value => 'paragraph', label => '本文' },
                 { value => 'h1',        label => '見出し1' },
@@ -83,7 +58,7 @@ sub save_settings {
 
     my $plugin = plugin();
     for my $key (@settings) {
-        $plugin->set_config_value($key, $app->param("mt_rich_text_editor_$key"));
+        $plugin->set_config_value($key, scalar $app->param("mt_rich_text_editor_$key"));
     }
 
     $app->redirect($app->uri(

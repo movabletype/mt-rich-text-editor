@@ -60,6 +60,7 @@ export class EditorManager {
               ["link", "unlink"],
               ["insertHtml"],
               ["table"],
+              ["boilerplate"],
               ["source"],
             ],
             [

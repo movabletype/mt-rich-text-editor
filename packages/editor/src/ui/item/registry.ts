@@ -40,6 +40,7 @@ import fullScreenIcon from "../icon/fullScreen.svg?raw";
 import "../block/Select.svelte";
 import "../color/ForegroundColor.svelte";
 import "../color/BackgroundColor.svelte";
+import "../boilerplate/Button.svelte";
 
 import "../paste/Html.svelte";
 import "../paste/Link.svelte";

@@ -6,14 +6,29 @@ author_name: Six Apart Ltd.
 description: <MT_TRANS phrase='Add the "Insert Boilerplate" button to the MTRichTextEditor.'>
 l10n_class: FormattedTextForMTRichTextEditor::L10N
 
+schema_version: 1
+
 editors:
-    mt_rich_text_editor:
-        formatted_text:
-            enabled: true
-        extension: extension.tmpl
+  mt_rich_text_editor:
+    formatted_text:
+      enabled: true
+    extension: extension.tmpl
+    toolbar_items:
+      - boilerplate
 
 applications:
-    cms:
-        methods:
-            mt_rich_text_editor_view_formatted_text_text:
-                code: $FormattedTextForMTRichTextEditor::FormattedTextForMTRichTextEditor::App::view_text
+  cms:
+    methods:
+      mt_rich_text_editor_view_formatted_text_text:
+        code: $FormattedTextForMTRichTextEditor::FormattedTextForMTRichTextEditor::App::view_text
+
+upgrade_functions:
+  install_toolbar_items:
+    code: |
+      sub {
+        use MT::Util;
+        my $plugin = MT->component('MTRichTextEditor');
+        my $toolbar = MT::Util::from_json($plugin->get_config_value('toolbar'));
+        splice @{$toolbar->[0]}, -1, 0, ['boilerplate'];
+        $plugin->set_config_value('toolbar', MT::Util::to_json($toolbar));
+      }
