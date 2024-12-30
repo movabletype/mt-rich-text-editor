@@ -116,7 +116,7 @@
 
   function bindRef(node: HTMLElement, key: string) {
     buttonRefs[key] = node;
-    buttonRefs[key].mtRichTextEditorInit?.(editor);
+    buttonRefs[key].onEditorInit?.(editor);
     return {
       destroy() {
         delete buttonRefs[key];

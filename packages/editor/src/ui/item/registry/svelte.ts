@@ -33,10 +33,10 @@ export const extend = (
       this.#onUpdateCallback = callback;
     };
 
-    mtRichTextEditorInit(editor: Editor) {
+    onEditorInit(editor: Editor) {
       this.#editor = editor;
     }
-    mtRichTextEditorUpdate(editor: Editor) {
+    onEditorUpdate(editor: Editor) {
       this.#onUpdateCallback({ editor });
     }
   };

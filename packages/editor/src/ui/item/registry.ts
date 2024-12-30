@@ -48,23 +48,16 @@ import "../paste/Embed.svelte";
 
 export class PanelItemElement extends HTMLElement {
   editor: Editor | undefined;
-  #onUpdateCallback: () => void = () => {};
-  
+
   get tiptap(): Editor["tiptap"] | undefined {
     return this.editor?.tiptap;
   }
 
-  mtRichTextEditorInit(editor: Editor) {
+  onEditorInit(editor: Editor) {
     this.editor = editor;
   }
 
-  mtRichTextEditorUpdate() {
-    this.#onUpdateCallback();
-  }
-
-  onUpdate(callback: () => void) {
-    this.#onUpdateCallback = callback;
-  }
+  onEditorUpdate() {}
 }
 
 type PanelNamespace = "toolbar" | "statusbar" | "paste-menu";
@@ -464,7 +457,7 @@ export abstract class PasteMenuItem extends HTMLElement {
     return this.editor.tiptap;
   }
 
-  mtRichTextEditorInit(editor: Editor) {
+  onEditorInit(editor: Editor) {
     this.editor = editor;
   }
 
