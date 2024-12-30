@@ -35,7 +35,7 @@
               elementName: getPanelItem("toolbar", name),
               options: options[name] ?? {},
             }))
-            .filter((item) => item.options !== false)
+            .filter((item) => item.elementName && item.options !== false)
         )
         .filter((group) => group.length > 0)
     )

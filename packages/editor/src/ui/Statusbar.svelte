@@ -1,10 +1,6 @@
 <script lang="ts">
   import type { Editor } from "../editor";
-  import {
-    getPanelItem,
-    EditorEventType,
-    EditorEvent
-  } from "./item/registry";
+  import { getPanelItem, EditorEventType, EditorEvent } from "./item/registry";
 
   const {
     editor,
@@ -17,15 +13,21 @@
   } = $props();
 
   const buttonRefs: Record<string, HTMLElement> = {};
-  const buttons = statusbar.map((row) =>
-    row.map((group) =>
-      group.map((name) => ({
-        name,
-        elementName: getPanelItem('statusbar', name),
-        options: options[name] ?? {},
-      }))
+  const buttons = statusbar
+    .map((row) =>
+      row
+        .map((group) =>
+          group
+            .map((name) => ({
+              name,
+              elementName: getPanelItem("statusbar", name),
+              options: options[name] ?? {},
+            }))
+            .filter((item) => item.elementName && item.options !== false)
+        )
+        .filter((group) => group.length > 0)
     )
-  );
+    .filter((row) => row.length > 0);
   const isActiveMap: Record<string, boolean> = $state({});
   const isDisabledMap: Record<string, boolean> = $state({});
   function update() {

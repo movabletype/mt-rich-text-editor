@@ -46,9 +46,25 @@ import "../paste/Html.svelte";
 import "../paste/Link.svelte";
 import "../paste/Embed.svelte";
 
-export interface PanelItemElement extends HTMLElement {
-  tiptap: Editor["tiptap"] | undefined;
-  onUpdate: (callback: (ev: { editor: Editor }) => void) => void;
+export class PanelItemElement extends HTMLElement {
+  editor: Editor | undefined;
+  #onUpdateCallback: () => void = () => {};
+  
+  get tiptap(): Editor["tiptap"] | undefined {
+    return this.editor?.tiptap;
+  }
+
+  mtRichTextEditorInit(editor: Editor) {
+    this.editor = editor;
+  }
+
+  mtRichTextEditorUpdate() {
+    this.#onUpdateCallback();
+  }
+
+  onUpdate(callback: () => void) {
+    this.#onUpdateCallback = callback;
+  }
 }
 
 type PanelNamespace = "toolbar" | "statusbar" | "paste-menu";
@@ -437,7 +453,7 @@ export abstract class PasteMenuItem extends HTMLElement {
         plainText: string;
         htmlDocument: Document;
         clipboardData: DataTransfer;
-        transaction: (cb: () => (void | Promise<void>)) => void;
+        transaction: (cb: () => void | Promise<void>) => void;
       }
     | undefined = undefined;
 
@@ -460,7 +476,7 @@ export abstract class PasteMenuItem extends HTMLElement {
     plainText: string;
     htmlDocument: Document;
     clipboardData: DataTransfer;
-    transaction: (cb: () => (void | Promise<void>)) => void;
+    transaction: (cb: () => void | Promise<void>) => void;
   }) {
     this.content = content;
   }
@@ -544,7 +560,7 @@ const systemItems: Record<PanelNamespace, Record<string, typeof HTMLElement>> = 
   },
 };
 
-export const getPanelItem = (namespace: PanelNamespace, name: string): string => {
+export const getPanelItem = (namespace: PanelNamespace, name: string): string | undefined => {
   const lowerName = name.toLowerCase();
   if (lowerName.includes("-") && window.customElements.get(lowerName)) {
     // specified by full name
@@ -556,7 +572,8 @@ export const getPanelItem = (namespace: PanelNamespace, name: string): string =>
   if (!elementConstructor) {
     elementConstructor = systemItems[namespace][name];
     if (!elementConstructor) {
-      throw new Error(`Item for ${name} is not found`);
+      console.error(`Item for ${name} is not found`);
+      return undefined;
     }
     window.customElements.define(elementName, elementConstructor);
   }

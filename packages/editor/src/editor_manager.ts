@@ -3,6 +3,7 @@ import i18n from "./i18n";
 import { Editor } from "./editor";
 import { UI } from "./editor_manager/ui";
 import type { EditorOptions } from "./editor";
+import { PanelItemElement } from "./ui/item/registry";
 
 type EventHandler = (...args: any[]) => void;
 
@@ -16,6 +17,7 @@ export class EditorManager {
   public static version: string = version;
   public static Editors: Record<string, Editor> = {};
   public static ui = UI;
+  public static PanelItemElement = PanelItemElement;
   private static eventHandlers: Record<string, EventHandler[]> = {};
 
   public static on(name: "create", handler: (options: EditorCreateOptions) => void): void;

@@ -1,0 +1,28 @@
+name: RichTextEditorInsertTable
+version: 1.0.0
+author_link: http://www.movabletype.org/
+author_name: Six Apart, Ltd.
+description: <MT_TRANS phrase="A plugin to insert table from file">
+l10n_lexicon:
+  ja:
+    A plugin to insert table from file: "ファイルからテーブルを挿入するプラグイン"
+    "CSV File": "CSVファイル"
+
+schema_version: 1
+
+editors:
+  mt_rich_text_editor:
+    extension: extension.tmpl
+    toolbar_items:
+      - insertTable
+
+upgrade_functions:
+  install_toolbar_items:
+    code: |
+      sub {
+        use MT::Util;
+        my $plugin = MT->component('MTRichTextEditor');
+        my $toolbar = MT::Util::from_json($plugin->get_config_value('toolbar'));
+        splice @{$toolbar->[0]}, -1, 0, ['insertTable'];
+        $plugin->set_config_value('toolbar', MT::Util::to_json($toolbar));
+      }

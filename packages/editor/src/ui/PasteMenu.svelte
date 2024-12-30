@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { posToDOMRect, isNodeSelection } from "@tiptap/core";
   import type { Editor } from "../editor";
   import type { EditorView } from "@tiptap/pm/view";
   import { getPanelItem } from "./item/registry";
@@ -27,11 +26,13 @@
   } = $props();
 
   const buttonRefs: Record<string, HTMLElement> = {};
-  const buttons = pasteMenu.map((name) => ({
-    name,
-    elementName: getPanelItem("paste-menu", name),
-    options: options[name] ?? {},
-  }));
+  const buttons = pasteMenu
+    .map((name) => ({
+      name,
+      elementName: getPanelItem("paste-menu", name),
+      options: options[name] ?? {},
+    }))
+    .filter((item) => item.elementName && item.options !== false);
 
   let isOpen = $state(false);
   let isMenuOpen = $state(false);

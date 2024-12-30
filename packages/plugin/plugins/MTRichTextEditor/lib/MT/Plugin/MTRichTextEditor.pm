@@ -33,24 +33,29 @@ sub settings {
         ),
     );
 
-    my $toolbar_items = [map { @$_ } @{$app->registry('editors', 'mt_rich_text_editor', 'toolbar_items')}];
+    my $toolbar_items = [map { @$_ } @{ $app->registry('editors', 'mt_rich_text_editor', 'toolbar_items') }];
+    my $param         = {
+        saved                                       => $app->param('saved') ? 1 : 0,
+        mt_rich_text_editor_toolbar_available_items => MT::Util::to_json($toolbar_items),
+        mt_rich_text_editor_block_available_blocks  => MT::Util::to_json([
+            { value => 'paragraph', label => '本文' },
+            { value => 'h1',        label => '見出し1' },
+            { value => 'h2',        label => '見出し2' },
+            { value => 'h3',        label => '見出し3' },
+            { value => 'h4',        label => '見出し4' },
+            { value => 'h5',        label => '見出し5' },
+            { value => 'h6',        label => '見出し6' },
+            { value => 'pre',       label => '整形済みテキスト' },
+        ]),
+        map { "mt_rich_text_editor_" . $_ => $plugin->get_config_value($_) } @settings
+    };
+
+    $app->setup_editor_param($param);
 
     $plugin->load_tmpl(
-        'mt_rich_text_editor_settings.tmpl', {
-            saved                                       => $app->param('saved') ? 1 : 0,
-            mt_rich_text_editor_toolbar_available_items => MT::Util::to_json($toolbar_items),
-            mt_rich_text_editor_block_available_blocks => MT::Util::to_json([
-                { value => 'paragraph', label => '本文' },
-                { value => 'h1',        label => '見出し1' },
-                { value => 'h2',        label => '見出し2' },
-                { value => 'h3',        label => '見出し3' },
-                { value => 'h4',        label => '見出し4' },
-                { value => 'h5',        label => '見出し5' },
-                { value => 'h6',        label => '見出し6' },
-                { value => 'pre',       label => '整形済みテキスト' },
-            ]),
-            map { "mt_rich_text_editor_" . $_ => $plugin->get_config_value($_) } @settings
-        });
+        'mt_rich_text_editor_settings.tmpl',
+        $param,
+    );
 }
 
 sub save_settings {
