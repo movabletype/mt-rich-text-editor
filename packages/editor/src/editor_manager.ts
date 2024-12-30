@@ -12,7 +12,6 @@ export interface EditorCreateOptions extends Omit<EditorOptions, "toolbar"> {
   toolbar?: EditorOptions["toolbar"];
 }
 
-console.log(UI.getPanelItem);
 export class EditorManager {
   public static version: string = version;
   public static Editors: Record<string, Editor> = {};
@@ -34,7 +33,7 @@ export class EditorManager {
   }
 
   public static async create(options: EditorCreateOptions): Promise<Editor> {
-    const { id, language, ...editorOptions } = options;
+    const { id, language } = options;
 
     if (language && i18n.language !== language) {
       i18n.changeLanguage(language);
@@ -48,6 +47,7 @@ export class EditorManager {
     }
 
     this.emit("create", options);
+    const { id: _, language: __, ...editorOptions } = options;
 
     const editor = new Editor(
       textarea,

@@ -147,7 +147,6 @@ export default class SourceEditor {
   }
 
   public insertContent(content: string): void {
-    console.log("insertContent", content);
     this.editor.insertContent(content);
   }
 

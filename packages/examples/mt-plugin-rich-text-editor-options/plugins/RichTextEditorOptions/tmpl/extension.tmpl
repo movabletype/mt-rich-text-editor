@@ -1,0 +1,29 @@
+<mt:setvarblock name="js_include" append="1">
+  <script>
+    /**
+     * An event emitted before the creation of the rich text editor
+     */
+    MTRichTextEditor.on("create", (options) => {
+      // Toolbar Settings
+      options.toolbar = [
+        [
+          ["bold", "italic", "underline", "strike"],
+          ["blockquote", "bulletList", "orderedList", "horizontalRule"],
+          ["link", "unlink"],
+        ],
+      ];
+    });
+
+    /**
+     * An event emitted when the rich text editor is initialized
+     */
+    MTRichTextEditor.on("init", (editor) => {
+      // Get an internal tiptap editor instance
+      const tiptap = editor.tiptap;
+      // Monitor text updates
+      tiptap.on("update", (e) => {
+        console.log(e);
+      });
+    });
+  </script>
+</mt:setvarblock>

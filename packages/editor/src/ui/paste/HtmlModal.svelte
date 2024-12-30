@@ -150,7 +150,6 @@
               const p = style[i];
               if (disabledAttributes.includes(p)) {
                 style.removeProperty(p);
-                console.log(style);
               }
             }
           });
@@ -164,8 +163,6 @@
               }
             }
           });
-
-          console.log(doc.body.innerHTML);
 
           onSubmit(doc);
           close();
