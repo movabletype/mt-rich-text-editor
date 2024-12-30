@@ -16,19 +16,16 @@ editors:
     toolbar_items:
       - boilerplate
 
+upgrade_functions:
+  formatted_text_for_mt_rich_text_editor_install_toolbar_items:
+    code: |
+      sub {
+        require MT::Plugin::MTRichTextEditor::Util;
+        MT::Plugin::MTRichTextEditor::Util->install_toolbar_items(['boilerplate'], 0, -1);
+      }
+
 applications:
   cms:
     methods:
       mt_rich_text_editor_view_formatted_text_text:
         code: $FormattedTextForMTRichTextEditor::FormattedTextForMTRichTextEditor::App::view_text
-
-upgrade_functions:
-  install_toolbar_items:
-    code: |
-      sub {
-        use MT::Util;
-        my $plugin = MT->component('MTRichTextEditor');
-        my $toolbar = MT::Util::from_json($plugin->get_config_value('toolbar'));
-        splice @{$toolbar->[0]}, -1, 0, ['boilerplate'];
-        $plugin->set_config_value('toolbar', MT::Util::to_json($toolbar));
-      }

@@ -21,6 +21,12 @@ const createRichTextEditor = async (
     options.toolbar = convertToolbar(options.toolbar);
   }
 
+  if (document.readyState === "loading") {
+    await new Promise<void>((resolve) => {
+      document.addEventListener("DOMContentLoaded", () => resolve(), { once: true });
+    });
+  }
+
   return MTRichTextEditorManager.create({
     id,
     ...MTRichTextEditor.config,
@@ -30,25 +36,28 @@ const createRichTextEditor = async (
 
 let customSettings: Record<string, any> | undefined = undefined;
 try {
-  customSettings = JSON.parse(document.querySelector<HTMLScriptElement>('[data-mt-rich-text-editor-settings]')?.dataset.mtRichTextEditorSettings || '{}');
+  customSettings = JSON.parse(
+    document.querySelector<HTMLScriptElement>("[data-mt-rich-text-editor-settings]")?.dataset
+      .mtRichTextEditorSettings || "{}"
+  );
 } catch (e) {
   console.error(e);
 }
 
-const toolbarOptions: Record<string, any> = {}
+const toolbarOptions: Record<string, any> = {};
 if (customSettings?.blocks) {
   toolbarOptions.block = {
     blocks: customSettings.blocks,
-  }
+  };
 }
 
 if (customSettings?.colors) {
   toolbarOptions.foregroundColor = {
     presetColors: customSettings.colors,
-  }
+  };
   toolbarOptions.backgroundColor = {
     presetColors: customSettings.colors,
-  }
+  };
 }
 
 const MTEditor = MT.Editor || (class {} as NonNullable<typeof MT.Editor>);
