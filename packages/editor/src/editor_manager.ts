@@ -71,6 +71,7 @@ export class EditorManager {
       ],
       statusbar: ["path"],
       pasteMenu: ["embed", "html", "link", "text"],
+      extensions: [],
       inline: false,
       ...(options as any),
     } as EditorOptions & EditorCreateOptions;
@@ -98,7 +99,8 @@ export class EditorManager {
     await Promise.all(Object.values(EditorManager.Editors).map((editor) => editor.save()));
   }
 
-  public static async import(name: string): Promise<typeof import("@tiptap/core")> {
+  public static async import(name: "@tiptap/core"): Promise<typeof import("@tiptap/core")>;
+  public static async import(name: string): Promise<any> {
     if (name === "@tiptap/core") {
       return Core;
     }

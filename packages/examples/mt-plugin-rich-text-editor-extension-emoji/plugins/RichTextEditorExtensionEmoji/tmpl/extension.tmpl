@@ -1,0 +1,45 @@
+<mt:setvarblock name="js_include" append="1">
+  <script type="module">
+    const emjiMap = {
+      bow: "🙇",
+      smile: "😊",
+      heart: "❤️",
+      laugh: "😂",
+      angry: "😠",
+      sad: "😢",
+      cry: "😭",
+      sleepy: "😪",
+      hug: "🤗",
+      clap: "👏",
+      hand: "👋",
+      ok: "👌",
+      "+1": "👍",
+      "-1": "👎",
+    };
+
+    MTRichTextEditor.import("@tiptap/core").then(({ Extension, InputRule }) => {
+      const RichTextEditorExtensionEmoji = Extension.create({
+        name: "richTextEditorExtensionEmoji",
+        addInputRules() {
+          return [
+            new InputRule({
+              find: new RegExp(
+                `:(${Object.keys(emjiMap)
+                  .map((key) => key.replace(/\+/g, "\\+"))
+                  .join("|")}):$`,
+                "i"
+              ),
+              handler: ({ state, range, match }) => {
+                state.tr.insertText(emjiMap[match[1]], range.from, range.to);
+              },
+            }),
+          ];
+        },
+      });
+
+      MTRichTextEditor.on("create", (options) => {
+        options.extensions.push(RichTextEditorExtensionEmoji);
+      });
+    });
+  </script>
+</mt:setvarblock>
