@@ -1,5 +1,5 @@
 <mt:setvarblock name="js_include" append="1">
-<__trans_section component="richtexteditorinserttable">
+  <!-- <__trans_section component="richtexteditorinserttable"> -->
   <template id="rich-text-editor-insert-table-icon">
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -69,37 +69,41 @@
           .cloneNode(true);
         document.body.appendChild(dialog);
 
-        dialog.querySelector("button[data-secondary]").addEventListener("click", (ev) => {
-          ev.preventDefault();
-          dialog.close();
-        });
+        dialog
+          .querySelector("button[data-secondary]")
+          .addEventListener("click", (ev) => {
+            ev.preventDefault();
+            dialog.close();
+          });
 
-        dialog.querySelector("button[data-primary]").addEventListener("click", (ev) => {
-          ev.preventDefault();
-          const file = dialog.querySelector("input[type='file']").files[0];
-          const reader = new FileReader();
-          reader.onload = (ev) => {
-            const table = document.createElement("table");
-            const tbody = document.createElement("tbody");
-            table.appendChild(tbody);
-            const text = ev.target.result;
-            text.split("\n").forEach((line) => {
-              const row = document.createElement("tr");
-              line.split(",").forEach((cell) => {
-                const td = document.createElement("td");
-                const paragraph = document.createElement("p");
-                paragraph.textContent = cell;
-                td.appendChild(paragraph);
-                row.appendChild(td);
+        dialog
+          .querySelector("button[data-primary]")
+          .addEventListener("click", (ev) => {
+            ev.preventDefault();
+            const file = dialog.querySelector("input[type='file']").files[0];
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+              const table = document.createElement("table");
+              const tbody = document.createElement("tbody");
+              table.appendChild(tbody);
+              const text = ev.target.result;
+              text.split("\n").forEach((line) => {
+                const row = document.createElement("tr");
+                line.split(",").forEach((cell) => {
+                  const td = document.createElement("td");
+                  const paragraph = document.createElement("p");
+                  paragraph.textContent = cell;
+                  td.appendChild(paragraph);
+                  row.appendChild(td);
+                });
+                tbody.appendChild(row);
               });
-              tbody.appendChild(row);
-            });
-            this.tiptap.commands.insertContent(table.outerHTML);
-          };
-          reader.readAsText(file);
-          dialog.querySelector("form").reset();
-          dialog.close();
-        });
+              this.tiptap.commands.insertContent(table.outerHTML);
+            };
+            reader.readAsText(file);
+            dialog.querySelector("form").reset();
+            dialog.close();
+          });
         return dialog;
       }
     }
@@ -108,5 +112,5 @@
       RichTextEditorInsertTable
     );
   </script>
-</__trans_section>
+  <!-- </__trans_section> -->
 </mt:setvarblock>
