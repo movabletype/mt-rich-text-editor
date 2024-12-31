@@ -13,7 +13,13 @@
       isEditorItemAvailable() {
         return (this.content?.plainText ?? "")
           .split("\n")
-          .some((line) => line.startsWith("#") || line.startsWith("```"));
+          .some(
+            (line) =>
+              line.startsWith("#") ||
+              line.startsWith("```") ||
+              /^=+$/.test(line) ||
+              /^-+$/.test(line)
+          );
       }
 
       onEditorPaste() {
