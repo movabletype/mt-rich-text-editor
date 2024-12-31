@@ -48,38 +48,35 @@ export class EditorManager {
       throw new Error("Textarea not found");
     }
 
-    this.emit("create", options);
-    const { id: _, language: __, ...editorOptions } = options;
+    const editorCreateOptions = {
+      toolbar: [
+        [
+          ["bold", "italic", "underline", "strike"],
+          ["blockquote", "bulletList", "orderedList", "horizontalRule"],
+          ["link", "unlink"],
+          ["insertHtml"],
+          ["table"],
+          ["boilerplate"],
+          ["source"],
+        ],
+        [
+          ["undo", "redo"],
+          ["foregroundColor", "backgroundColor", "removeFormat"],
+          ["alignLeft", "alignCenter", "alignRight", "indent", "outdent"],
+          ["block"],
+          ["fullScreen"],
+        ],
+      ],
+      statusbar: ["path"],
+      pasteMenu: ["embed", "html", "link", "text"],
+      inline: false,
+      ...(options as any),
+    } as EditorOptions & EditorCreateOptions;
 
-    const editor = new Editor(
-      textarea,
-      Object.assign(
-        {
-          toolbar: [
-            [
-              ["bold", "italic", "underline", "strike"],
-              ["blockquote", "bulletList", "orderedList", "horizontalRule"],
-              ["link", "unlink"],
-              ["insertHtml"],
-              ["table"],
-              ["boilerplate"],
-              ["source"],
-            ],
-            [
-              ["undo", "redo"],
-              ["foregroundColor", "backgroundColor", "removeFormat"],
-              ["alignLeft", "alignCenter", "alignRight", "indent", "outdent"],
-              ["block"],
-              ["fullScreen"],
-            ],
-          ],
-          statusbar: [[["path"]]],
-          pasteMenu: ["embed", "html", "link", "text"],
-          inline: false,
-        },
-        editorOptions
-      )
-    );
+    this.emit("create", editorCreateOptions);
+    const { id: _, language: __, ...editorOptions } = editorCreateOptions;
+
+    const editor = new Editor(textarea, editorOptions);
 
     this.emit("init", editor);
 

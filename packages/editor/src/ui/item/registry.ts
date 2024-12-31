@@ -391,30 +391,32 @@ export class FullScreenButton extends HTMLElement {
   }
 }
 
-export class PathItem extends HTMLElement {
-  connectedCallback() {
-    this.addEventListener(EditorEventType.Update, ({ tiptap }) => {
-      const { selection } = tiptap.state;
-      const $head = selection.$head;
+export class PathItem extends PanelItemElement {
+  onEditorUpdate() {
+    if (!this.tiptap) {
+      return;
+    }
 
-      const path: string[] = [];
-      for (let depth = 1; depth <= $head.depth; depth++) {
-        const node = $head.node(depth);
-        let nodeName = this.getHTMLTag(node.type.name);
-        if (!nodeName) {
-          continue;
-        }
+    const { selection } = this.tiptap.state;
+    const $head = selection.$head;
 
-        const textAlign = node.attrs.textAlign;
-        if (textAlign) {
-          nodeName += `[align=${textAlign}]`;
-        }
-
-        path.push(nodeName);
+    const path: string[] = [];
+    for (let depth = 1; depth <= $head.depth; depth++) {
+      const node = $head.node(depth);
+      let nodeName = this.getHTMLTag(node.type.name);
+      if (!nodeName) {
+        continue;
       }
 
-      this.textContent = path.join(" > ");
-    });
+      const textAlign = node.attrs.textAlign;
+      if (textAlign) {
+        nodeName += `[align=${textAlign}]`;
+      }
+
+      path.push(nodeName);
+    }
+
+    this.textContent = path.join(" > ");
   }
 
   private getHTMLTag(nodeName: string): string {

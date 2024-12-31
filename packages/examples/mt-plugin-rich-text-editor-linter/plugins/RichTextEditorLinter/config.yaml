@@ -1,0 +1,15 @@
+name: RichTextEditorLinter
+version: 1.0.0
+author_link: http://www.movabletype.org/
+author_name: Six Apart, Ltd.
+description: <MT_TRANS phrase="A plugin to lint the rich text editor content">
+l10n_lexicon:
+  ja:
+    A plugin to lint the rich text editor content: "リッチテキストエディタの内容をチェックするプラグイン"
+    Fix: "修正"
+
+schema_version: 1
+
+editors:
+  mt_rich_text_editor:
+    extension: extension.tmpl

@@ -18,7 +18,7 @@ export interface EditorOptions {
   toolbar: string[][][];
   toolbarContainer?: HTMLDivElement;
   toolbarOptions?: Record<string, any>;
-  statusbar?: string[][][];
+  statusbar?: string[];
   statusbarContainer?: HTMLDivElement;
   statusbarOptions?: Record<string, any>;
   extensions?: TiptapExtension[];

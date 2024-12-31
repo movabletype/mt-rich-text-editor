@@ -5,7 +5,7 @@ import { mount, unmount } from "svelte";
 interface StatusbarOptions {
   target: HTMLDivElement;
   editor: Editor;
-  statusbar: string[][][];
+  statusbar: string[];
   options: Record<string, any>;
   inline: boolean;
 }
