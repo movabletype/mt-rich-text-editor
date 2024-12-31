@@ -55,7 +55,7 @@ export const extendPasteItem = (
     | undefined = undefined;
     #onApplyCallback: () => void = () => {};
 
-    mtRichTextEditorSetContent(content: {
+    onEditorSetPasteContent(content: {
       plainText: string;
       htmlDocument: Document;
       clipboardData: DataTransfer;
@@ -64,7 +64,7 @@ export const extendPasteItem = (
       this.content = content;
     }
 
-    mtRichTextEditorApply() {
+    onEditorPaste() {
       this.#onApplyCallback();
     }
 

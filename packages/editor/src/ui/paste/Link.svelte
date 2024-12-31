@@ -9,7 +9,7 @@
   import { extendPasteItem } from "../item/registry/svelte";
   const extend = (customElementConstructor: typeof HTMLElement) =>
     class extends extendPasteItem(customElementConstructor) {
-      mtRichTextEditorIsAvailable() {
+      isEditorItemAvailable() {
         return /^https?:\/\/[^\s]+(\s*)?$/.test(this.getContent()?.plainText ?? "");
       }
     };
@@ -71,8 +71,8 @@
           onSubmit: apply,
           onClose: () => {
             unmountModal();
-          }
-        }
+          },
+        },
       });
     } else {
       unmountModal();
@@ -92,20 +92,12 @@
 <button onclick={toggleDetailPanel}>リンクとして貼り付け...</button>
 
 <style>
-  :host {
-    display: flex;
-    flex-direction: row;
-    gap: 10px;
-  }
   button {
     background: none;
     border: none;
-    border-radius: 4px;
+    margin: 0;
+    padding: 0;
     cursor: pointer;
-    text-align: left;
-    padding: 4px;
-  }
-  button:hover {
-    background: #f0f0f0;
+    font-size: inherit;
   }
 </style>

@@ -441,84 +441,55 @@ export class PathItem extends PanelItemElement {
   }
 }
 
-export abstract class PasteMenuItem extends HTMLElement {
-  protected editor: Editor | undefined = undefined;
+export abstract class PasteMenuItemElement extends PanelItemElement {
   protected content:
     | {
         plainText: string;
-        htmlDocument: Document;
+        htmlDocument: Document | null;
         clipboardData: DataTransfer;
         transaction: (cb: () => void | Promise<void>) => void;
       }
     | undefined = undefined;
 
-  get tiptap() {
-    if (!this.editor) {
-      throw new Error("Editor is not initialized");
-    }
-    return this.editor.tiptap;
-  }
-
   onEditorInit(editor: Editor) {
     this.editor = editor;
   }
 
-  mtRichTextEditorIsAvailable() {
+  isEditorItemAvailable() {
     return true;
   }
 
-  mtRichTextEditorSetContent(content: {
+  onEditorSetPasteContent(content: {
     plainText: string;
-    htmlDocument: Document;
+    htmlDocument: Document | null;
     clipboardData: DataTransfer;
     transaction: (cb: () => void | Promise<void>) => void;
   }) {
     this.content = content;
   }
 
-  mtRichTextEditorApply() {
-    this.shadowRoot?.querySelector("button")?.click();
+  insertPasteContent(content: string) {
+    this.content?.transaction(() => {
+      this.tiptap?.chain().undo().focus().run();
+      this.tiptap?.commands.insertContent(content);
+    });
+  }
+
+  onEditorPaste() {
+    throw new Error("onEditorPaste is not implemented");
   }
 }
 
-export class AsText extends PasteMenuItem {
+export class AsText extends PasteMenuItemElement {
   constructor() {
     super();
-    const shadow = this.attachShadow({ mode: "open" });
+    this.attachShadow({ mode: "open" }).innerHTML = "テキストとして貼り付け";
+  }
 
-    const style = document.createElement("style");
-    style.textContent = `
-      :host {
-        display: flex;
-        flex-direction: row;
-        gap: 10px;
-      }
-      button {
-        background: none;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-        text-align: left;
-        padding: 4px;
-      }
-      button:hover {
-        background: #f0f0f0;
-      }
-    `;
-    shadow.appendChild(style);
-
-    const insertButton = document.createElement("button");
-    insertButton.textContent = "テキストとして貼り付け";
-    insertButton.addEventListener("click", (ev) => {
-      ev.preventDefault();
-      this.content?.transaction(() => {
-        this.tiptap.chain().undo().focus().run();
-        const encoder = document.createElement("div");
-        encoder.textContent = this.content?.plainText ?? "";
-        this.tiptap.commands.insertContent(preprocessHTML(`<p>${encoder.innerHTML}</p>`));
-      });
-    });
-    shadow.appendChild(insertButton);
+  onEditorPaste() {
+    const encoder = document.createElement("div");
+    encoder.textContent = this.content?.plainText ?? "";
+    this.insertPasteContent(preprocessHTML(`<p>${encoder.innerHTML}</p>`));
   }
 }
 

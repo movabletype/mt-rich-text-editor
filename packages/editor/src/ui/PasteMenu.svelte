@@ -2,6 +2,7 @@
   import type { Editor } from "../editor";
   import type { EditorView } from "@tiptap/pm/view";
   import { getPanelItem } from "./item/registry";
+  import type { PasteMenuItemElement } from "./item/registry";
   import clipboardIcon from "./icon/clipboard.svg?raw";
 
   function getText(clipboardData: DataTransfer): string | undefined {
@@ -25,14 +26,18 @@
     options: Record<string, any>;
   } = $props();
 
-  const buttonRefs: Record<string, HTMLElement> = {};
+  const buttonRefs: Record<string, PasteMenuItemElement | HTMLElement> = {};
   const buttons = pasteMenu
     .map((name) => ({
       name,
       elementName: getPanelItem("paste-menu", name),
       options: options[name] ?? {},
     }))
-    .filter((item) => item.elementName && item.options !== false);
+    .filter((item) => item.elementName && item.options !== false) as {
+    name: string;
+    elementName: string;
+    options: Record<string, any>;
+  }[];
 
   let isOpen = $state(false);
   let isMenuOpen = $state(false);
@@ -77,26 +82,32 @@
     }
 
     let applied = false;
-    for (const button of buttons) {
-      buttonRefs[button.elementName].mtRichTextEditorSetContent?.({
-        plainText: plainText ?? htmlDocument?.body.innerText ?? "",
-        htmlDocument,
-        clipboardData,
-        transaction: async (cb: Function) => {
-          isInTransaction = true;
-          try {
-            await cb();
-          } finally {
-            isInTransaction = false;
-            updatePosition(view);
-          }
-        },
-      });
-      isAvailableMap[button.elementName] =
-        buttonRefs[button.elementName].mtRichTextEditorIsAvailable();
-      if (!applied && isAvailableMap[button.elementName]) {
+    for (const { elementName } of buttons) {
+      const button = buttonRefs[elementName];
+      if ("onEditorSetPasteContent" in button) {
+        button.onEditorSetPasteContent?.({
+          plainText: plainText ?? htmlDocument?.body.innerText ?? "",
+          htmlDocument,
+          clipboardData,
+          transaction: async (cb: Function) => {
+            isInTransaction = true;
+            try {
+              await cb();
+            } finally {
+              isInTransaction = false;
+              updatePosition(view);
+            }
+          },
+        });
+      }
+      if ("isEditorItemAvailable" in button) {
+        isAvailableMap[elementName] = button.isEditorItemAvailable();
+      }
+      if (!applied && isAvailableMap[elementName]) {
         setTimeout(() => {
-          buttonRefs[button.elementName].mtRichTextEditorApply?.();
+          if ("onEditorPaste" in button) {
+            button.onEditorPaste();
+          }
         });
         applied = true;
       }
@@ -114,9 +125,11 @@
     return false;
   });
 
-  function bindRef(node: HTMLElement, key: string) {
+  function bindRef(node: PasteMenuItemElement | HTMLElement, key: string) {
     buttonRefs[key] = node;
-    buttonRefs[key].onEditorInit?.(editor);
+    if ("onEditorInit" in node) {
+      node.onEditorInit(editor);
+    }
     return {
       destroy() {
         delete buttonRefs[key];
@@ -136,11 +149,21 @@
   >
     {@html clipboardIcon}
   </button>
-  <div class="paste-menu-row" style={`display: ${isMenuOpen ? "block" : "none"};`}>
+  <div class="paste-menu-list" style={`display: ${isMenuOpen ? "block" : "none"};`}>
     {#each buttons as button}
       <svelte:element
         this={button.elementName}
         use:bindRef={button.elementName}
+        onclick={function (ev) {
+          ev.preventDefault();
+          ev.stopPropagation();
+
+          if ("onEditorPaste" in this) {
+            (this as unknown as PasteMenuItemElement).onEditorPaste();
+          }
+        }}
+        role="button"
+        tabindex="0"
         data-options={JSON.stringify(button.options)}
         class="paste-menu-item"
         style={`display: ${isAvailableMap[button.elementName] ? "block" : "none"};`}
@@ -189,27 +212,27 @@
     flex-wrap: wrap;
     flex-direction: column;
   }
-  .paste-menu-row {
+  .paste-menu-list {
     display: flex;
     flex-wrap: wrap;
     border: 1px solid #ccc;
     border-radius: 4px;
     border-top-left-radius: 0;
     margin-top: -1px;
-  }
-  .paste-menu-group {
-    display: flex;
-    flex-direction: column;
-    padding: 10px 0;
+    padding-top: 3px;
   }
   .paste-menu-item {
     display: inline-flex;
-    margin: 2px 0 3px;
+    margin: 2px 0 3px 3px;
     line-height: 2;
     border: none;
     background: none;
     border-radius: 4px;
     padding: 0 10px;
+  }
+  .paste-menu-item:hover {
+    background: #f0f0f0;
+    cursor: pointer;
   }
   .paste-menu-item.is-active {
     background: #dee0e2;

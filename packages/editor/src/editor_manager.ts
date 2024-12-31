@@ -3,7 +3,8 @@ import i18n from "./i18n";
 import { Editor } from "./editor";
 import { UI } from "./editor_manager/ui";
 import type { EditorOptions } from "./editor";
-import { PanelItemElement } from "./ui/item/registry";
+import { PanelItemElement, PasteMenuItemElement } from "./ui/item/registry";
+import * as Core from "@tiptap/core";
 
 type EventHandler = (...args: any[]) => void;
 
@@ -16,8 +17,9 @@ export interface EditorCreateOptions extends Omit<EditorOptions, "toolbar"> {
 export class EditorManager {
   public static version: string = version;
   public static Editors: Record<string, Editor> = {};
-  public static ui = UI;
+  public static UI = UI;
   public static PanelItemElement = PanelItemElement;
+  public static PasteMenuItemElement = PasteMenuItemElement;
   private static eventHandlers: Record<string, EventHandler[]> = {};
 
   public static on(name: "create", handler: (options: EditorCreateOptions) => void): void;
@@ -94,5 +96,12 @@ export class EditorManager {
 
   public static async save(): Promise<void> {
     await Promise.all(Object.values(EditorManager.Editors).map((editor) => editor.save()));
+  }
+
+  public static async import(name: string): Promise<typeof import("@tiptap/core")> {
+    if (name === "@tiptap/core") {
+      return Core;
+    }
+    throw new Error(`Unknown module: ${name}`);
   }
 }
