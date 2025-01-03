@@ -1,3 +1,7 @@
+.tiptap {
+  overflow: auto;
+}
+
 .mt-rich-text-editor-editor {
   border: 1px solid #ccc;
   border-radius: 4px;
@@ -43,7 +47,6 @@
 .mt-rich-text-editor-content {
   flex-grow: 1;
   min-height: 0;
-  overflow: auto;
 }
 
 .mt-rich-text-editor-toolbar {
@@ -66,6 +69,18 @@
 
 .mt-rich-text-editor-editor--fullscreen .mt-rich-text-editor-resize-handle {
   display: none;
+}
+
+h2 {
+  position: sticky;
+  background-color: #fff;
+  top: 0;
+}
+
+h3 {
+  position: sticky;
+  background-color: #fff;
+  top: 40px;
 }
 
 

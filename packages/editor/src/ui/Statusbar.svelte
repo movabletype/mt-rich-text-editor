@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { defaultMarkdownParser } from "@tiptap/pm/markdown";
   import type { Editor } from "../editor";
   import { getPanelItem } from "./item/registry";
   import type { PanelItemElement } from "./item/registry";
@@ -9,22 +10,27 @@
     options,
   }: {
     editor: Editor;
-    statusbar: string[];
+    statusbar: string[][];
     options: Record<string, any>;
   } = $props();
 
   const buttonRefs: Record<string, PanelItemElement | HTMLElement> = {};
-  const buttons = statusbar
-    .map((name) => ({
-      name,
-      elementName: getPanelItem("statusbar", name),
-      options: options[name] ?? {},
-    }))
-    .filter((item) => item.elementName && item.options !== false) as {
-    name: string;
-    elementName: string;
-    options: Record<string, any>;
-  }[];
+  const buttons = statusbar.map(
+    (
+      groupSides // left side and right side
+    ) =>
+      (groupSides || [])
+        .map((name) => ({
+          name,
+          elementName: getPanelItem("statusbar", name),
+          options: options[name] ?? {},
+        }))
+        .filter((item) => item.elementName && item.options !== false) as {
+        name: string;
+        elementName: string;
+        options: Record<string, any>;
+      }[]
+  );
   const isActiveMap: Record<string, boolean> = $state({});
   const isDisabledMap: Record<string, boolean> = $state({});
   function update() {
@@ -56,23 +62,32 @@
 </script>
 
 <div class="statusbar">
-  {#each buttons as button}
-    <svelte:element
-      this={button.elementName}
-      use:bindRef={button.elementName}
-      data-options={JSON.stringify(button.options)}
-      class="statusbar-item"
-      class:is-active={isActiveMap[button.elementName]}
-      class:is-disabled={isDisabledMap[button.elementName]}
-      role="button"
-      tabindex="0"
-      onclick={update}
-    />
+  {#each buttons as groupSides}
+    <div class="statusbar-side">
+      {#each groupSides as button}
+        <svelte:element
+          this={button.elementName}
+          use:bindRef={button.elementName}
+          data-options={JSON.stringify(button.options)}
+          class="statusbar-item"
+          class:is-active={isActiveMap[button.elementName]}
+          class:is-disabled={isDisabledMap[button.elementName]}
+          role="button"
+          tabindex="0"
+          onclick={update}
+        />
+      {/each}
+    </div>
   {/each}
 </div>
 
 <style>
   .statusbar {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+  }
+  .statusbar-side {
     display: flex;
     flex-wrap: wrap;
   }

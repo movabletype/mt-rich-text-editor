@@ -15,10 +15,47 @@ export interface EditorOptions {
   height?: number;
   stylesheets?: string[];
   editorStylesheets?: string[];
-  toolbar: string[][][];
+  /**
+   * toolbar definition
+   * @example
+   * [
+   *   // 1st row
+   *   [
+   *     // left side groups
+   *     [
+   *       ["bold", "italic", "underline"],
+   *       ["orderedList", "bulletList"],
+   *     ],
+   *     // right side groups
+   *     [
+   *       ["source"],
+   *     ],
+   *   ],
+   *   // 2nd row
+   *   [
+   *     // left side groups
+   *     [
+   *       ["undo", "redo"],
+   *     ],
+   *     // has no right side groups
+   *   ],
+   *   // more rows...
+   * ]
+   */
+  toolbar: string[][][][];
   toolbarContainer?: HTMLDivElement;
   toolbarOptions?: Record<string, any>;
-  statusbar?: string[];
+  /**
+   * statusbar definition
+   * @example
+   * [
+   *   // left side items
+   *   ["path"],
+   *   // right side items
+   *   ["wordCount"],
+   * ]
+   */
+  statusbar?: string[][];
   statusbarContainer?: HTMLDivElement;
   statusbarOptions?: Record<string, any>;
   extensions?: TiptapExtension[];

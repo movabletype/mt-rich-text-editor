@@ -17,7 +17,7 @@
     inline,
   }: {
     editor: Editor;
-    toolbar: string[][][];
+    toolbar: string[][][][];
     options: Record<string, any>;
     inline: boolean;
   } = $props();
@@ -27,17 +27,27 @@
   const buttonRefs: Record<string, HTMLElement> = {};
   const buttons = toolbar
     .map((row) =>
-      row
-        .map((group) =>
-          group
-            .map((name) => ({
-              name,
-              elementName: getPanelItem("toolbar", name),
-              options: options[name] ?? {},
-            }))
-            .filter((item) => item.elementName && item.options !== false)
-        )
-        .filter((group) => group.length > 0)
+      row.map(
+        (
+          groupSides // left side and right side
+        ) =>
+          (groupSides || [])
+            .map(
+              (group) =>
+                (group || [])
+                  .map((name) => ({
+                    name,
+                    elementName: getPanelItem("toolbar", name),
+                    options: options[name] ?? {},
+                  }))
+                  .filter((item) => item.elementName && item.options !== false) as {
+                  name: string;
+                  elementName: string;
+                  options: Record<string, any>;
+                }[]
+            )
+            .filter((group) => group.length > 0)
+      )
     )
     .filter((row) => row.length > 0);
   const isActiveMap: Record<string, boolean> = $state({});
@@ -127,21 +137,27 @@
 <div class="toolbar {inline ? 'toolbar--inline' : ''}" bind:this={toolbarRef}>
   {#each buttons as row}
     <div class="toolbar-row">
-      {#each row as group}
-        <div class={`toolbar-group ${group.length === 1 ? `toolbar-group--${group[0].name}` : ""}`}>
-          {#each group as button}
-            <svelte:element
-              this={button.elementName}
-              use:bindRef={button.elementName}
-              data-options={JSON.stringify(button.options)}
-              class="toolbar-item"
-              class:is-active={isActiveMap[button.elementName]}
-              class:is-disabled={isDisabledMap[button.elementName]}
-              onclick={(ev) => {
-                ev.currentTarget.dispatchEvent(new EditorEvent(EditorEventType.Click, editor));
-                update();
-              }}
-            />
+      {#each row as groupSides}
+        <div class="toolbar-side">
+          {#each groupSides as group}
+            <div
+              class={`toolbar-group ${group.length === 1 ? `toolbar-group--${group[0].name}` : ""}`}
+            >
+              {#each group as button}
+                <svelte:element
+                  this={button.elementName}
+                  use:bindRef={button.elementName}
+                  data-options={JSON.stringify(button.options)}
+                  class="toolbar-item"
+                  class:is-active={isActiveMap[button.elementName]}
+                  class:is-disabled={isDisabledMap[button.elementName]}
+                  onclick={(ev) => {
+                    ev.currentTarget.dispatchEvent(new EditorEvent(EditorEventType.Click, editor));
+                    update();
+                  }}
+                />
+              {/each}
+            </div>
           {/each}
         </div>
       {/each}
@@ -157,11 +173,15 @@
   }
   .toolbar-row {
     display: flex;
-    flex-wrap: wrap;
+    justify-content: space-between;
     border-bottom: 1px solid #ccc;
   }
   .toolbar-row:last-child {
     border-bottom: none;
+  }
+  .toolbar-side {
+    display: flex;
+    flex-wrap: wrap;
   }
   .toolbar-group {
     padding: 0 4px;
