@@ -89,6 +89,38 @@ class MTRichTextEditor extends MTEditor {
       ],
     ],
     toolbarOptions,
+    extensionOptions: {
+      embedObject: {
+        resolver: async ({
+          url,
+          maxwidth,
+          maxheight,
+        }: {
+          url: string;
+          maxwidth?: number;
+          maxheight?: number;
+        }) => {
+          const blog_id = document.querySelector<HTMLScriptElement>("[data-blog-id]")?.dataset.blogId;
+          const data = await (
+            await fetch(
+              window.CMSScriptURI +
+                "?" +
+                new URLSearchParams({
+                  __mode: "mt_rich_text_editor_embed",
+                  url: url,
+                  maxwidth: String(maxwidth),
+                  maxheight: String(maxheight),
+                  blog_id: String(blog_id),
+                })
+            )
+          ).json();
+          if (data.error?.message) {
+            throw new Error(data.error.message);
+          }
+          return data;
+        },
+      },
+    },
   };
 
   static formats() {

@@ -46,9 +46,11 @@ use vars qw( %Lexicon );
     'Select All'                                                                                             => 'すべて選択',
     'Properties for style attributes'                                                                        => 'style属性のプロパティ',
     'Select the properties you want to keep in the pasted HTML. Unselected properties will be removed.'      => 'style属性のプロパティを選択してください。選択しないプロパティは削除されます。',
-    'URL'   => 'URL',
-    'Width' => '幅',
-    'Height' => '高さ',
+    'URL'                                                                                                    => 'URL',
+    'Width'                                                                                                  => '幅',
+    'Height'                                                                                                 => '高さ',
+
+    'Embed webpage' => 'ウェブページの埋込',
 );
 
 1;

@@ -140,7 +140,7 @@
 
 <div
   class="paste-menu"
-  style={`display: ${isOpen ? "block" : "none"}; position: absolute; top: ${top}px; left: ${left}px;`}
+  style={`display: ${isOpen ? "block" : "none"}; top: ${top}px; left: ${left}px;`}
 >
   <button
     type="button"
@@ -173,6 +173,11 @@
 </div>
 
 <style>
+  .paste-menu {
+    position: absolute;
+    z-index: 1;
+    background: #fff;
+  }
   .paste-menu-icon {
     background: none;
     border: 1px solid #ccc;

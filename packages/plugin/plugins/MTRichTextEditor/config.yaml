@@ -122,9 +122,13 @@ applications:
         view:
           - system
     methods:
-      mt_rich_text_editor_settings:
-        handler: $MTRichTextEditor::MT::Plugin::MTRichTextEditor::settings
-      mt_rich_text_editor_save_settings:
-        handler: $MTRichTextEditor::MT::Plugin::MTRichTextEditor::save_settings
+      mt_rich_text_editor_settings: $MTRichTextEditor::MT::Plugin::MTRichTextEditor::settings
+      mt_rich_text_editor_save_settings: $MTRichTextEditor::MT::Plugin::MTRichTextEditor::save_settings
+      mt_rich_text_editor_embed: $MTRichTextEditor::MT::Plugin::MTRichTextEditor::App::Embed::resolve
     callbacks:
       template_source.mt_rich_text_editor: $MTRichTextEditor::MT::Plugin::MTRichTextEditor::template_source_mt_rich_text_editor
+
+default_templates:
+  system:
+    mt_rich_text_editor_embed:
+      label: Embed webpage
