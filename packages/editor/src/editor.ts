@@ -4,6 +4,8 @@ import { Extension } from "./tiptap/extension";
 import { Toolbar } from "./toolbar";
 import { Statusbar } from "./statusbar";
 import { PasteMenu } from "./pasteMenu";
+import { TableMenu } from "./tableMenu";
+// import { ImageMenu } from "./imageMenu";
 import { preprocessHTML, normalizeHTML } from "./util/html";
 import { insertStylesheets } from "./util/dom";
 import prosemirrorCss from "prosemirror-view/style/prosemirror.css?raw";
@@ -82,6 +84,7 @@ export class Editor {
   #toolbar: Toolbar;
   #statusbar: Statusbar;
   #pasteMenu: PasteMenu;
+  #menus: any[] = [];
 
   constructor(textarea: HTMLTextAreaElement, options: EditorOptions) {
     this.id = textarea.id;
@@ -188,6 +191,15 @@ export class Editor {
       inline,
     });
 
+    this.#menus.push(
+      new TableMenu({
+        editor: this,
+      }),
+      // new ImageMenu({
+      //   editor: this,
+      // })
+    );
+
     this.initResizeHandle(this[EditorEl]);
   }
 
@@ -224,6 +236,7 @@ export class Editor {
     this.#toolbar.destroy();
     this.#statusbar.destroy();
     this.#pasteMenu.destroy();
+    this.#menus.forEach((menu) => menu.destroy());
     this.tiptap.destroy();
     this.#containerEl.remove();
   }

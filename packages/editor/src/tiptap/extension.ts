@@ -15,18 +15,20 @@ import { Heading } from "@tiptap/extension-heading";
 import { HorizontalRule } from "@tiptap/extension-horizontal-rule";
 import { OrderedList } from "@tiptap/extension-ordered-list";
 import { Strike } from "@tiptap/extension-strike";
-import Table from "@tiptap/extension-table";
-import TableCell from "@tiptap/extension-table-cell";
-import TableHeader from "@tiptap/extension-table-header";
-import TableRow from "@tiptap/extension-table-row";
 import { Dropcursor } from "@tiptap/extension-dropcursor";
 import { Gapcursor } from "@tiptap/extension-gapcursor";
-import { TextAlign } from '@tiptap/extension-text-align'
-import { Color } from '@tiptap/extension-color'
-import TextStyle from '@tiptap/extension-text-style'
+import { TextAlign } from "@tiptap/extension-text-align";
+import { Color } from "@tiptap/extension-color";
+import TextStyle from "@tiptap/extension-text-style";
 
 // experiments
 import Iframe from "./extension/experiments/iframe";
+
+// table
+import { Table } from "./extension/table";
+import { TableCell } from "@tiptap/extension-table-cell";
+import { TableHeader } from "@tiptap/extension-table-header";
+import { TableRow } from "@tiptap/extension-table-row";
 
 // custom
 import { Indent } from "./extension/indent";
@@ -140,10 +142,14 @@ export const Extension = TiptapExtension.create({
     }
 
     if (this.options.textAlign !== false) {
-      extensions.push(TextAlign.configure(this.options?.textAlign ?? {
-        types: ['heading', 'paragraph'],
-        defaultAlignment: '',
-      }));
+      extensions.push(
+        TextAlign.configure(
+          this.options?.textAlign ?? {
+            types: ["heading", "paragraph"],
+            defaultAlignment: "",
+          }
+        )
+      );
     }
 
     if (this.options.color !== false) {
@@ -202,7 +208,7 @@ export const Extension = TiptapExtension.create({
 
     if (this.options.embedObject !== false) {
       extensions.push(EmbedObject.configure(this.options?.embedObject));
-    } 
+    }
 
     if (this.options.movableType !== false) {
       extensions.push(MovableType.configure(this.options?.movableType));

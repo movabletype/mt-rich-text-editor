@@ -11,9 +11,6 @@ import InsertHtmlModal from "../insertHtml/Modal.svelte";
 import sourceIcon from "../icon/source.svg?raw";
 import SourceModal from "../source/Modal.svelte";
 
-import tableIcon from "../icon/table.svg?raw";
-import TableToolbarMenu from "../table/ToolbarMenu.svelte";
-
 import linkIcon from "../icon/link.svg?raw";
 import LinkModal from "../link/Modal.svelte";
 import type { LinkData } from "../link/Modal.svelte";
@@ -37,6 +34,7 @@ import indentIcon from "../icon/indent.svg?raw";
 import outdentIcon from "../icon/outdent.svg?raw";
 import fullScreenIcon from "../icon/fullScreen.svg?raw";
 
+import "../table/Button.svelte";
 import "../block/Select.svelte";
 import "../color/ForegroundColor.svelte";
 import "../color/BackgroundColor.svelte";
@@ -311,34 +309,6 @@ export class InsertHtmlButton extends HTMLElement {
   }
 }
 
-export class TableButton extends HTMLElement {
-  private menuContainer: HTMLElement | null = null;
-  constructor() {
-    super();
-    this.attachShadow({ mode: "open" }).innerHTML = tableIcon;
-  }
-
-  connectedCallback() {
-    this.menuContainer = document.createElement("div");
-    this.parentElement?.appendChild(this.menuContainer);
-
-    this.addEventListener(EditorEventType.Click, ({ tiptap }) => {
-      const modal = mount(TableToolbarMenu, {
-        target: this.menuContainer as HTMLElement,
-        props: {
-          onSubmit: (html: string) => {
-            tiptap.commands.insertContent(preprocessHTML(html));
-            unmount(modal);
-          },
-          onClose: () => {
-            unmount(modal);
-          },
-        },
-      });
-    });
-  }
-}
-
 export class SourceButton extends HTMLElement {
   constructor() {
     super();
@@ -506,7 +476,6 @@ const systemItems: Record<PanelNamespace, Record<string, typeof HTMLElement>> = 
     link: LinkButton,
     unlink: UnlinkButton,
     insertHtml: InsertHtmlButton,
-    table: TableButton,
     source: SourceButton,
     undo: UndoButton,
     redo: RedoButton,
