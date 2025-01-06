@@ -21,5 +21,8 @@ upgrade_functions:
     code: |
       sub {
         require MT::Plugin::MTRichTextEditor::Util;
-        MT::Plugin::MTRichTextEditor::Util->install_toolbar_items(['insertTable'], 0, -1);
+        MT::Plugin::MTRichTextEditor::Util->install_toolbar_items({
+          items => ['insertTable'],
+          row   => 0,
+        });
       }

@@ -14,20 +14,26 @@ settings:
     default: |
       [
         [
-          ["bold", "italic", "underline", "strike"],
-          ["blockquote", "bulletList", "orderedList", "horizontalRule"],
-          ["link", "unlink"],
-          ["insertHtml", "mtFile", "mtImage"],
-          ["table"],
-          ["source"]
+          [
+            ["bold", "italic", "underline", "strike"],
+            ["blockquote", "bulletList", "orderedList", "horizontalRule"],
+            ["link", "unlink"],
+            ["insertHtml", "mtFile", "mtImage"],
+            ["table"]
+          ],
+          [
+            ["source"]
+          ]
         ],
         [
-          ["undo", "redo"],
-          ["foregroundColor", "backgroundColor", "removeFormat"],
-          ["alignLeft", "alignCenter", "alignRight"],
-          ["indent", "outdent"],
-          ["block"],
-          ["fullScreen"]
+          [
+            ["undo", "redo"],
+            ["foregroundColor", "backgroundColor", "removeFormat"],
+            ["alignLeft", "alignCenter", "alignRight"],
+            ["indent", "outdent"],
+            ["block"],
+            ["fullScreen"]
+          ]
         ]
       ]
   blocks:

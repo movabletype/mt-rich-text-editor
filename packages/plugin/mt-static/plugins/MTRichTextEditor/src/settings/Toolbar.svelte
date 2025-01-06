@@ -26,21 +26,28 @@
     };
   }
 
-  function convertToItems(data: string[][][]): ToolbarItem[][][] {
-    return data.map((row) =>
-      row.map((group) => [
-        ...group.map((id) => ({
-          id,
-          element: window.MTRichTextEditor.UI.getPanelItem("toolbar", id),
-        })),
-        createSentinel(),
-      ])
+  function convertToItems(data: string[][][][]): ToolbarItem[][][][] {
+    return data.map((groupSides) =>
+      groupSides
+        .concat([[], []])
+        .slice(0, 2)
+        .map((row) =>
+          (row || []).map((group) => [
+            ...group.map((id) => ({
+              id,
+              element: window.MTRichTextEditor.UI.getPanelItem("toolbar", id),
+            })),
+            createSentinel(),
+          ])
+        )
     );
   }
 
-  function convertToData(items: ToolbarItem[][][]): string[][][] {
-    return items.map((row) =>
-      row.map((group) => group.filter((item) => !item.isSentinel).map((button) => button.id))
+  function convertToData(items: ToolbarItem[][][][]): string[][][][] {
+    return items.map((groupSides) =>
+      groupSides.map((row) =>
+        row.map((group) => group.filter((item) => !item.isSentinel).map((button) => button.id))
+      )
     );
   }
 
@@ -58,14 +65,12 @@
     const lastRow = toolbarItems[toolbarItems.length - 1];
     return !!(
       lastRow &&
-      lastRow.length === 1 &&
-      lastRow[0].length === 1 &&
-      lastRow[0][0].isSentinel
+      lastRow.every((side) => side.length === 1 && side[0].length === 1 && side[0][0].isSentinel)
     );
   }
 
   function addNewRowAndGroup() {
-    toolbarItems.push([[createSentinel()]]);
+    toolbarItems.push([[[createSentinel()]], [[createSentinel()]]]);
   }
 
   function removeEmptyRow() {
@@ -73,7 +78,11 @@
       for (let i = toolbarItems.length - 1; i >= 0; i--) {
         const row = toolbarItems[i];
         if (
-          row.filter((group) => group.filter((item) => !item.isSentinel).length !== 0).length === 0
+          row.every(
+            (side) =>
+              side.filter((group) => group.filter((item) => !item.isSentinel).length !== 0)
+                .length === 0
+          )
         ) {
           toolbarItems.splice(i, 1);
         }
@@ -83,6 +92,7 @@
 
   function handleDndButton(
     rowIndex: number,
+    sideIndex: number,
     groupIndex: number,
     e: CustomEvent<{ items: ToolbarItem[] }>,
     on: "consider" | "finalize"
@@ -94,7 +104,7 @@
       newItems.push(createSentinel());
     }
 
-    toolbarItems[rowIndex][groupIndex] = newItems;
+    toolbarItems[rowIndex][sideIndex][groupIndex] = newItems;
 
     if (on === "consider" && !isDragging) {
       isDragging = true;
@@ -104,28 +114,37 @@
     }
   }
 
-  function removeGroupIfEmpty(rowIndex: number, groupIndex: number) {
-    if (toolbarItems[rowIndex][groupIndex].filter((item) => !item.isSentinel).length === 0) {
-      toolbarItems[rowIndex].splice(groupIndex, 1);
-      if (toolbarItems[rowIndex].length === 0) {
+  function removeGroupIfEmpty(rowIndex: number, sideIndex: number, groupIndex: number) {
+    if (
+      toolbarItems[rowIndex][sideIndex][groupIndex].filter((item) => !item.isSentinel).length === 0
+    ) {
+      toolbarItems[rowIndex][sideIndex].splice(groupIndex, 1);
+      if (toolbarItems[rowIndex][sideIndex].length === 0) {
         toolbarItems.splice(rowIndex, 1);
       }
     }
   }
 
-  function removeButton(rowIndex: number, groupIndex: number, buttonIndex: number) {
-    toolbarItems[rowIndex][groupIndex].splice(buttonIndex, 1);
-    removeGroupIfEmpty(rowIndex, groupIndex);
+  function removeButton(
+    rowIndex: number,
+    sideIndex: number,
+    groupIndex: number,
+    buttonIndex: number
+  ) {
+    toolbarItems[rowIndex][sideIndex][groupIndex].splice(buttonIndex, 1);
+    removeGroupIfEmpty(rowIndex, sideIndex, groupIndex);
   }
 
-  function getUsedItemIds(items: ToolbarItem[][][]): Set<string> {
+  function getUsedItemIds(items: ToolbarItem[][][][]): Set<string> {
     const usedIds = new Set<string>();
-    items.forEach((row) => {
-      row.forEach((group) => {
-        group.forEach((button) => {
-          if (!button.isSentinel) {
-            usedIds.add(button.id);
-          }
+    items.forEach((groupSides) => {
+      groupSides.forEach((row) => {
+        row.forEach((group) => {
+          group.forEach((button) => {
+            if (!button.isSentinel) {
+              usedIds.add(button.id);
+            }
+          });
         });
       });
     });
@@ -133,10 +152,12 @@
   }
 
   function addEmptyGroups() {
-    toolbarItems.forEach((row) => {
-      if (!row.some((group) => group.length === 1 && group[0].isSentinel)) {
-        row.push([createSentinel()]);
-      }
+    toolbarItems.forEach((groupSides) => {
+      groupSides.forEach((row) => {
+        if (!row.some((group) => group.length === 1 && group[0].isSentinel)) {
+          row.push([createSentinel()]);
+        }
+      });
     });
 
     if (!hasEmptyRow()) {
@@ -146,15 +167,23 @@
 
   function removeEmptyGroups() {
     for (let i = toolbarItems.length - 1; i >= 0; i--) {
-      const row = toolbarItems[i];
-      for (let j = row.length - 1; j >= 0; j--) {
-        const group = row[j];
-        if (group.length === 1 && group[0].isSentinel) {
-          row.splice(j, 1);
+      const groupSides = toolbarItems[i];
+      for (let j = groupSides.length - 1; j >= 0; j--) {
+        const row = groupSides[j];
+        for (let k = row.length - 1; k >= 0; k--) {
+          const group = row[k];
+          if (group.length === 1 && group[0].isSentinel) {
+            row.splice(k, 1);
+          }
         }
+
+        // preserve empty side
+        // if (row.length === 0) {
+        //   groupSides.splice(j, 1);
+        // }
       }
 
-      if (row.length === 0 && i < toolbarItems.length - 1) {
+      if (groupSides.length === 0) {
         toolbarItems.splice(i, 1);
       }
     }
@@ -164,42 +193,46 @@
 <div class="mt-rich-text-editor-toolbar-settings">
   {#each toolbarItems as row, rowIndex}
     <div class="mt-rich-text-editor-row">
-      {#each row as group, groupIndex}
-        <div class="mt-rich-text-editor-group">
-          <div
-            class="mt-rich-text-editor-buttons"
-            use:dndzone={{
-              items: group,
-              flipDurationMs: 300,
-              dragDisabled: false,
-              dropFromOthersDisabled: false,
-            }}
-            onconsider={(e) => handleDndButton(rowIndex, groupIndex, e, "consider")}
-            onfinalize={(e) => {
-              isDragging = false;
-              handleDndButton(rowIndex, groupIndex, e, "finalize");
-              removeGroupIfEmpty(rowIndex, groupIndex);
-              removeEmptyRow();
-              removeEmptyGroups();
-            }}
-          >
-            {#each group as button, buttonIndex (button.id)}
-              {#if !button.isSentinel}
-                <div class="mt-rich-text-editor-button">
-                  <button
-                    type="button"
-                    class="mt-rich-text-editor-remove-button"
-                    onclick={() => removeButton(rowIndex, groupIndex, buttonIndex)}
-                    title={window.trans("Remove")}
-                    aria-label={window.trans("Remove")}
-                  >
-                    ×
-                  </button>
-                  <svelte:element this={button.element} />
-                </div>
-              {/if}
-            {/each}
-          </div>
+      {#each row as side, sideIndex}
+        <div class="mt-rich-text-editor-side">
+          {#each side as group, groupIndex}
+            <div class="mt-rich-text-editor-group">
+              <div
+                class="mt-rich-text-editor-buttons"
+                use:dndzone={{
+                  items: group,
+                  flipDurationMs: 300,
+                  dragDisabled: false,
+                  dropFromOthersDisabled: false,
+                }}
+                onconsider={(e) => handleDndButton(rowIndex, sideIndex, groupIndex, e, "consider")}
+                onfinalize={(e) => {
+                  isDragging = false;
+                  handleDndButton(rowIndex, sideIndex, groupIndex, e, "finalize");
+                  removeGroupIfEmpty(rowIndex, sideIndex, groupIndex);
+                  removeEmptyRow();
+                  removeEmptyGroups();
+                }}
+              >
+                {#each group as button, buttonIndex (button.id)}
+                  {#if !button.isSentinel}
+                    <div class="mt-rich-text-editor-button">
+                      <button
+                        type="button"
+                        class="mt-rich-text-editor-remove-button"
+                        onclick={() => removeButton(rowIndex, sideIndex, groupIndex, buttonIndex)}
+                        title={window.trans("Remove")}
+                        aria-label={window.trans("Remove")}
+                      >
+                        ×
+                      </button>
+                      <svelte:element this={button.element} />
+                    </div>
+                  {/if}
+                {/each}
+              </div>
+            </div>
+          {/each}
         </div>
       {/each}
     </div>
@@ -241,7 +274,16 @@
   }
 
   .mt-rich-text-editor-row {
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 0.5rem;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
     margin-bottom: 1rem;
+  }
+
+  .mt-rich-text-editor-side {
     padding: 0.5rem;
     border: 1px solid #ccc;
     border-radius: 4px;

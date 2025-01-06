@@ -9,7 +9,7 @@ describe("convertToolbar", () => {
   });
 
   it("should return already converted toolbar as is", () => {
-    const input = [[["bold", "italic"], ["bulletList", "orderedList"], ["clean"]]];
+    const input = [[[["bold", "italic"], ["bulletList", "orderedList"], ["clean"]]]];
 
     expect(convertToolbar(input)).toEqual(input);
   });
