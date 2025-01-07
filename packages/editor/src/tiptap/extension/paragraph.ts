@@ -1,5 +1,4 @@
 import { Paragraph as TiptapParagraph } from "@tiptap/extension-paragraph";
-import { Node, mergeAttributes } from '@tiptap/core'
 
 export interface ParagraphOptions {
   HTMLAttributes: Record<string, any>
