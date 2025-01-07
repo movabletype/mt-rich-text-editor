@@ -99,7 +99,7 @@
   bind:this={menuElement}
   class={`menu ${showInBottom ? "menu--bottom" : "menu--top"}`}
   style={`
-    display: ${isOpen && top && left ? "block" : "none"}; 
+    display: ${isOpen && top && left ? "flex" : "none"}; 
     top: ${top}px; 
     left: ${left}px;
   `}
@@ -115,6 +115,7 @@
     z-index: 1;
     border-radius: 4px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    gap: 5px;
   }
 
   .menu::after,

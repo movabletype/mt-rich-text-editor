@@ -19,6 +19,6 @@
     border: none;
     cursor: pointer;
     display: inline-flex;
-    padding-top: 5px;
+    padding: 5px;
   }
 </style>

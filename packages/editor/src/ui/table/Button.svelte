@@ -17,13 +17,12 @@
   const { tiptap, onUpdate }: Props = $props();
   let isOpen = $state(false);
 
-
   onUpdate(() => {
     // TBD
   });
 
   function handleInsert(rows: number, cols: number) {
-    tiptap?.chain().focus().insertTable({ rows, cols }).run();
+    tiptap?.chain().focus().insertTable({ rows, cols, withHeaderRow: false }).run();
     isOpen = false;
   }
 
