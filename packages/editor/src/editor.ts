@@ -14,7 +14,7 @@ import contentCss from "./content.css?inline";
 
 export interface EditorOptions {
   inline: boolean;
-  height?: number;
+  height?: number | string;
   stylesheets?: string[];
   editorStylesheets?: string[];
   /**
@@ -45,7 +45,7 @@ export interface EditorOptions {
    * ]
    */
   toolbar: string[][][][];
-  toolbarContainer?: HTMLDivElement;
+  toolbarContainer?: HTMLDivElement | null;
   toolbarOptions?: Record<string, any>;
   /**
    * statusbar definition
@@ -58,7 +58,7 @@ export interface EditorOptions {
    * ]
    */
   statusbar?: string[][];
-  statusbarContainer?: HTMLDivElement;
+  statusbarContainer?: HTMLDivElement | null;
   statusbarOptions?: Record<string, any>;
   extensions?: TiptapExtension[];
   extensionOptions?: Record<string, any>;
@@ -91,10 +91,18 @@ export class Editor {
     this.#textarea = textarea;
 
     const inline = options.inline ?? false;
+    const height =
+      typeof options.height === "number"
+        ? `${options.height}px`
+        : (options.height ?? `${DEFAULT_HEIGHT}px`);
 
     this.#containerEl = document.createElement("div");
     this.#containerEl.className = "mt-rich-text-editor";
-    this.#containerEl.style.height = `${options.height ?? DEFAULT_HEIGHT}px`;
+    if (!inline) {
+      this.#containerEl.style.height = height;
+    } else {
+      this.#containerEl.style.minHeight = height;
+    }
     this.#containerEl.dataset.mtRichTextEditorId = textarea.id;
     this.#textarea.parentNode?.insertBefore(this.#containerEl, this.#textarea);
     this.#textarea.style.display = "none";
@@ -105,6 +113,7 @@ export class Editor {
     this[EditorEl].classList.add("mt-rich-text-editor-editor");
     if (inline) {
       this[EditorEl].classList.add("mt-rich-text-editor-editor--inline");
+      this[EditorEl].style.minHeight = height;
     }
     editorShadow.appendChild(this[EditorEl]);
 
@@ -133,6 +142,7 @@ export class Editor {
     const shadow = this.#editorContainerEl.attachShadow({ mode: "open" });
     insertStylesheets(shadow, [
       prosemirrorCss + editorCss + contentCss,
+      ...(options.editorStylesheets ?? []),
       ...(options.stylesheets ?? []),
     ]);
 
@@ -194,7 +204,7 @@ export class Editor {
     this.#menus.push(
       new TableMenu({
         editor: this,
-      }),
+      })
       // new ImageMenu({
       //   editor: this,
       // })

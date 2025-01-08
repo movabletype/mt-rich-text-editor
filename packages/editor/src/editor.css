@@ -83,10 +83,21 @@ h3 {
   top: 40px;
 }
 
-
 /**
  * Inline
  */
+
+// Fit height to parent element whose height is specified by min-height
+.mt-rich-text-editor-editor--inline,
+.mt-rich-text-editor-editor--inline .mt-rich-text-editor-content,
+.mt-rich-text-editor-content-root {
+  display: flex;
+  flex-direction: column;
+}
+
+.tiptap {
+  flex-grow: 1;
+}
 
 .mt-rich-text-editor-toolbar--inline,
 .mt-rich-text-editor-statusbar--inline {
