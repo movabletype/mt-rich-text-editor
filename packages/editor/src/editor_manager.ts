@@ -99,6 +99,10 @@ export class EditorManager {
     }
   }
 
+  public static get({ id }: { id: string }): Editor | undefined {
+    return EditorManager.Editors[id];
+  }
+
   public static async save(): Promise<void> {
     await Promise.all(Object.values(EditorManager.Editors).map((editor) => editor.save()));
   }
