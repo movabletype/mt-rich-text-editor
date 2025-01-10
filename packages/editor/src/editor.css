@@ -92,6 +92,7 @@ h3 {
 .mt-rich-text-editor-content-root {
   display: flex;
   flex-direction: column;
+  flex-grow: 1;
 }
 
 .tiptap {
