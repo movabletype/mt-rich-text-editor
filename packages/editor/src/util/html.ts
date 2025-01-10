@@ -84,5 +84,9 @@ export function normalizeHTML(html: string): string {
     element.removeAttribute("data-mt-indent");
   });
 
-  return doc.body.innerHTML;
+  const res = doc.body.innerHTML;
+  if (/<p[^>]*><\/p>/i.test(res)) {
+    return "";
+  }
+  return res;
 }
