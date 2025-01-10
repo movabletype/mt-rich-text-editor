@@ -59,6 +59,10 @@ export function preprocessHTML(html: string): string {
 }
 
 export function normalizeHTML(html: string): string {
+  if (/<p[^>]*><\/p>/i.test(html)) {
+    return "";
+  }
+
   const parser = new DOMParser();
   const doc = parser.parseFromString(html, "text/html");
 
