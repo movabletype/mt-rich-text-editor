@@ -33,6 +33,28 @@ export const MovableType = Node.create({
   inline: true,
   atom: true,
 
+  addGlobalAttributes() {
+    return [
+      {
+        types: ["hardBreak"],
+        attributes: {
+          HTMLAttributes: {
+            default: {},
+            parseHTML: (element: HTMLElement) => {
+              console.log(element);
+              const attrs: Record<string, string> = {};
+              for (const attr of element.attributes) {
+                attrs[attr.name] = attr.value;
+              }
+              return attrs;
+            },
+            renderHTML: (attributes: Record<string, string>) => attributes.HTMLAttributes,
+          },
+        },
+      },
+    ];
+  },
+
   addAttributes() {
     return {
       "data-tag-name": {
@@ -43,13 +65,13 @@ export const MovableType = Node.create({
         parseHTML: (element) => {
           const attrs: Record<string, string> = {};
           const ignoreAttributes = ["data-tag-name", "contenteditable", "style", "class"];
-          
+
           Array.from(element.attributes)
             .filter((attr) => !ignoreAttributes.includes(attr.name))
             .forEach((attr) => {
               attrs[attr.name] = attr.value;
             });
-          
+
           return attrs;
         },
         renderHTML: (attributes) => attributes.HTMLAttributes,
@@ -70,7 +92,7 @@ export const MovableType = Node.create({
 
           const attrs: Record<string, any> = {
             "data-tag-name": match[1],
-            HTMLAttributes: {}
+            HTMLAttributes: {},
           };
 
           for (const attr of element.attributes) {
