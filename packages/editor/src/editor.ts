@@ -64,6 +64,7 @@ export interface EditorOptions {
   extensionOptions?: Record<string, any>;
   pasteMenu?: string[];
   pasteMenuOptions?: Record<string, any>;
+  autoFocus?: boolean;
 }
 
 const DEFAULT_HEIGHT = 350;
@@ -170,6 +171,9 @@ export class Editor {
         handlePaste,
       },
     });
+    if (options.autoFocus ?? options.inline) {
+      this.focus();
+    }
 
     this.#toolbar = new Toolbar({
       target: toolbarMount,
