@@ -44,15 +44,16 @@ import "../paste/Html.svelte";
 import "../paste/Link.svelte";
 import "../paste/Embed.svelte";
 
-export class PanelItemElement extends HTMLElement {
+export class PanelItemElement<Options extends Record<string, any> = Record<string, any>> extends HTMLElement {
   editor: Editor | undefined;
-
+  options: Options = {} as Options;
   get tiptap(): Editor["tiptap"] | undefined {
     return this.editor?.tiptap;
   }
 
-  onEditorInit(editor: Editor) {
+  onEditorInit(editor: Editor, options: Options) {
     this.editor = editor;
+    this.options = options;
   }
 
   onEditorUpdate() {}
@@ -361,7 +362,7 @@ export class FullScreenButton extends HTMLElement {
   }
 }
 
-export class PathItem extends PanelItemElement {
+export class PathItem<Options extends Record<string, any> = Record<string, any>> extends PanelItemElement<Options> {
   onEditorUpdate() {
     if (!this.tiptap) {
       return;
@@ -411,7 +412,7 @@ export class PathItem extends PanelItemElement {
   }
 }
 
-export abstract class PasteMenuItemElement extends PanelItemElement {
+export abstract class PasteMenuItemElement<Options extends Record<string, any> = Record<string, any>> extends PanelItemElement<Options> {
   protected content:
     | {
         plainText: string;
@@ -420,10 +421,6 @@ export abstract class PasteMenuItemElement extends PanelItemElement {
         transaction: (cb: () => void | Promise<void>) => void;
       }
     | undefined = undefined;
-
-  onEditorInit(editor: Editor) {
-    this.editor = editor;
-  }
 
   isEditorItemAvailable() {
     return true;

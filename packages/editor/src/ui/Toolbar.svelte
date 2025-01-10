@@ -121,7 +121,7 @@
   function bindRef(node: HTMLElement, key: string) {
     buttonRefs[key] = node;
     if (buttonRefs[key].onEditorInit) {
-      buttonRefs[key].onEditorInit(editor);
+      buttonRefs[key].onEditorInit(editor, options[key]);
     }
     setTimeout(() => {
       node.dispatchEvent(new EditorEvent(EditorEventType.Init, editor));
@@ -146,8 +146,7 @@
               {#each group as button}
                 <svelte:element
                   this={button.elementName}
-                  use:bindRef={button.elementName}
-                  data-options={JSON.stringify(button.options)}
+                  use:bindRef={button.name}
                   class="toolbar-item"
                   class:is-active={isActiveMap[button.elementName]}
                   class:is-disabled={isDisabledMap[button.elementName]}

@@ -82,8 +82,8 @@
     }
 
     let applied = false;
-    for (const { elementName } of buttons) {
-      const button = buttonRefs[elementName];
+    for (const { name } of buttons) {
+      const button = buttonRefs[name];
       if ("onEditorSetPasteContent" in button) {
         button.onEditorSetPasteContent?.({
           plainText: plainText ?? htmlDocument?.body.innerText ?? "",
@@ -101,9 +101,9 @@
         });
       }
       if ("isEditorItemAvailable" in button) {
-        isAvailableMap[elementName] = button.isEditorItemAvailable();
+        isAvailableMap[name] = button.isEditorItemAvailable();
       }
-      if (!applied && isAvailableMap[elementName]) {
+      if (!applied && isAvailableMap[name]) {
         setTimeout(() => {
           if ("onEditorPaste" in button) {
             button.onEditorPaste();
@@ -128,7 +128,7 @@
   function bindRef(node: PasteMenuItemElement | HTMLElement, key: string) {
     buttonRefs[key] = node;
     if ("onEditorInit" in node) {
-      node.onEditorInit(editor);
+      node.onEditorInit(editor, options[key]);
     }
     return {
       destroy() {
@@ -153,7 +153,7 @@
     {#each buttons as button}
       <svelte:element
         this={button.elementName}
-        use:bindRef={button.elementName}
+        use:bindRef={button.name}
         onclick={function (ev) {
           ev.preventDefault();
           ev.stopPropagation();
@@ -164,7 +164,6 @@
         }}
         role="button"
         tabindex="0"
-        data-options={JSON.stringify(button.options)}
         class="paste-menu-item"
         style={`display: ${isAvailableMap[button.elementName] ? "block" : "none"};`}
       />

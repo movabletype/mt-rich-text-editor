@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { defaultMarkdownParser } from "@tiptap/pm/markdown";
   import type { Editor } from "../editor";
   import { getPanelItem } from "./item/registry";
   import type { PanelItemElement } from "./item/registry";
@@ -51,7 +50,7 @@
   function bindRef(node: PanelItemElement | HTMLElement, key: string) {
     buttonRefs[key] = node;
     if ("onEditorInit" in node) {
-      node.onEditorInit(editor);
+      node.onEditorInit(editor, options[key]);
     }
     return {
       destroy() {
@@ -67,8 +66,7 @@
       {#each groupSides as button}
         <svelte:element
           this={button.elementName}
-          use:bindRef={button.elementName}
-          data-options={JSON.stringify(button.options)}
+          use:bindRef={button.name}
           class="statusbar-item"
           class:is-active={isActiveMap[button.elementName]}
           class:is-disabled={isDisabledMap[button.elementName]}

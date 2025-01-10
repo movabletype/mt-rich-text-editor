@@ -22,10 +22,8 @@ export const extend = (
   class extends customElementConstructor implements Props {
     #editor: Editor | undefined;
     #onUpdateCallback: (ev: { editor: Editor }) => void = () => {};
+    options: Record<string, any> = {};
 
-    get options() {
-      return JSON.parse(this.dataset.options || "{}");
-    }
     get tiptap() {
       return this.#editor?.tiptap;
     }
@@ -33,8 +31,9 @@ export const extend = (
       this.#onUpdateCallback = callback;
     };
 
-    onEditorInit(editor: Editor) {
+    onEditorInit(editor: Editor, options: Record<string, any>) {
       this.#editor = editor;
+      this.options = options;
     }
     onEditorUpdate(editor: Editor) {
       this.#onUpdateCallback({ editor });
