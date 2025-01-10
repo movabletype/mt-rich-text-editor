@@ -87,7 +87,6 @@ h3 {
  * Inline
  */
 
-// Fit height to parent element whose height is specified by min-height
 .mt-rich-text-editor-editor--inline,
 .mt-rich-text-editor-editor--inline .mt-rich-text-editor-content,
 .mt-rich-text-editor-content-root {
