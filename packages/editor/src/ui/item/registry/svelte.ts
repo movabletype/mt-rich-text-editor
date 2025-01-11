@@ -2,6 +2,7 @@ import type { Editor } from "../../../editor";
 
 export interface Props<T = Record<string, unknown>> {
   options: T;
+  editor: Editor | undefined;
   tiptap: Editor["tiptap"] | undefined;
   onUpdate: (callback: (ev: { editor: Editor }) => void) => void;
 }
@@ -20,19 +21,19 @@ export const extend = (
   customElementConstructor: typeof HTMLElement
 ): new () => HTMLElement & Props =>
   class extends customElementConstructor implements Props {
-    #editor: Editor | undefined;
+    editor: Editor | undefined;
     #onUpdateCallback: (ev: { editor: Editor }) => void = () => {};
     options: Record<string, any> = {};
 
     get tiptap() {
-      return this.#editor?.tiptap;
+      return this.editor?.tiptap;
     }
     onUpdate = (callback: (ev: { editor: Editor }) => void) => {
       this.#onUpdateCallback = callback;
     };
 
     onEditorInit(editor: Editor, options: Record<string, any>) {
-      this.#editor = editor;
+      this.editor = editor;
       this.options = options;
     }
     onEditorUpdate(editor: Editor) {

@@ -5,7 +5,6 @@ import { Toolbar } from "./toolbar";
 import { Statusbar } from "./statusbar";
 import { PasteMenu } from "./pasteMenu";
 import { TableMenu } from "./tableMenu";
-// import { ImageMenu } from "./imageMenu";
 import { preprocessHTML, normalizeHTML } from "./util/html";
 import { insertStylesheets } from "./util/dom";
 import prosemirrorCss from "prosemirror-view/style/prosemirror.css?raw";
@@ -209,9 +208,6 @@ export class Editor {
       new TableMenu({
         editor: this,
       })
-      // new ImageMenu({
-      //   editor: this,
-      // })
     );
 
     this.initResizeHandle(this[EditorEl]);
@@ -258,6 +254,10 @@ export class Editor {
   public insertContent(html: string): void {
     const json = generateJSON(preprocessHTML(html), this.tiptap.extensionManager.extensions);
     this.tiptap.commands.insertContent(json);
+  }
+
+  public notify({ level, message }: { level: "error" | "warning"; message: string }): void {
+    alert(`${level}: ${message}`);
   }
 
   private initResizeHandle(editor: HTMLDivElement): void {

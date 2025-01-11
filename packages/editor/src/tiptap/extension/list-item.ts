@@ -17,10 +17,4 @@ export const ListItem = TiptapListItem.extend({
   renderHTML({ HTMLAttributes }) {
     return ['li', mergeAttributes(this.options.HTMLAttributes, HTMLAttributes), 0]
   },
-
-  addKeyboardShortcuts() {
-    return {
-      ...this.parent?.(),
-    }
-  },
 })

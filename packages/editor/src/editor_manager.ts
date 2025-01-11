@@ -57,7 +57,7 @@ export class EditorManager {
             ["bold", "italic", "underline", "strike"],
             ["blockquote", "bulletList", "orderedList", "horizontalRule"],
             ["link", "unlink"],
-            ["insertHtml"],
+            ["insertHtml", "file", "image"],
             ["table"],
             ["boilerplate"],
           ],

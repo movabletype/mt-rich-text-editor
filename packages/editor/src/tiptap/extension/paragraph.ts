@@ -26,19 +26,6 @@ export const Paragraph = TiptapParagraph.extend<ParagraphOptions>({
     }
   },
 
-  addAttributes() {
-    return {
-      class: {
-        default: null,
-        parseHTML: element => element.getAttribute('class'),
-      },
-      style: {
-        default: null,
-        parseHTML: element => element.getAttribute('style'),
-      },
-    }
-  },
-
   parseHTML() {
     return [
       { tag: 'p' },
@@ -46,7 +33,8 @@ export const Paragraph = TiptapParagraph.extend<ParagraphOptions>({
   },
 
   renderHTML({ node, HTMLAttributes }) {
-    return ['p', mergeAttributes(this.options.HTMLAttributes, node.attrs, HTMLAttributes), 0]
+    const { MTRichTextEditorHTMLAttributes, ...rest } = node.attrs;
+    return ['p', mergeAttributes(this.options.HTMLAttributes, rest, HTMLAttributes), 0]
   },
 
   addCommands() {

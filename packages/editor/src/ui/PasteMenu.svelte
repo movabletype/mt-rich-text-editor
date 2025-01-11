@@ -52,19 +52,61 @@
     }
   });
 
-  const updatePosition = (view: EditorView) => {
+  const updatePosition = (view: EditorView, byScroll: boolean = false) => {
     const viewRect = view.dom.getBoundingClientRect();
     const { selection } = view.state;
-    const coords = view.coordsAtPos(selection.$to.pos);
-    const newTop = coords.bottom - viewRect.top;
-    if (top < newTop || top - newTop > 100) {
-      top = newTop;
+
+    // Get the DOM node at cursor position
+    const pos = selection.$to.pos;
+    const domNode = view.nodeDOM(selection.$from.pos - 2) as HTMLElement;
+
+    if (!domNode) {
+      // Fallback to coordsAtPos if we can't get the DOM node
+      const coords = view.coordsAtPos(pos);
+      const newTop = coords.bottom - viewRect.top;
+      if (top < newTop || top - newTop > 100) {
+        top = newTop;
+      }
+      const newLeft = coords.left - viewRect.left;
+      if (left > newLeft) {
+        left = newLeft;
+      }
+      return;
     }
-    const newLeft = coords.left - viewRect.left;
-    if (left > newLeft) {
-      left = newLeft;
+
+    // Get the actual rendered size of the node and update position
+    const updateNodePosition = () => {
+      const nodeRect = domNode.getBoundingClientRect();
+      const tmpTop = nodeRect.bottom - viewRect.top;
+      const newTop = tmpTop > viewRect.height - 20 ? viewRect.height - 20 : tmpTop;
+      if (byScroll ||top < newTop || top - newTop > 100) {
+        top = newTop;
+      }
+      const newLeft = nodeRect.left - viewRect.left;
+      if (byScroll || left > newLeft) {
+        left = newLeft;
+      }
+    };
+
+    // Initial position update
+    updateNodePosition();
+
+    if (!byScroll) {
+      const resizeObserver = new ResizeObserver(updateNodePosition);
+      resizeObserver.observe(domNode);
+
+      // Stop observing after 10 seconds
+      setTimeout(() => {
+        resizeObserver.disconnect();
+      }, 10000);
     }
   };
+
+  editor.tiptap.view.dom.addEventListener("scroll", () => {
+    if (isOpen) {
+      updatePosition(editor.tiptap.view, true);
+    }
+  });
 
   onPaste((view, event) => {
     if (!event.clipboardData) {
@@ -165,7 +207,7 @@
         role="button"
         tabindex="0"
         class="paste-menu-item"
-        style={`display: ${isAvailableMap[button.elementName] ? "block" : "none"};`}
+        style={`display: ${isAvailableMap[button.name] ? "block" : "none"};`}
       />
     {/each}
   </div>
@@ -175,7 +217,6 @@
   .paste-menu {
     position: absolute;
     z-index: 1;
-    background: #fff;
   }
   .paste-menu-icon {
     background: none;
@@ -187,6 +228,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    background: #fff;
   }
   .paste-menu-icon:after {
     content: "";
@@ -224,6 +266,7 @@
     border-top-left-radius: 0;
     margin-top: -1px;
     padding-top: 3px;
+    background: #fff;
   }
   .paste-menu-item {
     display: inline-flex;

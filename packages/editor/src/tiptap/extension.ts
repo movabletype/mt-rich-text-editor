@@ -64,7 +64,13 @@ export const Extension = TiptapExtension.create({
     }
 
     if (this.options.image !== false) {
-      extensions.push(Image.configure(this.options?.image));
+      extensions.push(
+        Image.configure(
+          this.options?.image ?? {
+            inline: true,
+          }
+        )
+      );
     }
 
     if (this.options.history !== false) {

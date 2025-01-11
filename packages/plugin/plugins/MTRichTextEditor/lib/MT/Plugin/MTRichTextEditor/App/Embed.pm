@@ -12,46 +12,46 @@ use MT::Util;
 use MT::Plugin::MTRichTextEditor qw(plugin translate);
 use MT::Plugin::MTRichTextEditor::HeadParser;
 
+my $hatena_domains_regex = qr{https?://[0-9a-zA-Z-]+\.@{[
+  join '|', map { quotemeta($_) } qw(
+    hatenablog.com hatenablog.jp hateblo.jp hatenadiary.jp hatenadiary.com
+  )
+]}};
+
 sub get_oembed_url {
     my ($url) = @_;
 
     # hatena
     return "https://hatenablog.com/oembed?url=${url}"
-        if $url =~ m/\.(?:
-    hatenablog\.com |
-    hatenablog\.jp |
-    hateblo\.jp |
-    hatenadiary\.jp |
-    hatenadiary\.com
-    )/ix;
+        if $url =~ $hatena_domains_regex;
 
     # youtube
     return "https://www.youtube.com/oembed?url=${url}"
-        if $url =~ /youtube|youtu\.be/i;
+        if $url =~ m{^https?://(?:www\.)?(?:youtube\.com|youtu\.be)/}i;
 
     # soundcloud
     return "https://soundcloud.com/oembed?url=${url}"
-        if $url =~ /soundcloud/i;
+        if $url =~ m{^https?://(?:www\.)?soundcloud\.com/}i;
 
     # mixcloud
     return "https://www.mixcloud.com/oembed/?url=${url}"
-        if $url =~ /mixcloud/i;
+        if $url =~ m{^https?://(?:www\.)?mixcloud\.com/}i;
 
     # vimeo
     return "https://vimeo.com/api/oembed.json?url=${url}"
-        if $url =~ /vimeo/i;
+        if $url =~ m{^https?://(?:www\.)?vimeo\.com/}i;
 
     # slideshare
     return "https://www.slideshare.net/api/oembed/2?url=${url}"
-        if $url =~ /slideshare/i;
+        if $url =~ m{^https?://(?:www\.)?slideshare\.net/}i;
 
-    # twitter
+    # x (twitter)
     return "https://publish.twitter.com/oembed?url=${url}"
-        if $url =~ /twitter/i;
+        if $url =~ m{^https?://((?:www\.)?(?:twitter|x)\.com/[^/]+/status/\d+)}i;
 
     # tiktok
     return "https://www.tiktok.com/oembed?url=${url}"
-        if $url =~ /tiktok\.com\/.*\/video\/.*/i;
+        if $url =~ m{^https?://(?:www\.)?tiktok\.com/.*\/video\/.*}i;
 
     return "";
 }
@@ -122,7 +122,6 @@ sub resolve {
             og_image_height => ($hash->{"og:image:height"} ? int($hash->{"og:image:height"}) : undef),
             og_url          => $hash->{"og:url"} || $hash->{"canonical"} || '',
             og_site_name    => $hash->{"og:site_name"} || '',
-            html            => qq{<a href="${url}">} . $hash->{"title"} . qq{</a>},
         };
 
         my $uri;

@@ -5,11 +5,12 @@ import { mount, unmount } from "svelte";
 export class ImageMenu {
   private ui: ReturnType<typeof mount> | undefined;
 
-  constructor({ editor }: { editor: Editor }) {
+  constructor({ editor, edit }: { editor: Editor, edit?: (options: {editor: Editor, element: HTMLElement}) => void }) {
     this.ui = mount(ImageMenuUI, {
       target: editor.tiptap.view.dom.getRootNode() as ShadowRoot,
       props: {
         editor,
+        edit,
       },
     });
   }

@@ -1,10 +1,59 @@
+<script type=""module">
+if (! document.querySelector("#mt-rich-text-editor-embed-card-style")) {
+  const style = document.createElement("style");
+  style.id = "mt-rich-text-editor-embed-card-style";
+  style.textContent = `
+.mt-rich-text-editor-embed-card {
+  margin: 10px;
+  padding: 10px;
+  border: 1px solid #eee;
+  border-radius: 5px;
+  display: flex;
+  text-decoration: none;
+}
+.mt-rich-text-editor-embed-card:hover {
+  border-color: #ccc;
+}
+.mt-rich-text-editor-embed-card__image img {
+  max-width: 200px;
+  max-height: 200px;
+  margin-right: 10px;
+}
+.mt-rich-text-editor-embed-card__text {
+  line-height: 1.5
+}
+.mt-rich-text-editor-embed-card__title {
+  color: initial;
+  font-weight: bold;
+}
+.mt-rich-text-editor-embed-card__description {
+  margin-top: 5px;
+  color: initial;
+  text-decoration: none;
+}
+.mt-rich-text-editor-embed-card__site-name {
+  margin-top: 5px;
+  font-size: 80%;
+  color: gray;
+  display: flex;
+  align-items: center;
+}
+.mt-rich-text-editor-embed-card__icon {
+  max-width: 13px;
+  max-height: 13px;
+  margin-right: 5px;
+}
+`;
+  document.head.appendChild(style);
+}
+</script>
 <a class="mt-rich-text-editor-embed-card" href="<mt:Var name="og_url" encode_html="1" />">
   <div class="mt-rich-text-editor-embed-card__image">
     <img src="<mt:Var name="og_image" encode_html="1" />" />
   </div>
   <div class="mt-rich-text-editor-embed-card__text">
     <div class="mt-rich-text-editor-embed-card__title"><mt:Var name="og_title" encode_html="1" /></div>
-    <div class="mt-rich-text-editor-embed-card__description"><mt:Var name="og_description" encode_html="1" /></div>
+    <div class="mt-rich-text-editor-embed-card__description"><mt:Var name="og_description" trim_to="100+..." encode_html="1" /></div>
     <div class="mt-rich-text-editor-embed-card__site-name">
       <mt:If name="icon"><img src="<mt:Var name="icon" encode_html="1" />" class="mt-rich-text-editor-embed-card__icon" /></mt:If>
       <mt:Var name="og_url" regex_replace="/^https?:\/\/([^/]+).*/","\1" encode_html="1" />

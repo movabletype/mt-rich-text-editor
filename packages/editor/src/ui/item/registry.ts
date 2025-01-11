@@ -34,6 +34,9 @@ import indentIcon from "../icon/indent.svg?raw";
 import outdentIcon from "../icon/outdent.svg?raw";
 import fullScreenIcon from "../icon/fullScreen.svg?raw";
 
+import "./File.svelte";
+import "./Image.svelte";
+
 import "../table/Button.svelte";
 import "../block/Select.svelte";
 import "../color/ForegroundColor.svelte";

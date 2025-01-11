@@ -22,8 +22,7 @@
   import type { PasteItemProps } from "../item/registry/svelte";
   import type { EmbedData } from "../embed/Modal.svelte";
   import EmbedModal from "../embed/Modal.svelte";
-  import { preprocessHTML } from "../../util/html";
-  const { tiptap, getContent, onApply }: PasteItemProps<Options> = $props();
+  const { editor, tiptap, getContent, onApply }: PasteItemProps<Options> = $props();
   let modalComponent: any = null;
 
   const apply = (embedData: EmbedData | undefined = undefined) => {
@@ -42,13 +41,14 @@
     };
 
     content.transaction(async () => {
-      const res = await tiptap.commands.getEmbedObject(embedData);
+      const res = await tiptap.commands.getEmbedObject(embedData).catch(() => ({ html: "" }));
       if (!res?.html) {
+        editor?.notify({ level: "error", message: window.trans("Failed to get embed object") });
         return;
       }
 
       tiptap.chain().undo().focus().run();
-      tiptap.commands.insertContent(preprocessHTML(res.html));
+      tiptap.commands.insertEmbedObject(res.html);
     });
 
     unmountModal();

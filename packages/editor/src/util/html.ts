@@ -5,7 +5,7 @@ export function preprocessHTML(html: string): string {
 
   body.querySelectorAll("a").forEach((a) => {
     if (a.querySelector("div")) {
-      a.dataset.block = "true";
+      a.dataset.mtRichTextEditorBlock = "true";
     }
   });
 
@@ -20,7 +20,9 @@ export function preprocessHTML(html: string): string {
 
   body.querySelectorAll("div, blockquote, main, article").forEach((div) => {
     const hasDirectTextNode = Array.from(div.childNodes).some(
-      (node) => node.nodeType === Node.TEXT_NODE && node.textContent?.trim()
+      (node) =>
+        node instanceof HTMLImageElement ||
+        (node.nodeType === Node.TEXT_NODE && node.textContent?.trim())
     );
 
     if (hasDirectTextNode) {
@@ -29,19 +31,24 @@ export function preprocessHTML(html: string): string {
 
       const nodesToProcess = Array.from(div.childNodes).filter(
         (node) =>
+          node instanceof HTMLImageElement ||
           node.nodeType === Node.TEXT_NODE ||
           (node.nodeType === Node.ELEMENT_NODE && node.nodeName === "BR")
       );
 
+      const encoder = document.createElement("div");
       nodesToProcess.forEach((node, index) => {
         if (node.nodeType === Node.TEXT_NODE) {
-          content += node.textContent;
+          encoder.textContent = node.textContent;
+          content += encoder.innerHTML;
         } else if (node.nodeName === "BR") {
           content += "<br>";
+        } else if (node instanceof HTMLImageElement) {
+          content += node.outerHTML;
         }
       });
 
-      textBlock.textContent = content;
+      textBlock.innerHTML = content;
 
       nodesToProcess.forEach((node) => node.remove());
 
@@ -83,6 +90,25 @@ export function normalizeHTML(html: string): string {
   doc.body.querySelectorAll(`[data-mt-indent]`).forEach((element) => {
     element.removeAttribute("data-mt-indent");
   });
+
+  doc.body
+    .querySelectorAll<HTMLElement>(`[data-mt-rich-text-editor-event-attributes]`)
+    .forEach((element) => {
+      const eventAttrs = JSON.parse(
+        element.dataset.mtRichTextEditorEventAttributes ?? "{}"
+      ) as Record<string, string>;
+      Object.entries(eventAttrs).forEach(([key, value]) => {
+        element.setAttribute(key, value);
+      });
+      element.removeAttribute("data-mt-rich-text-editor-event-attributes");
+    });
+
+  doc.body
+    .querySelectorAll<HTMLElement>(`[data-mt-rich-text-editor-content]`)
+    .forEach((element) => {
+      element.innerHTML = element.getAttribute("data-mt-rich-text-editor-content") ?? "";
+      element.removeAttribute("data-mt-rich-text-editor-content");
+    });
 
   const res = doc.body.innerHTML;
   if (/<p[^>]*><\/p>/i.test(res)) {

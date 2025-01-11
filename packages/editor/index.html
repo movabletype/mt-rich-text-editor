@@ -61,6 +61,23 @@
         id: "editor",
         language: "ja",
         toolbarOptions: {
+          file: {
+            select: (options) => {
+              const url = window.prompt("Enter the URL of the file");
+              if (url) {
+                options.editor.insertContent(`<a href="${url}">${url}</a>`);
+              }
+            },
+          },
+          image: {
+            select: (options) => {
+              const url = window.prompt("Enter the URL of the image");
+              options.editor.tiptap.chain().focus().setImage({ src: url }).run();
+            },
+            edit: (options) => {
+              console.log(options);
+            },
+          },
           block: {
             blocks: [
               { value: "paragraph", label: "本文" },

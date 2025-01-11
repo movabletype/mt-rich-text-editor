@@ -8,8 +8,7 @@ import { currentLanguage } from "../l10n";
 import { convertToolbar } from "../util/tinymce";
 import editorCss from "../../css/rich-text-editor.css?inline";
 
-import "./File.svelte";
-import "./Image.svelte";
+import { openDialog } from "../util/dialog";
 
 const MTRichTextEditorManager = window.MTRichTextEditor;
 
@@ -44,7 +43,39 @@ try {
   console.error(e);
 }
 
-const toolbarOptions: Record<string, any> = {};
+const toolbarOptions: Record<string, any> = {
+  image: {
+    select: ({ editor: { id } }: { editor: Editor }) => {
+      const blogId = document.querySelector<HTMLInputElement>("[name=blog_id]")?.value || "0";
+      const params = new URLSearchParams();
+      params.set("__mode", "dialog_asset_modal");
+      params.set("_type", "asset");
+      params.set("edit_field", id);
+      params.set("blog_id", blogId);
+      params.set("dialog_view", "1");
+      params.set("can_multi", "1");
+      params.set("filter", "class");
+      params.set("filter_val", "image");
+      openDialog(params);
+    },
+    edit: (options: { editor: Editor; element: HTMLElement }) => {
+      console.log(options.editor.id, options.element);
+    },
+  },
+  file: {
+    select: ({ editor: { id } }: { editor: Editor }) => {
+      const blogId = document.querySelector<HTMLInputElement>("[name=blog_id]")?.value || "0";
+      const params = new URLSearchParams();
+      params.set("__mode", "dialog_asset_modal");
+      params.set("_type", "asset");
+      params.set("edit_field", id);
+      params.set("blog_id", blogId);
+      params.set("dialog_view", "1");
+      params.set("can_multi", "1");
+      openDialog(params);
+    },
+  },
+};
 if (customSettings?.blocks) {
   toolbarOptions.block = {
     blocks: customSettings.blocks,
@@ -75,7 +106,7 @@ class MTRichTextEditor extends MTEditor {
         ["bold", "italic", "underline", "strike"],
         ["blockquote", "bulletList", "orderedList", "horizontalRule"],
         ["link", "unlink"],
-        ["insertHtml", "mtFile", "mtImage"],
+        ["insertHtml", "file", "image"],
         ["table"],
         ["source"],
       ],
@@ -100,7 +131,8 @@ class MTRichTextEditor extends MTEditor {
           maxwidth?: number;
           maxheight?: number;
         }) => {
-          const blog_id = document.querySelector<HTMLScriptElement>("[data-blog-id]")?.dataset.blogId;
+          const blog_id =
+            document.querySelector<HTMLScriptElement>("[data-blog-id]")?.dataset.blogId;
           const data = await (
             await fetch(
               window.CMSScriptURI +
@@ -108,8 +140,8 @@ class MTRichTextEditor extends MTEditor {
                 new URLSearchParams({
                   __mode: "mt_rich_text_editor_embed",
                   url: url,
-                  maxwidth: String(maxwidth),
-                  maxheight: String(maxheight),
+                  maxwidth: String(maxwidth ?? ""),
+                  maxheight: String(maxheight ?? ""),
                   blog_id: String(blog_id),
                 })
             )

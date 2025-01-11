@@ -18,7 +18,7 @@ settings:
             ["bold", "italic", "underline", "strike"],
             ["blockquote", "bulletList", "orderedList", "horizontalRule"],
             ["link", "unlink"],
-            ["insertHtml", "mtFile", "mtImage"],
+            ["insertHtml", "file", "image"],
             ["table"]
           ],
           [
@@ -95,8 +95,8 @@ editors:
       - link
       - unlink
       - insertHtml
-      - mtFile
-      - mtImage
+      - file
+      - image
       - table
       - source
       - undo
