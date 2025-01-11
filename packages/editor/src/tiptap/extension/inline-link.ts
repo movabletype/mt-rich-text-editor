@@ -42,7 +42,7 @@ export const InlineLink = Link.extend({
   parseHTML() {
     return [
       {
-        tag: 'a:not([data-mt-rich-text-editor-block])',
+        tag: 'a:not([data-block])',
         getAttrs: (element) => {
           if (!(element instanceof HTMLElement)) {
             return false

@@ -11,10 +11,6 @@ import InsertHtmlModal from "../insertHtml/Modal.svelte";
 import sourceIcon from "../icon/source.svg?raw";
 import SourceModal from "../source/Modal.svelte";
 
-import linkIcon from "../icon/link.svg?raw";
-import LinkModal from "../link/Modal.svelte";
-import type { LinkData } from "../link/Modal.svelte";
-
 import boldIcon from "../icon/bold.svg?raw";
 import italicIcon from "../icon/italic.svg?raw";
 import underlineIcon from "../icon/underline.svg?raw";
@@ -34,6 +30,7 @@ import indentIcon from "../icon/indent.svg?raw";
 import outdentIcon from "../icon/outdent.svg?raw";
 import fullScreenIcon from "../icon/fullScreen.svg?raw";
 
+import "./Link.svelte";
 import "./File.svelte";
 import "./Image.svelte";
 
@@ -47,7 +44,9 @@ import "../paste/Html.svelte";
 import "../paste/Link.svelte";
 import "../paste/Embed.svelte";
 
-export class PanelItemElement<Options extends Record<string, any> = Record<string, any>> extends HTMLElement {
+export class PanelItemElement<
+  Options extends Record<string, any> = Record<string, any>,
+> extends HTMLElement {
   editor: Editor | undefined;
   options: Options = {} as Options;
   get tiptap(): Editor["tiptap"] | undefined {
@@ -210,84 +209,6 @@ export class HorizontalRuleButton extends HTMLElement {
   }
 }
 
-export class LinkButton extends HTMLElement {
-  constructor() {
-    super();
-    this.attachShadow({ mode: "open" }).innerHTML = linkIcon;
-  }
-
-  connectedCallback() {
-    this.addEventListener(EditorEventType.Click, ({ tiptap }) => {
-      let linkData: LinkData;
-      if (tiptap.isActive("link")) {
-        tiptap.chain().extendMarkRange("link").run();
-
-        const linkText = tiptap.state.doc.textBetween(
-          tiptap.state.selection.from,
-          tiptap.state.selection.to
-        );
-
-        const attrs = tiptap.getAttributes("link");
-        linkData = {
-          url: attrs.href || "",
-          text: linkText,
-          title: attrs.title || "",
-          target: attrs.target || "_self",
-        };
-      } else {
-        linkData = {
-          url: "",
-          text: tiptap.state.selection.empty
-            ? ""
-            : tiptap.state.doc.textBetween(tiptap.state.selection.from, tiptap.state.selection.to),
-          title: "",
-          target: "_self",
-        };
-      }
-
-      const modal = mount(LinkModal, {
-        target: document.body,
-        props: {
-          linkData,
-          onSubmit: (linkData: LinkData) => {
-            const chain = tiptap.chain().focus();
-
-            if (tiptap.isActive("link")) {
-              chain.extendMarkRange("link");
-            }
-
-            chain
-              .deleteSelection()
-              .insertContent({
-                type: "text",
-                text: linkData.text,
-                marks: [
-                  {
-                    type: "link",
-                    attrs: {
-                      href: linkData.url,
-                      target: linkData.target,
-                      title: linkData.title,
-                    },
-                  },
-                ],
-              })
-              .run();
-            unmount(modal);
-          },
-          onClose: () => {
-            unmount(modal);
-          },
-        },
-      });
-    });
-
-    this.addEventListener(EditorEventType.Update, ({ tiptap }) => {
-      this.classList.toggle("is-active", tiptap.isActive("link"));
-    });
-  }
-}
-
 export class InsertHtmlButton extends HTMLElement {
   constructor() {
     super();
@@ -365,7 +286,9 @@ export class FullScreenButton extends HTMLElement {
   }
 }
 
-export class PathItem<Options extends Record<string, any> = Record<string, any>> extends PanelItemElement<Options> {
+export class PathItem<
+  Options extends Record<string, any> = Record<string, any>,
+> extends PanelItemElement<Options> {
   onEditorUpdate() {
     if (!this.tiptap) {
       return;
@@ -415,7 +338,9 @@ export class PathItem<Options extends Record<string, any> = Record<string, any>>
   }
 }
 
-export abstract class PasteMenuItemElement<Options extends Record<string, any> = Record<string, any>> extends PanelItemElement<Options> {
+export abstract class PasteMenuItemElement<
+  Options extends Record<string, any> = Record<string, any>,
+> extends PanelItemElement<Options> {
   protected content:
     | {
         plainText: string;
@@ -459,7 +384,9 @@ export class AsText extends PasteMenuItemElement {
   onEditorPaste() {
     const encoder = document.createElement("div");
     encoder.textContent = this.content?.plainText ?? "";
-    this.insertPasteContent(preprocessHTML(`<p>${encoder.innerHTML}</p>`));
+    this.insertPasteContent(encoder.innerHTML);
+    // TBD: enclose with <p> tag
+    // this.insertPasteContent(preprocessHTML(`<p>${encoder.innerHTML}</p>`));
   }
 }
 
@@ -473,7 +400,6 @@ const systemItems: Record<PanelNamespace, Record<string, typeof HTMLElement>> = 
     orderedList: OrderedListButton,
     horizontalRule: HorizontalRuleButton,
     blockquote: BlockquoteButton,
-    link: LinkButton,
     unlink: UnlinkButton,
     insertHtml: InsertHtmlButton,
     source: SourceButton,

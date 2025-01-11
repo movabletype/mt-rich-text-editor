@@ -41,55 +41,76 @@
     const viewRect = view.dom.getBoundingClientRect();
     const { selection } = view.state;
 
-    const targetPos =
-      selection.node?.type.name === targetNodeName
-        ? selection.$anchor
-        : findParentNode((node) => node.type.name === targetNodeName)(selection);
-    if (!targetPos) {
-      top = 0;
-      left = 0;
-      return;
+    let targetDom: HTMLElement | null = null;
+    if (tiptap.isActive(targetNodeName)) {
+      const resolvedPos = view.domAtPos(selection.from);
+      if (resolvedPos.node) {
+        targetDom = resolvedPos.node as HTMLElement;
+        if (targetDom.nodeType === Node.TEXT_NODE) {
+          targetDom = targetDom.parentElement;
+        }
+      }
+      if (targetDom?.tagName !== "A") {
+        const resolvedPos = view.domAtPos(selection.from - 1);
+        if (resolvedPos.node) {
+          targetDom = resolvedPos.node as HTMLElement;
+          if (targetDom.nodeType === Node.TEXT_NODE) {
+            targetDom = targetDom.parentElement;
+          }
+        }
+      }
     }
-
-    const targetDom = view.nodeDOM(targetPos.pos) as HTMLElement;
     if (!targetDom) {
-      top = 0;
-      left = 0;
-      return;
+      const targetPos =
+        selection.node?.type.name === targetNodeName
+          ? selection.$anchor
+          : findParentNode((node) => node.type.name === targetNodeName)(selection);
+      if (!targetPos) {
+        top = 0;
+        left = 0;
+        return;
+      }
+
+      targetDom = view.nodeDOM(targetPos.pos) as HTMLElement;
+      if (!targetDom) {
+        top = 0;
+        left = 0;
+        return;
+      }
     }
 
     (async () => {
-        if (targetDom instanceof HTMLImageElement && !targetDom.complete) {
-            await new Promise((resolve) => {
-                targetDom.onload = resolve;
-            });
-        }
+      if (targetDom instanceof HTMLImageElement && !targetDom.complete) {
+        await new Promise((resolve) => {
+          targetDom.onload = resolve;
+        });
+      }
 
-        const targetRect = targetDom.getBoundingClientRect();
-    
-        const isVisible =
-          targetRect.top < viewRect.bottom &&
-          targetRect.bottom > viewRect.top &&
-          targetRect.left < viewRect.right &&
-          targetRect.right > viewRect.left;
-    
-        if (!isVisible) {
-          top = 0;
-          left = 0;
-          return;
-        }
-    
-        const menuWidth = menuElement?.offsetWidth || 0;
-        const menuHeight = menuElement?.offsetHeight || 0;
-        const targetWidth = targetDom.offsetWidth;
-    
-        const topPosition = targetRect.top - viewRect.top - menuHeight - 10;
-        const bottomPosition = targetRect.bottom - viewRect.top + 10;
-    
-        showInBottom = topPosition < 0;
-    
-        top = showInBottom ? bottomPosition : topPosition;
-        left = targetRect.left - viewRect.left + targetWidth / 2 - menuWidth / 2;
+      const targetRect = targetDom.getBoundingClientRect();
+
+      const isVisible =
+        targetRect.top < viewRect.bottom &&
+        targetRect.bottom > viewRect.top &&
+        targetRect.left < viewRect.right &&
+        targetRect.right > viewRect.left;
+
+      if (!isVisible) {
+        top = 0;
+        left = 0;
+        return;
+      }
+
+      const menuWidth = menuElement?.offsetWidth || 0;
+      const menuHeight = menuElement?.offsetHeight || 0;
+      const targetWidth = targetDom.offsetWidth;
+
+      const topPosition = targetRect.top - viewRect.top - menuHeight - 10;
+      const bottomPosition = targetRect.bottom - viewRect.top + 10;
+
+      showInBottom = topPosition < 0;
+
+      top = showInBottom ? bottomPosition : topPosition;
+      left = targetRect.left - viewRect.left + targetWidth / 2 - menuWidth / 2;
     })();
   };
 

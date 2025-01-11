@@ -20,5 +20,6 @@
     cursor: pointer;
     display: inline-flex;
     padding: 5px;
+    align-items: center;
   }
 </style>
