@@ -34,6 +34,6 @@ export default defineConfig(({ mode }) => ({
     include: ["src/**/*.test.ts"],
   },
   resolve: {
-    conditions: mode === "test" ? ["browser"] : [],
+    conditions: mode === "test" ? ["browser"] : ["browser"],
   },
 }));

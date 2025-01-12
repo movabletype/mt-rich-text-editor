@@ -71,18 +71,6 @@
   display: none;
 }
 
-h2 {
-  position: sticky;
-  background-color: #fff;
-  top: 0;
-}
-
-h3 {
-  position: sticky;
-  background-color: #fff;
-  top: 40px;
-}
-
 /**
  * Inline
  */
