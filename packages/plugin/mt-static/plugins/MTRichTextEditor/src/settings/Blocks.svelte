@@ -31,8 +31,10 @@
   }
 
   let blocksItems = $state(convertToItems(JSON.parse(textarea.value)));
+
+  let tmpUnusedItems = $state<BlockInternalItem[] | undefined>(undefined);
   const unusedItems = $derived(
-    availableBlocks.filter((item) => !getUsedItems(blocksItems).has(item.value))
+    tmpUnusedItems ?? availableBlocks.filter((item) => !getUsedItems(blocksItems).has(item.value))
   );
 
   function getUsedItems(items: BlockInternalItem[]): Set<string> {
@@ -50,13 +52,12 @@
 
   // Handle DnD events for available blocks
   function handleAvailableDndConsider(e: CustomEvent<{ items: BlockInternalItem[] }>) {
-    const draggedItem = e.detail.items[0];
-    if (draggedItem && !getUsedItems(blocksItems).has(draggedItem.value)) {
-      blocksItems = [...blocksItems, draggedItem];
-    }
+    tmpUnusedItems = e.detail.items;
   }
 
-  function handleAvailableDndFinalize() {}
+  function handleAvailableDndFinalize(e: CustomEvent<{ items: BlockInternalItem[] }>) {
+    tmpUnusedItems = undefined;
+  }
 
   // Remove block
   function handleRemoveBlock(id: string) {
@@ -77,7 +78,12 @@
   <!-- Current blocks -->
   <div class="mt-rich-text-editor-blocks-settings-current">
     <section
-      use:dndzone={{ items: blocksItems, flipDurationMs: 0 }}
+      use:dndzone={{
+        items: blocksItems,
+        flipDurationMs: 300,
+        dragDisabled: false,
+        dropFromOthersDisabled: false,
+      }}
       onconsider={handleDndConsider}
       onfinalize={handleDndFinalize}
     >
@@ -108,25 +114,32 @@
     </section>
   </div>
 
-  <!-- Available blocks -->
-  <div class="mt-rich-text-editor-blocks-settings-available">
-    <h4>{window.trans("Available Blocks")}</h4>
-    <section
-      use:dndzone={{ items: unusedItems, flipDurationMs: 0 }}
-      onconsider={handleAvailableDndConsider}
-      onfinalize={handleAvailableDndFinalize}
-    >
-      {#each unusedItems as item (item.value)}
-        <div class="mt-rich-text-editor-blocks-settings-item">
-          <span class="mt-rich-text-editor-blocks-settings-move">
-            {@html moveIcon}
-          </span>
-          <span class="mt-rich-text-editor-blocks-settings-label">{item.label}</span>
-          <span class="mt-rich-text-editor-blocks-settings-value">{item.value}</span>
-        </div>
-      {/each}
-    </section>
-  </div>
+  {#if unusedItems.length > 0}
+    <!-- Available blocks -->
+    <div class="mt-rich-text-editor-blocks-settings-available">
+      <h4>{window.trans("Available Blocks")}</h4>
+      <section
+        use:dndzone={{
+          items: unusedItems,
+          flipDurationMs: 300,
+          dragDisabled: false,
+          dropFromOthersDisabled: false,
+        }}
+        onconsider={handleAvailableDndConsider}
+        onfinalize={handleAvailableDndFinalize}
+      >
+        {#each unusedItems as item (item.id)}
+          <div class="mt-rich-text-editor-blocks-settings-item">
+            <span class="mt-rich-text-editor-blocks-settings-move">
+              {@html moveIcon}
+            </span>
+            <span class="mt-rich-text-editor-blocks-settings-label">{item.label}</span>
+            <span class="mt-rich-text-editor-blocks-settings-value">{item.value}</span>
+          </div>
+        {/each}
+      </section>
+    </div>
+  {/if}
 </div>
 
 <style>

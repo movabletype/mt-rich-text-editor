@@ -57,8 +57,9 @@
     textarea.value = JSON.stringify(convertToData(toolbarItems));
   });
 
-  let unusedItems = $derived(
-    availableItems.filter((item) => !getUsedItemIds(toolbarItems).has(item.id))
+  let tmpUnusedItems = $state<ToolbarItem[] | undefined>(undefined);
+  const unusedItems = $derived(
+    tmpUnusedItems ?? availableItems.filter((item) => !getUsedItemIds(toolbarItems).has(item.id))
   );
 
   function hasEmptyRow(): boolean {
@@ -250,13 +251,23 @@
         dragDisabled: false,
         dropFromOthersDisabled: false,
       }}
-      onconsider={() => {
+      onconsider={(e) => {
+        tmpUnusedItems = e.detail.items;
+        console.log(e.detail.items);
+
         if (!isDragging) {
           isDragging = true;
           tick().then(() => {
             addEmptyGroups();
           });
         }
+      }}
+      onfinalize={() => {
+        tmpUnusedItems = undefined;
+
+        isDragging = false;
+        removeEmptyRow();
+        removeEmptyGroups();
       }}
     >
       {#each unusedItems as item (item.id)}
