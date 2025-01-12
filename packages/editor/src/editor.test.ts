@@ -1,3 +1,5 @@
+import { globSync, readFileSync} from "node:fs";
+import path from "node:path";
 import { Editor } from "../src/editor";
 
 describe("HTML parsing", () => {
@@ -14,7 +16,7 @@ describe("HTML parsing", () => {
   });
 
   afterEach(() => {
-    // editor.destroy();
+    editor.destroy();
     textarea.remove();
   });
 
@@ -30,16 +32,26 @@ describe("HTML parsing", () => {
     "<ul><li>test</li></ul>",
     "<ol><li>test</li></ol>",
     "<pre>test</pre>",
-  ])("should preserve HTML structure through Quill: %s", (input) => {
+  ])("should preserve HTML structure through Tiptap: %s", (input) => {
     editor.setContent(input);
     const output = editor.getContent();
-    
+
     expect(output).toBe(normalizeHTML(input));
+  });
+
+  it("should preserve all html structure", () => {
+    const files = globSync(path.join(__dirname, "editor.test.d/**/*.html"));
+    for (const file of files) {
+      const input = readFileSync(file, "utf-8");
+      editor.setContent(input);
+      const output = editor.getContent();
+      expect(output).toBe(normalizeHTML(input));
+    }
   });
 });
 
 function normalizeHTML(html: string): string {
-  const div = document.createElement('div');
+  const div = document.createElement("div");
   div.innerHTML = html;
   return div.innerHTML.trim();
 }
