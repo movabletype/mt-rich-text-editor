@@ -17,8 +17,10 @@ declare module "@tiptap/core" {
 export const Indent = Extension.create<IndentOptions>({
   name: "indent",
 
-  defaultOptions: {
-    types: ["listItem", "paragraph"],
+  addOptions() {
+    return {
+      types: ["listItem", "paragraph"],
+    };
   },
 
   addGlobalAttributes() {

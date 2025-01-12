@@ -1,6 +1,6 @@
 import { Editor } from "../src/editor";
 
-describe("Blot HTML parsing", () => {
+describe("HTML parsing", () => {
   let textarea: HTMLTextAreaElement;
   let editor: Editor;
 

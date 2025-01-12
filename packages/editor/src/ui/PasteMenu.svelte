@@ -81,7 +81,12 @@
     }
 
     // Get the actual rendered size of the node and update position
-    const updateNodePosition = () => {
+    const updateNodePosition = (resizeObserver: ResizeObserver | undefined = undefined) => {
+      if (!domNode.parentElement) {
+        resizeObserver?.disconnect();
+        return;
+      }
+
       const nodeRect = domNode.getBoundingClientRect();
       const tmpTop = nodeRect.bottom - viewRect.top;
       const newTop = tmpTop > viewRect.height - 20 ? viewRect.height - 20 : tmpTop;
@@ -98,7 +103,9 @@
     updateNodePosition();
 
     if (!byScroll) {
-      const resizeObserver = new ResizeObserver(updateNodePosition);
+      const resizeObserver = new ResizeObserver(() => {
+        updateNodePosition(resizeObserver);
+      });
       resizeObserver.observe(domNode);
 
       // Stop observing after 10 seconds
