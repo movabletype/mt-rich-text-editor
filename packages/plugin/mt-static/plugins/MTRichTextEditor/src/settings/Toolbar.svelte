@@ -2,6 +2,7 @@
   import { tick } from "svelte";
   import { dndzone } from "svelte-dnd-action";
   import type {} from "@movabletype/mt-rich-text-editor/mt-rich-text-editor";
+  import { flipDurationMs, dropTargetStyle } from "./common";
 
   const { textarea } = $props<{
     textarea: HTMLTextAreaElement;
@@ -35,7 +36,7 @@
           (row || []).map((group) => [
             ...group.map((id) => ({
               id,
-              element: window.MTRichTextEditor.UI.getPanelItem("toolbar", id),
+              element: window.MTRichTextEditor.UI.getPanelItem("toolbar", id) ?? "div",
             })),
             createSentinel(),
           ])
@@ -202,7 +203,8 @@
                 class="mt-rich-text-editor-buttons"
                 use:dndzone={{
                   items: group,
-                  flipDurationMs: 300,
+                  flipDurationMs,
+                  dropTargetStyle,
                   dragDisabled: false,
                   dropFromOthersDisabled: false,
                 }}
@@ -247,13 +249,13 @@
       class="mt-rich-text-editor-available-buttons"
       use:dndzone={{
         items: unusedItems,
-        flipDurationMs: 300,
+        flipDurationMs,
+        dropTargetStyle,
         dragDisabled: false,
         dropFromOthersDisabled: false,
       }}
       onconsider={(e) => {
         tmpUnusedItems = e.detail.items;
-        console.log(e.detail.items);
 
         if (!isDragging) {
           isDragging = true;

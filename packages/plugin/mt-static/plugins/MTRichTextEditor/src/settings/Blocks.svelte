@@ -1,6 +1,7 @@
 <script lang="ts">
   import { dndzone } from "svelte-dnd-action";
   import type {} from "@movabletype/mt-rich-text-editor/mt-rich-text-editor";
+  import { flipDurationMs, dropTargetStyle } from "./common";
   import moveIcon from "../asset/move.svg?raw";
   import trashIcon from "../asset/trash.svg?raw";
 
@@ -80,7 +81,8 @@
     <section
       use:dndzone={{
         items: blocksItems,
-        flipDurationMs: 300,
+        flipDurationMs,
+        dropTargetStyle,
         dragDisabled: false,
         dropFromOthersDisabled: false,
       }}
@@ -121,7 +123,8 @@
       <section
         use:dndzone={{
           items: unusedItems,
-          flipDurationMs: 300,
+          flipDurationMs,
+          dropTargetStyle,
           dragDisabled: false,
           dropFromOthersDisabled: false,
         }}

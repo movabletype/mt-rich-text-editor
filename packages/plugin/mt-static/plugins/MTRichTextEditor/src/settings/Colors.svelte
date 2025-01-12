@@ -1,6 +1,7 @@
 <script lang="ts">
   import { dndzone } from "svelte-dnd-action";
   import type {} from "@movabletype/mt-rich-text-editor/mt-rich-text-editor";
+  import { flipDurationMs, dropTargetStyle } from "./common";
 
   const { textarea } = $props<{
     textarea: HTMLTextAreaElement;
@@ -60,9 +61,10 @@
   <div class="mt-rich-text-editor-colors-settings-current">
     <div
       class="mt-rich-text-editor-colors-settings-dndzone"
-      use:dndzone={{ items: colorsItems, flipDurationMs: 0 }}
+      use:dndzone={{ items: colorsItems, flipDurationMs, dropTargetStyle }}
       onconsider={handleDndConsider}
       onfinalize={handleDndFinalize}
+      
     >
       {#each colorsItems as item (item.id)}
         <div class="mt-rich-text-editor-colors-settings-tile">
