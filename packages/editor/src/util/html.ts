@@ -56,11 +56,11 @@ export function preprocessHTML(html: string): string {
     }
   });
 
-  body.querySelectorAll("td, th").forEach((td) => {
-    if (td.childNodes.length === 0) {
-      td.appendChild(document.createElement("mt-text-block"));
-    }
-  });
+  // body.querySelectorAll("td, th").forEach((td) => {
+  //   if (td.childNodes.length === 0) {
+  //     td.appendChild(document.createElement("mt-text-block"));
+  //   }
+  // });
 
   return body.innerHTML;
 }

@@ -26,8 +26,8 @@ import Iframe from "./extension/experiments/iframe";
 
 // table
 import { Table } from "./extension/table";
-import { TableCell } from "@tiptap/extension-table-cell";
-import { TableHeader } from "@tiptap/extension-table-header";
+import { TableCell } from "./extension/table-cell";
+import { TableHeader } from "./extension/table-header";
 import { TableRow } from "@tiptap/extension-table-row";
 
 // custom
