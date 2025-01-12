@@ -14,6 +14,7 @@ interface PasteMenuOptions {
 
 export class PasteMenu {
   private pasteMenu: ReturnType<typeof mount> | undefined;
+  #isPasting: boolean = false;
 
   constructor({ target, editor, onPaste, pasteMenu, options }: PasteMenuOptions) {
     if (pasteMenu.length === 0) {
@@ -27,8 +28,15 @@ export class PasteMenu {
         onPaste,
         pasteMenu,
         options,
+        setIsPasting: (isPasting: boolean) => {
+          this.#isPasting = isPasting;
+        },
       },
     });
+  }
+
+  public isPasting(): boolean {
+    return this.#isPasting;
   }
 
   public destroy(): void {

@@ -50,8 +50,10 @@ use vars qw( %Lexicon );
     'Width'                                                                                                  => '幅',
     'Height'                                                                                                 => '高さ',
 
-    'Embed webpage'    => 'ウェブページの埋め込み',
-    'Table Properties' => 'テーブルのプロパティ',
+    'Embed webpage as card'        => 'ウェブページの埋め込み (カード)',
+    'Embed webpage as inline link' => 'ウェブページの埋め込み (インラインリンク)',
+    'Table Properties'             => 'テーブルのプロパティ',
+
 );
 
 1;

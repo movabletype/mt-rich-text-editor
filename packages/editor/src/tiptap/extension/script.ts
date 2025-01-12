@@ -71,7 +71,6 @@ export const Script = Node.create({
       HTMLAttributes: {
         default: {},
         parseHTML: (element) => {
-          console.log(element);
           const attrs: Record<string, string> = {};
           const ignoreAttributes = ["data-tag-name", "contenteditable", "style", "class"];
           

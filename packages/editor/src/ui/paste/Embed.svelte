@@ -9,8 +9,16 @@
   import { extendPasteItem } from "../item/registry/svelte";
   const extend = (customElementConstructor: typeof HTMLElement) =>
     class extends extendPasteItem(customElementConstructor) {
-      isEditorItemAvailable() {
-        return /^https?:\/\/[^\s]+(\s*)?$/.test(this.getContent()?.plainText ?? "");
+      async isEditorItemAvailable() {
+        if (!/^https?:\/\/[^\s]+(\s*)?$/.test(this.getContent()?.plainText ?? "")) {
+          return false;
+        }
+
+        const targetDomNode = this.getContent()?.targetDomNode;
+        if (targetDomNode?.tagName === "P" && targetDomNode.childNodes.length === 0) {
+          return 2;
+        }
+        return 1;
       }
     };
 
@@ -41,7 +49,9 @@
     };
 
     content.transaction(async () => {
-      const res = await tiptap.commands.getEmbedObject(embedData).catch(() => ({ html: "" }));
+      const res = await tiptap.commands
+        .getEmbedObject(embedData)
+        .catch(() => ({ html: "", inline: undefined }));
       if (!res?.html) {
         editor?.notify({ level: "error", message: window.trans("Failed to get embed object") });
         return;

@@ -19,11 +19,13 @@
     onPaste,
     pasteMenu,
     options,
+    setIsPasting,
   }: {
     editor: Editor;
     pasteMenu: string[];
     onPaste: (callback: (view: EditorView, event: ClipboardEvent) => boolean) => void;
     options: Record<string, any>;
+    setIsPasting: (isPasting: boolean) => void;
   } = $props();
 
   const buttonRefs: Record<string, PasteMenuItemElement | HTMLElement> = {};
@@ -44,7 +46,11 @@
   let isInTransaction = false;
   let top = $state(0);
   let left = $state(0);
-  const isAvailableMap: Record<string, boolean> = $state({});
+  const isAvailableMap: Record<string, number> = $state({});
+
+  $effect(() => {
+    setIsPasting(isOpen);
+  });
 
   editor.tiptap.on("update", () => {
     if (!isInTransaction) {
@@ -79,7 +85,7 @@
       const nodeRect = domNode.getBoundingClientRect();
       const tmpTop = nodeRect.bottom - viewRect.top;
       const newTop = tmpTop > viewRect.height - 20 ? viewRect.height - 20 : tmpTop;
-      if (byScroll ||top < newTop || top - newTop > 100) {
+      if (byScroll || top < newTop || top - newTop > 100) {
         top = newTop;
       }
       const newLeft = nodeRect.left - viewRect.left;
@@ -109,12 +115,23 @@
   });
 
   onPaste((view, event) => {
+    // commit history transaction
+    // FIXME: we should more effectively commit history transaction
+    editor.tiptap.commands.undo();
+    editor.tiptap.commands.redo();
+
+    const targetDomNode = view
+      .domAtPos(editor.tiptap.state.selection.from)
+      ?.node?.cloneNode(true) as HTMLElement | null;
+    if (targetDomNode) {
+      targetDomNode.querySelectorAll("br.ProseMirror-trailingBreak").forEach((br) => {
+        br.remove();
+      });
+    }
+
     if (!event.clipboardData) {
       return false;
     }
-    top = 0;
-    left = 0;
-
     const clipboardData = event.clipboardData;
     const plainText = getText(clipboardData);
     const htmlText = clipboardData.getData("text/html");
@@ -123,46 +140,65 @@
       htmlDocument = new DOMParser().parseFromString(htmlText, "text/html");
     }
 
-    let applied = false;
-    for (const { name } of buttons) {
-      const button = buttonRefs[name];
-      if ("onEditorSetPasteContent" in button) {
-        button.onEditorSetPasteContent?.({
-          plainText: plainText ?? htmlDocument?.body.innerText ?? "",
-          htmlDocument,
-          clipboardData,
-          transaction: async (cb: Function) => {
-            isInTransaction = true;
-            try {
-              await cb();
-            } finally {
-              isInTransaction = false;
-              updatePosition(view);
-            }
-          },
-        });
-      }
-      if ("isEditorItemAvailable" in button) {
-        isAvailableMap[name] = button.isEditorItemAvailable();
-      }
-      if (!applied && isAvailableMap[name]) {
-        setTimeout(() => {
-          if ("onEditorPaste" in button) {
-            button.onEditorPaste();
-          }
-        });
-        applied = true;
-      }
-    }
+    (async () => {
+      top = 0;
+      left = 0;
 
-    setTimeout(() => {
-      if (Object.values(isAvailableMap).filter(Boolean).length <= 1) {
-        return;
+      const availablePromiseMap: Record<string, Promise<boolean | number>> = {};
+      buttons.forEach(({ name }) => {
+        const button = buttonRefs[name];
+        if ("onEditorSetPasteContent" in button) {
+          button.onEditorSetPasteContent?.({
+            plainText: plainText ?? htmlDocument?.body.innerText ?? "",
+            htmlDocument,
+            targetDomNode,
+            clipboardData,
+            transaction: async (cb: Function) => {
+              isInTransaction = true;
+              try {
+                await cb();
+              } finally {
+                isInTransaction = false;
+                updatePosition(view);
+              }
+            },
+          });
+        }
+        if ("isEditorItemAvailable" in button) {
+          availablePromiseMap[name] = button.isEditorItemAvailable();
+        }
+      });
+
+      await Promise.all(Object.values(availablePromiseMap));
+
+      let maxPriority = 0;
+      let applyName = "";
+      for (const { name } of buttons) {
+        const availableRes = await availablePromiseMap[name];
+        isAvailableMap[name] =
+          availableRes === true ? 1 : availableRes === false ? 0 : availableRes;
+        if (isAvailableMap[name] > maxPriority) {
+          maxPriority = isAvailableMap[name];
+          applyName = name;
+        }
       }
 
-      updatePosition(view);
+      if (applyName) {
+        const button = buttonRefs[applyName];
+        if ("onEditorPaste" in button) {
+          button.onEditorPaste();
+        }
+      }
+
+      setTimeout(() => {
+        if (Object.values(isAvailableMap).filter(Boolean).length <= 1) {
+          return;
+        }
+
+        updatePosition(view);
+      });
       isOpen = true;
-    });
+    })();
 
     return false;
   });

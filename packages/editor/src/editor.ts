@@ -260,6 +260,10 @@ export class Editor {
     alert(`${level}: ${message}`);
   }
 
+  public isPasting(): boolean {
+    return this.#pasteMenu.isPasting();
+  }
+
   private initResizeHandle(editor: HTMLDivElement): void {
     const resizeHandle = document.createElement("div");
     resizeHandle.className = "mt-rich-text-editor-resize-handle";

@@ -14,7 +14,7 @@ export interface EmbedObjectOptions {
 declare module "@tiptap/core" {
   interface Commands {
     embedObject: {
-      getEmbedObject: (attributes: EmbedData) => Promise<{ html: string }>;
+      getEmbedObject: (attributes: EmbedData) => Promise<{ html: string; inline?: string }>;
       insertEmbedObject: (html: string) => void;
     };
   }

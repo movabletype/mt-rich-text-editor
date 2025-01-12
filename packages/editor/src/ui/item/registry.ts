@@ -43,6 +43,7 @@ import "../boilerplate/Button.svelte";
 import "../paste/Html.svelte";
 import "../paste/Link.svelte";
 import "../paste/Embed.svelte";
+import "../paste/EmbedInline.svelte";
 
 export class PanelItemElement<
   Options extends Record<string, any> = Record<string, any>,
@@ -350,13 +351,14 @@ export abstract class PasteMenuItemElement<
       }
     | undefined = undefined;
 
-  isEditorItemAvailable() {
-    return true;
+  async isEditorItemAvailable(): Promise<boolean | number> {
+    return Promise.resolve(true);
   }
 
   onEditorSetPasteContent(content: {
     plainText: string;
     htmlDocument: Document | null;
+    targetDomNode: HTMLElement | null;
     clipboardData: DataTransfer;
     transaction: (cb: () => void | Promise<void>) => void;
   }) {

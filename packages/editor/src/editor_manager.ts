@@ -76,7 +76,7 @@ export class EditorManager {
       toolbarOptions: {},
       statusbar: [["path"]],
       statusbarOptions: {},
-      pasteMenu: ["embed", "html", "link", "text"],
+      pasteMenu: ["embedInline", "embed", "html", "link", "text"],
       extensions: [],
       inline: false,
       ...(options as any),

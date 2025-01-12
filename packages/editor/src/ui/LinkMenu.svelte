@@ -20,7 +20,11 @@
   });
 </script>
 
-<Menu {editor} targetNodeName="link" condition={() => tiptap.isActive("link")}>
+<Menu
+  {editor}
+  targetNodeName="link"
+  condition={() => !editor.isPasting() && tiptap.isActive("link")}
+>
   {#if linkUrl}
     <MenuItem
       onclick={() => {

@@ -11,6 +11,7 @@ export interface PasteItemProps<T = Record<string, unknown>> extends Props<T> {
   getContent(): {
     plainText: string;
     htmlDocument: Document;
+    targetDomNode: HTMLElement | null;
     clipboardData: DataTransfer;
     transaction: (cb: () => void) => void;
   } | undefined;
@@ -49,6 +50,7 @@ export const extendPasteItem = (
     | {
         plainText: string;
         htmlDocument: Document;
+        targetDomNode: HTMLElement | null;
         clipboardData: DataTransfer;
         transaction: (cb: () => void) => void;
       }
@@ -58,6 +60,7 @@ export const extendPasteItem = (
     onEditorSetPasteContent(content: {
       plainText: string;
       htmlDocument: Document;
+      targetDomNode: HTMLElement | null;
       clipboardData: DataTransfer;
       transaction: (cb: () => void) => void;
     }) {

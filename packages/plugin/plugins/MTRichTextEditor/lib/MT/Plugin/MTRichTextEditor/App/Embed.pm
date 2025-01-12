@@ -133,16 +133,25 @@ sub resolve {
             }
         }
 
-        my $tmpl = MT->model('template')->load({
+        my $tmpl_card = MT->model('template')->load({
             blog_id => $blog->id,
-            type    => 'mt_rich_text_editor_embed',
+            type    => 'mt_rich_text_editor_embed_card',
         });
-        $tmpl = plugin()->load_tmpl('mt_rich_text_editor_embed.tmpl') unless $tmpl && $tmpl->text ne '';
-        my $html = $tmpl->output($param);
+        $tmpl_card = plugin()->load_tmpl('mt_rich_text_editor_embed_card.tmpl') unless $tmpl_card && $tmpl_card->text ne '';
+        my $html_card = $tmpl_card->output($param);
+
+        my $tmpl_inline = MT->model('template')->load({
+            blog_id => $blog->id,
+            type    => 'mt_rich_text_editor_embed_inline',
+        });
+        $tmpl_inline = plugin()->load_tmpl('mt_rich_text_editor_embed_inline.tmpl') unless $tmpl_inline && $tmpl_inline->text ne '';
+        my $html_inline = $tmpl_inline->output($param);
+
         response(
             $app,
             MT::Util::to_json({
-                html => $html,
+                html   => $html_card,
+                inline => $html_inline,
             }));
     }
 }

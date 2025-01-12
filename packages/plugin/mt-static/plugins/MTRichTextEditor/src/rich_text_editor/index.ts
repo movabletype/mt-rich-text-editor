@@ -93,6 +93,8 @@ if (customSettings?.colors) {
 
 const MTEditor = MT.Editor || (class {} as NonNullable<typeof MT.Editor>);
 
+const resolverResponses: Record<string, Promise<any>> = {};
+
 class MTRichTextEditor extends MTEditor {
   editor?: Editor;
 
@@ -131,21 +133,27 @@ class MTRichTextEditor extends MTEditor {
           maxwidth?: number;
           maxheight?: number;
         }) => {
-          const blog_id =
-            document.querySelector<HTMLScriptElement>("[data-blog-id]")?.dataset.blogId;
-          const data = await (
-            await fetch(
-              window.CMSScriptURI +
-                "?" +
-                new URLSearchParams({
-                  __mode: "mt_rich_text_editor_embed",
-                  url: url,
-                  maxwidth: String(maxwidth ?? ""),
-                  maxheight: String(maxheight ?? ""),
-                  blog_id: String(blog_id),
-                })
-            )
-          ).json();
+          const data =
+            resolverResponses[`${url}-${maxwidth}-${maxheight}`] ||
+            (resolverResponses[`${url}-${maxwidth}-${maxheight}`] = new Promise(async (resolve) => {
+              const blog_id =
+                document.querySelector<HTMLScriptElement>("[data-blog-id]")?.dataset.blogId;
+              resolve(
+                await (
+                  await fetch(
+                    window.CMSScriptURI +
+                      "?" +
+                      new URLSearchParams({
+                        __mode: "mt_rich_text_editor_embed",
+                        url: url,
+                        maxwidth: String(maxwidth ?? ""),
+                        maxheight: String(maxheight ?? ""),
+                        blog_id: String(blog_id),
+                      })
+                  )
+                ).json()
+              );
+            }));
           if (data.error?.message) {
             throw new Error(data.error.message);
           }
