@@ -93,7 +93,15 @@ if (customSettings?.colors) {
 
 const MTEditor = MT.Editor || (class {} as NonNullable<typeof MT.Editor>);
 
-const resolverResponses: Record<string, Promise<any>> = {};
+const resolverResponses: Record<
+  string,
+  Promise<{
+    error?: {
+      message: string;
+    };
+    inline?: boolean;
+  }>
+> = {};
 
 class MTRichTextEditor extends MTEditor {
   editor?: Editor;
@@ -133,8 +141,7 @@ class MTRichTextEditor extends MTEditor {
           maxwidth?: number;
           maxheight?: number;
         }) => {
-          const data =
-            resolverResponses[`${url}-${maxwidth}-${maxheight}`] ||
+          const data = await (resolverResponses[`${url}-${maxwidth}-${maxheight}`] ||
             (resolverResponses[`${url}-${maxwidth}-${maxheight}`] = new Promise(async (resolve) => {
               const blog_id =
                 document.querySelector<HTMLScriptElement>("[data-blog-id]")?.dataset.blogId;
@@ -153,7 +160,7 @@ class MTRichTextEditor extends MTEditor {
                   )
                 ).json()
               );
-            }));
+            })));
           if (data.error?.message) {
             throw new Error(data.error.message);
           }
