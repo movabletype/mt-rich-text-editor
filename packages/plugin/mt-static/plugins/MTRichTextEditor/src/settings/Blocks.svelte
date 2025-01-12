@@ -56,7 +56,7 @@
     tmpUnusedItems = e.detail.items;
   }
 
-  function handleAvailableDndFinalize(e: CustomEvent<{ items: BlockInternalItem[] }>) {
+  function handleAvailableDndFinalize() {
     tmpUnusedItems = undefined;
   }
 

@@ -196,47 +196,50 @@
   {#each toolbarItems as row, rowIndex}
     <div class="mt-rich-text-editor-row">
       {#each row as side, sideIndex}
-        <div class="mt-rich-text-editor-side">
-          {#each side as group, groupIndex}
-            <div class="mt-rich-text-editor-group">
-              <div
-                class="mt-rich-text-editor-buttons"
-                use:dndzone={{
-                  items: group,
-                  flipDurationMs,
-                  dropTargetStyle,
-                  dragDisabled: false,
-                  dropFromOthersDisabled: false,
-                }}
-                onconsider={(e) => handleDndButton(rowIndex, sideIndex, groupIndex, e, "consider")}
-                onfinalize={(e) => {
-                  isDragging = false;
-                  handleDndButton(rowIndex, sideIndex, groupIndex, e, "finalize");
-                  removeGroupIfEmpty(rowIndex, sideIndex, groupIndex);
-                  removeEmptyRow();
-                  removeEmptyGroups();
-                }}
-              >
-                {#each group as button, buttonIndex (button.id)}
-                  {#if !button.isSentinel}
-                    <div class="mt-rich-text-editor-button">
-                      <button
-                        type="button"
-                        class="mt-rich-text-editor-remove-button"
-                        onclick={() => removeButton(rowIndex, sideIndex, groupIndex, buttonIndex)}
-                        title={window.trans("Remove")}
-                        aria-label={window.trans("Remove")}
-                      >
-                        ×
-                      </button>
-                      <svelte:element this={button.element} />
-                    </div>
-                  {/if}
-                {/each}
+        {#if side.length > 0}
+          <div class="mt-rich-text-editor-side">
+            {#each side as group, groupIndex}
+              <div class="mt-rich-text-editor-group">
+                <div
+                  class="mt-rich-text-editor-buttons"
+                  use:dndzone={{
+                    items: group,
+                    flipDurationMs,
+                    dropTargetStyle,
+                    dragDisabled: false,
+                    dropFromOthersDisabled: false,
+                  }}
+                  onconsider={(e) =>
+                    handleDndButton(rowIndex, sideIndex, groupIndex, e, "consider")}
+                  onfinalize={(e) => {
+                    isDragging = false;
+                    handleDndButton(rowIndex, sideIndex, groupIndex, e, "finalize");
+                    removeGroupIfEmpty(rowIndex, sideIndex, groupIndex);
+                    removeEmptyRow();
+                    removeEmptyGroups();
+                  }}
+                >
+                  {#each group as button, buttonIndex (button.id)}
+                    {#if !button.isSentinel}
+                      <div class="mt-rich-text-editor-button">
+                        <button
+                          type="button"
+                          class="mt-rich-text-editor-remove-button"
+                          onclick={() => removeButton(rowIndex, sideIndex, groupIndex, buttonIndex)}
+                          title={window.trans("Remove")}
+                          aria-label={window.trans("Remove")}
+                        >
+                          ×
+                        </button>
+                        <svelte:element this={button.element} />
+                      </div>
+                    {/if}
+                  {/each}
+                </div>
               </div>
-            </div>
-          {/each}
-        </div>
+            {/each}
+          </div>
+        {/if}
       {/each}
     </div>
   {/each}
