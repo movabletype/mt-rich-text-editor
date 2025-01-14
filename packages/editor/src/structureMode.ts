@@ -10,6 +10,7 @@ export class StructureMode {
   #style: HTMLStyleElement;
   #clickCallback: (event: MouseEvent) => void;
   #modal: ReturnType<typeof mount> | null = null;
+  #selector = "section, div, p, ul, ol, li, h1, h2, h3, h4, h5, h6";
 
   constructor(editor: Editor) {
     this.#editor = editor;
@@ -82,9 +83,7 @@ export class StructureMode {
   public onUpdate(): void {
     let style = "";
 
-    const domNodes = this.#editor.tiptap.view.dom.querySelectorAll<HTMLElement>(
-      "section, div, p, ul, ol, li, h1, h2, h3, h4, h5, h6"
-    );
+    const domNodes = this.#editor.tiptap.view.dom.querySelectorAll<HTMLElement>(this.#selector);
     for (const domNode of domNodes) {
       domNode.removeEventListener("click", this.#clickCallback);
       domNode.addEventListener("click", this.#clickCallback);
@@ -126,9 +125,7 @@ export class StructureMode {
   }
 
   public destroy(): void {
-    const domNodes = this.#editor.tiptap.view.dom.querySelectorAll<HTMLElement>(
-      "section, h1, h2, h3, h4, h5, h6"
-    );
+    const domNodes = this.#editor.tiptap.view.dom.querySelectorAll<HTMLElement>(this.#selector);
     for (const domNode of domNodes) {
       domNode.removeEventListener("click", this.#clickCallback);
     }

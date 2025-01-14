@@ -100,7 +100,7 @@ declare global {
 function createButtonClass(
   name: string,
   icon: string,
-  method?: string,
+  method?: string | ((editor: Editor["tiptap"]) => void),
   stateClass?: string | false,
   checkState?: (editor: Editor) => boolean
 ) {
@@ -116,7 +116,11 @@ function createButtonClass(
 
     connectedCallback() {
       this.addEventListener(EditorEventType.Click, ({ tiptap }) => {
-        (tiptap.chain().focus() as any)[method]().run();
+        if (typeof method === "function") {
+          method(tiptap);
+        } else {
+          (tiptap.chain().focus() as any)[method]().run();
+        }
       });
 
       if (stateClass !== false) {
@@ -169,8 +173,24 @@ export const UnlinkButton = createButtonClass(
   "is-disabled",
   (editor: Editor) => !editor.tiptap.isActive("link")
 );
-export const BulletListButton = createButtonClass("bulletList", bulletListIcon);
-export const OrderedListButton = createButtonClass("orderedList", orderedListIcon);
+export const BulletListButton = createButtonClass("bulletList", bulletListIcon, (tiptap) => {
+  tiptap
+    .chain()
+    .focus()
+    .lift(tiptap.state.selection.$from.before())
+    .setNode(tiptap.isActive("bulletList") ? "paragraph" : "textBlock")
+    .run();
+  tiptap.chain().toggleBulletList().run();
+});
+export const OrderedListButton = createButtonClass("orderedList", orderedListIcon, (tiptap) => {
+  tiptap
+    .chain()
+    .focus()
+    .lift(tiptap.state.selection.$from.before())
+    .setNode(tiptap.isActive("orderedList") ? "paragraph" : "textBlock")
+    .run();
+  tiptap.chain().toggleOrderedList().run();
+});
 export const BlockquoteButton = createButtonClass("blockquote", blockquoteIcon);
 export const UndoButton = createButtonClass(
   "undo",
@@ -189,7 +209,7 @@ export const RedoButton = createButtonClass(
 export const RemoveFormatButton = createButtonClass(
   "removeFormat",
   removeFormatIcon,
-  "unsetAllMarks().clearNodes()",
+  (tiptap) => tiptap.chain().focus().unsetAllMarks().clearNodes().run(),
   false
 );
 export const AlignLeftButton = createTextAlignButtonClass("alignLeft", alignLeftIcon);
