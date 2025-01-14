@@ -16,17 +16,6 @@ editors:
     toolbar_items:
       - boilerplate
 
-upgrade_functions:
-  formatted_text_for_mt_rich_text_editor_install_toolbar_items:
-    code: |
-      sub {
-        require MT::Plugin::MTRichTextEditor::Util;
-        MT::Plugin::MTRichTextEditor::Util->install_toolbar_items({
-          items => ['boilerplate'],
-          row   => 0,
-        });
-      }
-
 applications:
   cms:
     methods:
