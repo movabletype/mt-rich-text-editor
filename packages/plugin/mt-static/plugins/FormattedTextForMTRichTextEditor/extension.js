@@ -11,7 +11,7 @@ boilerplates.forEach((boilerplate) => {
     onEditorInit(editor, options) {
       this.editor = editor;
       this.options = options;
-    }     
+    }
 
     connectedCallback() {
       this.addEventListener("click", () => {
@@ -47,7 +47,7 @@ MTRichTextEditor.on("create", (config) => {
       `boilerplate-${boilerplate.id}`,
       {
         aliases: [
-          boilerplate.text.match(/<(\w+)>/)?.[1]
+          boilerplate.text.match(/<(\w+)/)?.[1]
         ]
       }
     ])),
