@@ -131,7 +131,7 @@ applications:
 
 default_templates:
   system:
-    mt_rich_text_editor_embed_card:
+    mt_rte_embed_card:
       label: Embed webpage as card
-    mt_rich_text_editor_embed_inline:
+    mt_rte_embed_inline:
       label: Embed webpage as inline link
