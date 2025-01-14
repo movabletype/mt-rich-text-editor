@@ -81,6 +81,7 @@ export const Global = Extension.create({
           'listItem',
           'orderedList',
           'paragraph',
+          'span',
           'table',
           'tableRow',
           'tableCell'

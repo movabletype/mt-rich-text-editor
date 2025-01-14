@@ -23,7 +23,7 @@ export class StructureMode {
       }
 
       const rect = domNode.getBoundingClientRect();
-      if (event.clientY - rect.top > 20) {
+      if (event.clientY - rect.top > 13) {
         return;
       }
 

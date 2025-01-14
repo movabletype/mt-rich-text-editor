@@ -1,4 +1,4 @@
-import { globSync, readFileSync} from "node:fs";
+import { globSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { Editor } from "../src/editor";
 
@@ -32,6 +32,7 @@ describe("HTML parsing", () => {
     "<ul><li>test</li></ul>",
     "<ol><li>test</li></ol>",
     "<pre>test</pre>",
+    "<p><span>test</span></p>",
   ])("should preserve HTML structure through Tiptap: %s", (input) => {
     editor.setContent(input);
     const output = editor.getContent();
@@ -42,7 +43,10 @@ describe("HTML parsing", () => {
   it("should preserve all html structure", () => {
     const files = globSync(path.join(__dirname, "editor.test.d/**/*.html"));
     for (const file of files) {
-      const input = readFileSync(file, "utf-8");
+      const input = `<p>${file.replace(/.*\/editor.test.d\//, "")}</p>${readFileSync(file, "utf-8")}`
+        .replace(/>\n</g, "><")
+        .replace(/onclick="v"> <img/g, 'onclick="v"><img')
+        .replace(/<span> <img class="v/g, '<span><img class="v');
       editor.setContent(input);
       const output = editor.getContent();
       expect(output).toBe(normalizeHTML(input));

@@ -81,7 +81,7 @@ function replaceTextContent(node: Node) {
   }
 
   // Handle text nodes
-  if (node.nodeType === Node.TEXT_NODE && node.parentNode) {
+  if (node.nodeType === Node.TEXT_NODE && node.parentNode && /\S/.test(node.textContent)) {
     const newTextNode = new Text("t");
     node.parentNode.replaceChild(newTextNode, node);
     return;

@@ -66,7 +66,7 @@ export function preprocessHTML(html: string): string {
 }
 
 export function normalizeHTML(html: string): string {
-  if (/<p[^>]*><\/p>/i.test(html)) {
+  if (/^<p[^>]*><\/p>$/i.test(html)) {
     return "";
   }
 
@@ -111,7 +111,7 @@ export function normalizeHTML(html: string): string {
     });
 
   const res = doc.body.innerHTML;
-  if (/<p[^>]*><\/p>/i.test(res)) {
+  if (/^<p[^>]*><\/p>$/i.test(res)) {
     return "";
   }
   return res;

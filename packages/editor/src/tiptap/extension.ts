@@ -33,6 +33,7 @@ import { TableRow } from "@tiptap/extension-table-row";
 // custom
 import { Indent } from "./extension/indent";
 import { Div } from "./extension/div";
+import { Span } from "./extension/span";
 import { BlockLink } from "./extension/block-link";
 import { InlineLink } from "./extension/inline-link";
 import { Paragraph } from "./extension/paragraph";
@@ -194,6 +195,10 @@ export const Extension = TiptapExtension.create({
 
     if (this.options.div !== false) {
       extensions.push(Div.configure(this.options?.div));
+    }
+
+    if (this.options.span !== false) {
+      extensions.push(Span.configure(this.options?.span));
     }
 
     if (this.options.inlineLink !== false) {
