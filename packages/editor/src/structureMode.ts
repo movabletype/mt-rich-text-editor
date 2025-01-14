@@ -83,7 +83,7 @@ export class StructureMode {
     let style = "";
 
     const domNodes = this.#editor.tiptap.view.dom.querySelectorAll<HTMLElement>(
-      "section, h1, h2, h3, h4, h5, h6"
+      "section, div, p, ul, ol, li, h1, h2, h3, h4, h5, h6"
     );
     for (const domNode of domNodes) {
       domNode.removeEventListener("click", this.#clickCallback);
