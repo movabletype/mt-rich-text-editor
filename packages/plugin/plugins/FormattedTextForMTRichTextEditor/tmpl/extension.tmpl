@@ -2,6 +2,7 @@
 [
 <mt:loop name="formatted_texts" glue=",">
 {
+  "id": "<mt:var name="id" />",
   "title": "<mt:var name="label" encode_json="1" />",
   "url": "<mt:var name="script_url">?__mode=mt_rich_text_editor_view_formatted_text_text&blog_id=<mt:var name="blog_id"/>&id=<mt:var name="id"/>",
   "description": "<mt:var name="description" encode_json="1" />",
