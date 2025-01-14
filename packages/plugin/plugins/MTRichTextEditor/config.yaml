@@ -111,6 +111,7 @@ editors:
       - outdent
       - block
       - fullScreen
+      - structure
 
 applications:
   cms:

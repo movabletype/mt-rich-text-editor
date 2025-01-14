@@ -5,6 +5,7 @@ import { Toolbar } from "./toolbar";
 import { Statusbar } from "./statusbar";
 import { PasteMenu } from "./pasteMenu";
 import { TableMenu } from "./tableMenu";
+import { StructureMode } from "./structureMode";
 import { preprocessHTML, normalizeHTML } from "./util/html";
 import { insertStylesheets } from "./util/dom";
 import prosemirrorCss from "prosemirror-view/style/prosemirror.css?raw";
@@ -13,6 +14,7 @@ import contentCss from "./content.css?inline";
 
 export interface EditorOptions {
   inline: boolean;
+  structure?: string;
   height?: number | string;
   stylesheets?: string[];
   editorStylesheets?: string[];
@@ -85,6 +87,7 @@ export class Editor {
   #statusbar: Statusbar;
   #pasteMenu: PasteMenu;
   #menus: any[] = [];
+  #structureMode: StructureMode | undefined;
 
   constructor(textarea: HTMLTextAreaElement, options: EditorOptions) {
     this.id = textarea.id;
@@ -211,6 +214,10 @@ export class Editor {
     );
 
     this.initResizeHandle(this[EditorEl]);
+
+    if (options.structure) {
+      this.setStructureMode(true);
+    }
   }
 
   public save(): void {
@@ -237,6 +244,19 @@ export class Editor {
     this.#containerEl.style.height = `${height}px`;
   }
 
+  public getStructureMode(): boolean {
+    return this.#structureMode !== undefined;
+  }
+
+  public setStructureMode(structureMode: boolean): void {
+    if (structureMode) {
+      this.#structureMode = new StructureMode(this);
+    } else {
+      this.#structureMode?.destroy();
+      this.#structureMode = undefined;
+    }
+  }
+
   public focus(): void {
     this.tiptap.commands.focus();
   }
@@ -246,6 +266,7 @@ export class Editor {
     this.#toolbar.destroy();
     this.#statusbar.destroy();
     this.#pasteMenu.destroy();
+    this.#structureMode?.destroy();
     this.#menus.forEach((menu) => menu.destroy());
     this.tiptap.destroy();
     this.#containerEl.remove();

@@ -20,7 +20,184 @@
   <body>
     <div id="editor-container">
       <textarea id="editor">
-        <!-- <p>Hello MTRichTextEditor</p> -->
+        <section>
+          <p>
+            Movable Type Premium および Movable Type Premium (Advanced Edition) 1.59
+            で発見された問題を解消した修正バージョンとして、Movable Type Premium 1.60 / Movable Type Premium
+            (Advanced Edition) 1.60 の提供を開始します。
+          </p>
+          <p>
+            あわせて、Movable Type 8 をベースにしたバージョンとして、Movable Type Premium 2.02 / Movable
+            Type Premium (Advanced Edition) 2.02 の提供を開始します。
+          </p>
+          <p>本リリースにはセキュリティに関する修正は含まれません。</p>
+        </section>
+        
+        <section>
+          <h4>ニュース目次</h4>
+          <ul>
+            <li>
+              <a href="#160"
+                ><strong
+                  >Movable Type Premium / Movable Type Premium (Advanced Edition)1.60 について</strong
+                ></a
+              >
+            </li>
+            <li>
+              <a href="#202"
+                ><strong
+                  >Movable Type Premium / Movable Type Premium (Advanced Edition) 2.02 について</strong
+                ></a
+              >
+            </li>
+            <li>
+              <a href="#license"><strong>それぞれの入手方法について</strong></a>
+            </li>
+          </ul>
+        </section>
+        
+        <section id="160">
+          <h2>Movable Type Premium / Movable Type Premium (Advanced Edition)1.60 について</h2>
+          <h3>修正した機能</h3>
+          <ul>
+            <li>[ Workflow ] ワークフローのコメントを255文字以上入力できないよう修正</li>
+            <li>[ Workflow ] ReplaceableVersion プラグインを併用すると一部不具合が発生する事象を修正</li>
+          </ul>
+          <p>リリースノートもご確認ください。</p>
+          <ul class="links">
+            <li>
+              <a href="https://movabletype.jp/release-notes/mtp/1.60.html"
+                >Movable Type Premium 1.60 / Movable Type Premium Advanced 1.60 リリースノート</a
+              >
+            </li>
+          </ul>
+        </section>
+        
+        <section id="202">
+          <h2>Movable Type Premium / Movable Type Premium (Advanced Edition) 2.02 について</h2>
+          <p>
+            2.02 は Movable Type 8 に対応したバージョンです。Movable Type Premium 1.60
+            の修正内容に加えて、機能追加、改善を行なっています。
+          </p>
+          <h3>新機能・改善した機能</h3>
+          <ul>
+            <li>[ SiteSync ] GUIでファイル / ディレクトリを選択して同期(手動・日時指定)をできるように</li>
+            <li>[ SiteSync ] プラグイン設定を他のサイト/ 子サイトへ読み込みができるように</li>
+            <li>[ SiteSync ] プラグイン設定でプロトコルがFTPの場合、ポート番号を指定できるように</li>
+            <li>[ SiteSync ] 同期時のメール通知を複数設定できるように</li>
+            <li>[ SiteSync ] 同期時のメール通知のメールテンプレートをカスタマイズできるように</li>
+            <li>[ SiteSync ] S3に同期する際にIAMロールを指定し同期できるように</li>
+            <li>[ SiteSync ] 同期を定期実行できるように</li>
+            <li>
+              [ PremiumOpenSearch（ソフトウェア版のみ）]
+              ソフトウェア版にのみ搭載しているPremiumSearchをベースに、Amazon OpenSearch Service
+              の利用を前提とした PremiumOpenSearch を新たに追加<br />
+              ※ 従来の PremiumSearch を引き続き利用することも可能<br />
+              PremiumOpenSearchでは、次の機能追加、改善を行なっています<br />
+              ■ 検索モードの完全一致／部分一致の切り替えが可能に<br />
+              ■ コマンドを打たずに Movable Type の管理画面よりクロールできるように<br />
+              ■ ロールの権限でクロールを開始できる権限の付与が可能に<br />
+              ■ サイト・子サイトのプラグイン設定画面で、設定値の継承が可能に<br />
+              ■
+              検索結果ページに必要なモジュールが、システムのテンプレートモジュールにインストールされるように
+            </li>
+          </ul>
+          <p>※ クリックすると、大きな全体画像が表示されます。</p>
+          <div class="col-group" style="margin-bottom: 0">
+            <div class="col col-3" style="margin-left: 6%">
+              <p>
+                <a href="https://www.sixapart.jp/movabletype/news/assets/MTP_PremiumOpenSearch.jpg"
+                  ><img
+                    alt="PremiumOpenSearchでは、コマンドを打たずにMTの管理画面よりクロールが可能"
+                    src="https://www.sixapart.jp/movabletype/news/assets/MTP_PremiumOpenSearch_thumb.jpg"
+                    width="230"
+                    class="mt-image-none"
+                    style="border: 1px solid #f2f2f2; margin-bottom: 5px" /></a
+                ><br /><span class="note" style="font-size: 80%"
+                  >PremiumOpenSearchでは、コマンドを打たずにMTの管理画面よりクロールが可能</span
+                >
+              </p>
+            </div>
+            <div class="col col-3" style="margin-left: 6%">
+              <p>
+                <a href="https://www.sixapart.jp/movabletype/news/assets/MTP_SyncTask1.jpg"
+                  ><img
+                    alt="GUIでファイル / ディレクトリを選択して同期"
+                    src="https://www.sixapart.jp/movabletype/news/assets/MTP_SyncTask1_thumb.jpg"
+                    width="230"
+                    class="mt-image-none"
+                    style="border: 1px solid #f2f2f2; margin-bottom: 5px" /></a
+                ><br /><span class="note" style="font-size: 80%"
+                  >SiteSync機能では、GUIでファイル / ディレクトリを選択して同期をできるように</span
+                >
+              </p>
+            </div>
+            <div class="col col-3" style="margin-left: 6%">
+              <p>
+                <a href="https://www.sixapart.jp/movabletype/news/assets/MTP_SyncTask2.jpg"
+                  ><img
+                    alt="定期同期タスクの作成"
+                    src="https://www.sixapart.jp/movabletype/news/assets/MTP_SyncTask2_thumb.jpg"
+                    width="250"
+                    class="mt-image-none"
+                    style="border: 1px solid #f2f2f2; margin-bottom: 5px" /></a
+                ><br /><span class="note" style="font-size: 80%"
+                  >また、SiteSync機能における同期の定期実行も可能に</span
+                >
+              </p>
+            </div>
+          </div>
+        </section>
+        
+        
+        <p>このほか、いくつかの修正を行なっています。詳細はリリースノートをご確認ください。</p>
+        <ul class="links"><li><a href="https://movabletype.jp/release-notes/mtp/2.02.html">Movable Type Premium 2.02 / Movable Type Premium Advanced 2.02 リリースノート</a></li>
+        </ul>
+        </section>
+        
+        <section id="license">
+        <h3>Movable Type Premium 1.60 /  2.02 の入手方法</h3>
+        
+        <p>ソフトウェア版のアップデートを行う際は、データベースのバックアップを必ず取得したのち、上書きアップデートではなく別ディレクトリへインストールする形でのアップデートを強くおすすめします。</p>
+        
+        <dl>
+        <dt>ライセンスをお持ちでない方、メンテナンス期限が過ぎている方</dt>
+        <dd>ライセンスご案内ページからご購入ください。
+        <ul class="links" style="margin-top:0.5em;">
+        <li><a href="https://www.sixapart.jp/movabletype/license/" target="_blank">Movable Type ライセンスのご案内</a></li>
+        </ul>
+        </dd>
+        
+        <dt>Movable Type Premium / Movable Type Premium (Advanced Edition) のライセンスをお持ちで、メンテナンス期限内の方</dt>
+        <dd>シックス・アパート ユーザーサイトからダウンロードいただけます。
+        <ul class="links" style="margin-top:0.5em;">
+        <li><a href="https://mtuser.sixapart.jp/" target="_blank">シックス・アパート ユーザーサイト</a></li>
+        </ul>
+        </dd>
+        
+        <dt>クラウド版で Movable Type Premium  をご利用の方</dt>
+        <dd>既にメンテナンスを実施し、自動アップデートを有効にされているすべてのお客様の環境で、Movable Type Premium 1.60 へのアップデートが完了しています。<br><span style="font-size:85%">※ 自動アップデートは初期設定では有効です。意図的に無効にされている場合を除き、アップデートが実施されています。<br><dd>
+        
+        <p>なお、クラウド版において、Movable Type Premium 1.x から Movable Type Premium 2.x への自動アップデートは行いません。すでに Movable Type Premium のプランをご利用中のお客様の環境については、詳細が決まり次第、OS変更・Movable Type 8 へのバージョンアップを含めた、Movable Type Premium 2.x への変更についてご案内します。</p>
+        <p>その他、Movable Type Premium についての詳細は、製品サイトをご覧ください。</p>
+        <ul class="links" style="margin-top:0.5em;">
+        <li><a href="https://www.sixapart.jp/movabletype/solutions/mtpremium.html" target="_blank">Movable Type Premium 製品サイト</a></li>
+        </ul>
+        </section>
+        
+        <section>
+        
+        <div style="background-color:#f2f2f2; padding:30px;">
+        <div style="text-align:center;  margin-bottom:1em; border-bottom:1px dotted #ccc;"><p style="font-weight:bold; font-size:150%; line-height:1em;">Movable Type Premium のオンラインセミナーも開催</p></div>
+        <p>2023年 12月21日（木）に、Movable Type 8 をベースにした Movable Type Premium について、開発元のスカイアーク社から講師を迎え、オンラインセミナーを開催します。お気軽にご参加ください。</p>
+        <p class="btngroup">
+        <a href="https://www.sixapart.jp/seminar/sa/2023/11/24-1254.html" target="_blank" class="btn btn-large">オンラインセミナーの詳細・お申し込みはこちら</a>
+        </p>
+        </div>
+        </div>
+        
+        </section>
+        
       </textarea>
 
 
@@ -126,6 +303,9 @@
               ["link", "unlink"],
             ],
           ];
+      }
+      if (searchParams.has("structure")) {
+        createOptions.structure = true;
       }
       const editor = await MTRichTextEditor.create(createOptions);
       editor.setHeight(600);

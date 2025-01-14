@@ -33,6 +33,7 @@ import fullScreenIcon from "../icon/fullScreen.svg?raw";
 import "./Link.svelte";
 import "./File.svelte";
 import "./Image.svelte";
+import "./Structure.svelte";
 
 import "../table/Button.svelte";
 import "../block/Select.svelte";

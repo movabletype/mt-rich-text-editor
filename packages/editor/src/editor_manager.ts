@@ -71,6 +71,7 @@ export class EditorManager {
             ["block"],
             ["fullScreen"],
           ],
+          [["structure"]],
         ],
       ],
       toolbarOptions: {},
