@@ -1,14 +1,7 @@
 <script lang="ts">
   import type { Editor } from "../editor";
+  import { debounce } from "../util/event";
   import { getPanelItem, EditorEventType, EditorEvent } from "./item/registry";
-
-  function debounce<T extends (...args: any[]) => void>(fn: T, delay: number) {
-    let timeoutId: ReturnType<typeof setTimeout>;
-    return function (...args: Parameters<T>) {
-      clearTimeout(timeoutId);
-      timeoutId = setTimeout(() => fn.apply(null, args), delay);
-    };
-  }
 
   const {
     editor,

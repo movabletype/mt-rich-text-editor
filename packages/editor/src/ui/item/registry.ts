@@ -63,7 +63,7 @@ export class PanelItemElement<
   onEditorUpdate() {}
 }
 
-type PanelNamespace = "toolbar" | "statusbar" | "paste-menu";
+type PanelNamespace = "toolbar" | "statusbar" | "paste-menu" | "quick-action";
 
 export const EditorEventType = {
   Init: "mt-rich-text-editor-panel-item-init",
@@ -393,6 +393,33 @@ export class AsText extends PasteMenuItemElement {
   }
 }
 
+const defineHeadingAction = (level: number) => {
+  return class extends PanelItemElement {
+    constructor() {
+      super();
+      this.attachShadow({ mode: "open" }).innerHTML = `見出し${level}`;
+    }
+
+    connectedCallback() {
+      this.addEventListener("click", () => {
+        this.tiptap
+          ?.chain()
+          .focus()
+          .selectParentNode()
+          // .deleteSelection()
+          .insertContent(`<h${level}></h${level}>`)
+          .run();
+      });
+    }
+  };
+};
+const ActionH1 = defineHeadingAction(1);
+const ActionH2 = defineHeadingAction(2);
+const ActionH3 = defineHeadingAction(3);
+const ActionH4 = defineHeadingAction(4);
+const ActionH5 = defineHeadingAction(5);
+const ActionH6 = defineHeadingAction(6);
+
 const systemItems: Record<PanelNamespace, Record<string, typeof HTMLElement>> = {
   toolbar: {
     bold: BoldButton,
@@ -421,6 +448,14 @@ const systemItems: Record<PanelNamespace, Record<string, typeof HTMLElement>> = 
   },
   "paste-menu": {
     text: AsText,
+  },
+  "quick-action": {
+    h1: ActionH1,
+    h2: ActionH2,
+    h3: ActionH3,
+    h4: ActionH4,
+    h5: ActionH5,
+    h6: ActionH6,
   },
 };
 

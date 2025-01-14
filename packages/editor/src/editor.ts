@@ -5,6 +5,7 @@ import { Toolbar } from "./toolbar";
 import { Statusbar } from "./statusbar";
 import { PasteMenu } from "./pasteMenu";
 import { TableMenu } from "./tableMenu";
+import { QuickAction } from "./quickAction";
 import { StructureMode } from "./structureMode";
 import { preprocessHTML, normalizeHTML } from "./util/html";
 import { insertStylesheets } from "./util/dom";
@@ -65,6 +66,8 @@ export interface EditorOptions {
   extensionOptions?: Record<string, any>;
   pasteMenu?: string[];
   pasteMenuOptions?: Record<string, any>;
+  quickAction?: string[];
+  quickActionOptions?: Record<string, any>;
   autoFocus?: boolean;
 }
 
@@ -207,9 +210,17 @@ export class Editor {
       inline,
     });
 
+    const quickActionMount = document.createElement("div");
+    shadow.appendChild(quickActionMount);
     this.#menus.push(
       new TableMenu({
         editor: this,
+      }),
+      new QuickAction({
+        target: quickActionMount,
+        editor: this,
+        quickAction: options.quickAction ?? [],
+        options: options.quickActionOptions ?? {},
       })
     );
 

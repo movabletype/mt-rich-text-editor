@@ -20,6 +20,7 @@
   <body>
     <div id="editor-container">
       <textarea id="editor">
+        <p></p>
         <section>
           <p>
             Movable Type Premium および Movable Type Premium (Advanced Edition) 1.59
@@ -297,12 +298,14 @@
       if (searchParams.has("inline")) {
         createOptions.inline = true;
         createOptions.toolbar = [
+          [
             [
               ["bold", "italic", "underline", "strike"],
               ["blockquote", "bulletList", "orderedList", "horizontalRule"],
               ["link", "unlink"],
             ],
-          ];
+          ]
+        ]
       }
       if (searchParams.has("structure")) {
         createOptions.structure = true;
