@@ -95,6 +95,9 @@ export class StructureMode {
           if (name === "data-mt-rich-text-editor-id") {
             return "";
           }
+          if (!["id", "class", "style"].includes(name)) {
+            return "";
+          }
           return `[${name}="${domNode.getAttribute(name)}"]`;
         })
         .join("")}`;
