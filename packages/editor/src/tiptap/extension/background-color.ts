@@ -1,17 +1,17 @@
-import '@tiptap/extension-text-style'
+import "@tiptap/extension-text-style";
 
-import { Extension } from '@tiptap/core'
+import { Extension } from "@tiptap/core";
 
 export type BackgroundColorOptions = {
   /**
    * The types where the color can be applied
    * @default ['textStyle']
    * @example ['heading', 'paragraph']
-  */
-  types: string[],
-}
+   */
+  types: string[];
+};
 
-declare module '@tiptap/core' {
+declare module "@tiptap/core" {
   interface Commands<ReturnType> {
     backgroundColor: {
       /**
@@ -19,14 +19,14 @@ declare module '@tiptap/core' {
        * @param color The color to set
        * @example editor.commands.setColor('red')
        */
-      setBackgroundColor: (color: string) => ReturnType,
+      setBackgroundColor: (color: string) => ReturnType;
 
       /**
        * Unset the text color
        * @example editor.commands.unsetColor()
        */
-      unsetBackgroundColor: () => ReturnType,
-    }
+      unsetBackgroundColor: () => ReturnType;
+    };
   }
 }
 
@@ -35,12 +35,12 @@ declare module '@tiptap/core' {
  * @see https://tiptap.dev/api/extensions/color
  */
 export const BackgroundColor = Extension.create<BackgroundColorOptions>({
-  name: 'backgroundColor',
+  name: "backgroundColor",
 
   addOptions() {
     return {
-      types: ['textStyle'],
-    }
+      types: ["textStyle"],
+    };
   },
 
   addGlobalAttributes() {
@@ -50,35 +50,37 @@ export const BackgroundColor = Extension.create<BackgroundColorOptions>({
         attributes: {
           backgroundColor: {
             default: null,
-            parseHTML: element => element.style.backgroundColor?.replace(/['"]+/g, ''),
-            renderHTML: attributes => {
+            parseHTML: (element) => element.style.backgroundColor?.replace(/['"]+/g, ""),
+            renderHTML: (attributes) => {
               if (!attributes.backgroundColor) {
-                return {}
+                return {};
               }
 
               return {
                 style: `background-color: ${attributes.backgroundColor}`,
-              }
+              };
             },
           },
         },
       },
-    ]
+    ];
   },
 
   addCommands() {
     return {
-      setBackgroundColor: backgroundColor => ({ chain }) => {
-        return chain()
-          .setMark('textStyle', { backgroundColor })
-          .run()
-      },
-      unsetBackgroundColor: () => ({ chain }) => {
-        return chain()
-          .setMark('textStyle', { backgroundColor: null })
-          .removeEmptyTextStyle()
-          .run()
-      },
-    }
+      setBackgroundColor:
+        (backgroundColor) =>
+        ({ chain }) => {
+          return chain().setMark("textStyle", { backgroundColor }).run();
+        },
+      unsetBackgroundColor:
+        () =>
+        ({ chain }) => {
+          return chain()
+            .setMark("textStyle", { backgroundColor: null })
+            .removeEmptyTextStyle()
+            .run();
+        },
+    };
   },
-})
+});

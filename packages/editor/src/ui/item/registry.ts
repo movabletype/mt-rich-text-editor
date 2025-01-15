@@ -97,13 +97,13 @@ declare global {
   }
 }
 
-function createButtonClass(
+const createButtonClass = (
   name: string,
   icon: string,
   method?: string | ((editor: Editor["tiptap"]) => void),
   stateClass?: string | false,
   checkState?: (editor: Editor) => boolean
-) {
+) => {
   method ??= `toggle${name.slice(0, 1).toUpperCase() + name.slice(1)}`;
   stateClass ??= `is-active`;
   checkState ??= (editor: Editor) => editor.tiptap.isActive(name);
@@ -130,9 +130,9 @@ function createButtonClass(
       }
     }
   };
-}
+};
 
-function createTextAlignButtonClass(name: string, icon: string) {
+const createTextAlignButtonClass = (name: string, icon: string) => {
   const targetAlign = name.substring(5).toLowerCase();
 
   return class extends HTMLElement {
@@ -145,7 +145,6 @@ function createTextAlignButtonClass(name: string, icon: string) {
       this.addEventListener(EditorEventType.Click, ({ tiptap }) => {
         const nodeType = tiptap.state.selection.$head.parent.type.name;
         const currentAlign = tiptap.getAttributes(nodeType).textAlign;
-
         if (currentAlign === targetAlign) {
           tiptap.chain().focus().unsetTextAlign().run();
         } else {
@@ -160,7 +159,7 @@ function createTextAlignButtonClass(name: string, icon: string) {
       });
     }
   };
-}
+};
 
 export const BoldButton = createButtonClass("bold", boldIcon);
 export const ItalicButton = createButtonClass("italic", italicIcon);

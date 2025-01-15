@@ -1,4 +1,4 @@
-export function preprocessHTML(html: string): string {
+export const preprocessHTML = (html: string): string => {
   const parser = new DOMParser();
   const doc = parser.parseFromString(`<body>${html}</body>`, "text/html");
   const body = doc.body;
@@ -63,9 +63,9 @@ export function preprocessHTML(html: string): string {
   // });
 
   return body.innerHTML;
-}
+};
 
-export function normalizeHTML(html: string): string {
+export const normalizeHTML = (html: string): string => {
   if (/^<p[^>]*><\/p>$/i.test(html)) {
     return "";
   }
@@ -115,4 +115,4 @@ export function normalizeHTML(html: string): string {
     return "";
   }
   return res;
-}
+};

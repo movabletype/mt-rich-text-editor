@@ -43,10 +43,11 @@ describe("HTML parsing", () => {
   it("should preserve all html structure", () => {
     const files = globSync(path.join(__dirname, "editor.test.d/**/*.html"));
     for (const file of files) {
-      const input = `<p>${file.replace(/.*\/editor.test.d\//, "")}</p>${readFileSync(file, "utf-8")}`
-        .replace(/>\n</g, "><")
-        .replace(/onclick="v"> <img/g, 'onclick="v"><img')
-        .replace(/<span> <img class="v/g, '<span><img class="v');
+      const input =
+        `<p>${file.replace(/.*\/editor.test.d\//, "")}</p>${readFileSync(file, "utf-8")}`
+          .replace(/>\n</g, "><")
+          .replace(/onclick="v"> <img/g, 'onclick="v"><img')
+          .replace(/<span> <img class="v/g, '<span><img class="v');
       editor.setContent(input);
       const output = editor.getContent();
       expect(output).toBe(normalizeHTML(input));
@@ -54,8 +55,8 @@ describe("HTML parsing", () => {
   });
 });
 
-function normalizeHTML(html: string): string {
+const normalizeHTML = (html: string): string => {
   const div = document.createElement("div");
   div.innerHTML = html;
   return div.innerHTML.trim();
-}
+};
