@@ -202,9 +202,9 @@
           return;
         }
 
+        isOpen = true;
         updatePosition(view);
       });
-      isOpen = true;
     })();
 
     return false;

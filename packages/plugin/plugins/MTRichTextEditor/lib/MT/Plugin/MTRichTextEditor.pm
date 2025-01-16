@@ -79,8 +79,8 @@ sub template_source_mt_rich_text_editor {
     my $settings = MT::Util::encode_html(MT::Util::to_json({ map { $_ => MT::Util::from_json(plugin()->get_config_value($_)) } @settings }));
     $$tmpl =~ s{(data-mt-rich-text-editor-settings)=""}{$1="$settings"}g;
 
-    my $has_markdown_plugin = MT->component('Markdown') ? 1 : 0;
-    $$tmpl =~ s{(data-mt-rich-text-editor-has-markdown-plugin)=""}{$1="$has_markdown_plugin"}g;
+    my $is_markdown_available = $app->registry('text_filters', 'markdown') ? 1 : 0;
+    $$tmpl =~ s{(data-mt-rich-text-editor-is-markdown-available)=""}{$1="$is_markdown_available"}g;
 }
 
 1;

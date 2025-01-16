@@ -43,9 +43,9 @@ try {
   console.error(e);
 }
 
-const hasMarkdownPlugin =
-  document.querySelector<HTMLScriptElement>("[data-mt-rich-text-editor-has-markdown-plugin]")
-    ?.dataset.mtRichTextEditorHasMarkdownPlugin === "1";
+const isMarkdownAvailable =
+  document.querySelector<HTMLScriptElement>("[data-mt-rich-text-editor-is-markdown-available]")
+    ?.dataset.mtRichTextEditorIsMarkdownAvailable === "1";
 
 const toolbarOptions: Record<string, any> = {
   image: {
@@ -172,7 +172,7 @@ class MTRichTextEditor extends MTEditor {
         },
       },
       markdown: {
-        toHtml: hasMarkdownPlugin
+        toHtml: isMarkdownAvailable
           ? async ({ content }: { content: string }) => {
               const formData = new FormData();
               formData.append("__mode", "convert_to_html");
