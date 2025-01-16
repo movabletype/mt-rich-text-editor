@@ -54,6 +54,13 @@ use vars qw( %Lexicon );
     'Embed webpage as inline link' => 'ウェブページの埋め込み (インラインリンク)',
     'Table Properties'             => 'テーブルのプロパティ',
     'Convert from Markdown'        => 'Markdownから変換',
+
+    'Heading 1' => '見出し 1',
+    'Heading 2' => '見出し 2',
+    'Heading 3' => '見出し 3',
+    'Heading 4' => '見出し 4',
+    'Heading 5' => '見出し 5',
+    'Heading 6' => '見出し 6',
 );
 
 1;

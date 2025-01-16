@@ -13,6 +13,8 @@ boilerplates.forEach((boilerplate) => {
       this.options = options;
     }
 
+    aliases = [boilerplate.text.match(/<(\w+)/)?.[1]];
+
     connectedCallback() {
       this.addEventListener("click", () => {
         console.log(this.editor, this.options);
@@ -40,16 +42,4 @@ MTRichTextEditor.on("create", (config) => {
     ...config.quickAction,
     ...boilerplates.map((boilerplate) => `boilerplate-${boilerplate.id}`)
   ]
-
-  config.quickActionOptions = {
-    ...config.quickActionOptions,
-    ...Object.fromEntries(boilerplates.map((boilerplate) => [
-      `boilerplate-${boilerplate.id}`,
-      {
-        aliases: [
-          boilerplate.text.match(/<(\w+)/)?.[1]
-        ]
-      }
-    ])),
-  };
 });

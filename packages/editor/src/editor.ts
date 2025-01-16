@@ -100,7 +100,7 @@ export class Editor {
     const height =
       typeof options.height === "number"
         ? `${options.height}px`
-        : (options.height ?? `${DEFAULT_HEIGHT}px`);
+        : (options.height ?? `${localStorage.getItem("mt-rich-text-editor-height") ?? DEFAULT_HEIGHT}px`);
 
     this.#containerEl = document.createElement("div");
     this.#containerEl.className = "mt-rich-text-editor";
@@ -253,6 +253,7 @@ export class Editor {
       return;
     }
     this.#containerEl.style.height = `${height}px`;
+    localStorage.setItem("mt-rich-text-editor-height", height.toString());
   }
 
   public getStructureMode(): boolean {

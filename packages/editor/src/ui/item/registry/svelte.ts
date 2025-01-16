@@ -22,6 +22,8 @@ export interface PasteItemProps<T = Record<string, unknown>> extends Props<T> {
   insertPasteContent: (content: string) => void;
 }
 
+export interface QuickActionItemProps<T = Record<string, unknown>> extends Props<T> {}
+
 export const extend = (
   customElementConstructor: typeof HTMLElement
 ): new () => HTMLElement & Props =>
@@ -92,3 +94,8 @@ export const extendPasteItem = (
       });
     };
   };
+
+export const extendQuickActionItem = (
+  customElementConstructor: typeof HTMLElement
+): new () => HTMLElement & QuickActionItemProps =>
+  class extends extend(customElementConstructor) implements QuickActionItemProps {};

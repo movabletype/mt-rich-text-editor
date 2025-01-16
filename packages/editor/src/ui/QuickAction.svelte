@@ -18,26 +18,20 @@
     .map((name) => ({
       name,
       elementName: getPanelItem("quick-action", name),
+      aliases: [name],
       options: options[name] ?? {},
     }))
     .filter((item) => item.elementName && item.options !== false) as {
     name: string;
     elementName: string;
-    options: {
-      aliases?: string[];
-    } & Record<string, any>;
+    aliases: string[];
+    options: Record<string, any>;
   }[];
 
   let keyword = $state<string>("");
   const availableButtons = $derived(
     keyword
-      ? buttons.filter((button) => {
-          if (button.options.aliases) {
-            return button.options.aliases.some((alias) => alias.startsWith(keyword));
-          } else {
-            return button.name.startsWith(keyword);
-          }
-        })
+      ? buttons.filter((button) => button.aliases.some((alias: string) => alias.startsWith(keyword)))
       : buttons
   );
 
@@ -103,6 +97,12 @@
     buttonRefs[key] = node;
     if ("onEditorInit" in node) {
       node.onEditorInit(editor, options[key]);
+    }
+    if ("aliases" in node) {
+      const button = buttons.find((button) => button.name === key);
+      if (button) {
+        button.aliases = node.aliases as string[];
+      }
     }
     return {
       destroy() {

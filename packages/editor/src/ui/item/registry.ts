@@ -30,6 +30,19 @@ import indentIcon from "../icon/indent.svg?raw";
 import outdentIcon from "../icon/outdent.svg?raw";
 import fullScreenIcon from "../icon/fullScreen.svg?raw";
 
+import heading2Icon from "../icon/heading2.svg?raw";
+import heading3Icon from "../icon/heading3.svg?raw";
+import heading4Icon from "../icon/heading4.svg?raw";
+import heading5Icon from "../icon/heading5.svg?raw";
+import heading6Icon from "../icon/heading6.svg?raw";
+
+import "../quick-action/Heading1.svelte";
+import "../quick-action/Heading2.svelte";
+import "../quick-action/Heading3.svelte";
+import "../quick-action/Heading4.svelte";
+import "../quick-action/Heading5.svelte";
+import "../quick-action/Heading6.svelte";
+
 import "./Link.svelte";
 import "./File.svelte";
 import "./Image.svelte";
@@ -415,11 +428,11 @@ export class AsText extends PasteMenuItemElement {
   }
 }
 
-const defineHeadingAction = (level: number) => {
+const defineHeadingAction = (level: number, icon: string) => {
   return class extends PanelItemElement {
     constructor() {
       super();
-      this.attachShadow({ mode: "open" }).innerHTML = `見出し${level}`;
+      this.attachShadow({ mode: "open" }).innerHTML = icon;
     }
 
     connectedCallback() {
@@ -435,12 +448,11 @@ const defineHeadingAction = (level: number) => {
     }
   };
 };
-const ActionH1 = defineHeadingAction(1);
-const ActionH2 = defineHeadingAction(2);
-const ActionH3 = defineHeadingAction(3);
-const ActionH4 = defineHeadingAction(4);
-const ActionH5 = defineHeadingAction(5);
-const ActionH6 = defineHeadingAction(6);
+const ActionH2 = defineHeadingAction(2, heading2Icon);
+const ActionH3 = defineHeadingAction(3, heading3Icon);
+const ActionH4 = defineHeadingAction(4, heading4Icon);
+const ActionH5 = defineHeadingAction(5, heading5Icon);
+const ActionH6 = defineHeadingAction(6, heading6Icon);
 
 const systemItems: Record<PanelNamespace, Record<string, typeof HTMLElement>> = {
   toolbar: {
@@ -471,14 +483,7 @@ const systemItems: Record<PanelNamespace, Record<string, typeof HTMLElement>> = 
   "paste-menu": {
     text: AsText,
   },
-  "quick-action": {
-    h1: ActionH1,
-    h2: ActionH2,
-    h3: ActionH3,
-    h4: ActionH4,
-    h5: ActionH5,
-    h6: ActionH6,
-  },
+  "quick-action": {},
 };
 
 export const getPanelItem = (namespace: PanelNamespace, name: string): string | undefined => {
