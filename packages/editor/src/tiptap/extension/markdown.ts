@@ -22,9 +22,8 @@ export const Markdown = Extension.create<MarkdownOptions>({
   name: "markdown",
   addCommands() {
     return {
-      isMarkdownConversionAvailable: () => (() => true) as any,
+      isMarkdownConversionAvailable: () => (() => !!this.options.toHtml) as any,
       markdownToHtml: (data: MarkdownData) => (() => this.options.toHtml(data)) as any,
     };
   },
 });
-
