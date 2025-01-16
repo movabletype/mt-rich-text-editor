@@ -50,12 +50,7 @@
       </div>
       <div class="form-group mb-3">
         <label for="structure-class-name" class="form-label">{t("クラス名")}</label>
-        <input
-          type="text"
-          id="structure-class-name"
-          class="form-control"
-          bind:value={className}
-        />
+        <input type="text" id="structure-class-name" class="form-control" bind:value={className} />
       </div>
       <div class="form-group mb-3">
         <label for="structure-style" class="form-label">{t("スタイル")}</label>

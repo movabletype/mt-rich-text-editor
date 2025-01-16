@@ -30,12 +30,6 @@ import indentIcon from "../icon/indent.svg?raw";
 import outdentIcon from "../icon/outdent.svg?raw";
 import fullScreenIcon from "../icon/fullScreen.svg?raw";
 
-import heading2Icon from "../icon/heading2.svg?raw";
-import heading3Icon from "../icon/heading3.svg?raw";
-import heading4Icon from "../icon/heading4.svg?raw";
-import heading5Icon from "../icon/heading5.svg?raw";
-import heading6Icon from "../icon/heading6.svg?raw";
-
 import "../quick-action/Heading1.svelte";
 import "../quick-action/Heading2.svelte";
 import "../quick-action/Heading3.svelte";
@@ -217,6 +211,8 @@ export const BulletListButton = createButtonClass("bulletList", bulletListIcon, 
   tiptap
     .chain()
     .focus()
+    // FIXME: fix type error
+    // @ts-ignore
     .lift(tiptap.state.selection.$from.before())
     .setNode(tiptap.isActive("bulletList") ? "paragraph" : "textBlock")
     .run();
@@ -226,6 +222,8 @@ export const OrderedListButton = createButtonClass("orderedList", orderedListIco
   tiptap
     .chain()
     .focus()
+    // FIXME: fix type error
+    // @ts-ignore
     .lift(tiptap.state.selection.$from.before())
     .setNode(tiptap.isActive("orderedList") ? "paragraph" : "textBlock")
     .run();
@@ -454,32 +452,6 @@ export class AsText extends PasteMenuItemElement {
     // this.insertPasteContent(preprocessHTML(`<p>${encoder.innerHTML}</p>`));
   }
 }
-
-const defineHeadingAction = (level: number, icon: string) => {
-  return class extends PanelItemElement {
-    constructor() {
-      super();
-      this.attachShadow({ mode: "open" }).innerHTML = icon;
-    }
-
-    connectedCallback() {
-      this.addEventListener("click", () => {
-        this.tiptap
-          ?.chain()
-          .focus()
-          .selectParentNode()
-          // .deleteSelection()
-          .insertContent(`<h${level}></h${level}>`)
-          .run();
-      });
-    }
-  };
-};
-const ActionH2 = defineHeadingAction(2, heading2Icon);
-const ActionH3 = defineHeadingAction(3, heading3Icon);
-const ActionH4 = defineHeadingAction(4, heading4Icon);
-const ActionH5 = defineHeadingAction(5, heading5Icon);
-const ActionH6 = defineHeadingAction(6, heading6Icon);
 
 const systemItems: Record<PanelNamespace, Record<string, typeof HTMLElement>> = {
   toolbar: {

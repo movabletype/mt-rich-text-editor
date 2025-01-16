@@ -107,6 +107,7 @@ export const extendQuickActionItem = (
     };
 
     connectedCallback() {
+      // @ts-ignore
       super.connectedCallback();
 
       this.addEventListener("click", () => {

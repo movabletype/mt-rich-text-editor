@@ -37,7 +37,7 @@ export const preprocessHTML = (html: string): string => {
       );
 
       const encoder = document.createElement("div");
-      nodesToProcess.forEach((node, index) => {
+      nodesToProcess.forEach((node) => {
         if (node.nodeType === Node.TEXT_NODE) {
           encoder.textContent = node.textContent;
           content += encoder.innerHTML;

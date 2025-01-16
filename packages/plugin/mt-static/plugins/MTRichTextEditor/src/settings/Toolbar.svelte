@@ -16,7 +16,7 @@
     textarea.getAttribute("data-available-items") ?? "[]"
   ).map((id: string) => ({
     id,
-    element: window.MTRichTextEditor.UI.getPanelItem("toolbar", id),
+    element: window.MTRichTextEditor.Component.getPanelItem("toolbar", id),
   }));
 
   function createSentinel(): ToolbarItem {
@@ -36,7 +36,7 @@
           (row || []).map((group) => [
             ...group.map((id) => ({
               id,
-              element: window.MTRichTextEditor.UI.getPanelItem("toolbar", id) ?? "div",
+              element: window.MTRichTextEditor.Component.getPanelItem("toolbar", id) ?? "div",
             })),
             createSentinel(),
           ])

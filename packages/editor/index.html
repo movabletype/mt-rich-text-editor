@@ -218,13 +218,16 @@
     <script type="module">
       import { marked } from "https://cdnjs.cloudflare.com/ajax/libs/marked/15.0.4/lib/marked.esm.min.js";
       import MTRichTextEditor from "/src/index.ts";
-      window.MTRichTextEditor = MTRichTextEditor;
+
+      // event listener demo
       MTRichTextEditor.on("create", (createOptions) => {
         console.log(`created with options:`, createOptions);
       });
       MTRichTextEditor.on("init", (editor) => {
         console.log("editor initialized: `editor.editor` is an instance of the Tiptap editor");
       });
+
+      // toolbar config demo
       const presetColors = [
         "#000000",
         "#ffffff",
@@ -316,6 +319,8 @@
       if (searchParams.has("structure")) {
         createOptions.structure = true;
       }
+
+      // create editor
       const editor = await MTRichTextEditor.create(createOptions);
     </script>
   </body>

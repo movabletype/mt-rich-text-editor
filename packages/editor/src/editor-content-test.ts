@@ -1,5 +1,6 @@
 import { JSDOM } from "jsdom";
 
+// @ts-ignore
 globalThis.window = new JSDOM().window;
 
 import("./editor").then(({ Editor }) => {

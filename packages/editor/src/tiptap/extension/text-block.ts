@@ -19,7 +19,7 @@ export const TextBlock = Node.create({
     ];
   },
 
-  renderHTML({ node }) {
+  renderHTML() {
     return ["mt-text-block", 0];
   },
 

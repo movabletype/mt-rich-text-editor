@@ -1,9 +1,8 @@
 import { version } from "../package.json";
 import i18n from "./i18n";
 import { Editor } from "./editor";
-import { UI } from "./editor_manager/ui";
+import { Component } from "./editor_manager/component";
 import type { EditorOptions } from "./editor";
-import { PanelItemElement, PasteMenuItemElement, QuickActionItemElement } from "./ui/item/registry";
 import * as Core from "@tiptap/core";
 
 type EventHandler = (...args: any[]) => void;
@@ -17,10 +16,7 @@ export interface EditorCreateOptions extends Omit<EditorOptions, "toolbar"> {
 export class EditorManager {
   public static version: string = version;
   public static Editors: Record<string, Editor> = {};
-  public static UI = UI;
-  public static PanelItemElement = PanelItemElement;
-  public static PasteMenuItemElement = PasteMenuItemElement;
-  public static QuickActionItemElement = QuickActionItemElement;
+  public static Component = Component;
   private static eventHandlers: Record<string, EventHandler[]> = {};
 
   public static on(name: "create", handler: (options: EditorCreateOptions) => void): void;
@@ -80,14 +76,7 @@ export class EditorManager {
       statusbarOptions: {},
       pasteMenu: ["embedInline", "embed", "html", "link", "text", "markdown"],
       pasteMenuOptions: {},
-      quickAction: [
-        "h1",
-        "h2",
-        "h3",
-        "h4",
-        "h5",
-        "h6",
-      ],
+      quickAction: ["h1", "h2", "h3", "h4", "h5", "h6"],
       quickActionOptions: {},
       extensions: [],
       inline: false,

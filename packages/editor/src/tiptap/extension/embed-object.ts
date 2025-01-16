@@ -115,7 +115,7 @@ export const EmbedObject = Node.create<EmbedObjectOptions>({
       
       return {
         dom: iframe,
-        update: (node) => {
+        update: () => {
           // // Update iframe content when node changes
           // const content = node.content.content[0]?.content?.toString() || ''
           
