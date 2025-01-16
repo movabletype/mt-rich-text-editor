@@ -77,6 +77,33 @@ export class PanelItemElement<
   onEditorUpdate() {}
 }
 
+export class QuickActionItemElement extends PanelItemElement {
+  constructor() {
+    super();
+    const shadow = this.attachShadow({ mode: "open" });
+    const style = document.createElement("style");
+    style.textContent = `
+      button {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        background: none;
+        border: none;
+        margin: 0;
+        padding: 0;
+        cursor: pointer;
+        font-size: inherit;
+      }
+      .icon {
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        padding: 4px;
+      }
+    `;
+    shadow.appendChild(style);
+  }
+}
+
 type PanelNamespace = "toolbar" | "statusbar" | "paste-menu" | "quick-action";
 
 export const EditorEventType = {

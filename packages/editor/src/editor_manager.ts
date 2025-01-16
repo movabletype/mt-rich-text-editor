@@ -3,7 +3,7 @@ import i18n from "./i18n";
 import { Editor } from "./editor";
 import { UI } from "./editor_manager/ui";
 import type { EditorOptions } from "./editor";
-import { PanelItemElement, PasteMenuItemElement } from "./ui/item/registry";
+import { PanelItemElement, PasteMenuItemElement, QuickActionItemElement } from "./ui/item/registry";
 import * as Core from "@tiptap/core";
 
 type EventHandler = (...args: any[]) => void;
@@ -20,6 +20,7 @@ export class EditorManager {
   public static UI = UI;
   public static PanelItemElement = PanelItemElement;
   public static PasteMenuItemElement = PasteMenuItemElement;
+  public static QuickActionItemElement = QuickActionItemElement;
   private static eventHandlers: Record<string, EventHandler[]> = {};
 
   public static on(name: "create", handler: (options: EditorCreateOptions) => void): void;

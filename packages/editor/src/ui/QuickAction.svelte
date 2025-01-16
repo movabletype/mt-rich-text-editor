@@ -34,6 +34,14 @@
       ? buttons.filter((button) => button.aliases.some((alias: string) => alias.startsWith(keyword)))
       : buttons
   );
+  const availableButtonsLength = $derived(availableButtons.length);
+
+  let selectedButtonIndex = $state<number>(0);
+  $effect(() => {
+    if (availableButtonsLength > 0) {
+      selectedButtonIndex = 0;
+    }
+  });
 
   let isShow = false;
   let quickActionRef: HTMLElement | null = null;
@@ -85,7 +93,19 @@
             ev.preventDefault();
             ev.stopPropagation();
             ev.stopImmediatePropagation();
-            buttonRefs[availableButtons[0].name].click();
+            buttonRefs[availableButtons[selectedButtonIndex].name].click();
+          }
+          else if (ev.key === "ArrowDown") {
+            ev.preventDefault();
+            ev.stopPropagation();
+            ev.stopImmediatePropagation();
+            selectedButtonIndex = (selectedButtonIndex + 1) % availableButtons.length;
+          }
+          else if (ev.key === "ArrowUp") {
+            ev.preventDefault();
+            ev.stopPropagation();
+            ev.stopImmediatePropagation();
+            selectedButtonIndex = (selectedButtonIndex - 1 + availableButtons.length) % availableButtons.length;
           }
         }
       },
@@ -113,8 +133,8 @@
 </script>
 
 <div class="mt-rich-text-editor-quick-action" bind:this={quickActionRef}>
-  {#each availableButtons as button (button.name)}
-    <div class="mt-rich-text-editor-quick-action-button">
+  {#each availableButtons as button, index (button.name)}
+    <div class="mt-rich-text-editor-quick-action-button {index === selectedButtonIndex ? 'selected' : ''}">
       <svelte:element this={button.elementName} use:bindRef={button.name} />
     </div>
   {/each}
@@ -133,7 +153,7 @@
   .mt-rich-text-editor-quick-action-button {
     padding: 10px;
     display: block;
-    &:first-child,
+    &.selected,
     &:hover {
       background: #f0f0f0;
     }
