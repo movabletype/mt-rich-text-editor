@@ -216,6 +216,7 @@
       </div>
     </div>
     <script type="module">
+      import { marked } from "https://cdnjs.cloudflare.com/ajax/libs/marked/15.0.4/lib/marked.esm.min.js";
       import MTRichTextEditor from "/src/index.ts";
       window.MTRichTextEditor = MTRichTextEditor;
       MTRichTextEditor.on("create", (createOptions) => {
@@ -291,6 +292,11 @@
               }
               const res = await fetch(`https://noembed.com/embed?${params.toString()}`);
               return await res.json();
+            },
+          },
+          markdown: {
+            toHtml: async ({ content }) => {
+              return { content: marked(content) };
             },
           },
         },

@@ -1,4 +1,5 @@
 import type { Editor } from "../../../editor";
+import { preprocessHTML } from "../../../util/html";
 
 export interface Props<T = Record<string, unknown>> {
   options: T;
@@ -17,7 +18,8 @@ export interface PasteItemProps<T = Record<string, unknown>> extends Props<T> {
         transaction: (cb: () => void) => void;
       }
     | undefined;
-  onApply: (callback: () => void) => void;
+  onApply: (callback: () => void | Promise<void>) => void;
+  insertPasteContent: (content: string) => void;
 }
 
 export const extend = (
@@ -79,5 +81,14 @@ export const extendPasteItem = (
 
     getContent = () => {
       return this.content;
+    };
+
+    insertPasteContent = (content: string) => {
+      this.content?.transaction(() => {
+        this.tiptap?.chain().undo().focus().run();
+        this.tiptap?.commands.insertContent(
+          typeof content === "string" ? preprocessHTML(content) : content
+        );
+      });
     };
   };

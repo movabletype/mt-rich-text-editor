@@ -167,6 +167,24 @@ class MTRichTextEditor extends MTEditor {
           return data;
         },
       },
+      markdown: {
+        toHtml: async ({ content }: { content: string }) => {
+          const formData = new FormData();
+          formData.append("__mode", "convert_to_html");
+          formData.append("text", content);
+          formData.append("format", "markdown");
+          const data = await (
+            await fetch(window.CMSScriptURI, {
+              method: "POST",
+              body: formData,
+            })
+          ).json();
+          if (data.error?.message) {
+            throw new Error(data.error.message);
+          }
+          return { content: data.result.text.replace(/\n/g, "") };
+        },
+      },
     },
   };
 

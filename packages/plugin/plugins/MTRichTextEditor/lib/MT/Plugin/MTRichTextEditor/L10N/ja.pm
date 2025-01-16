@@ -53,7 +53,7 @@ use vars qw( %Lexicon );
     'Embed webpage as card'        => 'ウェブページの埋め込み (カード)',
     'Embed webpage as inline link' => 'ウェブページの埋め込み (インラインリンク)',
     'Table Properties'             => 'テーブルのプロパティ',
-
+    'Convert from Markdown'        => 'Markdownから変換',
 );
 
 1;

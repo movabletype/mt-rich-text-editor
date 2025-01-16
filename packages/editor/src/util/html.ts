@@ -18,12 +18,6 @@ export const preprocessHTML = (html: string): string => {
     script.parentNode?.replaceChild(element, script);
   });
 
-  body.querySelectorAll("pre").forEach((pre) => {
-    if (pre.children.length === 1 && pre.children[0].nodeName === "CODE") {
-      pre.dataset.mtRichTextEditorBlock = "true";
-    }
-  });
-
   body.querySelectorAll("div, blockquote, main, article").forEach((div) => {
     const hasDirectTextNode = Array.from(div.childNodes).some(
       (node) =>

@@ -45,6 +45,7 @@ import "../paste/Html.svelte";
 import "../paste/Link.svelte";
 import "../paste/Embed.svelte";
 import "../paste/EmbedInline.svelte";
+import "../paste/Markdown.svelte";
 
 export class PanelItemElement<
   Options extends Record<string, any> = Record<string, any>,
@@ -408,7 +409,7 @@ export class AsText extends PasteMenuItemElement {
   onEditorPaste() {
     const encoder = document.createElement("div");
     encoder.textContent = this.content?.plainText ?? "";
-    this.insertPasteContent(encoder.innerHTML);
+    this.insertPasteContent(encoder.innerHTML.replace(/\n/g, "<br>"));
     // TBD: enclose with <p> tag
     // this.insertPasteContent(preprocessHTML(`<p>${encoder.innerHTML}</p>`));
   }

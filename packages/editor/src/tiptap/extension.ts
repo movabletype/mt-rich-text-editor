@@ -39,12 +39,12 @@ import { InlineLink } from "./extension/inline-link";
 import { Paragraph } from "./extension/paragraph";
 import { TextBlock } from "./extension/text-block";
 import { Pre } from "./extension/pre";
-import { PreBlock } from "./extension/pre-block";
 import { Code } from "./extension/code";
 import { ListItem } from "./extension/list-item";
 import { BackgroundColor } from "./extension/background-color";
 import { Script } from "./extension/script";
 import { EmbedObject } from "./extension/embed-object";
+import { Markdown } from "./extension/markdown";
 import { MovableType } from "./extension/movable-type";
 
 const defaultLinkOptions = {
@@ -191,20 +191,12 @@ export const Extension = TiptapExtension.create({
       extensions.push(Pre.configure(this.options?.pre));
     }
 
-    if (this.options.preBlock !== false) {
-      extensions.push(PreBlock.configure(this.options?.preBlock));
-    }
-
     if (this.options.code !== false) {
       extensions.push(Code.configure(this.options?.code));
     }
 
     if (this.options.listItem !== false) {
       extensions.push(ListItem.configure(this.options?.listItem));
-    }
-
-    if (this.options.preBlock !== false) {
-      extensions.push(PreBlock.configure(this.options?.preBlock));
     }
 
     if (this.options.div !== false) {
@@ -233,6 +225,10 @@ export const Extension = TiptapExtension.create({
 
     if (this.options.embedObject !== false) {
       extensions.push(EmbedObject.configure(this.options?.embedObject));
+    }
+
+    if (this.options.markdown !== false) {
+      extensions.push(Markdown.configure(this.options?.markdown));
     }
 
     if (this.options.movableType !== false) {

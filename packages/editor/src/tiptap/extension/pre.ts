@@ -17,7 +17,7 @@ export const Pre = Node.create<PreOptions>({
   name: 'pre',
   priority: 1000,
   group: 'block',
-  content: 'text*',
+  content: 'inline*|text*',
   defining: true,
 
   parseHTML() {

@@ -3,7 +3,8 @@ import { Node, mergeAttributes } from "@tiptap/core";
 export const Code = Node.create({
   name: "code",
   priority: 1000,
-  group: "block",
+  group: "inline",
+  inline: true,
   content: "text*",
   defining: true,
 
