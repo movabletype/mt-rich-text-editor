@@ -22,7 +22,7 @@ export const Pre = Node.create<PreOptions>({
 
   parseHTML() {
     return [
-      { tag: 'pre' },
+      { tag: 'pre:not([data-mt-rich-text-editor-block])' },
     ]
   },
 

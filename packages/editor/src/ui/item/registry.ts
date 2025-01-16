@@ -388,7 +388,9 @@ export abstract class PasteMenuItemElement<
   insertPasteContent(content: string) {
     this.content?.transaction(() => {
       this.tiptap?.chain().undo().focus().run();
-      this.tiptap?.commands.insertContent(content);
+      this.tiptap?.commands.insertContent(
+        typeof content === "string" ? preprocessHTML(content) : content
+      );
     });
   }
 
