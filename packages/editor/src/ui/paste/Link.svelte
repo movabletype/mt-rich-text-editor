@@ -25,7 +25,7 @@
   import { preprocessHTML } from "../../util/html";
   const { tiptap, getContent, onApply }: PasteItemProps<Options> = $props();
   let modalComponent: any = null;
-
+  
   const apply = (linkData: LinkData | undefined = undefined) => {
     const content = getContent();
     if (!content) {

@@ -73,7 +73,12 @@
   }
 
   let dropdownElement: HTMLElement;
+  let isInitialized = $state(false);
+  
   $effect(() => {
+    if (isInitialized) return;
+    isInitialized = true;
+    
     document.addEventListener("click", handleClickOutside);
     return () => {
       document.removeEventListener("click", handleClickOutside);

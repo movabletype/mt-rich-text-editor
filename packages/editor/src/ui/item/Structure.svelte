@@ -17,20 +17,20 @@
 </script>
 
 <script lang="ts">
-  import type { Props } from "../item/registry/svelte";
+  import { ToolbarItemElement } from "../item/element";
   import icon from "../icon/structure.svg?raw";
 
-  const { editor }: Props = $props();
-
-  const onClick = () => {
+  const element = $host<ToolbarItemElement>();
+  element.addEventListener("click", () => {
+    const editor = element.editor;
     if (!editor) {
       return;
     }
     editor.setStructureMode(!editor.getStructureMode());
-  };
+  });
 </script>
 
-<div onclick={onClick} class="icon" role="button" tabindex="0">
+<div class="icon" role="button" tabindex="0">
   {@html icon}
 </div>
 

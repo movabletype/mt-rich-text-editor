@@ -1,7 +1,7 @@
 <svelte:options
   customElement={{
     tag: "mt-rich-text-editor-paste-menu-item-markdown",
-    extend: extend,
+    extend,
   }}
 />
 

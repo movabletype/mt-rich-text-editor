@@ -18,8 +18,8 @@
   import { t } from "../../i18n";
   import HeadingCommon from "./HeadingCommon.svelte";
   import icon from "../icon/heading2.svg?raw";
-  const { tiptap, onAction }: QuickActionItemProps = $props();
-  onAction(() => {
+  const { tiptap }: QuickActionItemProps = $props();
+  $host().addEventListener("click", () => {
     tiptap
       ?.chain()
       .focus()

@@ -22,9 +22,7 @@ export interface PasteItemProps<T = Record<string, unknown>> extends Props<T> {
   insertPasteContent: (content: string) => void;
 }
 
-export interface QuickActionItemProps<T = Record<string, unknown>> extends Props<T> {
-  onAction: (callback: () => void | Promise<void>) => void;
-}
+export interface QuickActionItemProps<T = Record<string, unknown>> extends Props<T> {}
 
 export const extend = (
   customElementConstructor: typeof HTMLElement
@@ -100,18 +98,4 @@ export const extendPasteItem = (
 export const extendQuickActionItem = (
   customElementConstructor: typeof HTMLElement
 ): new () => HTMLElement & QuickActionItemProps =>
-  class extends extend(customElementConstructor) implements QuickActionItemProps {
-    #onActionCallback: () => void | Promise<void> = () => {};
-    onAction = (callback: () => void | Promise<void>) => {
-      this.#onActionCallback = callback;
-    };
-
-    connectedCallback() {
-      // @ts-ignore
-      super.connectedCallback();
-
-      this.addEventListener("click", () => {
-        this.#onActionCallback();
-      });
-    }
-  };
+  class extends extend(customElementConstructor) implements QuickActionItemProps {};
