@@ -1,12 +1,12 @@
 <svelte:options
   customElement={{
     tag: "mt-rich-text-editor-toolbar-item-block",
-    extend: extend,
+    extend: extendToolbarItem,
   }}
 />
 
 <script module lang="ts">
-  import { extend } from "../item/registry/svelte";
+  import { extendToolbarItem } from "../item/registry/svelte";
   export interface Options {
     readonly blocks?: { value: string; label: string }[];
   }
@@ -14,9 +14,10 @@
 
 <script lang="ts">
   import type { Level } from "@tiptap/extension-heading";
-  import type { Props } from "../item/registry/svelte";
+  import { ToolbarItemElement } from "../item/element";
 
-  const { options, tiptap, onUpdate }: Props<Options> = $props();
+  const element = $host<ToolbarItemElement<Options>>();
+  const { options, tiptap } = element;
   let isOpen = $state(false);
 
   const blocks: Options["blocks"] = options.blocks ?? [
@@ -31,7 +32,7 @@
   ];
   let selectedBlock = $state(blocks[0].value);
 
-  onUpdate(() => {
+  element.onEditorUpdate = () => {
     if (!tiptap) {
       return;
     }
@@ -47,7 +48,7 @@
         selectedBlock = blocks[0].value;
       }
     }
-  });
+  };
 
   function handleSelect(value: string) {
     if (value === "paragraph" || value === "pre") {

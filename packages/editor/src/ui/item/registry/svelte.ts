@@ -1,58 +1,46 @@
 import type { Editor } from "../../../editor";
-import { preprocessHTML } from "../../../util/html";
+import {
+  PanelItemElement,
+  ToolbarItemElement,
+  StatusbarItemElement,
+  PasteMenuItemElement,
+  QuickActionItemElement,
+} from "../element";
 
-export interface Props<T = Record<string, unknown>> {
-  options: T;
-  editor: Editor | undefined;
-  tiptap: Editor["tiptap"] | undefined;
-  onUpdate: (callback: (ev: { editor: Editor }) => void) => void;
-}
-
-export interface PasteItemProps<T = Record<string, unknown>> extends Props<T> {
-  getContent():
-    | {
-        plainText: string;
-        htmlDocument: Document;
-        targetDomNode: HTMLElement | null;
-        clipboardData: DataTransfer;
-        transaction: (cb: () => void) => void;
-      }
-    | undefined;
-  onApply: (callback: () => void | Promise<void>) => void;
-  insertPasteContent: (content: string) => void;
-}
-
-export interface QuickActionItemProps<T = Record<string, unknown>> extends Props<T> {}
-
-export const extend = (
-  customElementConstructor: typeof HTMLElement
-): new () => HTMLElement & Props =>
-  class extends customElementConstructor implements Props {
+const extend = (customElementConstructor: typeof HTMLElement): new () => PanelItemElement =>
+  class extends customElementConstructor implements PanelItemElement {
     editor: Editor | undefined;
-    #onUpdateCallback: (ev: { editor: Editor }) => void = () => {};
     options: Record<string, any> = {};
 
     get tiptap() {
       return this.editor?.tiptap;
     }
-    onUpdate = (callback: (ev: { editor: Editor }) => void) => {
-      this.#onUpdateCallback = callback;
-    };
+    get shadowRoot(): ShadowRoot {
+      return super.shadowRoot!;
+    }
 
     onEditorInit(editor: Editor, options: Record<string, any>) {
       this.editor = editor;
       this.options = options;
     }
-    onEditorUpdate(editor: Editor) {
-      this.#onUpdateCallback({ editor });
-    }
+    onEditorUpdate() {}
   };
 
-export const extendPasteItem = (
+export const extendToolbarItem = (
   customElementConstructor: typeof HTMLElement
-): new () => HTMLElement & PasteItemProps =>
-  class extends extend(customElementConstructor) implements PasteItemProps {
-    protected content:
+): new () => ToolbarItemElement =>
+  class extends extend(customElementConstructor) implements ToolbarItemElement {};
+
+export const extendStatusbarItem = (
+  customElementConstructor: typeof HTMLElement
+): new () => StatusbarItemElement =>
+  class extends extend(customElementConstructor) implements StatusbarItemElement {};
+
+export const extendPasteMenuItem = (
+  customElementConstructor: typeof HTMLElement
+): new () => PasteMenuItemElement =>
+  class extends extend(customElementConstructor) implements PasteMenuItemElement {
+    public content:
       | {
           plainText: string;
           htmlDocument: Document;
@@ -61,8 +49,6 @@ export const extendPasteItem = (
           transaction: (cb: () => void) => void;
         }
       | undefined = undefined;
-    #onApplyCallback: () => void = () => {};
-
     onEditorSetPasteContent(content: {
       plainText: string;
       htmlDocument: Document;
@@ -73,29 +59,18 @@ export const extendPasteItem = (
       this.content = content;
     }
 
-    onEditorPaste() {
-      this.#onApplyCallback();
+    isEditorItemAvailable() {
+      return true;
     }
 
-    onApply = (callback: () => void) => {
-      this.#onApplyCallback = callback;
-    };
+    insertPasteContent(content: string) {
+      return PasteMenuItemElement.prototype.insertPasteContent.bind(this)(content);
+    }
 
-    getContent = () => {
-      return this.content;
-    };
-
-    insertPasteContent = (content: string) => {
-      this.content?.transaction(() => {
-        this.tiptap?.chain().undo().focus().run();
-        this.tiptap?.commands.insertContent(
-          typeof content === "string" ? preprocessHTML(content) : content
-        );
-      });
-    };
+    onEditorPaste() {}
   };
 
 export const extendQuickActionItem = (
   customElementConstructor: typeof HTMLElement
-): new () => HTMLElement & QuickActionItemProps =>
-  class extends extend(customElementConstructor) implements QuickActionItemProps {};
+): new () => QuickActionItemElement =>
+  class extends extend(customElementConstructor) implements QuickActionItemElement {};

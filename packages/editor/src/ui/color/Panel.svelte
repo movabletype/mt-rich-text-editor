@@ -10,7 +10,10 @@
     <div
       class="color-item"
       style="background-color: {color}"
-      onclick={() => onSelect(color)}
+      onclick={(ev) => {
+        ev.stopPropagation();
+        onSelect(color);
+      }}
       role="button"
       aria-label={color}
     />

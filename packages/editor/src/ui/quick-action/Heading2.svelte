@@ -1,7 +1,7 @@
 <svelte:options
   customElement={{
     tag: "mt-rich-text-editor-quick-action-item-h2",
-    extend: extend,
+    extend,
   }}
 />
 
@@ -14,13 +14,13 @@
 </script>
 
 <script lang="ts">
-  import type { QuickActionItemProps } from "../item/registry/svelte";
   import { t } from "../../i18n";
   import HeadingCommon from "./HeadingCommon.svelte";
+  import type { QuickActionItemElement } from "../item/element";
   import icon from "../icon/heading2.svg?raw";
-  const { tiptap }: QuickActionItemProps = $props();
-  $host().addEventListener("click", () => {
-    tiptap
+  const element = $host<QuickActionItemElement>();
+  element.addEventListener("click", () => {
+    element.tiptap
       ?.chain()
       .focus()
       .selectParentNode()

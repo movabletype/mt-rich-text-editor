@@ -1,12 +1,12 @@
 <svelte:options
   customElement={{
     tag: "mt-rich-text-editor-toolbar-item-boilerplate",
-    extend: extend,
+    extend: extendToolbarItem,
   }}
 />
 
 <script module lang="ts">
-  import { extend } from "../item/registry/svelte";
+  import { extendToolbarItem } from "../item/registry/svelte";
   export interface Options {
     readonly boilerplates: {
       title: string;
@@ -17,20 +17,21 @@
 </script>
 
 <script lang="ts">
+  import { t } from "../../i18n";
   import { mount, unmount } from "svelte";
+  import ToolbarButton from "../ToolbarButton.svelte";
   import icon from "../icon/boilerplate.svg?raw";
   import Modal from "./Modal.svelte";
-  import type { Props } from "../item/registry/svelte";
+  import type { ToolbarItemElement } from "../item/element";
 
-  const { options, tiptap }: Props<Options> = $props();
-
-  function openModal() {
+  const element = $host<ToolbarItemElement<Options>>();
+  element.addEventListener("click", () => {
     const modal = mount(Modal, {
       target: document.body,
       props: {
-        boilerplates: options.boilerplates,
+        boilerplates: element.options.boilerplates,
         onSubmit: (text: string) => {
-          tiptap?.chain().focus().insertContent(text).run();
+          element.tiptap?.chain().focus().insertContent(text).run();
           unmount(modal);
         },
         onClose: () => {
@@ -38,16 +39,9 @@
         },
       },
     });
-  }
+  });
 </script>
 
-<div onclick={openModal} class="icon">
+<ToolbarButton title={t("Boilerplate")}>
   {@html icon}
-</div>
-
-<style>
-  .icon {
-    width: 24px;
-    height: 24px;
-  }
-</style>
+</ToolbarButton>

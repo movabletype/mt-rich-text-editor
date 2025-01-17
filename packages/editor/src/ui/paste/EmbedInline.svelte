@@ -1,16 +1,23 @@
 <svelte:options
   customElement={{
     tag: "mt-rich-text-editor-paste-menu-item-embedinline",
-    extend: extend,
+    extend,
   }}
 />
 
 <script module lang="ts">
-  import { extendPasteItem } from "../item/registry/svelte";
-  const extend = (customElementConstructor: typeof HTMLElement) =>
-    class extends extendPasteItem(customElementConstructor) {
+  import { t } from "../../i18n";
+  import { extendPasteMenuItem } from "../item/registry/svelte";
+  import { PasteMenuItemElement } from "../item/element";
+  type EmbedInlineElement = PasteMenuItemElement & {
+    inline: string | undefined;
+  };
+  const extend = (customElementConstructor: typeof HTMLElement): new () => EmbedInlineElement =>
+    class extends extendPasteMenuItem(customElementConstructor) {
+      public inline: string | undefined = undefined;
+
       async isEditorItemAvailable() {
-        const content = this.getContent()?.plainText || "";
+        const content = this.content?.plainText || "";
         if (!/^https?:\/\/[^\s]+(\s*)?$/.test(content)) {
           return false;
         }
@@ -20,59 +27,35 @@
             url: content,
             maxwidth: 0,
             maxheight: 0,
-          });
+          })
+          .catch(() => ({ html: "", inline: undefined }));
 
-        return !!res?.inline;
+        if (!res?.html) {
+          this.editor?.notify({
+            level: "error",
+            message: t("Failed to get embed object"),
+          });
+          return false;
+        }
+
+        this.inline = res?.inline;
+        return !!this.inline;
       }
     };
-
-  export interface Options {}
 </script>
 
 <script lang="ts">
-  import type { PasteItemProps } from "../item/registry/svelte";
-  const { editor, tiptap, getContent, onApply }: PasteItemProps<Options> = $props();
-
+  import PasteMenuButton from "../PasteMenuButton.svelte";
+  const element = $host<EmbedInlineElement>();
   const apply = () => {
-    const content = getContent();
-    if (!content) {
-      return;
-    }
-    if (!tiptap) {
+    if (!element.inline) {
       return;
     }
 
-    content.transaction(async () => {
-      const res = await tiptap.commands
-        .getEmbedObject({
-          url: content.plainText,
-          maxwidth: 0,
-          maxheight: 0,
-        })
-        .catch(() => ({ html: "", inline: undefined }));
-      if (!res?.html) {
-        editor?.notify({ level: "error", message: window.trans("Failed to get embed object") });
-        return;
-      }
-
-      tiptap.chain().undo().focus().run();
-      if (res.inline) {
-        tiptap.commands.insertContent(res.inline);
-      }
-    });
+    element.insertPasteContent(element.inline);
   };
-  onApply(apply)
+  element.onEditorPaste = apply;
+  element.addEventListener("click", apply);
 </script>
 
-<button onclick={apply}>インライン埋め込み</button>
-
-<style>
-  button {
-    background: none;
-    border: none;
-    margin: 0;
-    padding: 0;
-    cursor: pointer;
-    font-size: inherit;
-  }
-</style>
+<PasteMenuButton>{t("Embed inline")}</PasteMenuButton>

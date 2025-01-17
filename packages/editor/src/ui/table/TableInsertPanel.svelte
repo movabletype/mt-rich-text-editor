@@ -22,7 +22,8 @@
     hoveredCols = col + 1;
   }
 
-  function handleClick() {
+  function handleClick(ev: MouseEvent) {
+    ev.stopPropagation();
     if (hoveredRows && hoveredCols) {
       onInsert(hoveredRows, hoveredCols);
     }

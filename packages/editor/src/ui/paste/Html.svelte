@@ -1,50 +1,46 @@
 <svelte:options
   customElement={{
     tag: "mt-rich-text-editor-paste-menu-item-html",
-    extend: extend,
+    extend,
   }}
 />
 
 <script module lang="ts">
-  import { extendPasteItem } from "../item/registry/svelte";
+  import { extendPasteMenuItem } from "../item/registry/svelte";
   const extend = (customElementConstructor: typeof HTMLElement) =>
-    class extends extendPasteItem(customElementConstructor) {
+    class extends extendPasteMenuItem(customElementConstructor) {
       isEditorItemAvailable() {
-        return !!this.getContent()?.htmlDocument;
+        return !!this.content?.htmlDocument;
       }
     };
-
-  export interface Options {}
 </script>
 
 <script lang="ts">
+  import { t } from "../../i18n";
   import { mount, unmount } from "svelte";
-  import type { PasteItemProps } from "../item/registry/svelte";
   import { preprocessHTML } from "../../util/html";
   import HtmlModal from "./HtmlModal.svelte";
-  const { tiptap, getContent, onApply }: PasteItemProps<Options> = $props();
+  import PasteMenuButton from "../PasteMenuButton.svelte";
+  import type { PasteMenuItemElement } from "../item/element";
+
+  const element = $host<PasteMenuItemElement>();
+  element.addEventListener("click", toggleDetailPanel);
+
+  const { tiptap } = element;
+
   let modalComponent: any = null;
 
-  const apply = (htmlDocument: Document | null = null) => {
-    const content = getContent();
-    if (!content) {
-      return;
-    }
+  const apply = (htmlDocument: Document | null | undefined = null) => {
     if (!tiptap) {
       return;
     }
 
-    htmlDocument ??= content.htmlDocument;
-
-    content.transaction(() => {
-      const html = htmlDocument.body.innerHTML ?? "";
-      tiptap.chain().undo().focus().run();
-      tiptap.commands.insertContent(preprocessHTML(html));
-    });
+    htmlDocument ??= element.content?.htmlDocument;
+    element.insertPasteContent(preprocessHTML(htmlDocument?.body.innerHTML ?? ""));
 
     unmountModal();
   };
-  onApply(apply);
+  element.onEditorPaste = apply;
 
   function toggleDetailPanel(ev: MouseEvent) {
     if (!tiptap) {
@@ -56,7 +52,7 @@
       modalComponent = mount(HtmlModal, {
         target: document.body,
         props: {
-          htmlDocument: getContent()!.htmlDocument,
+          htmlDocument: element.content!.htmlDocument!,
           onSubmit: apply,
           onClose: () => {
             unmountModal();
@@ -78,15 +74,4 @@
   $effect(() => unmountModal);
 </script>
 
-<button onclick={toggleDetailPanel}>HTMLとして貼り付け...</button>
-
-<style>
-  button {
-    background: none;
-    border: none;
-    margin: 0;
-    padding: 0;
-    cursor: pointer;
-    font-size: inherit;
-  }
-</style>
+<PasteMenuButton>{`${t("Paste as HTML")}...`}</PasteMenuButton>

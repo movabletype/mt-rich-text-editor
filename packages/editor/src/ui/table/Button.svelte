@@ -1,25 +1,27 @@
 <svelte:options
   customElement={{
     tag: "mt-rich-text-editor-toolbar-item-table",
-    extend: extend,
+    extend: extendToolbarItem,
   }}
 />
 
 <script module lang="ts">
-  import { extend } from "../item/registry/svelte";
+  import { extendToolbarItem } from "../item/registry/svelte";
 </script>
 
 <script lang="ts">
+  import { t } from "../../i18n";
   import icon from "../icon/table.svg?raw";
+  import ToolbarButton from "../ToolbarButton.svelte";
   import TableInsertPanel from "./TableInsertPanel.svelte";
-  import type { Props } from "../item/registry/svelte";
+  import type { ToolbarItemElement } from "../item/element";
 
-  const { tiptap, onUpdate }: Props = $props();
+  const element = $host<ToolbarItemElement>();
+  const { tiptap } = element;
+
+  element.addEventListener("click", toggleTableInsertPanel);
+
   let isOpen = $state(false);
-
-  onUpdate(() => {
-    // TBD
-  });
 
   function handleInsert(rows: number, cols: number) {
     tiptap?.chain().focus().insertTable({ rows, cols, withHeaderRow: false }).run();
@@ -46,9 +48,9 @@
   });
 </script>
 
-<div onclick={toggleTableInsertPanel} class="icon">
+<ToolbarButton title={t("Table")}>
   {@html icon}
-</div>
+</ToolbarButton>
 
 <div class="table-insert-panel-container">
   {#if isOpen}

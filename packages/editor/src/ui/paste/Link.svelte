@@ -1,33 +1,36 @@
 <svelte:options
   customElement={{
     tag: "mt-rich-text-editor-paste-menu-item-link",
-    extend: extend,
+    extend,
   }}
 />
 
 <script module lang="ts">
-  import { extendPasteItem } from "../item/registry/svelte";
+  import { extendPasteMenuItem } from "../item/registry/svelte";
   const extend = (customElementConstructor: typeof HTMLElement) =>
-    class extends extendPasteItem(customElementConstructor) {
+    class extends extendPasteMenuItem(customElementConstructor) {
       isEditorItemAvailable() {
-        return /^https?:\/\/[^\s]+(\s*)?$/.test(this.getContent()?.plainText ?? "");
+        return /^https?:\/\/[^\s]+(\s*)?$/.test(this.content?.plainText ?? "");
       }
     };
-
-  export interface Options {}
 </script>
 
 <script lang="ts">
+  import { t } from "../../i18n";
   import { mount, unmount } from "svelte";
-  import type { PasteItemProps } from "../item/registry/svelte";
+  import { PasteMenuItemElement } from "../item/element";
+  import PasteMenuButton from "../PasteMenuButton.svelte";
   import type { LinkData } from "../link/Modal.svelte";
   import LinkModal from "../link/Modal.svelte";
-  import { preprocessHTML } from "../../util/html";
-  const { tiptap, getContent, onApply }: PasteItemProps<Options> = $props();
+
+  const element = $host<PasteMenuItemElement>();
+  element.addEventListener("click", toggleDetailPanel);
+
+  const { tiptap } = element;
   let modalComponent: any = null;
   
   const apply = (linkData: LinkData | undefined = undefined) => {
-    const content = getContent();
+    const content = element.content;
     if (!content) {
       return;
     }
@@ -36,21 +39,25 @@
     }
 
     linkData ??= {
-      url: getContent()!.plainText,
-      text: getContent()!.plainText,
+      url: content.plainText,
+      text: content.plainText,
       title: "",
       target: "_self",
     };
 
-    content.transaction(() => {
-      const html = `<a href="${linkData.url}" target="${linkData.target}">${linkData.text}</a>`;
-      tiptap.chain().undo().focus().run();
-      tiptap.commands.insertContent(preprocessHTML(html));
-    });
+    const anchor = document.createElement("a");
+    anchor.href = linkData.url;
+    if (linkData.title) {
+      anchor.title = linkData.title;
+    }
+    anchor.target = linkData.target;
+    anchor.textContent = linkData.text;
+
+    element.insertPasteContent(anchor.outerHTML);
 
     unmountModal();
   };
-  onApply(apply);
+  element.onEditorPaste = apply;
 
   function toggleDetailPanel(ev: MouseEvent) {
     if (!tiptap) {
@@ -63,8 +70,8 @@
         target: document.body,
         props: {
           linkData: {
-            url: getContent()!.plainText,
-            text: getContent()!.plainText,
+            url: element.content!.plainText,
+            text: element.content!.plainText,
             title: "",
             target: "_self",
           },
@@ -89,15 +96,4 @@
   $effect(() => unmountModal);
 </script>
 
-<button onclick={toggleDetailPanel}>リンクとして貼り付け...</button>
-
-<style>
-  button {
-    background: none;
-    border: none;
-    margin: 0;
-    padding: 0;
-    cursor: pointer;
-    font-size: inherit;
-  }
-</style>
+<PasteMenuButton>{t("Paste as link")}</PasteMenuButton>

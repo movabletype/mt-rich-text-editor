@@ -2,7 +2,7 @@
   import type { Editor } from "../editor";
   import type { EditorView } from "@tiptap/pm/view";
   import { getPanelItem } from "./item/registry";
-  import type { PasteMenuItemElement } from "./item/element";
+  import type { PasteMenuItemElement, PasteMenuItemPriorityValue } from "./item/element";
   import clipboardIcon from "./icon/clipboard.svg?raw";
 
   function getText(clipboardData: DataTransfer): string | undefined {
@@ -151,7 +151,10 @@
       top = 0;
       left = 0;
 
-      const availablePromiseMap: Record<string, Promise<boolean | number>> = {};
+      const availablePromiseMap: Record<
+        string,
+        boolean | PasteMenuItemPriorityValue | Promise<boolean | PasteMenuItemPriorityValue>
+      > = {};
       buttons.forEach(({ name }) => {
         const button = buttonRefs[name];
         if ("onEditorSetPasteContent" in button) {

@@ -2,12 +2,11 @@ import type { Editor as TiptapEditor } from "@tiptap/core";
 import type { Editor } from "../../editor";
 import { preprocessHTML } from "../../util/html";
 
-class PanelItemElement<
+export class PanelItemElement<
   Options extends Record<string, any> = Record<string, any>,
 > extends HTMLElement {
-  #shadowRoot: ShadowRoot;
   get shadowRoot(): ShadowRoot {
-    return this.#shadowRoot;
+    return super.shadowRoot!;
   }
 
   editor: Editor | undefined;
@@ -18,7 +17,7 @@ class PanelItemElement<
 
   constructor() {
     super();
-    this.#shadowRoot = this.attachShadow({ mode: "open" });
+    this.attachShadow({ mode: "open" });
   }
 
   onEditorInit(editor: Editor, options: Options) {
@@ -61,23 +60,35 @@ export class StatusbarItemElement<
   Options extends Record<string, any> = Record<string, any>,
 > extends PanelItemElement<Options> {}
 
+export const PasteMenuItemPriority = {
+  Default: 1,
+  High: 2,
+} as const;
+export type PasteMenuItemPriorityValue =
+  (typeof PasteMenuItemPriority)[keyof typeof PasteMenuItemPriority];
+
 /**
  * PasteMenuItemElement
  */
 export abstract class PasteMenuItemElement<
   Options extends Record<string, any> = Record<string, any>,
 > extends PanelItemElement<Options> {
-  protected content:
+  static Priority = PasteMenuItemPriority;
+  public content?:
     | {
         plainText: string;
         htmlDocument: Document | null;
+        targetDomNode: HTMLElement | null;
         clipboardData: DataTransfer;
         transaction: (cb: () => void | Promise<void>) => void;
       }
     | undefined = undefined;
 
-  async isEditorItemAvailable(): Promise<boolean | number> {
-    return Promise.resolve(true);
+  isEditorItemAvailable():
+    | boolean
+    | PasteMenuItemPriorityValue
+    | Promise<boolean | PasteMenuItemPriorityValue> {
+    return Promise.resolve(PasteMenuItemPriority.Default);
   }
 
   onEditorSetPasteContent(content: {

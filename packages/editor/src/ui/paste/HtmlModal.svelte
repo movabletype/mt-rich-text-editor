@@ -73,7 +73,7 @@
 
 <Modal on:close={onClose} bind:this={self}>
   <ModalContent bind:close>
-    <svelte:fragment slot="title">{t("Paste As HTML")}</svelte:fragment>
+    <svelte:fragment slot="title">{t("Paste as HTML")}</svelte:fragment>
     <svelte:fragment slot="body">
       <div class="html-modal-modal-content">
         {#if dataAttributes.length > 0}

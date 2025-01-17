@@ -6,14 +6,13 @@
 />
 
 <script module lang="ts">
-  import { t } from "../../i18n";
-  import { extendPasteItem } from "../item/registry/svelte";
+  import { extendPasteMenuItem } from "../item/registry/svelte";
+  import { PasteMenuItemElement } from "../item/element";
   const extend = (customElementConstructor: typeof HTMLElement) =>
-    class extends extendPasteItem(customElementConstructor) {
+    class extends extendPasteMenuItem(customElementConstructor) {
       isEditorItemAvailable() {
-        return (
-          this.tiptap?.commands.isMarkdownConversionAvailable() &&
-          (this.getContent()?.plainText ?? "")
+        return this.tiptap?.commands.isMarkdownConversionAvailable() &&
+          (this.content?.plainText ?? "")
             .split("\n")
             .some(
               (line) =>
@@ -21,9 +20,11 @@
                 line.startsWith("```") ||
                 /^=+$/.test(line) ||
                 /^-+$/.test(line)
-            ) &&
-          (this.getContent()?.htmlDocument ? 1 : 2)
-        );
+            )
+          ? this.content?.htmlDocument
+            ? PasteMenuItemElement.Priority.Default
+            : PasteMenuItemElement.Priority.High
+          : false;
       }
     };
 
@@ -31,29 +32,21 @@
 </script>
 
 <script lang="ts">
-  import type { PasteItemProps } from "../item/registry/svelte";
-  const { tiptap, getContent, onApply, insertPasteContent }: PasteItemProps<Options> = $props();
+  import { t } from "../../i18n";
+  import PasteMenuButton from "../PasteMenuButton.svelte";
+  const element = $host<PasteMenuItemElement>();
 
-  onApply(async () => {
-    insertPasteContent(
+  element.onEditorPaste = async () => {
+    element.insertPasteContent(
       (
-        await tiptap?.commands.markdownToHtml({
-          content: getContent()?.plainText ?? "",
+        await element.tiptap?.commands.markdownToHtml({
+          content: element.content?.plainText ?? "",
         })
       )?.content ?? ""
     );
-  });
+  };
 </script>
 
-<button>{t("Convert from Markdown")}</button>
-
-<style>
-  button {
-    background: none;
-    border: none;
-    margin: 0;
-    padding: 0;
-    cursor: pointer;
-    font-size: inherit;
-  }
-</style>
+<PasteMenuButton>
+  {t("Convert from Markdown")}
+</PasteMenuButton>

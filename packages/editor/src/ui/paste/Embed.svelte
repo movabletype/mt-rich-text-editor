@@ -1,40 +1,44 @@
 <svelte:options
   customElement={{
     tag: "mt-rich-text-editor-paste-menu-item-embed",
-    extend: extend,
+    extend,
   }}
 />
 
 <script module lang="ts">
-  import { extendPasteItem } from "../item/registry/svelte";
+  import { extendPasteMenuItem } from "../item/registry/svelte";
+  import { PasteMenuItemElement } from "../item/element";
   const extend = (customElementConstructor: typeof HTMLElement) =>
-    class extends extendPasteItem(customElementConstructor) {
+    class extends extendPasteMenuItem(customElementConstructor) {
       async isEditorItemAvailable() {
-        if (!/^https?:\/\/[^\s]+(\s*)?$/.test(this.getContent()?.plainText ?? "")) {
+        if (!/^https?:\/\/[^\s]+(\s*)?$/.test(this.content?.plainText ?? "")) {
           return false;
         }
 
-        const targetDomNode = this.getContent()?.targetDomNode;
+        const targetDomNode = this.content?.targetDomNode;
         if (targetDomNode?.tagName === "P" && targetDomNode.childNodes.length === 0) {
-          return 2;
+          return PasteMenuItemElement.Priority.High;
         }
-        return 1;
+        return PasteMenuItemElement.Priority.Default;
       }
     };
-
-  export interface Options {}
 </script>
 
 <script lang="ts">
+  import { t } from "../../i18n";
   import { mount, unmount } from "svelte";
-  import type { PasteItemProps } from "../item/registry/svelte";
+  import PasteMenuButton from "../PasteMenuButton.svelte";
   import type { EmbedData } from "../embed/Modal.svelte";
   import EmbedModal from "../embed/Modal.svelte";
-  const { editor, tiptap, getContent, onApply }: PasteItemProps<Options> = $props();
+
+  const element = $host<PasteMenuItemElement>();
+  element.addEventListener("click", toggleDetailPanel);
+
+  const { editor, tiptap } = element;
   let modalComponent: any = null;
 
-  const apply = (embedData: EmbedData | undefined = undefined) => {
-    const content = getContent();
+  const apply = async (embedData: EmbedData | undefined = undefined) => {
+    const content = element.content;
     if (!content) {
       return;
     }
@@ -43,27 +47,23 @@
     }
 
     embedData ??= {
-      url: getContent()!.plainText,
+      url: content.plainText,
       maxwidth: 0,
       maxheight: 0,
     };
 
-    content.transaction(async () => {
-      const res = await tiptap.commands
-        .getEmbedObject(embedData)
-        .catch(() => ({ html: "", inline: undefined }));
-      if (!res?.html) {
-        editor?.notify({ level: "error", message: window.trans("Failed to get embed object") });
-        return;
-      }
+    const res = await tiptap.commands
+      .getEmbedObject(embedData)
+      .catch(() => ({ html: "", inline: undefined }));
+    if (!res?.html) {
+      editor?.notify({ level: "error", message: t("Failed to get embed object") });
+      return;
+    }
 
-      tiptap.chain().undo().focus().run();
-      tiptap.commands.insertEmbedObject(res.html);
-    });
-
+    element.insertPasteContent(res.html);
     unmountModal();
   };
-  onApply(apply);
+  element.onEditorPaste = apply;
 
   function toggleDetailPanel(ev: MouseEvent) {
     if (!tiptap) {
@@ -76,7 +76,7 @@
         target: document.body,
         props: {
           embedData: {
-            url: getContent()!.plainText,
+            url: element.content!.plainText,
           },
           onSubmit: apply,
           onClose: () => {
@@ -99,15 +99,4 @@
   $effect(() => unmountModal);
 </script>
 
-<button onclick={toggleDetailPanel}>埋め込みオブジェクト...</button>
-
-<style>
-  button {
-    background: none;
-    border: none;
-    margin: 0;
-    padding: 0;
-    cursor: pointer;
-    font-size: inherit;
-  }
-</style>
+<PasteMenuButton>{t("Embed object")}</PasteMenuButton>

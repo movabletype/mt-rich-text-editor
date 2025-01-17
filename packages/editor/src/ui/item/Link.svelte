@@ -1,31 +1,33 @@
 <svelte:options
   customElement={{
     tag: "mt-rich-text-editor-toolbar-item-link",
-    extend: extendItem,
+    extend,
   }}
 />
 
 <script module lang="ts">
   import type { LinkData } from "../link/Modal.svelte";
-  import type { Editor } from "../../editor";
-  import { extend } from "../item/registry/svelte";
-  const extendItem = (customElementConstructor: typeof HTMLElement) =>
-    class extends extend(customElementConstructor) {
-      onEditorUpdate(editor: Editor) {
-        this.classList.toggle("is-active", editor?.tiptap.isActive("link"));
+  import { extendToolbarItem } from "../item/registry/svelte";
+  const extend = (customElementConstructor: typeof HTMLElement) =>
+    class extends extendToolbarItem(customElementConstructor) {
+      onEditorUpdate() {
+        this.classList.toggle("is-active", this.tiptap?.isActive("link"));
       }
     };
   export interface Options {}
 </script>
 
 <script lang="ts">
+  import { t } from "../../i18n";
+  import { toKeyboardShortcutLabel } from "../../util/keyboardShortcut";
   import { mount, unmount } from "svelte";
-  import type { Props } from "../item/registry/svelte";
+  import ToolbarButton from "../ToolbarButton.svelte";
   import { LinkMenu } from "../../linkMenu";
   import icon from "../icon/link.svg?raw";
   import LinkModal from "../link/Modal.svelte";
-
-  const { editor, tiptap }: Props<Options> = $props();
+  import type { ToolbarItemElement } from "../item/element";
+  const element = $host<ToolbarItemElement<Options>>();
+  const { editor, tiptap } = element;
 
   const onClick = () => {
     if (!tiptap) {
@@ -95,10 +97,13 @@
     });
   };
 
+  element.addEventListener("click", onClick);
+
   let menu: LinkMenu | undefined;
   $effect(() => {
     if (editor) {
       menu = new LinkMenu({ editor, edit: onClick });
+      editor.tiptap?.commands.setInlineLinkShortcutHandler(onClick);
     }
     return () => {
       menu?.destroy();
@@ -106,13 +111,6 @@
   });
 </script>
 
-<div onclick={onClick} class="icon" role="button" tabindex="0">
+<ToolbarButton title={`${t("Link")} (${toKeyboardShortcutLabel("cmd+K")})`}>
   {@html icon}
-</div>
-
-<style>
-  .icon {
-    width: 24px;
-    height: 24px;
-  }
-</style>
+</ToolbarButton>

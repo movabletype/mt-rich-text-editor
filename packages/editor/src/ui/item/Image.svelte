@@ -1,13 +1,13 @@
 <svelte:options
   customElement={{
     tag: "mt-rich-text-editor-toolbar-item-image",
-    extend: extend,
+    extend: extendToolbarItem,
   }}
 />
 
 <script module lang="ts">
   import type { Editor } from "../../editor";
-  import { extend } from "../item/registry/svelte";
+  import { extendToolbarItem } from "../item/registry/svelte";
   export interface Options {
     readonly select?: (options: { editor: Editor }) => void;
     readonly edit?: (options: { editor: Editor; element: HTMLElement }) => void;
@@ -15,11 +15,17 @@
 </script>
 
 <script lang="ts">
+  import { t } from "../../i18n";
   import icon from "../icon/image.svg?raw";
-  import type { Props } from "../item/registry/svelte";
   import { ImageMenu } from "../../imageMenu";
+  import ToolbarButton from "../ToolbarButton.svelte";
+  import type { ToolbarItemElement } from "../item/element";
 
-  const { editor, options }: Props<Options> = $props();
+  const element = $host<ToolbarItemElement<Options>>();
+  const { editor, options } = element;
+  element.addEventListener("click", () => {
+    element.options.select?.({ editor: element.editor! });
+  });
 
   let menu: ImageMenu | undefined;
   $effect(() => {
@@ -32,13 +38,6 @@
   });
 </script>
 
-<div onclick={() => options.select?.({ editor: editor! })} class="icon" role="button" tabindex="0">
+<ToolbarButton title={t("Image")}>
   {@html icon}
-</div>
-
-<style>
-  .icon {
-    width: 24px;
-    height: 24px;
-  }
-</style>
+</ToolbarButton>

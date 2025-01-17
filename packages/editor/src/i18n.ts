@@ -16,6 +16,6 @@ i18next.init({
 });
 
 export default i18n;
-export const t = (args: string | string[], params?: Record<string, unknown>): string => {
-  return i18n.t(args, params);
-};
+export const t: typeof i18n.t = ((...args: any[]) => {
+  return i18n.t(...args as any);
+}) as any;

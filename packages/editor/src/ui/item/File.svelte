@@ -1,32 +1,30 @@
 <svelte:options
   customElement={{
     tag: "mt-rich-text-editor-toolbar-item-file",
-    extend: extend,
+    extend: extendToolbarItem,
   }}
 />
 
 <script module lang="ts">
   import type { Editor } from "../../editor";
-  import { extend } from "../item/registry/svelte";
+  import { extendToolbarItem } from "../item/registry/svelte";
   export interface Options {
     readonly select?: (options: { editor: Editor }) => void;
   }
 </script>
 
 <script lang="ts">
+  import { t } from "../../i18n";
   import icon from "../icon/file.svg?raw";
-  import type { Props } from "../item/registry/svelte";
+  import ToolbarButton from "../ToolbarButton.svelte";
+  import { ToolbarItemElement } from "../item/element";
 
-  const { editor, options }: Props<Options> = $props();
+  const element = $host<ToolbarItemElement<Options>>();
+  element.addEventListener("click", () => {
+    element.options.select?.({ editor: element.editor! });
+  });
 </script>
 
-<div onclick={() => options.select?.({ editor: editor! })} class="icon" role="button" tabindex="0">
+<ToolbarButton title={t("File")}>
   {@html icon}
-</div>
-
-<style>
-  .icon {
-    width: 24px;
-    height: 24px;
-  }
-</style>
+</ToolbarButton>

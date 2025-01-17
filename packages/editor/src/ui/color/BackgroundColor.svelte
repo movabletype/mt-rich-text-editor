@@ -1,23 +1,28 @@
 <svelte:options
   customElement={{
     tag: "mt-rich-text-editor-toolbar-item-backgroundcolor",
-    extend: extend,
+    extend: extendToolbarItem,
   }}
 />
 
 <script module lang="ts">
-  import { extend } from "../item/registry/svelte";
+  import { extendToolbarItem } from "../item/registry/svelte";
   export interface Options {
     readonly presetColors?: string[];
   }
 </script>
 
 <script lang="ts">
+  import { t } from "../../i18n";
   import icon from "../icon/backgroundColor.svg?raw";
+  import ToolbarButton from "../ToolbarButton.svelte";
   import Panel from "./Panel.svelte";
-  import type { Props } from "../item/registry/svelte";
+  import type { ToolbarItemElement } from "../item/element";
 
-  const { options, tiptap, onUpdate }: Props<Options> = $props();
+  const element = $host<ToolbarItemElement<Options>>();
+  element.addEventListener("click", toggleColorPanel);
+
+  const { options, tiptap } = element;
   let isOpen = $state(false);
 
   const colors = options.presetColors ?? [
@@ -44,10 +49,9 @@
   ];
 
   let selectedColor = $state("#000000");
-
-  onUpdate(() => {
+  element.onEditorUpdate = () => {
     selectedColor = tiptap?.getAttributes("textStyle").backgroundColor ?? "#000000";
-  });
+  };
 
   function handleSelect(value: string) {
     tiptap?.chain().focus().setBackgroundColor(value).run();
@@ -74,9 +78,9 @@
   });
 </script>
 
-<div onclick={toggleColorPanel} class="icon">
+<ToolbarButton title={t("Background Color")} disableTooltip={isOpen}>
   {@html icon.replace(/fill="currentColor"/g, `fill="${selectedColor}"`)}
-</div>
+</ToolbarButton>
 
 <div class="color-panel-container">
   {#if isOpen}
@@ -85,10 +89,6 @@
 </div>
 
 <style>
-  .icon {
-    width: 24px;
-    height: 24px;
-  }
   .color-panel-container {
     position: relative;
   }
