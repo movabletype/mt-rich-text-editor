@@ -1,18 +1,25 @@
 import { mount, unmount } from "svelte";
 import Tooltip from "./Tooltip.svelte";
 
-const DEFAULT_SHOW_DELAY = 500;
-const ACTIVE_SHOW_DELAY = 10;
-const RESET_DELAY = 1000;
+const DEFAULT_SHOW_DELAY = 1000; // time before tooltip appears in undisplayed state (ms)
+const ACTIVE_SHOW_DELAY = 10; // time before tooltip appears once displayed (ms)
+const RESET_DELAY = 1000; // time until display state is reset after mouse release (ms)
 
 let showCount = 0;
 let showDelay = DEFAULT_SHOW_DELAY;
 let resetTimerId: ReturnType<typeof setTimeout> | undefined;
 
-export const tooltip = (node: HTMLElement, title: string) => {
+export const tooltip = (node: HTMLElement, title?: string) => {
   let tooltipMount: ReturnType<typeof mount> | undefined;
   let timerId: ReturnType<typeof setTimeout> | undefined;
-  node.title = title;
+  if (title) {
+    node.title = title;
+  } else {
+    title = node.title;
+  }
+  if (!title) {
+    return;
+  }
   node.addEventListener("mouseenter", () => {
     clearTimeout(timerId);
     timerId = setTimeout(() => {

@@ -1,12 +1,11 @@
 <svelte:options
   customElement={{
-    tag: "mt-rich-text-editor-toolbar-item-boilerplate",
     extend: extendToolbarItem,
   }}
 />
 
 <script module lang="ts">
-  import { extendToolbarItem } from "../item/registry/svelte";
+  import { extendToolbarItem } from "../svelte";
   export interface Options {
     readonly boilerplates: {
       title: string;
@@ -17,12 +16,12 @@
 </script>
 
 <script lang="ts">
-  import { t } from "../../i18n";
+  import { t } from "../../../i18n";
   import { mount, unmount } from "svelte";
-  import ToolbarButton from "../ToolbarButton.svelte";
-  import icon from "../icon/boilerplate.svg?raw";
+  import icon from "../../../ui/icon/boilerplate.svg?raw";
+  import { tooltip } from "../../../ui/tooltip";
   import Modal from "./Modal.svelte";
-  import type { ToolbarItemElement } from "../item/element";
+  import type { ToolbarItemElement } from "../element";
 
   const element = $host<ToolbarItemElement<Options>>();
   element.addEventListener("click", () => {
@@ -42,6 +41,7 @@
   });
 </script>
 
-<ToolbarButton title={t("Boilerplate")}>
+<button use:tooltip={t("Insert Boilerplate")}>
   {@html icon}
-</ToolbarButton>
+</button>
+

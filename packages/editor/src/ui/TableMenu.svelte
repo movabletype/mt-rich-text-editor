@@ -4,7 +4,7 @@
   import Menu from "./Menu.svelte";
   import MenuItemGroup from "./MenuItemGroup.svelte";
   import MenuItem from "./MenuItem.svelte";
-  import Modal from "./table/Modal.svelte";
+  import Modal from "../toolbar/item/table/Modal.svelte";
   import type { TableData } from "./table/Modal.svelte";
   import TableProperties from "./icon/tableProperties.svg?raw";
   import TableDelete from "./icon/tableDelete.svg?raw";

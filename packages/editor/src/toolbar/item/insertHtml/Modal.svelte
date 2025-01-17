@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { t } from "../../i18n";
+  import { t } from "../../../i18n";
   import { Modal, ModalContent } from "@movabletype/svelte-components";
 
   let {

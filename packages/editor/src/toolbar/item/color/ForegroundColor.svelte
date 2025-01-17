@@ -1,23 +1,21 @@
 <svelte:options
   customElement={{
-    tag: "mt-rich-text-editor-toolbar-item-foregroundcolor",
     extend: extendToolbarItem,
   }}
 />
 
 <script module lang="ts">
-  import { extendToolbarItem } from "../item/registry/svelte";
+  import { extendToolbarItem } from "../svelte";
   export interface Options {
     readonly presetColors?: string[];
   }
 </script>
 
 <script lang="ts">
-  import { t } from "../../i18n";
-  import icon from "../icon/foregroundColor.svg?raw";
-  import ToolbarButton from "../ToolbarButton.svelte";
+  import { t } from "../../../i18n";
+  import icon from "../../../ui/icon/foregroundColor.svg?raw";
   import Panel from "./Panel.svelte";
-  import type { ToolbarItemElement } from "../item/element";
+  import type { ToolbarItemElement } from "../element";
 
   const element = $host<ToolbarItemElement<Options>>();
   element.addEventListener("click", toggleColorPanel);
@@ -78,9 +76,9 @@
   });
 </script>
 
-<ToolbarButton title={t("Text Color")} disableTooltip={isOpen}>
+<button title={t("Text Color")} class:tooltip-disabled={isOpen}>
   {@html icon.replace(/fill="currentColor"/g, `fill="${selectedColor}"`)}
-</ToolbarButton>
+</button>
 
 <div class="color-panel-container">
   {#if isOpen}

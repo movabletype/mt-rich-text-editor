@@ -1,5 +1,5 @@
-import type { Editor } from "./editor";
-import ToolbarUI from "./ui/Toolbar.svelte";
+import type { Editor } from "../editor";
+import ToolbarUI from "./Toolbar.svelte";
 import { mount, unmount } from "svelte";
 
 interface ToolbarOptions {

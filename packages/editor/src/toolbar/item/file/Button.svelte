@@ -6,18 +6,18 @@
 />
 
 <script module lang="ts">
-  import type { Editor } from "../../editor";
-  import { extendToolbarItem } from "../item/registry/svelte";
+  import type { Editor } from "../../../editor";
+  import { extendToolbarItem } from "../svelte";
   export interface Options {
     readonly select?: (options: { editor: Editor }) => void;
   }
 </script>
 
 <script lang="ts">
-  import { t } from "../../i18n";
-  import icon from "../icon/file.svg?raw";
-  import ToolbarButton from "../ToolbarButton.svelte";
-  import { ToolbarItemElement } from "../item/element";
+  import { t } from "../../../i18n";
+  import { tooltip } from "../../../ui/tooltip";
+  import icon from "../../../ui/icon/file.svg?raw";
+  import { ToolbarItemElement } from "../element";
 
   const element = $host<ToolbarItemElement<Options>>();
   element.addEventListener("click", () => {
@@ -25,6 +25,6 @@
   });
 </script>
 
-<ToolbarButton title={t("File")}>
+<button use:tooltip={t("Insert File")}>
   {@html icon}
-</ToolbarButton>
+</button>

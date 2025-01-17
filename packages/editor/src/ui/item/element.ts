@@ -1,5 +1,6 @@
 import type { Editor as TiptapEditor } from "@tiptap/core";
 import type { Editor } from "../../editor";
+import { tooltip } from "../tooltip";
 import { preprocessHTML } from "../../util/html";
 
 export class PanelItemElement<
@@ -49,9 +50,38 @@ export class PanelItemElement<
  *    }
  *  );
  */
+const toolbarItemStyle = document.createElement("style");
+toolbarItemStyle.textContent = `
+button {
+  width: 24px;
+  height: 24px;
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  position: relative;
+}
+
+button.tooltip-disabled .mt-rich-text-editor-tooltip {
+  display: none;
+}
+`;
 export class ToolbarItemElement<
   Options extends Record<string, any> = Record<string, any>,
-> extends PanelItemElement<Options> {}
+> extends PanelItemElement<Options> {
+  constructor() {
+    super();
+    this.shadowRoot.appendChild(toolbarItemStyle.cloneNode(true));
+  }
+
+  connectedCallback() {
+    const button = this.shadowRoot.querySelector("button");
+    if (button) {
+      tooltip(button);
+    }
+  }
+}
 
 /**
  * StatusbarItemElement

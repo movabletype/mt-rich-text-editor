@@ -1,41 +1,48 @@
+<script lang="ts" module>
+  export interface TableData {
+    readonly width: string;
+  }
+</script>
+
 <script lang="ts">
-  import { t } from "../../i18n";
-  import { html } from "js-beautify";
+  import { t } from "../../../i18n";
   import { Modal, ModalContent } from "@movabletype/svelte-components";
 
   let {
-    text,
+    tableData,
     onSubmit,
     onClose,
   }: {
-    text: string;
-    onSubmit: (text: string) => void;
+    tableData: TableData;
+    onSubmit: (tableData: TableData) => void;
     onClose: () => void;
   } = $props();
 
-  text = html(text);
-  let textarea: HTMLTextAreaElement;
+  let width = $state(tableData.width);
+
+  let widthInput: HTMLInputElement;
   $effect(() => {
-    textarea?.focus();
+    widthInput?.focus();
   });
 
+  let self: Modal;
   // svelte-ignore non_reactive_update FIXME:
   let close: () => void;
 </script>
 
-<Modal on:close={onClose} size="lg">
+<Modal on:close={onClose} bind:this={self}>
   <ModalContent bind:close>
-    <svelte:fragment slot="title">{t("Source Code")}</svelte:fragment>
+    <svelte:fragment slot="title">{t("Table Properties")}</svelte:fragment>
     <svelte:fragment slot="body">
       <div class="form-group mb-3">
-        <textarea
-          id="source_text"
+        <label for="link-url" class="form-label">{t("Width")}</label>
+        <input
+          type="text"
+          id="table-width"
           class="form-control"
-          style="height: calc(100vh - 240px)"
-          aria-label={t("Source Code")}
-          bind:value={text}
-          bind:this={textarea}
-        ></textarea>
+          bind:value={width}
+          bind:this={widthInput}
+        />
       </div>
     </svelte:fragment>
     <svelte:fragment slot="footer">
@@ -44,7 +51,7 @@
         title={t("Insert (s)")}
         class="action primary button btn btn-primary"
         onclick={() => {
-          onSubmit(text);
+          onSubmit({ width });
           close();
         }}
       >

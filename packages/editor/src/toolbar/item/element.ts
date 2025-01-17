@@ -1,0 +1,42 @@
+import { tooltip } from "../../ui/tooltip";
+import { PanelItemElement } from "../../ui/item/element";
+import css from "./element.css?raw";
+
+/**
+ * Base class for toolbar item
+ *
+ * @example
+ *
+ *  customElements.define(
+ *    "mt-rich-text-editor-toolbar-item-myitem",
+ *    class extends ToolbarItemElement {
+ *      constructor() {
+ *        super();
+ *        this.shadowRoot.innerHTML = 'My Item';
+ *      }
+ *
+ *      connectedCallback() {
+ *        this.addEventListener("click", () => {
+ *          this.tiptap?.commands.insertContent("<p>Hello</p>");
+ *        });
+ *      }
+ *    }
+ *  );
+ */
+const toolbarItemStyle = document.createElement("style");
+toolbarItemStyle.textContent = css;
+export class ToolbarItemElement<
+  Options extends Record<string, any> = Record<string, any>,
+> extends PanelItemElement<Options> {
+  constructor() {
+    super();
+    this.shadowRoot.appendChild(toolbarItemStyle.cloneNode(true));
+  }
+
+  connectedCallback() {
+    const button = this.shadowRoot.querySelector("button");
+    if (button) {
+      tooltip(button);
+    }
+  }
+}

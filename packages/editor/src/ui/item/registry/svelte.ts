@@ -7,7 +7,7 @@ import {
   QuickActionItemElement,
 } from "../element";
 
-const extend = (customElementConstructor: typeof HTMLElement): new () => PanelItemElement =>
+export const extend = (customElementConstructor: typeof HTMLElement): new () => PanelItemElement =>
   class extends customElementConstructor implements PanelItemElement {
     editor: Editor | undefined;
     options: Record<string, any> = {};
@@ -25,11 +25,6 @@ const extend = (customElementConstructor: typeof HTMLElement): new () => PanelIt
     }
     onEditorUpdate() {}
   };
-
-export const extendToolbarItem = (
-  customElementConstructor: typeof HTMLElement
-): new () => ToolbarItemElement =>
-  class extends extend(customElementConstructor) implements ToolbarItemElement {};
 
 export const extendStatusbarItem = (
   customElementConstructor: typeof HTMLElement

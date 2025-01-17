@@ -1,20 +1,19 @@
 <svelte:options
   customElement={{
-    tag: "mt-rich-text-editor-toolbar-item-table",
     extend: extendToolbarItem,
   }}
 />
 
 <script module lang="ts">
-  import { extendToolbarItem } from "../item/registry/svelte";
+  import { extendToolbarItem } from "../svelte";
 </script>
 
 <script lang="ts">
-  import { t } from "../../i18n";
-  import icon from "../icon/table.svg?raw";
-  import ToolbarButton from "../ToolbarButton.svelte";
+  import { t } from "../../../i18n";
+  import icon from "../../../ui/icon/table.svg?raw";
+  import { tooltip } from "../../../ui/tooltip";
   import TableInsertPanel from "./TableInsertPanel.svelte";
-  import type { ToolbarItemElement } from "../item/element";
+  import type { ToolbarItemElement } from "../element";
 
   const element = $host<ToolbarItemElement>();
   const { tiptap } = element;
@@ -48,9 +47,9 @@
   });
 </script>
 
-<ToolbarButton title={t("Table")}>
+<button use:tooltip={t("Table")}>
   {@html icon}
-</ToolbarButton>
+</button>
 
 <div class="table-insert-panel-container">
   {#if isOpen}
@@ -59,10 +58,6 @@
 </div>
 
 <style>
-  .icon {
-    width: 24px;
-    height: 24px;
-  }
   .table-insert-panel-container {
     position: relative;
     z-index: 1;

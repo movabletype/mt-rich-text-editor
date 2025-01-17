@@ -1,7 +1,8 @@
 <script lang="ts">
   import type { Editor } from "../editor";
+  import type { ToolbarItemElement } from "../ui/item/element";
   import { debounce } from "../util/event";
-  import { getPanelItem, EditorEventType, EditorEvent } from "./item/registry";
+  import { getPanelItem } from "../ui/item/registry";
 
   const {
     editor,
@@ -43,16 +44,11 @@
       )
     )
     .filter((row) => row.length > 0);
-  const isActiveMap: Record<string, boolean> = $state({});
-  const isDisabledMap: Record<string, boolean> = $state({});
   function update() {
     for (const key in buttonRefs) {
       if ("onEditorUpdate" in buttonRefs[key]) {
-        (buttonRefs[key] as any).onEditorUpdate(editor);
+        (buttonRefs[key] as ToolbarItemElement).onEditorUpdate();
       }
-      buttonRefs[key].dispatchEvent(new EditorEvent(EditorEventType.Update, editor));
-      isActiveMap[key] = buttonRefs[key].classList.contains("is-active");
-      isDisabledMap[key] = buttonRefs[key].classList.contains("is-disabled");
     }
   }
   editor.tiptap.on("selectionUpdate", update);
@@ -114,11 +110,8 @@
   function bindRef(node: HTMLElement, key: string) {
     buttonRefs[key] = node;
     if ("onEditorInit" in buttonRefs[key]) {
-      (buttonRefs[key] as any).onEditorInit(editor, options[key]);
+      (buttonRefs[key] as ToolbarItemElement).onEditorInit(editor, options[key]);
     }
-    setTimeout(() => {
-      node.dispatchEvent(new EditorEvent(EditorEventType.Init, editor));
-    });
     return {
       destroy() {
         delete buttonRefs[key];
@@ -141,12 +134,6 @@
                   this={button.elementName}
                   use:bindRef={button.name}
                   class="toolbar-item"
-                  class:is-active={isActiveMap[button.elementName]}
-                  class:is-disabled={isDisabledMap[button.elementName]}
-                  onclick={(ev) => {
-                    ev.currentTarget.dispatchEvent(new EditorEvent(EditorEventType.Click, editor));
-                    update();
-                  }}
                 />
               {/each}
             </div>
@@ -185,23 +172,9 @@
   .toolbar-item {
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     margin: 2px 0 3px;
     height: 34px;
-    border: none;
-    background: none;
-    cursor: pointer;
-    border-radius: 4px;
-    padding: 1px 5px;
-  }
-  .toolbar-item:not(.is-disabled):hover {
-    background: #dee0e2;
-  }
-  .toolbar-item.is-active {
-    background: #dee0e2;
-  }
-  .toolbar-item.is-disabled {
-    opacity: 0.5;
-    pointer-events: none;
   }
 
   /**

@@ -16,6 +16,21 @@ i18next.init({
 });
 
 export default i18n;
-export const t: typeof i18n.t = ((...args: any[]) => {
-  return i18n.t(...args as any);
+
+type TFunction = {
+  (strings: TemplateStringsArray, ...values: any[]): string;
+  (string: string): string;
+};
+
+export const t: TFunction = ((...args: any[]) => {
+  if (typeof args[0] === "string") {
+    return i18n.t(...(args as any));
+  } else {
+    let res = "";
+    const [strings, ...values] = args;
+    for (let i = 0; i < strings.length; i++) {
+      res += strings[i] + i18n.t(values[i]);
+    }
+    return res;
+  }
 }) as any;

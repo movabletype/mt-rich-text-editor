@@ -6,8 +6,8 @@
 />
 
 <script module lang="ts">
-  import type { Editor } from "../../editor";
-  import { extendToolbarItem } from "../item/registry/svelte";
+  import type { Editor } from "../../../editor";
+  import { extendToolbarItem } from "../svelte";
   export interface Options {
     readonly select?: (options: { editor: Editor }) => void;
     readonly edit?: (options: { editor: Editor; element: HTMLElement }) => void;
@@ -15,11 +15,11 @@
 </script>
 
 <script lang="ts">
-  import { t } from "../../i18n";
-  import icon from "../icon/image.svg?raw";
-  import { ImageMenu } from "../../imageMenu";
-  import ToolbarButton from "../ToolbarButton.svelte";
-  import type { ToolbarItemElement } from "../item/element";
+  import { t } from "../../../i18n";
+  import icon from "../../../ui/icon/image.svg?raw";
+  import { tooltip } from "../../../ui/tooltip";
+  import { ImageMenu } from "../../../imageMenu";
+  import type { ToolbarItemElement } from "../element";
 
   const element = $host<ToolbarItemElement<Options>>();
   const { editor, options } = element;
@@ -38,6 +38,6 @@
   });
 </script>
 
-<ToolbarButton title={t("Image")}>
+<button use:tooltip={t("Insert Image")}>
   {@html icon}
-</ToolbarButton>
+</button>

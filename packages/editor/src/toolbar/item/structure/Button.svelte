@@ -1,12 +1,11 @@
 <svelte:options
   customElement={{
-    tag: "mt-rich-text-editor-toolbar-item-structure",
     extend,
   }}
 />
 
 <script module lang="ts">
-  import { extendToolbarItem } from "../item/registry/svelte";
+  import { extendToolbarItem } from "../svelte";
   const extend = (customElementConstructor: typeof HTMLElement) =>
     class extends extendToolbarItem(customElementConstructor) {
       onEditorUpdate() {
@@ -16,11 +15,10 @@
 </script>
 
 <script lang="ts">
-  import { t } from "../../i18n";
-  import ToolbarButton from "../ToolbarButton.svelte";
-  import { ToolbarItemElement } from "../item/element";
-  import icon from "../icon/structure.svg?raw";
-
+  import { t } from "../../../i18n";
+  import { ToolbarItemElement } from "../element";
+  import icon from "../../../ui/icon/structure.svg?raw";
+  import { tooltip } from "../../../ui/tooltip";
   const element = $host<ToolbarItemElement>();
   element.addEventListener("click", () => {
     const editor = element.editor;
@@ -31,6 +29,6 @@
   });
 </script>
 
-<ToolbarButton title={t("Structure editing mode")}>
+<button use:tooltip={t("Toggle to HTML structure editing mode")}>
   {@html icon}
-</ToolbarButton>
+</button>

@@ -1,32 +1,31 @@
 <svelte:options
   customElement={{
-    tag: "mt-rich-text-editor-toolbar-item-link",
     extend,
   }}
 />
 
 <script module lang="ts">
-  import type { LinkData } from "../link/Modal.svelte";
-  import { extendToolbarItem } from "../item/registry/svelte";
+  import { extendToolbarItem } from "../svelte";
   const extend = (customElementConstructor: typeof HTMLElement) =>
     class extends extendToolbarItem(customElementConstructor) {
       onEditorUpdate() {
         this.classList.toggle("is-active", this.tiptap?.isActive("link"));
       }
     };
-  export interface Options {}
 </script>
 
 <script lang="ts">
-  import { t } from "../../i18n";
-  import { toKeyboardShortcutLabel } from "../../util/keyboardShortcut";
   import { mount, unmount } from "svelte";
-  import ToolbarButton from "../ToolbarButton.svelte";
-  import { LinkMenu } from "../../linkMenu";
-  import icon from "../icon/link.svg?raw";
-  import LinkModal from "../link/Modal.svelte";
-  import type { ToolbarItemElement } from "../item/element";
-  const element = $host<ToolbarItemElement<Options>>();
+  import { t } from "../../../i18n";
+  import { toKeyboardShortcutLabel } from "../../../util/keyboardShortcut";
+  import icon from "../../../ui/icon/link.svg?raw";
+  import { tooltip } from "../../../ui/tooltip";
+  import { LinkMenu } from "../../../linkMenu";
+  import type { LinkData } from "../../..//ui/link/Modal.svelte";
+  import LinkModal from "../../../ui/link/Modal.svelte";
+  import type { ToolbarItemElement } from "../element";
+
+  const element = $host<ToolbarItemElement>();
   const { editor, tiptap } = element;
 
   const onClick = () => {
@@ -111,6 +110,6 @@
   });
 </script>
 
-<ToolbarButton title={`${t("Link")} (${toKeyboardShortcutLabel("cmd+K")})`}>
+<button use:tooltip={`${t("Link")} (${toKeyboardShortcutLabel("cmd+K")})`}>
   {@html icon}
-</ToolbarButton>
+</button>

@@ -1,12 +1,11 @@
 <svelte:options
   customElement={{
-    tag: "mt-rich-text-editor-toolbar-item-block",
     extend: extendToolbarItem,
   }}
 />
 
 <script module lang="ts">
-  import { extendToolbarItem } from "../item/registry/svelte";
+  import { extendToolbarItem } from "../svelte";
   export interface Options {
     readonly blocks?: { value: string; label: string }[];
   }
@@ -14,7 +13,7 @@
 
 <script lang="ts">
   import type { Level } from "@tiptap/extension-heading";
-  import { ToolbarItemElement } from "../item/element";
+  import { ToolbarItemElement } from "../element";
 
   const element = $host<ToolbarItemElement<Options>>();
   const { options, tiptap } = element;
