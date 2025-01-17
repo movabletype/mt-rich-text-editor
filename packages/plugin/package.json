@@ -1,5 +1,7 @@
 {
   "name": "@movabletype/mt-plugin-mt-rich-text-editor",
+  "author": "Six Apart Ltd.",
+  "license": "proprietary",
   "version": "0.0.1",
   "type": "module",
   "main": "index.js",
@@ -19,7 +21,8 @@
     "svelte-dnd-action": "^0.9.54",
     "typescript": "^5.7.2",
     "typescript-eslint": "^8.18.2",
-    "vite": "^6.0.3"
+    "vite": "^6.0.3",
+    "vitest": "^2.1.8"
   },
   "scripts": {
     "dev": "vite",
@@ -32,10 +35,5 @@
     "format": "prettier --check --cache \"mt-static/plugins/MTRichTextEditor/src/**/*.ts\"",
     "format:fix": "prettier --write --cache --cache-strategy metadata \"mt-static/plugins/MTRichTextEditor/src/**/*.ts\""
   },
-  "author": "",
-  "license": "ISC",
-  "description": "",
-  "dependencies": {
-    "vitest": "^2.1.8"
-  }
+  "description": ""
 }

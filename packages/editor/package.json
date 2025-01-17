@@ -1,6 +1,7 @@
 {
   "name": "@movabletype/mt-rich-text-editor",
-  "private": true,
+  "author": "Six Apart Ltd.",
+  "license": "proprietary",
   "version": "0.0.1",
   "type": "module",
   "scripts": {
@@ -47,14 +48,12 @@
       "types": "./dist/src/mt-rich-text-editor.d.ts",
       "import": "./dist/mt-rich-text-editor.js"
     },
-    "./ui": {
-      "types": "./dist/src/ui/index.d.ts",
-      "import": "./dist/ui/index.js"
+    "./component": {
+      "types": "./dist/src/component.d.ts",
+      "import": "./dist/component.js"
     }
   },
-  "author": "",
-  "license": "ISC",
-  "description": "",
+  "description": "Movable Type Rich Text Editor",
   "dependencies": {
     "@movabletype/app": "../../@movabletype/movabletype-app-0.0.1.tgz",
     "@movabletype/svelte-components": "../../@movabletype/movabletype-svelte-components-0.0.1.tgz",

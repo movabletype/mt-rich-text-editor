@@ -1,9 +1,11 @@
 import { version } from "../package.json";
 import i18n from "./i18n";
 import { Editor } from "./editor";
-import { Component } from "./editor_manager/component";
 import type { EditorOptions } from "./editor";
-import * as Core from "@tiptap/core";
+import "./ui/item/registry";
+import * as TiptapCore from "@tiptap/core";
+import * as Component from "./component";
+import { getPanelItem } from "./ui/item/registry";
 
 type EventHandler = (...args: any[]) => void;
 
@@ -16,7 +18,10 @@ export interface EditorCreateOptions extends Omit<EditorOptions, "toolbar"> {
 export class EditorManager {
   public static version: string = version;
   public static Editors: Record<string, Editor> = {};
-  public static Component = Component;
+  public static Component = {
+    ...Component,
+    getPanelItem,
+  };
   private static eventHandlers: Record<string, EventHandler[]> = {};
 
   public static on(name: "create", handler: (options: EditorCreateOptions) => void): void;
@@ -113,7 +118,7 @@ export class EditorManager {
   public static async import(name: "@tiptap/core"): Promise<typeof import("@tiptap/core")>;
   public static async import(name: string): Promise<any> {
     if (name === "@tiptap/core") {
-      return Core;
+      return TiptapCore;
     }
     throw new Error(`Unknown module: ${name}`);
   }

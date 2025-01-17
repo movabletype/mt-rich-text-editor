@@ -47,8 +47,8 @@
   const isDisabledMap: Record<string, boolean> = $state({});
   function update() {
     for (const key in buttonRefs) {
-      if (buttonRefs[key].onEditorUpdate) {
-        buttonRefs[key].onEditorUpdate(editor);
+      if ("onEditorUpdate" in buttonRefs[key]) {
+        (buttonRefs[key] as any).onEditorUpdate(editor);
       }
       buttonRefs[key].dispatchEvent(new EditorEvent(EditorEventType.Update, editor));
       isActiveMap[key] = buttonRefs[key].classList.contains("is-active");
@@ -113,8 +113,8 @@
 
   function bindRef(node: HTMLElement, key: string) {
     buttonRefs[key] = node;
-    if (buttonRefs[key].onEditorInit) {
-      buttonRefs[key].onEditorInit(editor, options[key]);
+    if ("onEditorInit" in buttonRefs[key]) {
+      (buttonRefs[key] as any).onEditorInit(editor, options[key]);
     }
     setTimeout(() => {
       node.dispatchEvent(new EditorEvent(EditorEventType.Init, editor));

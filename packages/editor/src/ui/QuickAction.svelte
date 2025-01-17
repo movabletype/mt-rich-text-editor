@@ -116,7 +116,7 @@
   function bindRef(node: HTMLElement, key: string) {
     buttonRefs[key] = node;
     if ("onEditorInit" in node) {
-      node.onEditorInit(editor, options[key]);
+      (node as any).onEditorInit(editor, options[key]);
     }
     if ("aliases" in node) {
       const button = buttons.find((button) => button.name === key);

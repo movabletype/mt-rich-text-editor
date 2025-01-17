@@ -1,7 +1,8 @@
 {
   "name": "mt-rich-text-editor",
   "type": "module",
-  "license": "MIT",
+  "author": "Six Apart Ltd.",
+  "license": "proprietary",
   "private": true,
   "workspaces": [
     "packages/*"

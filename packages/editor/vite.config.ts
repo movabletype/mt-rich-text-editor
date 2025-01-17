@@ -7,7 +7,7 @@ import { svelte } from "@sveltejs/vite-plugin-svelte";
 export default defineConfig(({ mode }) => ({
   build: {
     lib: {
-      entry: ["src/index.ts", "src/mt-rich-text-editor.ts"],
+      entry: ["src/index.ts", "src/component.ts", "src/mt-rich-text-editor.ts"],
       formats: ["es"],
     },
     sourcemap: true,

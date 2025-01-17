@@ -2,7 +2,7 @@
   import type { Editor } from "../editor";
   import type { EditorView } from "@tiptap/pm/view";
   import { getPanelItem } from "./item/registry";
-  import type { PasteMenuItemElement } from "./item/registry";
+  import type { PasteMenuItemElement } from "./item/element";
   import clipboardIcon from "./icon/clipboard.svg?raw";
 
   function getText(clipboardData: DataTransfer): string | undefined {

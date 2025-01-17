@@ -54,49 +54,7 @@ import "../paste/Embed.svelte";
 import "../paste/EmbedInline.svelte";
 import "../paste/Markdown.svelte";
 
-export class PanelItemElement<
-  Options extends Record<string, any> = Record<string, any>,
-> extends HTMLElement {
-  editor: Editor | undefined;
-  options: Options = {} as Options;
-  get tiptap(): Editor["tiptap"] | undefined {
-    return this.editor?.tiptap;
-  }
-
-  onEditorInit(editor: Editor, options: Options) {
-    this.editor = editor;
-    this.options = options;
-  }
-
-  onEditorUpdate() {}
-}
-
-export class QuickActionItemElement extends PanelItemElement {
-  constructor() {
-    super();
-    const shadow = this.attachShadow({ mode: "open" });
-    const style = document.createElement("style");
-    style.textContent = `
-      button {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        background: none;
-        border: none;
-        margin: 0;
-        padding: 0;
-        cursor: pointer;
-        font-size: inherit;
-      }
-      .icon {
-        border: 1px solid #ccc;
-        border-radius: 4px;
-        padding: 4px;
-      }
-    `;
-    shadow.appendChild(style);
-  }
-}
+import { StatusbarItemElement, PasteMenuItemElement } from "./element";
 
 type PanelNamespace = "toolbar" | "statusbar" | "paste-menu" | "quick-action";
 
@@ -348,7 +306,7 @@ export class FullScreenButton extends HTMLElement {
 
 export class PathItem<
   Options extends Record<string, any> = Record<string, any>,
-> extends PanelItemElement<Options> {
+> extends StatusbarItemElement<Options> {
   onEditorUpdate() {
     if (!this.tiptap) {
       return;
@@ -373,7 +331,7 @@ export class PathItem<
       path.push(nodeName);
     }
 
-    this.textContent = path.join(" > ");
+    this.shadowRoot.textContent = path.join(" > ");
   }
 
   private getHTMLTag(nodeName: string): string {
@@ -398,50 +356,10 @@ export class PathItem<
   }
 }
 
-export abstract class PasteMenuItemElement<
-  Options extends Record<string, any> = Record<string, any>,
-> extends PanelItemElement<Options> {
-  protected content:
-    | {
-        plainText: string;
-        htmlDocument: Document | null;
-        clipboardData: DataTransfer;
-        transaction: (cb: () => void | Promise<void>) => void;
-      }
-    | undefined = undefined;
-
-  async isEditorItemAvailable(): Promise<boolean | number> {
-    return Promise.resolve(true);
-  }
-
-  onEditorSetPasteContent(content: {
-    plainText: string;
-    htmlDocument: Document | null;
-    targetDomNode: HTMLElement | null;
-    clipboardData: DataTransfer;
-    transaction: (cb: () => void | Promise<void>) => void;
-  }) {
-    this.content = content;
-  }
-
-  insertPasteContent(content: string) {
-    this.content?.transaction(() => {
-      this.tiptap?.chain().undo().focus().run();
-      this.tiptap?.commands.insertContent(
-        typeof content === "string" ? preprocessHTML(content) : content
-      );
-    });
-  }
-
-  onEditorPaste() {
-    throw new Error("onEditorPaste is not implemented");
-  }
-}
-
 export class AsText extends PasteMenuItemElement {
   constructor() {
     super();
-    this.attachShadow({ mode: "open" }).innerHTML = "テキストとして貼り付け";
+    this.shadowRoot.innerHTML = "テキストとして貼り付け";
   }
 
   onEditorPaste() {

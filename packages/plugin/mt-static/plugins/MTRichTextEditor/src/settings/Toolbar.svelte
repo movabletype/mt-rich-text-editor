@@ -1,7 +1,6 @@
 <script lang="ts">
   import { tick } from "svelte";
   import { dndzone } from "svelte-dnd-action";
-  import type {} from "@movabletype/mt-rich-text-editor/mt-rich-text-editor";
   import { flipDurationMs, dropTargetStyle } from "./common";
 
   const { textarea } = $props<{

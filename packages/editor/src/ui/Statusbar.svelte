@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { Editor } from "../editor";
   import { getPanelItem } from "./item/registry";
-  import type { PanelItemElement } from "./item/registry";
+  import type { StatusbarItemElement } from "./item/element";
 
   const {
     editor,
@@ -13,7 +13,7 @@
     options: Record<string, any>;
   } = $props();
 
-  const buttonRefs: Record<string, PanelItemElement | HTMLElement> = {};
+  const buttonRefs: Record<string, StatusbarItemElement | HTMLElement> = {};
   const buttons = statusbar.map(
     (
       groupSides // left side and right side
@@ -47,7 +47,7 @@
     update();
   });
 
-  function bindRef(node: PanelItemElement | HTMLElement, key: string) {
+  function bindRef(node: StatusbarItemElement | HTMLElement, key: string) {
     buttonRefs[key] = node;
     if ("onEditorInit" in node) {
       node.onEditorInit(editor, options[key]);
