@@ -89,7 +89,7 @@ export class Editor {
   #toolbar: Toolbar;
   #statusbar: Statusbar;
   #pasteMenu: PasteMenu;
-  #menus: any[] = [];
+  #quickAction: QuickAction;
   #structureMode: StructureMode | undefined;
 
   constructor(textarea: HTMLTextAreaElement, options: EditorOptions) {
@@ -101,7 +101,8 @@ export class Editor {
     const height =
       typeof options.height === "number"
         ? `${options.height}px`
-        : (options.height ?? `${localStorage.getItem("mt-rich-text-editor-height") ?? DEFAULT_HEIGHT}px`);
+        : (options.height ??
+          `${localStorage.getItem("mt-rich-text-editor-height") ?? DEFAULT_HEIGHT}px`);
 
     this.#containerEl = document.createElement("div");
     this.#containerEl.className = "mt-rich-text-editor";
@@ -213,14 +214,12 @@ export class Editor {
 
     const quickActionMount = document.createElement("div");
     shadow.appendChild(quickActionMount);
-    this.#menus.push(
-      new QuickAction({
-        target: quickActionMount,
-        editor: this,
-        quickAction: options.quickAction ?? [],
-        options: options.quickActionOptions ?? {},
-      })
-    );
+    this.#quickAction = new QuickAction({
+      target: quickActionMount,
+      editor: this,
+      quickAction: options.quickAction ?? [],
+      options: options.quickActionOptions ?? {},
+    });
 
     this.initResizeHandle(this[EditorEl]);
 
@@ -277,7 +276,7 @@ export class Editor {
     this.#statusbar.destroy();
     this.#pasteMenu.destroy();
     this.#structureMode?.destroy();
-    this.#menus.forEach((menu) => menu.destroy());
+    this.#quickAction.destroy();
     this.tiptap.destroy();
     this.#containerEl.remove();
   }
