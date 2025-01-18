@@ -1,16 +1,15 @@
-import type { Editor } from "./editor";
-import LinkMenuUI from "./ui/LinkMenu.svelte";
+import type { Editor } from "../../editor";
+import Toolbar from "./Toolbar.svelte";
 import { mount, unmount } from "svelte";
 
-export class LinkMenu {
+export class LinkToolbar {
   private ui: ReturnType<typeof mount> | undefined;
 
-  constructor({ editor, edit }: { editor: Editor; edit: () => void }) {
-    this.ui = mount(LinkMenuUI, {
+  constructor({ editor }: { editor: Editor }) {
+    this.ui = mount(Toolbar, {
       target: editor.tiptap.view.dom.getRootNode() as ShadowRoot,
       props: {
         editor,
-        edit
       },
     });
   }

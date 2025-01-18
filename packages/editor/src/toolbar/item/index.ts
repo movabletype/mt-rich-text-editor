@@ -21,8 +21,12 @@ import {
   FullScreenButton,
 } from "./simple-buttons";
 import Link from "./link/Button.svelte";
+import PreviewLink from "./link/Preview.svelte";
+import EditLink from "./link/Edit.svelte";
 import File from "./file/Button.svelte";
 import Image from "./image/Button.svelte";
+import DeleteImage from "./image/Delete.svelte";
+import EditImage from "./image/Edit.svelte";
 import Structure from "./structure/Button.svelte";
 
 import Table from "./table/Button.svelte";
@@ -70,4 +74,14 @@ export default {
   backgroundColor: BackgroundColor.element!,
   // @ts-ignore
   boilerplate: Boilerplate.element!,
+
+  // for context toolbar
+  // @ts-ignore
+  previewLink: PreviewLink.element!,
+  // @ts-ignore
+  editLink: EditLink.element!,
+  // @ts-ignore
+  deleteImage: DeleteImage.element!,
+  // @ts-ignore
+  editImage: EditImage.element!,
 };

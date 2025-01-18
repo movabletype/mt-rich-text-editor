@@ -97,6 +97,7 @@ export const InlineLink = Link.extend<InlineLinkOptions>({
 
   addCommands() {
     return {
+      ...this.parent?.(),
       setInlineLinkShortcutHandler: (handler: () => void) => (() => {
         this.options.shortcutHandler = handler;
       }) as any,

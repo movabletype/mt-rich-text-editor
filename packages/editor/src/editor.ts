@@ -4,9 +4,8 @@ import { Extension } from "./tiptap/extension";
 import { Toolbar } from "./toolbar";
 import { Statusbar } from "./statusbar";
 import { PasteMenu } from "./paste-menu";
-import { TableMenu } from "./tableMenu";
 import { QuickAction } from "./quick-action";
-import { StructureMode } from "./structureMode";
+import { StructureMode } from "./structure-mode";
 import { preprocessHTML, normalizeHTML } from "./util/html";
 import { insertStylesheets } from "./util/dom";
 import prosemirrorCss from "prosemirror-view/style/prosemirror.css?raw";
@@ -82,6 +81,7 @@ export class Editor {
   public id: string;
   public tiptap: TiptapEditor;
   public [EditorEl]: HTMLDivElement;
+  public options: EditorOptions;
   #onPasteCallback: OnPasteCallback | undefined;
   #containerEl: HTMLDivElement;
   #textarea: HTMLTextAreaElement;
@@ -95,6 +95,7 @@ export class Editor {
   constructor(textarea: HTMLTextAreaElement, options: EditorOptions) {
     this.id = textarea.id;
     this.#textarea = textarea;
+    this.options = options;
 
     const inline = options.inline ?? false;
     const height =
@@ -213,9 +214,6 @@ export class Editor {
     const quickActionMount = document.createElement("div");
     shadow.appendChild(quickActionMount);
     this.#menus.push(
-      new TableMenu({
-        editor: this,
-      }),
       new QuickAction({
         target: quickActionMount,
         editor: this,

@@ -64,7 +64,6 @@
       use:dndzone={{ items: colorsItems, flipDurationMs, dropTargetStyle }}
       onconsider={handleDndConsider}
       onfinalize={handleDndFinalize}
-      
     >
       {#each colorsItems as item (item.id)}
         <div class="mt-rich-text-editor-colors-settings-tile">
@@ -79,7 +78,7 @@
             <div
               class="mt-rich-text-editor-colors-settings-preview"
               style="background-color: {item.value};"
-            />
+            ></div>
             <div class="mt-rich-text-editor-colors-settings-info">
               <span class="mt-rich-text-editor-colors-settings-value">{item.value}</span>
             </div>

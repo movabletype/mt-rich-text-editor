@@ -1,5 +1,5 @@
 import { mount, unmount } from "svelte";
-import type { Editor } from "./editor";
+import type { Editor } from "../editor";
 import type { EditorEvents } from "@tiptap/core";
 import StructureModal from "./StructureModal.svelte";
 // @ts-ignore XXX: An error occurred in one of the build tools.

@@ -1,6 +1,5 @@
 <svelte:options
   customElement={{
-    tag: "mt-rich-text-editor-toolbar-item-image",
     extend: extendToolbarItem,
   }}
 />
@@ -18,7 +17,7 @@
   import { t } from "../../../i18n";
   import icon from "../../../ui/icon/image.svg?raw";
   import { tooltip } from "../../../ui/tooltip";
-  import { ImageMenu } from "../../../imageMenu";
+  import { ImageToolbar } from "../../../context-toolbar/image";
   import type { ToolbarItemElement } from "../element";
 
   const element = $host<ToolbarItemElement<Options>>();
@@ -27,10 +26,10 @@
     element.options.select?.({ editor: element.editor! });
   });
 
-  let menu: ImageMenu | undefined;
+  let menu: ImageToolbar | undefined;
   $effect(() => {
     if (editor) {
-      menu = new ImageMenu({ editor, edit: options.edit });
+      menu = new ImageToolbar({ editor, edit: options.edit });
     }
     return () => {
       menu?.destroy();

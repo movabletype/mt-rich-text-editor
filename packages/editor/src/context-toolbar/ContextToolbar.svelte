@@ -1,22 +1,35 @@
 <script lang="ts">
   import type { Editor } from "../editor";
   import type { EditorView } from "@tiptap/pm/view";
-  import type { Snippet } from "svelte";
   import { findParentNode } from "@tiptap/core";
+  import type { ToolbarItemElement } from "../toolbar/item/element";
+  import { getPanelItem } from "../ui/item/registry";
+
   const {
     editor,
-    children,
     condition,
     targetNodeName,
+    items,
   }: {
     editor: Editor;
-    children: Snippet;
     condition: () => boolean;
     targetNodeName: string;
+    items: string[][];
   } = $props();
 
   const tiptap = editor.tiptap;
   const viewDom = tiptap.view.dom;
+
+  const buttonRefs: Record<string, HTMLElement> = {};
+  const buttons = items.map((item) => {
+    return item.map((name) => {
+      return {
+        name,
+        elementName: getPanelItem("toolbar", name),
+        icon: name,
+      };
+    });
+  });
 
   let isOpen = $state(false);
   let top = $state(0);
@@ -24,18 +37,19 @@
   let menuElement: HTMLElement;
   let showInBottom = $state(false);
 
-  tiptap.on("selectionUpdate", () => {
+  const update = () => {
     isOpen = condition();
     if (isOpen) {
       updatePosition(tiptap.view);
+      for (const key in buttonRefs) {
+        if ("onEditorUpdate" in buttonRefs[key]) {
+          (buttonRefs[key] as ToolbarItemElement).onEditorUpdate();
+        }
+      }
     }
-  });
-  tiptap.on("update", () => {
-    isOpen = condition();
-    if (isOpen) {
-      updatePosition(tiptap.view);
-    }
-  });
+  };
+  tiptap.on("selectionUpdate", update);
+  tiptap.on("update", update);
 
   const updatePosition = (view: EditorView) => {
     const viewRect = view.dom.getBoundingClientRect();
@@ -62,7 +76,7 @@
     }
     if (!targetDom) {
       const targetPos =
-        selection.node?.type.name === targetNodeName
+        (selection as any).node?.type.name === targetNodeName
           ? selection.$anchor
           : findParentNode((node) => node.type.name === targetNodeName)(selection);
       if (!targetPos) {
@@ -114,6 +128,18 @@
     })();
   };
 
+  function bindRef(node: HTMLElement, key: string) {
+    buttonRefs[key] = node;
+    if ("onEditorInit" in buttonRefs[key]) {
+      (buttonRefs[key] as ToolbarItemElement).onEditorInit(editor, {});
+    }
+    return {
+      destroy() {
+        delete buttonRefs[key];
+      },
+    };
+  }
+
   $effect(() => {
     viewDom.addEventListener("scroll", () => {
       if (isOpen) {
@@ -136,7 +162,13 @@
     left: ${left}px;
   `}
 >
-  {@render children()}
+  {#each buttons as group}
+    <div class="toolbar-group">
+      {#each group as button}
+        <svelte:element this={button.elementName} use:bindRef={button.name} class="toolbar-item"/>
+      {/each}
+    </div>
+  {/each}
 </div>
 
 <style>
@@ -188,5 +220,17 @@
     border-left: 7px solid transparent;
     border-right: 7px solid transparent;
     border-bottom: 7px solid #fff;
+  }
+
+  .toolbar-group {
+    display: flex;
+    gap: 5px;
+    padding: 4px;
+  }
+
+  .toolbar-item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 </style>

@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { Editor } from "../editor";
-  import type { ToolbarItemElement } from "../ui/item/element";
+  import type { ToolbarItemElement } from "./item/element";
   import { debounce } from "../util/event";
   import { getPanelItem } from "../ui/item/registry";
 
