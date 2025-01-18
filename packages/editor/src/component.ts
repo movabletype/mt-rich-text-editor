@@ -1,5 +1,5 @@
 export { ToolbarItemElement } from "./toolbar/item/element";
 export { StatusbarItemElement } from "./statusbar/item/element";
-export { PasteMenuItemElement } from "./pasteMenu/item/element";
-export { QuickActionItemElement } from "./quickAction/item/element";
+export { PasteMenuItemElement } from "./paste-menu/item/element";
+export { QuickActionItemElement } from "./quick-action/item/element";
 

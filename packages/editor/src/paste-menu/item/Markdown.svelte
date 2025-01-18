@@ -6,7 +6,7 @@
 
 <script module lang="ts">
   import { extendPasteMenuItem } from "./svelte";
-  import { PasteMenuItemElement } from "../item/element";
+  import { PasteMenuItemElement } from "./element";
   const extend = (customElementConstructor: typeof HTMLElement) =>
     class extends extendPasteMenuItem(customElementConstructor) {
       isEditorItemAvailable() {

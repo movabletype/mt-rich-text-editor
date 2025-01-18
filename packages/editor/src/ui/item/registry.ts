@@ -1,7 +1,7 @@
 import toolbar from "../../toolbar/item";
 import statusbar from "../../statusbar/item";
-import pasteMenu from "../../pasteMenu/item";
-import quickAction from "../../quickAction/item";
+import pasteMenu from "../../paste-menu/item";
+import quickAction from "../../quick-action/item";
 
 type PanelNamespace = "toolbar" | "statusbar" | "paste-menu" | "quick-action";
 
