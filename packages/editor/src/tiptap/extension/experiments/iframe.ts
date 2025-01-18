@@ -1,27 +1,27 @@
-import { Node } from '@tiptap/core'
+import { Node } from "@tiptap/core";
 
 export interface IframeOptions {
-  allowFullscreen: boolean,
+  allowFullscreen: boolean;
   HTMLAttributes: {
-    [key: string]: any
-  },
+    [key: string]: any;
+  };
 }
 
-declare module '@tiptap/core' {
+declare module "@tiptap/core" {
   interface Commands<ReturnType> {
     iframe: {
       /**
        * Add an iframe
        */
-      setIframe: (options: { src: string, width?: string, height?: string }) => ReturnType,
-    }
+      setIframe: (options: { src: string; width?: string; height?: string }) => ReturnType;
+    };
   }
 }
 
 export default Node.create<IframeOptions>({
-  name: 'iframe',
+  name: "iframe",
 
-  group: 'block',
+  group: "block",
 
   atom: true,
 
@@ -29,9 +29,9 @@ export default Node.create<IframeOptions>({
     return {
       allowFullscreen: true,
       HTMLAttributes: {
-        class: 'iframe-wrapper',
+        class: "iframe-wrapper",
       },
-    }
+    };
   },
 
   addAttributes() {
@@ -52,31 +52,35 @@ export default Node.create<IframeOptions>({
         default: this.options.allowFullscreen,
         parseHTML: () => this.options.allowFullscreen,
       },
-    }
+    };
   },
 
   parseHTML() {
-    return [{
-      tag: 'iframe',
-    }]
+    return [
+      {
+        tag: "iframe",
+      },
+    ];
   },
 
   renderHTML({ HTMLAttributes }) {
-    return ['div', this.options.HTMLAttributes, ['iframe', HTMLAttributes]]
+    return ["div", this.options.HTMLAttributes, ["iframe", HTMLAttributes]];
   },
 
   addCommands() {
     return {
-      setIframe: (options: { src: string, width?: string, height?: string }) => ({ tr, dispatch }) => {
-        const { selection } = tr
-        const node = this.type.create(options)
+      setIframe:
+        (options: { src: string; width?: string; height?: string }) =>
+        ({ tr, dispatch }) => {
+          const { selection } = tr;
+          const node = this.type.create(options);
 
-        if (dispatch) {
-          tr.replaceRangeWith(selection.from, selection.to, node)
-        }
+          if (dispatch) {
+            tr.replaceRangeWith(selection.from, selection.to, node);
+          }
 
-        return true
-      },
-    }
+          return true;
+        },
+    };
   },
-})
+});

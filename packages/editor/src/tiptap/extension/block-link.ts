@@ -7,7 +7,10 @@ export interface BlockLinkOptions {
 declare module "@tiptap/core" {
   interface Commands<ReturnType> {
     blockLink: {
-      setBlockLink: (attributes?: { href?: string; "data-mt-rich-text-editor-block"?: string }) => ReturnType;
+      setBlockLink: (attributes?: {
+        href?: string;
+        "data-mt-rich-text-editor-block"?: string;
+      }) => ReturnType;
       unsetBlockLink: () => ReturnType;
     };
   }
@@ -51,7 +54,9 @@ export const BlockLink = Node.create<BlockLinkOptions>({
 
           return {
             href: element.getAttribute("href"),
-            "data-mt-rich-text-editor-block": element.getAttribute("data-mt-rich-text-editor-block"),
+            "data-mt-rich-text-editor-block": element.getAttribute(
+              "data-mt-rich-text-editor-block"
+            ),
           };
         },
       },

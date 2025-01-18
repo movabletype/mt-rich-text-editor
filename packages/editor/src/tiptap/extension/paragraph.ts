@@ -1,47 +1,47 @@
 import { Paragraph as TiptapParagraph } from "@tiptap/extension-paragraph";
-import { mergeAttributes } from '@tiptap/core'
+import { mergeAttributes } from "@tiptap/core";
 
 export interface ParagraphOptions {
-  HTMLAttributes: Record<string, any>
+  HTMLAttributes: Record<string, any>;
 }
 
-declare module '@tiptap/core' {
+declare module "@tiptap/core" {
   interface Commands<ReturnType> {
     paragraph: {
-      setParagraph: () => ReturnType
-    }
+      setParagraph: () => ReturnType;
+    };
   }
 }
 
 // export const Paragraph = TiptapParagraph;
 export const Paragraph = TiptapParagraph.extend<ParagraphOptions>({
-  name: 'paragraph',
+  name: "paragraph",
   priority: 1000,
-  group: 'block',
-  content: 'inline*',
+  group: "block",
+  content: "inline*",
 
   addOptions() {
     return {
       HTMLAttributes: {},
-    }
+    };
   },
 
   parseHTML() {
-    return [
-      { tag: 'p' },
-    ]
+    return [{ tag: "p" }];
   },
 
   renderHTML({ node, HTMLAttributes }) {
     const { MTRichTextEditorHTMLAttributes, ...rest } = node.attrs;
-    return ['p', mergeAttributes(this.options.HTMLAttributes, rest, HTMLAttributes), 0]
+    return ["p", mergeAttributes(this.options.HTMLAttributes, rest, HTMLAttributes), 0];
   },
 
   addCommands() {
     return {
-      setParagraph: () => ({ commands }) => {
-        return commands.setNode(this.name)
-      },
-    }
+      setParagraph:
+        () =>
+        ({ commands }) => {
+          return commands.setNode(this.name);
+        },
+    };
   },
-}) 
+});

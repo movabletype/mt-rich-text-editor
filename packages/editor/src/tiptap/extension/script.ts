@@ -4,15 +4,13 @@ window.customElements.define(
   "mt-rich-text-editor-script",
   class extends HTMLElement {
     connectedCallback() {
-      const allowedOrigins = [
-        "https://gist.github.com",
-      ]
+      const allowedOrigins = ["https://gist.github.com"];
       const src = this.getAttribute("src");
       if (src && allowedOrigins.some((origin) => src.startsWith(`${origin}/`))) {
         const iframe = document.createElement("iframe");
         iframe.style.width = "100%";
         iframe.style.border = "none";
-        
+
         const html = `
           <!DOCTYPE html>
           <html>
@@ -52,7 +50,7 @@ window.customElements.define(
           </html>
         `;
         iframe.srcdoc = html;
-        
+
         this.appendChild(iframe);
       }
     }
@@ -73,13 +71,13 @@ export const Script = Node.create({
         parseHTML: (element) => {
           const attrs: Record<string, string> = {};
           const ignoreAttributes = ["data-tag-name", "contenteditable", "style", "class"];
-          
+
           Array.from(element.attributes)
             .filter((attr) => !ignoreAttributes.includes(attr.name))
             .forEach((attr) => {
               attrs[attr.name] = attr.value;
             });
-          
+
           return attrs;
         },
         renderHTML: (attributes) => attributes.HTMLAttributes,
@@ -96,8 +94,7 @@ export const Script = Node.create({
             return {};
           }
           return Object.fromEntries(
-            Array.from(node.attributes)
-              .map((attr) => [attr.name, attr.value])
+            Array.from(node.attributes).map((attr) => [attr.name, attr.value])
           );
         },
       },

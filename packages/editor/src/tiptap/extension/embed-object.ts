@@ -50,7 +50,9 @@ export const EmbedObject = Node.create<EmbedObjectOptions>({
 
           return {
             href: element.getAttribute("href"),
-            "data-mt-rich-text-editor-block": element.getAttribute("data-mt-rich-text-editor-block"),
+            "data-mt-rich-text-editor-block": element.getAttribute(
+              "data-mt-rich-text-editor-block"
+            ),
             content: element.getAttribute("data-mt-rich-text-editor-content") || element.innerHTML,
           };
         },
@@ -59,15 +61,21 @@ export const EmbedObject = Node.create<EmbedObjectOptions>({
   },
 
   renderHTML({ HTMLAttributes }) {
-    return ["mt-rich-text-editor-embed-object", mergeAttributes(this.options.HTMLAttributes, { "data-mt-rich-text-editor-content": HTMLAttributes.content }), 0];
+    return [
+      "mt-rich-text-editor-embed-object",
+      mergeAttributes(this.options.HTMLAttributes, {
+        "data-mt-rich-text-editor-content": HTMLAttributes.content,
+      }),
+      0,
+    ];
   },
 
   addNodeView() {
-    return ({node}) => {
-      const iframe = document.createElement('iframe')
-      iframe.setAttribute('frameborder', '0')
-      iframe.setAttribute('allowfullscreen', 'true')
-      iframe.style.width = '100%'
+    return ({ node }) => {
+      const iframe = document.createElement("iframe");
+      iframe.setAttribute("frameborder", "0");
+      iframe.setAttribute("allowfullscreen", "true");
+      iframe.style.width = "100%";
 
       const html = `
       <!DOCTYPE html>
@@ -111,22 +119,22 @@ export const EmbedObject = Node.create<EmbedObjectOptions>({
       </html>
     `;
 
-      iframe.srcdoc = html
-      
+      iframe.srcdoc = html;
+
       return {
         dom: iframe,
         update: () => {
           // // Update iframe content when node changes
           // const content = node.content.content[0]?.content?.toString() || ''
-          
+
           // iframe.contentDocument?.open()
           // iframe.contentDocument?.write(content)
           // iframe.contentDocument?.close()
-          
-          return true
-        }
-      }
-    }
+
+          return true;
+        },
+      };
+    };
   },
 
   addCommands() {
