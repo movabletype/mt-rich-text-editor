@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { Editor } from "../editor";
   import { debounce } from "../util/event";
-  import { getPanelItem } from "./item/registry";
+  import { getPanelItem } from "../ui/item/registry";
 
   const {
     editor,

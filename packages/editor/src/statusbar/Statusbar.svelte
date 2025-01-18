@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { Editor } from "../editor";
-  import { getPanelItem } from "./item/registry";
-  import type { StatusbarItemElement } from "./item/element";
+  import { getPanelItem } from "../ui/item/registry";
+  import type { StatusbarItemElement } from "../ui/item/element";
 
   const {
     editor,

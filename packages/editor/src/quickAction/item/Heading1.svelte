@@ -1,23 +1,23 @@
 <svelte:options
   customElement={{
-    tag: "mt-rich-text-editor-quick-action-item-h5",
     extend,
   }}
 />
 
 <script module lang="ts">
-  import { extendQuickActionItem } from "../item/registry/svelte";
+  import { extendQuickActionItem } from "./svelte";
   const extend = (customElementConstructor: typeof HTMLElement) =>
     class extends extendQuickActionItem(customElementConstructor) {
-      aliases = ["h5", "heading5"];
+      aliases = ["h1", "heading1"];
     };
 </script>
 
 <script lang="ts">
   import { t } from "../../i18n";
   import HeadingCommon from "./HeadingCommon.svelte";
-  import type { QuickActionItemElement } from "../item/element";
-  import icon from "../icon/heading5.svg?raw";
+  import type { QuickActionItemElement } from "./element";
+  import icon from "../../ui/icon/heading1.svg?raw";
+
   const element = $host<QuickActionItemElement>();
   element.addEventListener("click", () => {
     element.tiptap
@@ -25,9 +25,9 @@
       .focus()
       .selectParentNode()
       // .deleteSelection()
-      .insertContent(`<h5></h5>`)
+      .insertContent(`<h1></h1>`)
       .run();
   });
 </script>
 
-<HeadingCommon {icon} label={t("Heading 5")} />
+<HeadingCommon {icon} label={t("Heading 1")} />

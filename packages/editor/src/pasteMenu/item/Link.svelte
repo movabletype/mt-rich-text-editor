@@ -1,16 +1,15 @@
 <svelte:options
   customElement={{
-    tag: "mt-rich-text-editor-paste-menu-item-html",
     extend,
   }}
 />
 
 <script module lang="ts">
-  import { extendPasteMenuItem } from "../item/registry/svelte";
+  import { extendPasteMenuItem } from "./svelte";
   const extend = (customElementConstructor: typeof HTMLElement) =>
     class extends extendPasteMenuItem(customElementConstructor) {
       isEditorItemAvailable() {
-        return !!this.content?.htmlDocument;
+        return /^https?:\/\/[^\s]+(\s*)?$/.test(this.content?.plainText ?? "");
       }
     };
 </script>
@@ -18,25 +17,41 @@
 <script lang="ts">
   import { t } from "../../i18n";
   import { mount, unmount } from "svelte";
-  import { preprocessHTML } from "../../util/html";
-  import HtmlModal from "./HtmlModal.svelte";
-  import PasteMenuButton from "../PasteMenuButton.svelte";
-  import type { PasteMenuItemElement } from "../item/element";
+  import { PasteMenuItemElement } from "./element";
+  import type { LinkData } from "../../ui/link/Modal.svelte";
+  import LinkModal from "../../ui/link/Modal.svelte";
 
   const element = $host<PasteMenuItemElement>();
   element.addEventListener("click", toggleDetailPanel);
 
   const { tiptap } = element;
-
   let modalComponent: any = null;
 
-  const apply = (htmlDocument: Document | null | undefined = null) => {
+  const apply = (linkData: LinkData | undefined = undefined) => {
+    const content = element.content;
+    if (!content) {
+      return;
+    }
     if (!tiptap) {
       return;
     }
 
-    htmlDocument ??= element.content?.htmlDocument;
-    element.insertPasteContent(preprocessHTML(htmlDocument?.body.innerHTML ?? ""));
+    linkData ??= {
+      url: content.plainText,
+      text: content.plainText,
+      title: "",
+      target: "_self",
+    };
+
+    const anchor = document.createElement("a");
+    anchor.href = linkData.url;
+    if (linkData.title) {
+      anchor.title = linkData.title;
+    }
+    anchor.target = linkData.target;
+    anchor.textContent = linkData.text;
+
+    element.insertPasteContent(anchor.outerHTML);
 
     unmountModal();
   };
@@ -49,10 +64,15 @@
     ev.stopPropagation();
 
     if (!modalComponent) {
-      modalComponent = mount(HtmlModal, {
+      modalComponent = mount(LinkModal, {
         target: document.body,
         props: {
-          htmlDocument: element.content!.htmlDocument!,
+          linkData: {
+            url: element.content!.plainText,
+            text: element.content!.plainText,
+            title: "",
+            target: "_self",
+          },
           onSubmit: apply,
           onClose: () => {
             unmountModal();
@@ -74,4 +94,4 @@
   $effect(() => unmountModal);
 </script>
 
-<PasteMenuButton>{`${t("Paste as HTML")}...`}</PasteMenuButton>
+<button>{t("Paste as link")}</button>

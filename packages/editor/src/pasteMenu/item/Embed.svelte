@@ -1,16 +1,24 @@
 <svelte:options
   customElement={{
-    tag: "mt-rich-text-editor-paste-menu-item-link",
     extend,
   }}
 />
 
 <script module lang="ts">
-  import { extendPasteMenuItem } from "../item/registry/svelte";
+  import { extendPasteMenuItem } from "./svelte";
+  import { PasteMenuItemElement } from "./element";
   const extend = (customElementConstructor: typeof HTMLElement) =>
     class extends extendPasteMenuItem(customElementConstructor) {
-      isEditorItemAvailable() {
-        return /^https?:\/\/[^\s]+(\s*)?$/.test(this.content?.plainText ?? "");
+      async isEditorItemAvailable() {
+        if (!/^https?:\/\/[^\s]+(\s*)?$/.test(this.content?.plainText ?? "")) {
+          return false;
+        }
+
+        const targetDomNode = this.content?.targetDomNode;
+        if (targetDomNode?.tagName === "P" && targetDomNode.childNodes.length === 0) {
+          return PasteMenuItemElement.Priority.High;
+        }
+        return PasteMenuItemElement.Priority.Default;
       }
     };
 </script>
@@ -18,18 +26,16 @@
 <script lang="ts">
   import { t } from "../../i18n";
   import { mount, unmount } from "svelte";
-  import { PasteMenuItemElement } from "../item/element";
-  import PasteMenuButton from "../PasteMenuButton.svelte";
-  import type { LinkData } from "../link/Modal.svelte";
-  import LinkModal from "../link/Modal.svelte";
+  import type { EmbedData } from "../../ui/embed/Modal.svelte";
+  import EmbedModal from "../../ui/embed/Modal.svelte";
 
   const element = $host<PasteMenuItemElement>();
   element.addEventListener("click", toggleDetailPanel);
 
-  const { tiptap } = element;
+  const { editor, tiptap } = element;
   let modalComponent: any = null;
-  
-  const apply = (linkData: LinkData | undefined = undefined) => {
+
+  const apply = async (embedData: EmbedData | undefined = undefined) => {
     const content = element.content;
     if (!content) {
       return;
@@ -38,23 +44,21 @@
       return;
     }
 
-    linkData ??= {
+    embedData ??= {
       url: content.plainText,
-      text: content.plainText,
-      title: "",
-      target: "_self",
+      maxwidth: 0,
+      maxheight: 0,
     };
 
-    const anchor = document.createElement("a");
-    anchor.href = linkData.url;
-    if (linkData.title) {
-      anchor.title = linkData.title;
+    const res = await tiptap.commands
+      .getEmbedObject(embedData)
+      .catch(() => ({ html: "", inline: undefined }));
+    if (!res?.html) {
+      editor?.notify({ level: "error", message: t("Failed to get embed object") });
+      return;
     }
-    anchor.target = linkData.target;
-    anchor.textContent = linkData.text;
 
-    element.insertPasteContent(anchor.outerHTML);
-
+    element.insertPasteContent(res.html);
     unmountModal();
   };
   element.onEditorPaste = apply;
@@ -66,14 +70,11 @@
     ev.stopPropagation();
 
     if (!modalComponent) {
-      modalComponent = mount(LinkModal, {
+      modalComponent = mount(EmbedModal, {
         target: document.body,
         props: {
-          linkData: {
+          embedData: {
             url: element.content!.plainText,
-            text: element.content!.plainText,
-            title: "",
-            target: "_self",
           },
           onSubmit: apply,
           onClose: () => {
@@ -96,4 +97,6 @@
   $effect(() => unmountModal);
 </script>
 
-<PasteMenuButton>{t("Paste as link")}</PasteMenuButton>
+<button>
+  {t("Embed object")}
+</button>

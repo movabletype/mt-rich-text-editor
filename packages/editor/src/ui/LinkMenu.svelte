@@ -60,8 +60,4 @@
     align-items: center;
     gap: 4px;
   }
-  .external-link svg {
-    width: 16px;
-    height: 16px;
-  }
 </style>

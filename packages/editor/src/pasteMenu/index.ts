@@ -1,6 +1,6 @@
-import type { Editor } from "./editor";
+import type { Editor } from "../editor";
 import type { EditorView } from "@tiptap/pm/view";
-import PasteMenuUI from "./ui/PasteMenu.svelte";
+import PasteMenuUI from "./PasteMenu.svelte";
 import { mount, unmount } from "svelte";
 
 interface PasteMenuOptions {

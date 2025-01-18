@@ -1,6 +1,5 @@
 <svelte:options
   customElement={{
-    tag: "mt-rich-text-editor-toolbar-item-file",
     extend: extendToolbarItem,
   }}
 />

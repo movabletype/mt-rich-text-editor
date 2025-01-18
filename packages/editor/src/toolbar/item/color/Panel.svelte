@@ -3,6 +3,13 @@
     colors: string[];
     onSelect: (color: string) => void;
   }>();
+
+  function handleKeyDown(ev: KeyboardEvent, color: string) {
+    if (ev.key === "Enter") {
+      ev.stopPropagation();
+      onSelect(color);
+    }
+  }
 </script>
 
 <div class="color-panel">
@@ -14,9 +21,11 @@
         ev.stopPropagation();
         onSelect(color);
       }}
+      onkeydown={(ev) => handleKeyDown(ev, color)}
       role="button"
+      tabindex="0"
       aria-label={color}
-    />
+    ></div>
   {/each}
 </div>
 

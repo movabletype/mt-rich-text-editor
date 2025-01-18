@@ -22,24 +22,35 @@
     hoveredCols = col + 1;
   }
 
-  function handleClick(ev: MouseEvent) {
+  function handleClick(ev: Event) {
     ev.stopPropagation();
     if (hoveredRows && hoveredCols) {
       onInsert(hoveredRows, hoveredCols);
     }
   }
+
+  function handleKeyDown(ev: KeyboardEvent) {
+    if (ev.key === "Enter") {
+      handleClick(ev);
+    }
+  }
 </script>
 
 <div class="table_insert_panel">
-  <div class="grid_container" on:click={handleClick}>
+  <div class="grid_container">
     {#each Array(maxRows) as _, row}
       <div class="grid_row">
         {#each Array(maxCols) as _, col}
           <div
             class="grid_cell"
             class:selected={row < hoveredRows && col < hoveredCols}
-            on:mouseover={() => handleCellHover(row, col)}
-          />
+            onclick={handleClick}
+            onkeydown={handleKeyDown}
+            onmouseover={() => handleCellHover(row, col)}
+            onfocus={() => handleCellHover(row, col)}
+            role="button"
+            tabindex="0"
+          ></div>
         {/each}
       </div>
     {/each}

@@ -2,6 +2,9 @@ import { tooltip } from "../../ui/tooltip";
 import { PanelItemElement } from "../../ui/item/element";
 import css from "./element.css?raw";
 
+const toolbarItemStyle = document.createElement("style");
+toolbarItemStyle.textContent = css;
+
 /**
  * Base class for toolbar item
  *
@@ -23,8 +26,6 @@ import css from "./element.css?raw";
  *    }
  *  );
  */
-const toolbarItemStyle = document.createElement("style");
-toolbarItemStyle.textContent = css;
 export class ToolbarItemElement<
   Options extends Record<string, any> = Record<string, any>,
 > extends PanelItemElement<Options> {

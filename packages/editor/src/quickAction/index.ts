@@ -1,5 +1,5 @@
-import type { Editor } from "./editor";
-import QuickActionUI from "./ui/QuickAction.svelte";
+import type { Editor } from "../editor";
+import QuickActionUI from "./QuickAction.svelte";
 import { mount, unmount } from "svelte";
 
 interface QuickActionOptions {

@@ -1,5 +1,5 @@
-import type { Editor } from "./editor";
-import StatusbarUI from "./ui/Statusbar.svelte";
+import type { Editor } from "../editor";
+import StatusbarUI from "./Statusbar.svelte";
 import { mount, unmount } from "svelte";
 
 interface StatusbarOptions {

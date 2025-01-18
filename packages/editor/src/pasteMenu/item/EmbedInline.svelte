@@ -1,14 +1,13 @@
 <svelte:options
   customElement={{
-    tag: "mt-rich-text-editor-paste-menu-item-embedinline",
     extend,
   }}
 />
 
 <script module lang="ts">
   import { t } from "../../i18n";
-  import { extendPasteMenuItem } from "../item/registry/svelte";
-  import { PasteMenuItemElement } from "../item/element";
+  import { extendPasteMenuItem } from "./svelte";
+  import { PasteMenuItemElement } from "./element";
   type EmbedInlineElement = PasteMenuItemElement & {
     inline: string | undefined;
   };
@@ -45,7 +44,6 @@
 </script>
 
 <script lang="ts">
-  import PasteMenuButton from "../PasteMenuButton.svelte";
   const element = $host<EmbedInlineElement>();
   const apply = () => {
     if (!element.inline) {
@@ -58,4 +56,4 @@
   element.addEventListener("click", apply);
 </script>
 
-<PasteMenuButton>{t("Embed inline")}</PasteMenuButton>
+<button>{t("Embed inline")}</button>

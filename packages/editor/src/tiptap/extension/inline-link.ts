@@ -12,7 +12,7 @@ declare module "@tiptap/core" {
   }
 }
 
-export const InlineLink = Link.extend<InlineLinkOptions, InlineLinkCommands>({
+export const InlineLink = Link.extend<InlineLinkOptions>({
   addOptions() {
     return {
       ...this.parent?.(),

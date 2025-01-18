@@ -1,9 +1,9 @@
 <script lang="ts">
   import type { Editor } from "../editor";
   import type { EditorView } from "@tiptap/pm/view";
-  import { getPanelItem } from "./item/registry";
+  import { getPanelItem } from "../ui/item/registry";
   import type { PasteMenuItemElement, PasteMenuItemPriorityValue } from "./item/element";
-  import clipboardIcon from "./icon/clipboard.svg?raw";
+  import clipboardIcon from "../ui/icon/clipboard.svg?raw";
 
   function getText(clipboardData: DataTransfer): string | undefined {
     const text = clipboardData.getData("text/plain") || clipboardData.getData("Text");
@@ -242,16 +242,6 @@
       <svelte:element
         this={button.elementName}
         use:bindRef={button.name}
-        onclick={function (ev) {
-          ev.preventDefault();
-          ev.stopPropagation();
-
-          if ("onEditorPaste" in this) {
-            (this as unknown as PasteMenuItemElement).onEditorPaste();
-          }
-        }}
-        role="button"
-        tabindex="0"
         class="paste-menu-item"
         style={`display: ${isAvailableMap[button.name] ? "block" : "none"};`}
       />
@@ -311,27 +301,6 @@
     border-radius: 4px;
     border-top-left-radius: 0;
     margin-top: -1px;
-    padding-top: 3px;
     background: #fff;
-  }
-  .paste-menu-item {
-    display: inline-flex;
-    margin: 2px 0 3px 3px;
-    line-height: 2;
-    border: none;
-    background: none;
-    border-radius: 4px;
-    padding: 0 10px;
-  }
-  .paste-menu-item:hover {
-    background: #f0f0f0;
-    cursor: pointer;
-  }
-  .paste-menu-item.is-active {
-    background: #dee0e2;
-  }
-  .paste-menu-item.is-disabled {
-    opacity: 0.5;
-    pointer-events: none;
   }
 </style>

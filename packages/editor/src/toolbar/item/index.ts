@@ -52,13 +52,22 @@ export default {
   indent: IndentButton,
   outdent: OutdentButton,
   fullScreen: FullScreenButton,
+  // @ts-ignore
   link: Link.element!,
+  // @ts-ignore
   file: File.element!,
+  // @ts-ignore
   image: Image.element!,
+  // @ts-ignore
   structure: Structure.element!,
+  // @ts-ignore
   table: Table.element!,
+  // @ts-ignore
   block: Block.element!,
-  foregroundcolor: ForegroundColor.element!,
-  backgroundcolor: BackgroundColor.element!,
+  // @ts-ignore
+  foregroundColor: ForegroundColor.element!,
+  // @ts-ignore
+  backgroundColor: BackgroundColor.element!,
+  // @ts-ignore
   boilerplate: Boilerplate.element!,
 };

@@ -1,12 +1,11 @@
 <svelte:options
   customElement={{
-    tag: "mt-rich-text-editor-paste-menu-item-markdown",
     extend,
   }}
 />
 
 <script module lang="ts">
-  import { extendPasteMenuItem } from "../item/registry/svelte";
+  import { extendPasteMenuItem } from "./svelte";
   import { PasteMenuItemElement } from "../item/element";
   const extend = (customElementConstructor: typeof HTMLElement) =>
     class extends extendPasteMenuItem(customElementConstructor) {
@@ -33,10 +32,9 @@
 
 <script lang="ts">
   import { t } from "../../i18n";
-  import PasteMenuButton from "../PasteMenuButton.svelte";
   const element = $host<PasteMenuItemElement>();
 
-  element.onEditorPaste = async () => {
+  const apply = async () => {
     element.insertPasteContent(
       (
         await element.tiptap?.commands.markdownToHtml({
@@ -45,8 +43,10 @@
       )?.content ?? ""
     );
   };
+  element.onEditorPaste = apply;
+  element.addEventListener("click", apply);
 </script>
 
-<PasteMenuButton>
+<button>
   {t("Convert from Markdown")}
-</PasteMenuButton>
+</button>
