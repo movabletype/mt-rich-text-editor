@@ -13,7 +13,7 @@
 <script lang="ts">
   import { findParentNode } from "@tiptap/core";
   import { t } from "../../../i18n";
-  import { tooltip } from "../../../ui/tooltip";
+  import { tooltip } from "../../../tooltip";
   import icon from "../../../ui/icon/edit.svg?raw";
   import type { ToolbarItemElement } from "../element";
 

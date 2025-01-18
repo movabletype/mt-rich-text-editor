@@ -19,7 +19,7 @@
   import { t } from "../../../i18n";
   import { mount, unmount } from "svelte";
   import icon from "../../../ui/icon/boilerplate.svg?raw";
-  import { tooltip } from "../../../ui/tooltip";
+  import { tooltip } from "../../../tooltip";
   import Modal from "./Modal.svelte";
   import type { ToolbarItemElement } from "../element";
 

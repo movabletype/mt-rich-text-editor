@@ -16,7 +16,7 @@
 <script lang="ts">
   import { t } from "../../../i18n";
   import icon from "../../../ui/icon/image.svg?raw";
-  import { tooltip } from "../../../ui/tooltip";
+  import { tooltip } from "../../../tooltip";
   import { ImageToolbar } from "../../../context-toolbar/image";
   import type { ToolbarItemElement } from "../element";
 

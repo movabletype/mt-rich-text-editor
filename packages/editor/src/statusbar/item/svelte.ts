@@ -1,4 +1,4 @@
-import { extend } from "../../ui/item/registry/svelte";
+import { extend } from "../../ui/item/svelte";
 import { StatusbarItemElement } from "./element";
 
 export const extendStatusbarItem = (

@@ -11,7 +11,7 @@
 <script lang="ts">
   import { t } from "../../../i18n";
   import icon from "../../../ui/icon/table.svg?raw";
-  import { tooltip } from "../../../ui/tooltip";
+  import { tooltip } from "../../../tooltip";
   import TableInsertPanel from "./TableInsertPanel.svelte";
   import type { ToolbarItemElement } from "../element";
 

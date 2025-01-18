@@ -18,7 +18,7 @@
   import { t } from "../../../i18n";
   import { toKeyboardShortcutLabel } from "../../../util/keyboardShortcut";
   import icon from "../../../ui/icon/link.svg?raw";
-  import { tooltip } from "../../../ui/tooltip";
+  import { tooltip } from "../../../tooltip";
   import { LinkToolbar } from "../../../context-toolbar/link";
   import type { ToolbarItemElement } from "../element";
   import { onClickFunction } from "./common";

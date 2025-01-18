@@ -1,5 +1,5 @@
-import type { Editor } from "../../../editor";
-import { PanelItemElement } from "../element";
+import type { Editor } from "../../editor";
+import { PanelItemElement } from "./element";
 
 export const extend = (customElementConstructor: typeof HTMLElement): new () => PanelItemElement =>
   class extends customElementConstructor implements PanelItemElement {

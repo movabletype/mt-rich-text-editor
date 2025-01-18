@@ -1,4 +1,4 @@
-import { extend } from "../../ui/item/registry/svelte";
+import { extend } from "../../ui/item/svelte";
 import { QuickActionItemElement } from "./element";
 import css from "./element.css?raw";
 

@@ -1,4 +1,4 @@
-import { tooltip } from "../../ui/tooltip";
+import { tooltip } from "../../tooltip";
 import { PanelItemElement } from "../../ui/item/element";
 import css from "./element.css?raw";
 

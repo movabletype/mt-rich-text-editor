@@ -18,7 +18,7 @@
   import { t } from "../../../i18n";
   import { ToolbarItemElement } from "../element";
   import icon from "../../../ui/icon/structure.svg?raw";
-  import { tooltip } from "../../../ui/tooltip";
+  import { tooltip } from "../../../tooltip";
   const element = $host<ToolbarItemElement>();
   element.addEventListener("click", () => {
     const editor = element.editor;
