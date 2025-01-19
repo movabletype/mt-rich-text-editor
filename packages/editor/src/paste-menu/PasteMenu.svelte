@@ -121,6 +121,7 @@
     }
   });
 
+  let applyName = $state("");
   onPaste((view, event) => {
     // commit history transaction
     // FIXME: we should more effectively commit history transaction
@@ -182,7 +183,7 @@
       await Promise.all(Object.values(availablePromiseMap));
 
       let maxPriority = 0;
-      let applyName = "";
+      applyName = "";
       for (const { name } of buttons) {
         const availableRes = await availablePromiseMap[name];
         isAvailableMap[name] =
@@ -239,12 +240,20 @@
   </button>
   <div class="paste-menu-list" style={`display: ${isMenuOpen ? "block" : "none"};`}>
     {#each buttons as button}
-      <svelte:element
-        this={button.elementName}
-        use:bindRef={button.name}
-        class="paste-menu-item"
-        style={`display: ${isAvailableMap[button.name] ? "block" : "none"};`}
-      />
+      <div
+        class="paste-menu-item-container"
+        class:is-applied={applyName === button.name}
+        onpaste-menu-item-applied={() => {
+          applyName = button.name;
+        }}
+      >
+        <svelte:element
+          this={button.elementName}
+          use:bindRef={button.name}
+          class="paste-menu-item"
+          style={`display: ${isAvailableMap[button.name] ? "block" : "none"};`}
+        />
+      </div>
     {/each}
   </div>
 </div>
@@ -302,5 +311,15 @@
     border-top-left-radius: 0;
     margin-top: -1px;
     background: #fff;
+  }
+  .paste-menu-item-container {
+    position: relative;
+  }
+  .paste-menu-item-container.is-applied::before {
+    content: "✔";
+    position: absolute;
+    left: 5px;
+    top: 50%;
+    transform: translateY(-50%);
   }
 </style>

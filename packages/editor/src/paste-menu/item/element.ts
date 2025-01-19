@@ -58,9 +58,18 @@ export abstract class PasteMenuItemElement<
         typeof content === "string" ? preprocessHTML(content) : content
       );
     });
+    this.parentElement?.dispatchEvent(new Event("paste-menu-item-applied"));
   }
 
   onEditorPaste() {
     throw new Error("onEditorPaste is not implemented");
+  }
+}
+
+declare global {
+  namespace svelteHTML {
+    interface HTMLAttributes<T> {
+      'onpaste-menu-item-applied'?: (event: CustomEvent) => void;
+    }
   }
 }
