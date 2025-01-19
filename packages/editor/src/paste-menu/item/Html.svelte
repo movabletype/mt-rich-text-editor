@@ -34,7 +34,7 @@
     }
 
     htmlDocument ??= element.content?.htmlDocument;
-    element.insertPasteContent(preprocessHTML(htmlDocument?.body.innerHTML ?? ""));
+    element.insertContent(preprocessHTML(htmlDocument?.body.innerHTML ?? ""));
 
     unmountModal();
   };

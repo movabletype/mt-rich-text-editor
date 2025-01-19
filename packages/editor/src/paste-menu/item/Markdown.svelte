@@ -35,7 +35,7 @@
   const element = $host<PasteMenuItemElement>();
 
   const apply = async () => {
-    element.insertPasteContent(
+    element.insertContent(
       (
         await element.tiptap?.commands.markdownToHtml({
           content: element.content?.plainText ?? "",

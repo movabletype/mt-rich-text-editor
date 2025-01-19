@@ -36,12 +36,7 @@ export class Heading extends QuickActionItemElement {
     this.shadowRoot.appendChild(button);
 
     this.addEventListener("click", () => {
-      this.tiptap
-        ?.chain()
-        .focus()
-        .selectParentNode()
-        .insertContent(`<h${level}></h${level}>`)
-        .run();
+      this.insertContent(`<h${level}></h${level}>`);
     });
   }
 }

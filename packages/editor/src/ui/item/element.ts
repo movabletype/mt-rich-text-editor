@@ -19,8 +19,6 @@ export class PanelItemElement<
     this.attachShadow({ mode: "open" });
   }
 
-  connectedCallback() {}
-
   onEditorInit(editor: Editor, options: Options) {
     this.editor = editor;
     this.options = options;

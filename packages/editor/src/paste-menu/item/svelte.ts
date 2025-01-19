@@ -38,8 +38,8 @@ export const extendPasteMenuItem = (
       return true;
     }
 
-    insertPasteContent(content: string) {
-      return PasteMenuItemElement.prototype.insertPasteContent.bind(this)(content);
+    insertContent(content: string) {
+      return PasteMenuItemElement.prototype.insertContent.bind(this)(content);
     }
 
     onEditorPaste() {}

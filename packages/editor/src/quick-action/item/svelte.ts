@@ -13,4 +13,8 @@ export const extendQuickActionItem = (
       super.connectedCallback();
       this.shadowRoot.appendChild(quickActionItemStyle.cloneNode(true));
     }
+
+    insertContent(content: string) {
+      QuickActionItemElement.prototype.insertContent.call(this, content);
+    }
   };

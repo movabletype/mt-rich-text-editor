@@ -51,7 +51,7 @@
     anchor.target = linkData.target;
     anchor.textContent = linkData.text;
 
-    element.insertPasteContent(anchor.outerHTML);
+    element.insertContent(anchor.outerHTML);
 
     unmountModal();
   };

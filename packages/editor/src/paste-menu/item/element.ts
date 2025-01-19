@@ -32,9 +32,9 @@ export type PasteMenuItemPriorityValue =
  *      }
  *
  *      async onEditorPaste() {
- *        this.insertPasteContent(this.content?.plainText);
+ *        this.insertContent(this.content?.plainText);
  *      }
- * 
+ *
  *      connectedCallback() {
  *        this.addEventListener('click', () => {
  *          this.onEditorPaste();
@@ -79,7 +79,7 @@ export abstract class PasteMenuItemElement<
     this.content = content;
   }
 
-  insertPasteContent(content: string) {
+  insertContent(content: string) {
     this.content?.transaction(() => {
       this.tiptap?.chain().undo().focus().run();
       this.tiptap?.commands.insertContent(
@@ -97,7 +97,7 @@ export abstract class PasteMenuItemElement<
 declare global {
   namespace svelteHTML {
     interface HTMLAttributes<T> {
-      'onpaste-menu-item-applied'?: (event: CustomEvent) => void;
+      "onpaste-menu-item-applied"?: (event: CustomEvent) => void;
     }
   }
 }

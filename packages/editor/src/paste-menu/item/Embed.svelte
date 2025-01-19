@@ -58,7 +58,7 @@
       return;
     }
 
-    element.insertPasteContent(res.html);
+    element.insertContent(res.html);
     unmountModal();
   };
   element.onEditorPaste = apply;

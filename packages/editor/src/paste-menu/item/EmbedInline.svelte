@@ -50,7 +50,7 @@
       return;
     }
 
-    element.insertPasteContent(element.inline);
+    element.insertContent(element.inline);
   };
   element.onEditorPaste = apply;
   element.addEventListener("click", apply);

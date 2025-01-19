@@ -18,9 +18,9 @@ export class AsText extends PasteMenuItemElement {
   onEditorPaste() {
     const encoder = document.createElement("div");
     encoder.textContent = this.content?.plainText ?? "";
-    this.insertPasteContent(encoder.innerHTML.replace(/\n/g, "<br>"));
+    this.insertContent(encoder.innerHTML.replace(/\n/g, "<br>"));
     // TBD: enclose with <p> tag
-    // this.insertPasteContent(preprocessHTML(`<p>${encoder.innerHTML}</p>`));
+    // this.insertContent(preprocessHTML(`<p>${encoder.innerHTML}</p>`));
   }
 
   connectedCallback() {

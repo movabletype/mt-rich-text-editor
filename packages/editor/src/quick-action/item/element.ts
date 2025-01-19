@@ -18,4 +18,14 @@ export class QuickActionItemElement extends PanelItemElement {
   connectedCallback() {
     this.variant = this.dataset.mtRichTextEditorPanelItemVariant;
   }
+
+  insertContent(content: string) {
+    this.tiptap
+      ?.chain()
+      .focus()
+      .selectParentNode()
+      // .deleteSelection()
+      .insertContent(content)
+      .run();
+  }
 }

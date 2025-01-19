@@ -26,13 +26,7 @@ customElements.define(`mt-rich-text-editor-quick-action-item-boilerplate`, class
     button.appendChild(title);
 
     this.addEventListener("click", () => {
-      this.editor.tiptap
-        ?.chain()
-        .focus()
-        .selectParentNode()
-        // .deleteSelection()
-        .insertContent(boilerplate.text)
-        .run();
+      this.insertContent(boilerplate.text);
     });
   }
 });
