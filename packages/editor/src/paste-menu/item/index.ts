@@ -1,3 +1,4 @@
+import { t } from "../../i18n";
 import Html from "./Html.svelte";
 import Link from "./Link.svelte";
 import Embed from "./Embed.svelte";
@@ -10,7 +11,7 @@ export class AsText extends PasteMenuItemElement {
   constructor() {
     super();
     const button = document.createElement("button");
-    button.textContent = "テキストとして貼り付け";
+    button.textContent = t("Paste as text");
     this.shadowRoot.appendChild(button);
   }
 

@@ -36,7 +36,7 @@
 
 <Modal on:close={onClose} bind:this={self}>
   <ModalContent bind:close>
-    <svelte:fragment slot="title">{t("属性値の編集")}</svelte:fragment>
+    <svelte:fragment slot="title">{t("Edit attributes")}</svelte:fragment>
     <svelte:fragment slot="body">
       <div class="form-group mb-3">
         <label for="structure-id" class="form-label">{t("ID")}</label>
@@ -49,11 +49,11 @@
         />
       </div>
       <div class="form-group mb-3">
-        <label for="structure-class-name" class="form-label">{t("クラス名")}</label>
+        <label for="structure-class-name" class="form-label">{t("Class name")}</label>
         <input type="text" id="structure-class-name" class="form-control" bind:value={className} />
       </div>
       <div class="form-group mb-3">
-        <label for="structure-style" class="form-label">{t("スタイル")}</label>
+        <label for="structure-style" class="form-label">{t("Style")}</label>
         <input type="text" id="structure-style" class="form-control" bind:value={style} />
       </div>
     </svelte:fragment>

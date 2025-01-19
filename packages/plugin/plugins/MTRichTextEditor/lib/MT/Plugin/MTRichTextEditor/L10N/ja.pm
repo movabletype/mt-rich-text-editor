@@ -93,6 +93,10 @@ use vars qw( %Lexicon );
     'Embed webpage as inline link' => 'ウェブページの埋め込み (インラインリンク)',
     'Convert from Markdown'        => 'Markdownから変換',
 
+    'Edit attributes' => '属性値の編集',
+    'Class name'      => 'クラス名',
+    'Style'           => 'スタイル',
+
     'Cell'                 => 'セル',
     'Row'                  => '行',
     'Column'               => '列',
