@@ -155,8 +155,12 @@ class MTRichTextEditor extends MTEditor {
                       new URLSearchParams({
                         __mode: "mt_rich_text_editor_embed",
                         url: url,
-                        maxwidth: String(maxwidth ?? ""),
-                        maxheight: String(maxheight ?? ""),
+                        maxwidth: String(
+                          (maxwidth || customSettings?.embed_default_params?.maxwidth) ?? ""
+                        ),
+                        maxheight: String(
+                          (maxheight || customSettings?.embed_default_params?.maxheight) ?? ""
+                        ),
                         blog_id: String(blog_id),
                       })
                   )

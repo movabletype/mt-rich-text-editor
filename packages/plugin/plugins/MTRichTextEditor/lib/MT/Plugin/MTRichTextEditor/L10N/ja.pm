@@ -126,6 +126,8 @@ use vars qw( %Lexicon );
     'Heading 5'    => '見出し 5',
     'Heading 6'    => '見出し 6',
     'Preformatted' => '書式設定済み',
+
+    'Default parameters for embedding by oEmbed' => 'oEmbedによる埋込時のデフォルトのパラメーター',
 );
 
 1;

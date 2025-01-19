@@ -78,6 +78,13 @@ settings:
         "#FF9999",
         "#FFD1D1"
       ]
+  embed_default_params:
+    scope: system
+    default: |
+      {
+        "maxwidth": 600,
+        "maxheight": 600
+      }
 
 editors:
   mt_rich_text_editor:

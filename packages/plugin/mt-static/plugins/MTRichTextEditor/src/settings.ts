@@ -2,7 +2,7 @@ import { mount } from "svelte";
 import Toolbar from "./settings/Toolbar.svelte";
 import Blocks from "./settings/Blocks.svelte";
 import Colors from "./settings/Colors.svelte";
-
+import EmbedDefaultParams from "./settings/EmbedDefaultParams.svelte";
 setTimeout(() => {
   [
     {
@@ -16,6 +16,10 @@ setTimeout(() => {
     {
       id: "colors",
       component: Colors,
+    },
+    {
+      id: "embed_default_params",
+      component: EmbedDefaultParams,
     },
   ].forEach(({ id: name, component }) => {
     const textarea = document.querySelector<HTMLTextAreaElement>(
