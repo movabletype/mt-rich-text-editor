@@ -4,7 +4,7 @@ import type { Editor as TiptapEditor } from "@tiptap/core";
 import type { CellData } from "./CellPropertiesPanel.svelte";
 import CellPropertiesPanel from "./CellPropertiesPanel.svelte";
 
-function getCurrentCellData(tiptap: TiptapEditor): CellData {
+const getCurrentCellData = (tiptap: TiptapEditor): CellData => {
   const { state } = tiptap;
   let depth = state.selection.$anchor.depth;
   let cellNode = null;
@@ -23,9 +23,9 @@ function getCurrentCellData(tiptap: TiptapEditor): CellData {
     width: cellNode?.attrs.style?.match(/width: ([^;]+)/)?.[1] || "",
     element: cellNode?.type.name === "tableCell" ? "td" : "th",
   };
-}
+};
 
-function getCellNodePos(tiptap: TiptapEditor): number | null {
+const getCellNodePos = (tiptap: TiptapEditor): number | null => {
   if (!tiptap) {
     return null;
   }
@@ -41,10 +41,10 @@ function getCellNodePos(tiptap: TiptapEditor): number | null {
     depth--;
   }
   return null;
-}
+};
 
 let cellPropertiesModal: ReturnType<typeof mount> | undefined;
-export function handleCellProperties(tiptap: TiptapEditor) {
+export const handleCellProperties = (tiptap: TiptapEditor) => {
   mount(CellPropertiesPanel, {
     target: document.body,
     props: {
@@ -82,4 +82,4 @@ export function handleCellProperties(tiptap: TiptapEditor) {
       },
     },
   });
-}
+};

@@ -5,7 +5,7 @@ import type { RowData } from "./RowPropertiesPanel.svelte";
 import RowPropertiesPanel from "./RowPropertiesPanel.svelte";
 
 let tablePropertiesModal: ReturnType<typeof mount> | undefined;
-export function handleRowProperties(tiptap: TiptapEditor) {
+export const handleRowProperties = (tiptap: TiptapEditor) => {
   mount(RowPropertiesPanel, {
     target: document.body,
     props: {
@@ -21,4 +21,4 @@ export function handleRowProperties(tiptap: TiptapEditor) {
       },
     },
   });
-}
+};

@@ -4,7 +4,7 @@ import type { Editor as TiptapEditor } from "@tiptap/core";
 import type { TableData } from "./TablePropertiesPanel.svelte";
 import TablePropertiesPanel from "./TablePropertiesPanel.svelte";
 
-function getCurrentTableWidth(tiptap: TiptapEditor): string {
+const getCurrentTableWidth = (tiptap: TiptapEditor): string => {
   if (!tiptap) {
     return "100%";
   }
@@ -24,9 +24,9 @@ function getCurrentTableWidth(tiptap: TiptapEditor): string {
   }
 
   return tableNode?.attrs.style?.match(/width: ([^;]+)/)?.[1] || "100%";
-}
+};
 
-function getTableNodePos(tiptap: TiptapEditor): number | null {
+const getTableNodePos = (tiptap: TiptapEditor): number | null => {
   if (!tiptap) {
     return null;
   }
@@ -42,10 +42,10 @@ function getTableNodePos(tiptap: TiptapEditor): number | null {
     depth--;
   }
   return null;
-}
+};
 
 let tablePropertiesModal: ReturnType<typeof mount> | undefined;
-export function handleTableProperties(tiptap: TiptapEditor) {
+export const handleTableProperties = (tiptap: TiptapEditor) => {
   mount(TablePropertiesPanel, {
     target: document.body,
     props: {
@@ -77,4 +77,4 @@ export function handleTableProperties(tiptap: TiptapEditor) {
       },
     },
   });
-}
+};
