@@ -63,3 +63,7 @@ table {
   margin: 1.5rem 0;
   overflow-x: auto;
 }
+
+.resize-cursor {
+  cursor: col-resize;
+}
