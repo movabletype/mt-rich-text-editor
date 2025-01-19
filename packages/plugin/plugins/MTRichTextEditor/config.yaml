@@ -82,8 +82,8 @@ settings:
     scope: system
     default: |
       {
-        "maxwidth": 600,
-        "maxheight": 600
+        "maxwidth": 500,
+        "maxheight": 500
       }
 
 editors:
