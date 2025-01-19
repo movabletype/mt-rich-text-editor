@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { Editor } from "../editor";
   import { getPanelItem } from "../ui/item/registry";
-  import type { StatusbarItemElement } from "../ui/item/element";
+  import type { StatusbarItemElement } from "./item/element";
 
   const {
     editor,
@@ -30,15 +30,12 @@
         options: Record<string, any>;
       }[]
   );
-  const isActiveMap: Record<string, boolean> = $state({});
-  const isDisabledMap: Record<string, boolean> = $state({});
+
   function update() {
     for (const key in buttonRefs) {
       if ("onEditorUpdate" in buttonRefs[key]) {
         buttonRefs[key].onEditorUpdate();
       }
-      isActiveMap[key] = buttonRefs[key].classList.contains("is-active");
-      isDisabledMap[key] = buttonRefs[key].classList.contains("is-disabled");
     }
   }
   editor.tiptap.on("selectionUpdate", update);
@@ -68,11 +65,6 @@
           this={button.elementName}
           use:bindRef={button.name}
           class="statusbar-item"
-          class:is-active={isActiveMap[button.elementName]}
-          class:is-disabled={isDisabledMap[button.elementName]}
-          role="button"
-          tabindex="0"
-          onclick={update}
         />
       {/each}
     </div>
@@ -97,12 +89,5 @@
     background: none;
     border-radius: 4px;
     padding: 1px 5px;
-  }
-  .statusbar-item.is-active {
-    background: #dee0e2;
-  }
-  .statusbar-item.is-disabled {
-    opacity: 0.5;
-    pointer-events: none;
   }
 </style>

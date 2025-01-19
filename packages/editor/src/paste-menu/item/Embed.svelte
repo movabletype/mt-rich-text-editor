@@ -26,8 +26,8 @@
 <script lang="ts">
   import { t } from "../../i18n";
   import { mount, unmount } from "svelte";
-  import type { EmbedData } from "../../ui/embed/Modal.svelte";
-  import EmbedModal from "../../ui/embed/Modal.svelte";
+  import type { EmbedData } from "./embed/Modal.svelte";
+  import EmbedModal from "./embed/Modal.svelte";
 
   const element = $host<PasteMenuItemElement>();
   element.addEventListener("click", toggleDetailPanel);

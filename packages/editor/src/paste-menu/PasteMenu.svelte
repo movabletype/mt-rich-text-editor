@@ -237,16 +237,15 @@
   >
     {@html clipboardIcon}
   </button>
-  <div class="paste-menu-list" style={`display: ${isMenuOpen ? "block" : "none"};`}>
-    {#each buttons as button}
-      <svelte:element
-        this={button.elementName}
-        use:bindRef={button.name}
-        class="paste-menu-item"
-        style={`display: ${isAvailableMap[button.name] ? "block" : "none"};`}
-      />
-    {/each}
-  </div>
+  {#if isMenuOpen}
+    <div class="paste-menu-list">
+      {#each buttons as button}
+        {#if isAvailableMap[button.name]}
+          <svelte:element this={button.elementName} use:bindRef={button.name} />
+        {/if}
+      {/each}
+    </div>
+  {/if}
 </div>
 
 <style>

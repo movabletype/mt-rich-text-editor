@@ -4,6 +4,8 @@
   --table-header-text-color: #333;
   --table-header-font-weight: bold;
   --table-header-text-align: left;
+  --table-selected-cell-background-color: #f0f0f0;
+  --table-resize-handle-background-color: #ccc;
 }
 
 table {

@@ -18,7 +18,7 @@
 
   let toolbarRef: HTMLElement | null = null;
 
-  const buttonRefs: Record<string, HTMLElement> = {};
+  const buttonRefs: Record<string, ToolbarItemElement | HTMLElement> = {};
   const buttons = toolbar
     .map((row) =>
       row.map(
@@ -47,7 +47,7 @@
   function update() {
     for (const key in buttonRefs) {
       if ("onEditorUpdate" in buttonRefs[key]) {
-        (buttonRefs[key] as ToolbarItemElement).onEditorUpdate();
+        buttonRefs[key].onEditorUpdate();
       }
     }
   }
@@ -107,10 +107,10 @@
     updateToolbarVisibility();
   }
 
-  function bindRef(node: HTMLElement, key: string) {
+  function bindRef(node: ToolbarItemElement | HTMLElement, key: string) {
     buttonRefs[key] = node;
-    if ("onEditorInit" in buttonRefs[key]) {
-      (buttonRefs[key] as ToolbarItemElement).onEditorInit(editor, options[key]);
+    if ("onEditorInit" in node) {
+      node.onEditorInit(editor, options[key] ?? {});
     }
     return {
       destroy() {

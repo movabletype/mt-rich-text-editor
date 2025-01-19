@@ -12,6 +12,7 @@
 </script>
 
 <script lang="ts">
+  import { t } from "../../../i18n";
   import type { Level } from "@tiptap/extension-heading";
   import { ToolbarItemElement } from "../element";
 
@@ -20,14 +21,14 @@
   let isOpen = $state(false);
 
   const blocks: Options["blocks"] = options.blocks ?? [
-    { value: "paragraph", label: "本文" },
-    { value: "h1", label: "見出し1" },
-    { value: "h2", label: "見出し2" },
-    { value: "h3", label: "見出し3" },
-    { value: "h4", label: "見出し4" },
-    { value: "h5", label: "見出し5" },
-    { value: "h6", label: "見出し6" },
-    { value: "pre", label: "コードブロック" },
+    { value: "paragraph", label: t("Paragraph") },
+    { value: "h1", label: t("Heading 1") },
+    { value: "h2", label: t("Heading 2") },
+    { value: "h3", label: t("Heading 3") },
+    { value: "h4", label: t("Heading 4") },
+    { value: "h5", label: t("Heading 5") },
+    { value: "h6", label: t("Heading 6") },
+    { value: "pre", label: t("Preformatted") },
   ];
   let selectedBlock = $state(blocks[0].value);
 
@@ -74,11 +75,11 @@
 
   let dropdownElement: HTMLElement;
   let isInitialized = $state(false);
-  
+
   $effect(() => {
     if (isInitialized) return;
     isInitialized = true;
-    
+
     document.addEventListener("click", handleClickOutside);
     return () => {
       document.removeEventListener("click", handleClickOutside);
@@ -170,7 +171,6 @@
     background-color: #e0e0e0;
   }
 
-  /* 見出しスタイル */
   .h1 {
     font-size: 1.8em;
     font-weight: bold;

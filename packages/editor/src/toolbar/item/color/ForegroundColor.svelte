@@ -13,6 +13,7 @@
 
 <script lang="ts">
   import { t } from "../../../i18n";
+  import { tooltip } from "../../../tooltip";
   import icon from "../../../ui/icon/foregroundColor.svg?raw";
   import Panel from "./Panel.svelte";
   import type { ToolbarItemElement } from "../element";
@@ -76,7 +77,7 @@
   });
 </script>
 
-<button title={t("Text Color")} class:tooltip-disabled={isOpen}>
+<button use:tooltip={t("Text Color")} class:tooltip-disabled={isOpen}>
   {@html icon.replace(/fill="currentColor"/g, `fill="${selectedColor}"`)}
 </button>
 

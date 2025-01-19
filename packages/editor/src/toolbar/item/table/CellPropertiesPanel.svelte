@@ -1,32 +1,29 @@
 <script lang="ts" module>
-  export interface EmbedData {
-    readonly url: string;
-    readonly maxwidth?: number;
-    readonly maxheight?: number;
+  export interface CellData {
+    readonly width: string;
+    readonly element: string;
   }
 </script>
 
 <script lang="ts">
-  import { t } from "../../i18n";
+  import { t } from "../../../i18n";
   import { Modal, ModalContent } from "@movabletype/svelte-components";
 
   let {
-    embedData,
+    cellData,
     onSubmit,
     onClose,
   }: {
-    embedData: EmbedData;
-    onSubmit: (embedData: EmbedData) => void;
+    cellData: CellData;
+    onSubmit: (cellData: CellData) => void;
     onClose: () => void;
   } = $props();
 
-  let url = $state(embedData.url);
-  let maxwidth = $state(embedData.maxwidth);
-  let maxheight = $state(embedData.maxheight);
-
-  let urlInput: HTMLInputElement;
+  let width = $state(cellData.width);
+  let element = $state(cellData.element);
+  let widthInput: HTMLInputElement;
   $effect(() => {
-    urlInput?.focus();
+    widthInput?.focus();
   });
 
   let self: Modal;
@@ -36,25 +33,24 @@
 
 <Modal on:close={onClose} bind:this={self}>
   <ModalContent bind:close>
-    <svelte:fragment slot="title">{t("oEmbed")}</svelte:fragment>
+    <svelte:fragment slot="title">{t("Cell Properties")}</svelte:fragment>
     <svelte:fragment slot="body">
       <div class="form-group mb-3">
-        <label for="embed-url" class="form-label">{t("URL")}</label>
+        <label for="width" class="form-label">{t("Width")}</label>
         <input
-          type="url"
-          id="embed-url"
+          type="text"
+          id="width"
           class="form-control"
-          bind:value={url}
-          bind:this={urlInput}
+          bind:value={width}
+          bind:this={widthInput}
         />
       </div>
       <div class="form-group mb-3">
-        <label for="embed-maxwidth" class="form-label">{t("Width")}</label>
-        <input type="number" id="embed-maxwidth" class="form-control" bind:value={maxwidth} />
-      </div>
-      <div class="form-group mb-3">
-        <label for="embed-maxheight" class="form-label">{t("Height")}</label>
-        <input type="number" id="embed-maxheight" class="form-control" bind:value={maxheight} />
+        <label for="element" class="form-label">{t("Cell type")}</label>
+        <select id="element" class="form-control" bind:value={element}>
+          <option value="td">{t("Cell")}</option>
+          <option value="th">{t("Header cell")}</option>
+        </select>
       </div>
     </svelte:fragment>
     <svelte:fragment slot="footer">
@@ -63,7 +59,7 @@
         title={t("Insert (s)")}
         class="action primary button btn btn-primary"
         onclick={() => {
-          onSubmit({ url, maxwidth, maxheight });
+          onSubmit({ width, element });
           close();
         }}
       >

@@ -34,7 +34,7 @@
   let isOpen = $state(false);
   let top = $state(0);
   let left = $state(0);
-  let menuElement: HTMLElement;
+  let toolbarElement: HTMLElement;
   let showInBottom = $state(false);
 
   const update = () => {
@@ -114,17 +114,17 @@
         return;
       }
 
-      const menuWidth = menuElement?.offsetWidth || 0;
-      const menuHeight = menuElement?.offsetHeight || 0;
+      const toolbarWidth = toolbarElement?.offsetWidth || 0;
+      const toolbarHeight = toolbarElement?.offsetHeight || 0;
       const targetWidth = targetDom.offsetWidth;
 
-      const topPosition = targetRect.top - viewRect.top - menuHeight - 10;
+      const topPosition = targetRect.top - viewRect.top - toolbarHeight - 10;
       const bottomPosition = targetRect.bottom - viewRect.top + 10;
 
       showInBottom = topPosition < 0;
 
       top = showInBottom ? bottomPosition : topPosition;
-      left = targetRect.left - viewRect.left + targetWidth / 2 - menuWidth / 2;
+      left = targetRect.left - viewRect.left + targetWidth / 2 - toolbarWidth / 2;
     })();
   };
 
@@ -154,8 +154,8 @@
 </script>
 
 <div
-  bind:this={menuElement}
-  class={`menu ${showInBottom ? "menu--bottom" : "menu--top"}`}
+  bind:this={toolbarElement}
+  class={`toolbar ${showInBottom ? "toolbar--bottom" : "toolbar--top"}`}
   style={`
     display: ${isOpen && top && left ? "flex" : "none"}; 
     top: ${top}px; 
@@ -172,7 +172,7 @@
 </div>
 
 <style>
-  .menu {
+  .toolbar {
     position: absolute;
     background-color: #fff;
     border: 1px solid #ccc;
@@ -182,8 +182,8 @@
     gap: 5px;
   }
 
-  .menu::after,
-  .menu::before {
+  .toolbar::after,
+  .toolbar::before {
     content: "";
     position: absolute;
     left: 50%;
@@ -193,14 +193,14 @@
   }
 
   /* Arrow at the bottom */
-  .menu--top::before {
+  .toolbar--top::before {
     bottom: -9px;
     border-left: 8px solid transparent;
     border-right: 8px solid transparent;
     border-top: 8px solid #ccc;
   }
 
-  .menu--top::after {
+  .toolbar--top::after {
     bottom: -7px;
     border-left: 7px solid transparent;
     border-right: 7px solid transparent;
@@ -208,14 +208,14 @@
   }
 
   /* Arrow at the top */
-  .menu--bottom::before {
+  .toolbar--bottom::before {
     top: -9px;
     border-left: 8px solid transparent;
     border-right: 8px solid transparent;
     border-bottom: 8px solid #ccc;
   }
 
-  .menu--bottom::after {
+  .toolbar--bottom::after {
     top: -7px;
     border-left: 7px solid transparent;
     border-right: 7px solid transparent;

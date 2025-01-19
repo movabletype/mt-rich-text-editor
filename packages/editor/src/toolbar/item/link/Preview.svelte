@@ -24,7 +24,7 @@
 
 <a href={url} target="_blank">
   {url}
-  {@html icon.replace(/width="24"/, "width='16'").replace(/height="24"/, "height='16'")}
+  {@html icon}
 </a>
 
 <style>
@@ -38,5 +38,10 @@
 
   a:hover {
     background-color: #dee0e2;
+  }
+
+  a :global(svg) {
+    width: 16px;
+    height: 16px;
   }
 </style>
