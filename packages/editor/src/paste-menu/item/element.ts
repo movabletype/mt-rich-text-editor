@@ -13,7 +13,35 @@ export type PasteMenuItemPriorityValue =
   (typeof PasteMenuItemPriority)[keyof typeof PasteMenuItemPriority];
 
 /**
- * PasteMenuItemElement
+ * Base class for paste menu item
+ *
+ * @example
+ *
+ *  customElements.define(
+ *    "mt-rich-text-editor-paste-menu-item-myitem",
+ *    class extends PasteMenuItemElement {
+ *      constructor() {
+ *        super();
+ *        const button = document.createElement("button");
+ *        button.textContent = "My Paste Item";
+ *        this.shadowRoot.appendChild(button);
+ *      }
+ *
+ *      isEditorItemAvailable() {
+ *        return /^https?:\/\//.test(this.content?.plainText);
+ *      }
+ *
+ *      async onEditorPaste() {
+ *        this.insertPasteContent(this.content?.plainText);
+ *      }
+ * 
+ *      connectedCallback() {
+ *        this.addEventListener('click', () => {
+ *          this.onEditorPaste();
+ *        });
+ *      }
+ *    }
+ *  );
  */
 export abstract class PasteMenuItemElement<
   Options extends Record<string, any> = Record<string, any>,

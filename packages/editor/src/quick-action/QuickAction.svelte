@@ -15,14 +15,19 @@
 
   const buttonRefs: Record<string, HTMLElement> = {};
   const buttons = quickAction
-    .map((name) => ({
-      name,
-      elementName: getPanelItem("quick-action", name),
-      aliases: [name],
-      options: options[name] ?? {},
-    }))
+    .map((name) => {
+      const [baseName, variant] = name.split(":");
+      return {
+        name,
+        variant,
+        elementName: getPanelItem("quick-action", baseName),
+        aliases: [variant],
+        options: options[name] ?? {},
+      };
+    })
     .filter((item) => item.elementName && item.options !== false) as {
     name: string;
+    variant?: string;
     elementName: string;
     aliases: string[];
     options: Record<string, any>;
@@ -31,7 +36,9 @@
   let keyword = $state<string>("");
   const availableButtons = $derived(
     keyword
-      ? buttons.filter((button) => button.aliases.some((alias: string) => alias.startsWith(keyword)))
+      ? buttons.filter((button) =>
+          button.aliases.some((alias: string) => alias.startsWith(keyword))
+        )
       : buttons
   );
   const availableButtonsLength = $derived(availableButtons.length);
@@ -94,18 +101,17 @@
             ev.stopPropagation();
             ev.stopImmediatePropagation();
             buttonRefs[availableButtons[selectedButtonIndex].name].click();
-          }
-          else if (ev.key === "ArrowDown") {
+          } else if (ev.key === "ArrowDown") {
             ev.preventDefault();
             ev.stopPropagation();
             ev.stopImmediatePropagation();
             selectedButtonIndex = (selectedButtonIndex + 1) % availableButtons.length;
-          }
-          else if (ev.key === "ArrowUp") {
+          } else if (ev.key === "ArrowUp") {
             ev.preventDefault();
             ev.stopPropagation();
             ev.stopImmediatePropagation();
-            selectedButtonIndex = (selectedButtonIndex - 1 + availableButtons.length) % availableButtons.length;
+            selectedButtonIndex =
+              (selectedButtonIndex - 1 + availableButtons.length) % availableButtons.length;
           }
         }
       },
@@ -134,8 +140,16 @@
 
 <div class="mt-rich-text-editor-quick-action" bind:this={quickActionRef}>
   {#each availableButtons as button, index (button.name)}
-    <div class="mt-rich-text-editor-quick-action-button {index === selectedButtonIndex ? 'selected' : ''}">
-      <svelte:element this={button.elementName} use:bindRef={button.name} />
+    <div
+      class="mt-rich-text-editor-quick-action-button {index === selectedButtonIndex
+        ? 'selected'
+        : ''}"
+    >
+      <svelte:element
+        this={button.elementName}
+        data-mt-rich-text-editor-panel-item-variant={button.variant}
+        use:bindRef={button.name}
+      />
     </div>
   {/each}
 </div>

@@ -7,6 +7,8 @@ import css from "./element.css?raw";
 const quickActionItemStyle = document.createElement("style");
 quickActionItemStyle.textContent = css;
 export class QuickActionItemElement extends PanelItemElement {
+  aliases?: string[];
+
   constructor() {
     super();
     this.shadowRoot.appendChild(quickActionItemStyle.cloneNode(true));

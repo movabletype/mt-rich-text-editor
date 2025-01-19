@@ -15,10 +15,14 @@ toolbarItemStyle.textContent = css;
  *    class extends ToolbarItemElement {
  *      constructor() {
  *        super();
- *        this.shadowRoot.innerHTML = 'My Item';
+ *        const button = document.createElement("button");
+ *        button.title = "My Item";
+ *        button.textContent = "My Item";
+ *        this.shadowRoot.appendChild(button);
  *      }
  *
  *      connectedCallback() {
+ *        super.connectedCallback();
  *        this.addEventListener("click", () => {
  *          this.tiptap?.commands.insertContent("<p>Hello</p>");
  *        });
