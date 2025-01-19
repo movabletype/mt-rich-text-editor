@@ -318,7 +318,7 @@
   .paste-menu-item-container.is-applied::before {
     content: "✔";
     position: absolute;
-    left: 5px;
+    left: 10px;
     top: 50%;
     transform: translateY(-50%);
   }
