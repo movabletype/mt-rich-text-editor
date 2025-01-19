@@ -32,15 +32,5 @@ jobs:
           path: |
             packages/plugin/dist
 
-      - name: Build examples
-        run: npm run build:examples
-
-      - name: Archive examples
-        uses: actions/upload-artifact@v4
-        with:
-          name: examples
-          path: |
-            packages/examples/dist
-
     # - name: Run tests
     #   run: npm test
