@@ -8,9 +8,14 @@ const quickActionItemStyle = document.createElement("style");
 quickActionItemStyle.textContent = css;
 export class QuickActionItemElement extends PanelItemElement {
   aliases?: string[];
+  variant?: string;
 
   constructor() {
     super();
     this.shadowRoot.appendChild(quickActionItemStyle.cloneNode(true));
+  }
+
+  connectedCallback() {
+    this.variant = this.dataset.mtRichTextEditorPanelItemVariant;
   }
 }
