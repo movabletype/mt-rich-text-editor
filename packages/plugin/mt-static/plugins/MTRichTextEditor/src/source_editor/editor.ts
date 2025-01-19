@@ -5,17 +5,17 @@ import Toolbar from "./Toolbar.svelte";
 import LinkModal from "../link/Modal.svelte";
 import { toggleFullScreen } from "../util/full_screen";
 
-function openDialog(mode: string, param: string) {
+const openDialog = (mode: string, param: string) => {
   var url = window.ScriptURI + "?" + "__mode=" + mode + "&amp;" + param;
   window.jQuery.fn.mtModal.open(url, { large: true });
-  var modalClose = function (e: KeyboardEvent) {
+  var modalClose = (e: KeyboardEvent) => {
     if (e.keyCode == 27) {
       window.jQuery.fn.mtModal.close();
       window.jQuery("body").off("keyup", modalClose as any);
     }
   };
   window.jQuery("body").on("keyup", modalClose as any);
-}
+};
 
 export default class SourceEditor {
   private id: string;

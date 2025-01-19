@@ -1,4 +1,4 @@
-export function openDialog(params: URLSearchParams) {
+export const openDialog = (params: URLSearchParams) => {
   const url = new URL(window.CMSScriptURI, location.href);
   url.search = params.toString();
   window.jQuery.fn.mtModal.open(url.toString(), { large: true });
@@ -9,4 +9,4 @@ export function openDialog(params: URLSearchParams) {
     }
   };
   window.jQuery("body").on("keyup", modalClose);
-}
+};

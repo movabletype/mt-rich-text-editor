@@ -1,4 +1,4 @@
-export function toggleFullScreen(id: string) {
+export const toggleFullScreen = (id: string) => {
   const textarea = document.querySelector<HTMLTextAreaElement>(`#${id}`);
   if (!textarea) {
     throw new Error(`textarea not found: ${id}`);
@@ -31,4 +31,4 @@ export function toggleFullScreen(id: string) {
     updateHeight();
     window.addEventListener("resize", updateHeight);
   }
-}
+};
