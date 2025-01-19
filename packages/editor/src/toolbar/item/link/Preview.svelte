@@ -22,8 +22,10 @@
   };
 </script>
 
-<a href={url} target="_blank">
-  {url}
+<a href={url} target="_blank" title={url}>
+  <span>
+    {url}
+  </span>
   {@html icon}
 </a>
 
@@ -38,6 +40,13 @@
 
   a:hover {
     background-color: #dee0e2;
+  }
+
+  a span {
+    max-width: 300px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   a :global(svg) {
