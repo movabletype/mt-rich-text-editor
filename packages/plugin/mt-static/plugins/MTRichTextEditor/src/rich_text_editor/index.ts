@@ -3,7 +3,6 @@ import { MT } from "@movabletype/app";
 import "@movabletype/mt-rich-text-editor/mt-rich-text-editor";
 import type { EditorCreateOptions } from "@movabletype/mt-rich-text-editor";
 import { Editor } from "@movabletype/mt-rich-text-editor";
-import { DEFAULT_HEIGHT } from "../constant";
 import { currentLanguage } from "../l10n";
 import { convertToolbar } from "../util/tinymce";
 import editorCss from "../../css/rich-text-editor.css?inline";
@@ -111,7 +110,6 @@ class MTRichTextEditor extends MTEditor {
   editor?: Editor;
 
   static config: Partial<EditorCreateOptions> = {
-    height: DEFAULT_HEIGHT,
     inline: false,
     language: currentLanguage,
     editorStylesheets: [editorCss],
