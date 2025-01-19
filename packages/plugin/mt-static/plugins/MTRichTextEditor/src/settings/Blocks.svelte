@@ -16,19 +16,35 @@
     JSON.parse(textarea.getAttribute("data-available-blocks") ?? "[]")
   );
 
-  function convertToItems(data: BlockItem[]): BlockInternalItem[] {
-    return data.map((item) => ({
-      id: item.value,
-      value: item.value,
-      label: item.label,
-    }));
+  function convertToItems(data: (BlockItem | string)[]): BlockInternalItem[] {
+    return data.map((item) => {
+      if (typeof item === "string") {
+        const block = availableBlocks.find((block) => block.value === item);
+        if (!block) {
+            return undefined;
+        }
+        return {
+          id: block.value,
+          value: block.value,
+          label: block.label,
+        };
+      } else {
+        return {
+          id: item.value,
+          value: item.value,
+          label: item.label,
+        };
+      }
+    }).filter((item) => item !== undefined);
   }
 
-  function convertToData(items: BlockInternalItem[]): BlockItem[] {
-    return items.map((item) => ({
-      value: item.value,
-      label: item.label,
-    }));
+  function convertToData(items: BlockInternalItem[]): (BlockItem | string)[] {
+    // TODO: In a future version, we'll allow you to specify the label as well.
+    // return items.map((item) => ({
+    //   value: item.value,
+    //   label: item.label,
+    // }));
+    return items.map((item) => item.value);
   }
 
   let blocksItems = $state(convertToItems(JSON.parse(textarea.value)));
@@ -66,9 +82,10 @@
   }
 
   // Update label
-  function handleUpdateLabel(id: string, newLabel: string) {
-    blocksItems = blocksItems.map((item) => (item.id === id ? { ...item, label: newLabel } : item));
-  }
+  // TODO: In a future version, we'll allow you to specify the label as well.
+  // function handleUpdateLabel(id: string, newLabel: string) {
+  //   blocksItems = blocksItems.map((item) => (item.id === id ? { ...item, label: newLabel } : item));
+  // }
 
   $effect(() => {
     textarea.value = JSON.stringify(convertToData(blocksItems));
@@ -95,11 +112,16 @@
             <span class="mt-rich-text-editor-blocks-settings-move">
               {@html moveIcon}
             </span>
+            <span class="label">
+              {item.label}
+            </span>
+            <!--
             <input
               type="text"
               value={item.label}
               oninput={(e) => handleUpdateLabel(item.id, e.currentTarget.value)}
             />
+            -->
             <span class="mt-rich-text-editor-blocks-settings-value">{item.value}</span>
           </div>
           <button
@@ -229,7 +251,7 @@
     font-size: 0.9em;
   }
 
-  input {
+  .label {
     padding: 0.25rem;
   }
 

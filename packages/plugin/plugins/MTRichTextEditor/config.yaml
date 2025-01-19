@@ -40,14 +40,14 @@ settings:
     scope: system
     default: |
       [
-        { "value": "paragraph", "label": "本文" },
-        { "value": "h1", "label": "見出し1" },
-        { "value": "h2", "label": "見出し2" },
-        { "value": "h3", "label": "見出し3" },
-        { "value": "h4", "label": "見出し4" },
-        { "value": "h5", "label": "見出し5" },
-        { "value": "h6", "label": "見出し6" },
-        { "value": "pre", "label": "整形済みテキスト" }
+        "paragraph",
+        "h1",
+        "h2",
+        "h3",
+        "h4",
+        "h5",
+        "h6",
+        "pre"
       ]
   colors:
     scope: system

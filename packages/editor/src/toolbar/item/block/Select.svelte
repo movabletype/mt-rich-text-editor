@@ -7,7 +7,7 @@
 <script module lang="ts">
   import { extendToolbarItem } from "../svelte";
   export interface Options {
-    readonly blocks?: { value: string; label: string }[];
+    readonly blocks?: ({ value: string; label: string } | string)[];
   }
 </script>
 
@@ -16,11 +16,7 @@
   import type { Level } from "@tiptap/extension-heading";
   import { ToolbarItemElement } from "../element";
 
-  const element = $host<ToolbarItemElement<Options>>();
-  const { options, tiptap } = element;
-  let isOpen = $state(false);
-
-  const blocks: Options["blocks"] = options.blocks ?? [
+  const defaultBlocks = [
     { value: "paragraph", label: t("Paragraph") },
     { value: "h1", label: t("Heading 1") },
     { value: "h2", label: t("Heading 2") },
@@ -30,6 +26,17 @@
     { value: "h6", label: t("Heading 6") },
     { value: "pre", label: t("Preformatted") },
   ];
+
+  const element = $host<ToolbarItemElement<Options>>();
+  const { options, tiptap } = element;
+  let isOpen = $state(false);
+
+  const optionsBlocks: Options["blocks"] = options.blocks ?? defaultBlocks;
+  const blocks = optionsBlocks
+    .map((block) =>
+      typeof block === "string" ? defaultBlocks.find((b) => b.value === block) : block
+    )
+    .filter((b) => b !== undefined);
   let selectedBlock = $state(blocks[0].value);
 
   element.onEditorUpdate = () => {

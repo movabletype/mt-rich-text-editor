@@ -38,14 +38,14 @@ sub settings {
         saved                                       => $app->param('saved') ? 1 : 0,
         mt_rich_text_editor_toolbar_available_items => MT::Util::to_json($toolbar_items),
         mt_rich_text_editor_block_available_blocks  => MT::Util::to_json([
-            { value => 'paragraph', label => '本文' },
-            { value => 'h1',        label => '見出し1' },
-            { value => 'h2',        label => '見出し2' },
-            { value => 'h3',        label => '見出し3' },
-            { value => 'h4',        label => '見出し4' },
-            { value => 'h5',        label => '見出し5' },
-            { value => 'h6',        label => '見出し6' },
-            { value => 'pre',       label => '整形済みテキスト' },
+            { value => 'paragraph', label => translate('Paragraph') },
+            { value => 'h1',        label => translate('Heading 1') },
+            { value => 'h2',        label => translate('Heading 2') },
+            { value => 'h3',        label => translate('Heading 3') },
+            { value => 'h4',        label => translate('Heading 4') },
+            { value => 'h5',        label => translate('Heading 5') },
+            { value => 'h6',        label => translate('Heading 6') },
+            { value => 'pre',       label => translate('Preformatted') },
         ]),
         map { "mt_rich_text_editor_" . $_ => $plugin->get_config_value($_) } @settings
     };
