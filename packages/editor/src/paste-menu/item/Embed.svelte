@@ -58,7 +58,9 @@
       return;
     }
 
-    element.insertContent(res.html);
+    tiptap.chain().undo().focus().run();
+    tiptap.commands.insertEmbedObject(res.html);
+    element.parentElement?.dispatchEvent(new Event("paste-menu-item-applied"));
     unmountModal();
   };
   element.onEditorPaste = apply;
