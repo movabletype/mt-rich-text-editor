@@ -59,8 +59,10 @@
     }
 
     // FIXME: more common way to insert embed object
-    tiptap.chain().undo().focus().run();
-    tiptap.commands.insertEmbedObject(res.html);
+    element.content?.transaction(() => {
+      tiptap.chain().undo().focus().run();
+      tiptap.commands.insertEmbedObject(res.html);
+    });
     element.parentElement?.dispatchEvent(new Event("paste-menu-item-applied"));
 
     unmountModal();
