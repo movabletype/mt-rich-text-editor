@@ -26,6 +26,7 @@
       return;
     }
     editor.setStructureMode(!editor.getStructureMode());
+    element.onEditorUpdate();
   });
 </script>
 

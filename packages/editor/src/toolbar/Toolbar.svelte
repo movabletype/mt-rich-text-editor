@@ -177,6 +177,10 @@
     height: 34px;
   }
 
+  .toolbar-item.is-active {
+    background: #dee0e2;
+  }
+
   /**
    * Inline
    */
