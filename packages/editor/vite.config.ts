@@ -12,7 +12,6 @@ export default defineConfig(({ mode }) => ({
     },
     sourcemap: true,
     minify: true,
-    target: "es2017",
   },
   plugins: [
     dts(),
