@@ -11,14 +11,14 @@ interface StatusbarOptions {
 }
 
 export class Statusbar {
-  private statusbar: ReturnType<typeof mount> | undefined;
+  #statusbar: ReturnType<typeof mount> | undefined;
 
   constructor({ target, editor, statusbar, options, inline }: StatusbarOptions) {
     if (inline || statusbar.length === 0) {
       return;
     }
 
-    this.statusbar = mount(StatusbarUI, {
+    this.#statusbar = mount(StatusbarUI, {
       target,
       props: {
         editor,
@@ -30,8 +30,8 @@ export class Statusbar {
   }
 
   public destroy(): void {
-    if (this.statusbar) {
-      unmount(this.statusbar);
+    if (this.#statusbar) {
+      unmount(this.#statusbar);
     }
   }
 }

@@ -10,14 +10,14 @@ interface QuickActionOptions {
 }
 
 export class QuickAction {
-  private quickActionMenu: ReturnType<typeof mount> | undefined;
+  #quickActionMenu: ReturnType<typeof mount> | undefined;
 
   constructor({ target, editor, quickAction, options }: QuickActionOptions) {
     if (quickAction.length === 0) {
       return;
     }
 
-    this.quickActionMenu = mount(QuickActionUI, {
+    this.#quickActionMenu = mount(QuickActionUI, {
       target,
       props: {
         editor,
@@ -28,8 +28,8 @@ export class QuickAction {
   }
 
   public destroy(): void {
-    if (this.quickActionMenu) {
-      unmount(this.quickActionMenu);
+    if (this.#quickActionMenu) {
+      unmount(this.#quickActionMenu);
     }
   }
 }

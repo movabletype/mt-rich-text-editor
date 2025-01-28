@@ -13,7 +13,7 @@ interface PasteMenuOptions {
 }
 
 export class PasteMenu {
-  private pasteMenu: ReturnType<typeof mount> | undefined;
+  #pasteMenu: ReturnType<typeof mount> | undefined;
   #isPasting: boolean = false;
 
   constructor({ target, editor, onPaste, pasteMenu, options }: PasteMenuOptions) {
@@ -21,7 +21,7 @@ export class PasteMenu {
       return;
     }
 
-    this.pasteMenu = mount(PasteMenuUI, {
+    this.#pasteMenu = mount(PasteMenuUI, {
       target,
       props: {
         editor,
@@ -40,8 +40,8 @@ export class PasteMenu {
   }
 
   public destroy(): void {
-    if (this.pasteMenu) {
-      unmount(this.pasteMenu);
+    if (this.#pasteMenu) {
+      unmount(this.#pasteMenu);
     }
   }
 }

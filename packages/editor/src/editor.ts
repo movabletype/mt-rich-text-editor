@@ -221,7 +221,7 @@ export class Editor {
       options: options.quickActionOptions ?? {},
     });
 
-    this.initResizeHandle(this[EditorEl]);
+    this.#initResizeHandle(this[EditorEl]);
 
     if (options.structure) {
       this.setStructureMode(true);
@@ -294,7 +294,7 @@ export class Editor {
     return this.#pasteMenu.isPasting();
   }
 
-  private initResizeHandle(editor: HTMLDivElement): void {
+  #initResizeHandle(editor: HTMLDivElement): void {
     const resizeHandle = document.createElement("div");
     resizeHandle.className = "mt-rich-text-editor-resize-handle";
     editor.appendChild(resizeHandle);

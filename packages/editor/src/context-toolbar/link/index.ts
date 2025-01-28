@@ -3,10 +3,10 @@ import Toolbar from "./Toolbar.svelte";
 import { mount, unmount } from "svelte";
 
 export class LinkToolbar {
-  private ui: ReturnType<typeof mount> | undefined;
+  #ui: ReturnType<typeof mount> | undefined;
 
   constructor({ editor }: { editor: Editor }) {
-    this.ui = mount(Toolbar, {
+    this.#ui = mount(Toolbar, {
       target: editor.tiptap.view.dom.getRootNode() as ShadowRoot,
       props: {
         editor,
@@ -15,8 +15,8 @@ export class LinkToolbar {
   }
 
   public destroy(): void {
-    if (this.ui) {
-      unmount(this.ui);
+    if (this.#ui) {
+      unmount(this.#ui);
     }
   }
 }

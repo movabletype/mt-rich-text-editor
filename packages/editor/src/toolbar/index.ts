@@ -11,14 +11,14 @@ interface ToolbarOptions {
 }
 
 export class Toolbar {
-  private toolbar: ReturnType<typeof mount> | undefined;
+  #toolbar: ReturnType<typeof mount> | undefined;
 
   constructor({ target, editor, toolbar, options, inline }: ToolbarOptions) {
     if (toolbar.length === 0) {
       return;
     }
 
-    this.toolbar = mount(ToolbarUI, {
+    this.#toolbar = mount(ToolbarUI, {
       target,
       props: {
         editor,
@@ -30,8 +30,8 @@ export class Toolbar {
   }
 
   public destroy(): void {
-    if (this.toolbar) {
-      unmount(this.toolbar);
+    if (this.#toolbar) {
+      unmount(this.#toolbar);
     }
   }
 }
