@@ -22,19 +22,19 @@ export class EditorManager {
     ...Component,
     getPanelItem,
   };
-  private static eventHandlers: Record<string, EventHandler[]> = {};
+  static #eventHandlers: Record<string, EventHandler[]> = {};
 
   public static on(name: "create", handler: (options: EditorCreateOptions) => void): void;
   public static on(name: "init", handler: (editor: Editor) => void): void;
   public static on(name: string, handler: EventHandler): void {
-    if (!this.eventHandlers[name]) {
-      this.eventHandlers[name] = [];
+    if (!this.#eventHandlers[name]) {
+      this.#eventHandlers[name] = [];
     }
-    this.eventHandlers[name].push(handler);
+    this.#eventHandlers[name].push(handler);
   }
 
-  private static emit(name: string, ...args: any[]): void {
-    const handlers = this.eventHandlers[name] || [];
+  static #emit(name: string, ...args: any[]): void {
+    const handlers = this.#eventHandlers[name] || [];
     handlers.forEach((handler) => handler(...args));
   }
 
@@ -88,12 +88,12 @@ export class EditorManager {
       ...(options as any),
     } as EditorOptions & EditorCreateOptions;
 
-    this.emit("create", editorCreateOptions);
+    this.#emit("create", editorCreateOptions);
     const { id: _, language: __, ...editorOptions } = editorCreateOptions;
 
     const editor = new Editor(textarea, editorOptions);
 
-    this.emit("init", editor);
+    this.#emit("init", editor);
 
     EditorManager.Editors[id] = editor;
 

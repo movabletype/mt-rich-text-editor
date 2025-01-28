@@ -3,7 +3,7 @@ import Toolbar from "./Toolbar.svelte";
 import { mount, unmount } from "svelte";
 
 export class ImageToolbar {
-  private ui: ReturnType<typeof mount> | undefined;
+  #ui: ReturnType<typeof mount> | undefined;
 
   constructor({
     editor,
@@ -12,7 +12,7 @@ export class ImageToolbar {
     editor: Editor;
     edit?: (options: { editor: Editor; element: HTMLElement }) => void;
   }) {
-    this.ui = mount(Toolbar, {
+    this.#ui = mount(Toolbar, {
       target: editor.tiptap.view.dom.getRootNode() as ShadowRoot,
       props: {
         editor,
@@ -22,8 +22,8 @@ export class ImageToolbar {
   }
 
   public destroy(): void {
-    if (this.ui) {
-      unmount(this.ui);
+    if (this.#ui) {
+      unmount(this.#ui);
     }
   }
 }
