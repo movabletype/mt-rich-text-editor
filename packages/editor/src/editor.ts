@@ -13,8 +13,8 @@ import editorCss from "./editor.css?inline";
 import contentCss from "./content.css?inline";
 
 export interface EditorOptions {
-  inline: boolean;
-  structure?: string;
+  inline?: boolean;
+  structure?: boolean;
   height?: number | string;
   stylesheets?: string[];
   editorStylesheets?: string[];
@@ -178,7 +178,7 @@ export class Editor {
         handlePaste,
       },
     });
-    if (options.autoFocus ?? options.inline) {
+    if (options.autoFocus ?? inline) {
       this.focus();
     }
 
