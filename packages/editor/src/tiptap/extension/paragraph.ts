@@ -31,7 +31,7 @@ export const Paragraph = TiptapParagraph.extend<ParagraphOptions>({
   },
 
   renderHTML({ node, HTMLAttributes }) {
-    const { MTRichTextEditorHTMLAttributes, ...rest } = node.attrs;
+    const { MTRichTextEditorHTMLAttributes, textAlign, ...rest } = node.attrs;
     return ["p", mergeAttributes(this.options.HTMLAttributes, rest, HTMLAttributes), 0];
   },
 
