@@ -11,6 +11,16 @@ import { openDialog } from "../util/dialog";
 
 const MTRichTextEditorManager = window.MTRichTextEditor;
 
+const inlineToolbar: EditorCreateOptions["toolbar"] = [
+  [
+    [
+      ["bold", "italic", "underline", "strike"],
+      ["blockquote", "bulletList", "orderedList", "horizontalRule"],
+      ["link", "unlink"],
+    ],
+  ],
+];
+
 const createRichTextEditor = async (
   id: string,
   options?: Partial<EditorCreateOptions>
@@ -113,24 +123,7 @@ class MTRichTextEditor extends MTEditor {
     inline: false,
     language: currentLanguage,
     editorStylesheets: [editorCss],
-    toolbar: customSettings?.toolbar || [
-      [
-        ["bold", "italic", "underline", "strike"],
-        ["blockquote", "bulletList", "orderedList", "horizontalRule"],
-        ["link", "unlink"],
-        ["insertHtml", "file", "image"],
-        ["table"],
-        ["source"],
-      ],
-      [
-        ["undo", "redo"],
-        ["foregroundColor", "backgroundColor", "removeFormat"],
-        ["alignLeft", "alignCenter", "alignRight"],
-        ["indent", "outdent"],
-        ["block"],
-        ["fullScreen"],
-      ],
-    ],
+    toolbar: customSettings?.toolbar,
     toolbarOptions,
     extensionOptions: {
       embedObject: {
@@ -214,6 +207,9 @@ class MTRichTextEditor extends MTEditor {
     }
     if (height !== undefined) {
       options.height = height;
+    }
+    if (options.inline) {
+      options.toolbar = inlineToolbar;
     }
     this.editor = await createRichTextEditor(this.id, options);
   }
