@@ -47,7 +47,7 @@ sub settings {
             { value => 'h6',        label => translate('Heading 6') },
             { value => 'pre',       label => translate('Preformatted') },
         ]),
-        component => { version => $plugin->version },
+        mt_rich_text_editor_version => $plugin->version,
         map({ "mt_rich_text_editor_" . $_ => $plugin->get_config_value($_) } @settings),
     };
 
