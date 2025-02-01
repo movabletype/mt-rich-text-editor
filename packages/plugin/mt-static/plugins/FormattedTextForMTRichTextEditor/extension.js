@@ -1,5 +1,5 @@
-const scriptElm = document.querySelector('script[data-formatted-text-for-mt-rich-text-editor]');
-const boilerplates = JSON.parse(scriptElm.getAttribute('data-formatted-text-for-mt-rich-text-editor'));
+const dataElm = document.querySelector('[data-formatted-text-for-mt-rich-text-editor]');
+const boilerplates = JSON.parse(dataElm.dataset.formattedTextForMtRichTextEditor);
 const iconString = document.querySelector('#mt-rich-text-editor-boilerplate-icon').innerHTML;
 
 customElements.define(`mt-rich-text-editor-quick-action-item-boilerplate`, class extends MTRichTextEditor.Component.QuickActionItemElement {
