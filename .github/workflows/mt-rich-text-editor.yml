@@ -6,10 +6,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Fetch tags
-        run: git fetch --tags origin
+        uses: actions/checkout@v4
 
       - name: Set up Node.js
         uses: actions/setup-node@v2

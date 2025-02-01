@@ -5,7 +5,10 @@ my $config  = YAML::LoadFile((glob('./plugins/MTRichTextEditor/config.yaml'))[0]
 my $version = $config->{version};
 
 use Getopt::Long 'GetOptions';
-GetOptions('version=s' => \$version);
+GetOptions('build-version=s' => \my $build_version);
+if ($build_version) {
+    $version .= "+build-$build_version";
+}
 
 WriteMakefile(
     NAME     => $config->{name},
@@ -15,7 +18,12 @@ WriteMakefile(
 );
 
 sub MY::top_targets {
-    << 'Makefile';
+    my $makefile = << "Makefile";
+BUILD_VERSION = $build_version
+
+Makefile
+
+    $makefile .= << 'Makefile';
 npm-install:
 	npm ci
 
@@ -44,7 +52,11 @@ create_distdir :
 	$(RM_RF) $(DISTVNAME)
 	$(PERLRUN) "-MExtUtils::Manifest=manicopy,maniread" \
 		-e "manicopy(maniread(),'$(DISTVNAME)', '$(DIST_CP)');"
-	perl -MYAML -e 'my $$f = "$(DISTVNAME)/plugins/$(NAME)/config.yaml"; my $$c = YAML::LoadFile($$f); if ($$c->{version} ne "$(VERSION)") { $$c->{version} = "$(VERSION)"; YAML::DumpFile($$f, $$c) }'
+	if [ -n "$(BUILD_VERSION)" ]; then \
+		for f in $(DISTVNAME)/plugins/*/config.yaml; do \
+			perl -i -pe '$$_ =~ s/(.*)/$$1+build-$(BUILD_VERSION)/ if /^version:/' $$f; \
+		done \
+	fi
 
 distdir : create_distdir build
 	$(NOECHO) $(NOOP)
@@ -52,4 +64,6 @@ distdir : create_distdir build
 manifest : build
 
 Makefile
+
+    $makefile;
 }
