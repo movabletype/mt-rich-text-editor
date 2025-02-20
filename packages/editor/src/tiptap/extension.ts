@@ -43,6 +43,7 @@ import { Code } from "./extension/code";
 import { DescriptionList } from "./extension/description-list";
 import { DescriptionTerm } from "./extension/description-term";
 import { DescriptionDetails } from "./extension/description-details";
+import { Summary } from "./extension/summary";
 import { ListItem } from "./extension/list-item";
 import { BackgroundColor } from "./extension/background-color";
 import { Script } from "./extension/script";
@@ -208,6 +209,10 @@ export const Extension = TiptapExtension.create({
 
     if (this.options.descriptionDetails !== false) {
       extensions.push(DescriptionDetails.configure(this.options?.descriptionDetails));
+    }
+
+    if (this.options.summary !== false) {
+      extensions.push(Summary.configure(this.options?.summary));
     }
 
     if (this.options.listItem !== false) {
