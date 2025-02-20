@@ -40,6 +40,9 @@ import { Paragraph } from "./extension/paragraph";
 import { TextBlock } from "./extension/text-block";
 import { Pre } from "./extension/pre";
 import { Code } from "./extension/code";
+import { DescriptionList } from "./extension/description-list";
+import { DescriptionTerm } from "./extension/description-term";
+import { DescriptionDetails } from "./extension/description-details";
 import { ListItem } from "./extension/list-item";
 import { BackgroundColor } from "./extension/background-color";
 import { Script } from "./extension/script";
@@ -193,6 +196,18 @@ export const Extension = TiptapExtension.create({
 
     if (this.options.code !== false) {
       extensions.push(Code.configure(this.options?.code));
+    }
+
+    if (this.options.descriptionList !== false) {
+      extensions.push(DescriptionList.configure(this.options?.descriptionList));
+    }
+
+    if (this.options.descriptionTerm !== false) {
+      extensions.push(DescriptionTerm.configure(this.options?.descriptionTerm));
+    }
+
+    if (this.options.descriptionDetails !== false) {
+      extensions.push(DescriptionDetails.configure(this.options?.descriptionDetails));
     }
 
     if (this.options.listItem !== false) {

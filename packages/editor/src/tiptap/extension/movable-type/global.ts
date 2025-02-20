@@ -90,6 +90,9 @@ export const Global = Extension.create({
           "tableHeader",
           "link",
           "blockLink",
+          "descriptionList",
+          "descriptionTerm",
+          "descriptionDetails",
         ],
         attributes: {
           MTRichTextEditorHTMLAttributes: {
