@@ -21,7 +21,12 @@ export const Pre = Node.create<PreOptions>({
   defining: true,
 
   parseHTML() {
-    return [{ tag: "pre" }];
+    return [
+      {
+        tag: "pre",
+        preserveWhitespace: "full",
+      },
+    ];
   },
 
   renderHTML({ HTMLAttributes }) {

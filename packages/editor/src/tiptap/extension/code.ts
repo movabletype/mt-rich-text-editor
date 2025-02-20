@@ -9,10 +9,13 @@ export const Code = Node.create({
   defining: true,
 
   parseHTML() {
-    return [{ tag: "code" }];
+    return [{
+      tag: "code",
+      preserveWhitespace: 'full',
+    }];
   },
 
   renderHTML({ HTMLAttributes }) {
-    return ["code", mergeAttributes(this.options.HTMLAttributes, HTMLAttributes), 0];
+    return ["code", HTMLAttributes, 0];
   },
 });
