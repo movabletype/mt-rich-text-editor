@@ -40,17 +40,6 @@ export const InlineLink = Link.extend<InlineLinkOptions>({
       class: {
         default: null,
       },
-      HTMLAttributes: {
-        default: {},
-        parseHTML: (element) => {
-          const attrs: Record<string, string> = {};
-          Array.from(element.attributes).forEach((attr) => {
-            attrs[attr.name] = attr.value;
-          });
-          return attrs;
-        },
-        renderHTML: (attributes) => attributes.HTMLAttributes,
-      },
       "data-inline": {
         default: "true",
         renderHTML: () => null,

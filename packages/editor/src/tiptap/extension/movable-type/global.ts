@@ -87,6 +87,9 @@ export const Global = Extension.create({
           "table",
           "tableRow",
           "tableCell",
+          "tableHeader",
+          "link",
+          "blockLink",
         ],
         attributes: {
           MTRichTextEditorHTMLAttributes: {
