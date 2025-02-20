@@ -41,14 +41,14 @@
     <svelte:fragment slot="footer">
       <button
         type="button"
-        title={t("Insert (s)")}
+        title={t("Save (s)")}
         class="action primary button btn btn-primary"
         onclick={() => {
           onSubmit(text);
           close();
         }}
       >
-        {t("Insert")}
+        {t("Save")}
       </button>
       <button
         type="button"
