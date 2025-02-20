@@ -69,7 +69,6 @@ export const Global = Extension.create({
         types: [
           "div",
           "pre",
-          "preBlock",
           "code",
           "blockquote",
           "bulletList",

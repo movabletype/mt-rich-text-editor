@@ -21,11 +21,11 @@ export const Pre = Node.create<PreOptions>({
   defining: true,
 
   parseHTML() {
-    return [{ tag: "pre:not([data-mt-rich-text-editor-block])" }];
+    return [{ tag: "pre" }];
   },
 
   renderHTML({ HTMLAttributes }) {
-    return ["pre", mergeAttributes(this.options.HTMLAttributes, HTMLAttributes), 0];
+    return ["pre", HTMLAttributes, 0];
   },
 
   addCommands() {
