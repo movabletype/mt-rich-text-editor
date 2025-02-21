@@ -157,7 +157,7 @@
 
     (async () => {
       top = 0;
-      left = 9999;
+      left = plainText?.includes("\n") ? 0 : 9999;
 
       const availablePromiseMap: Record<
         string,
