@@ -43,15 +43,12 @@ export class StructureMode {
               return;
             }
             const newAttrs = { ...node.attrs.MTRichTextEditorHTMLAttributes };
-            if (structureData.id) {
-              newAttrs.id = structureData.id;
-            }
-            if (structureData.className) {
-              newAttrs.class = structureData.className;
-            }
-            if (structureData.style) {
-              newAttrs.style = structureData.style;
-            }
+            const attrNameMap = {
+              className: "class",
+            } as Record<keyof StructureData, string>;
+            (["id", "className", "style"] as (keyof StructureData)[]).forEach((attr) => {
+              newAttrs[attrNameMap[attr] ?? attr] = structureData[attr] || undefined;
+            });
             const transaction = this.#editor.tiptap.state.tr.setNodeAttribute(
               pos - 1,
               "MTRichTextEditorHTMLAttributes",
