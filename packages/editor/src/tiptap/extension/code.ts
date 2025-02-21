@@ -1,4 +1,4 @@
-import { Node, mergeAttributes } from "@tiptap/core";
+import { Node } from "@tiptap/core";
 
 export const Code = Node.create({
   name: "code",
@@ -9,10 +9,12 @@ export const Code = Node.create({
   defining: true,
 
   parseHTML() {
-    return [{
-      tag: "code",
-      preserveWhitespace: 'full',
-    }];
+    return [
+      {
+        tag: "code",
+        preserveWhitespace: "full",
+      },
+    ];
   },
 
   renderHTML({ HTMLAttributes }) {

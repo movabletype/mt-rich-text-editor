@@ -1,4 +1,4 @@
-import { Node, mergeAttributes } from "@tiptap/core";
+import { Node } from "@tiptap/core";
 
 export interface PreOptions {
   HTMLAttributes: Record<string, any>;
