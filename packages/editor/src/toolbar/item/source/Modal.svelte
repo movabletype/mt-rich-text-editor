@@ -31,7 +31,7 @@
         <textarea
           id="source_text"
           class="form-control"
-          style="height: calc(100vh - 240px)"
+          style="height: calc(100vh - 240px); max-height: 568px"
           aria-label={t("Source Code")}
           bind:value={text}
           bind:this={textarea}
