@@ -115,6 +115,50 @@ const resolverResponses: Record<
     inline?: boolean;
   }>
 > = {};
+const resolver = async ({
+  url,
+  maxwidth,
+  maxheight,
+}: {
+  url: string;
+  maxwidth?: number;
+  maxheight?: number;
+}) => {
+  const data = await (resolverResponses[`${url}-${maxwidth}-${maxheight}`] ||
+    (resolverResponses[`${url}-${maxwidth}-${maxheight}`] = new Promise(async (resolve) => {
+      const blog_id = document.querySelector<HTMLScriptElement>("[data-blog-id]")?.dataset.blogId;
+      resolve(
+        await (
+          await fetch(
+            window.CMSScriptURI +
+              "?" +
+              new URLSearchParams({
+                __mode: "mt_rich_text_editor_embed",
+                url: url,
+                maxwidth: String(
+                  (maxwidth || customSettings?.embed_default_params?.maxwidth) ?? ""
+                ),
+                maxheight: String(
+                  (maxheight || customSettings?.embed_default_params?.maxheight) ?? ""
+                ),
+                blog_id: String(blog_id),
+              })
+          )
+        ).json()
+      );
+    })));
+  if (data.error?.message) {
+    throw new Error(data.error.message);
+  }
+  return data;
+};
+
+MTRichTextEditorManager.on("create", (options) => {
+  // for both RichTextEditor and MTBlockEditor
+  options.extensionOptions ||= {};
+  options.extensionOptions.embedObject ||= {};
+  options.extensionOptions.embedObject.resolver ??= resolver;
+});
 
 class MTRichTextEditor extends MTEditor {
   editor?: Editor;
@@ -126,46 +170,6 @@ class MTRichTextEditor extends MTEditor {
     toolbar: customSettings?.toolbar,
     toolbarOptions,
     extensionOptions: {
-      embedObject: {
-        resolver: async ({
-          url,
-          maxwidth,
-          maxheight,
-        }: {
-          url: string;
-          maxwidth?: number;
-          maxheight?: number;
-        }) => {
-          const data = await (resolverResponses[`${url}-${maxwidth}-${maxheight}`] ||
-            (resolverResponses[`${url}-${maxwidth}-${maxheight}`] = new Promise(async (resolve) => {
-              const blog_id =
-                document.querySelector<HTMLScriptElement>("[data-blog-id]")?.dataset.blogId;
-              resolve(
-                await (
-                  await fetch(
-                    window.CMSScriptURI +
-                      "?" +
-                      new URLSearchParams({
-                        __mode: "mt_rich_text_editor_embed",
-                        url: url,
-                        maxwidth: String(
-                          (maxwidth || customSettings?.embed_default_params?.maxwidth) ?? ""
-                        ),
-                        maxheight: String(
-                          (maxheight || customSettings?.embed_default_params?.maxheight) ?? ""
-                        ),
-                        blog_id: String(blog_id),
-                      })
-                  )
-                ).json()
-              );
-            })));
-          if (data.error?.message) {
-            throw new Error(data.error.message);
-          }
-          return data;
-        },
-      },
       markdown: {
         toHtml: isMarkdownAvailable
           ? async ({ content }: { content: string }) => {
