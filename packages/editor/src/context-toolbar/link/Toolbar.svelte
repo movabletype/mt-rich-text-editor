@@ -12,6 +12,7 @@
 <ContextToolbar
   {editor}
   targetNodeName="link"
+  targetNodeTagName="A"
   condition={() => !editor.isPasting() && editor.tiptap?.isActive("link")}
   {items}
 />

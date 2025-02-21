@@ -9,11 +9,13 @@
     editor,
     condition,
     targetNodeName,
+    targetNodeTagName,
     items,
   }: {
     editor: Editor;
     condition: () => boolean;
     targetNodeName: string;
+    targetNodeTagName: string;
     items: string[][];
   } = $props();
 
@@ -64,13 +66,20 @@
           targetDom = targetDom.parentElement;
         }
       }
-      if (targetNodeName === "link" && targetDom?.tagName !== "A") {
+      if (targetNodeTagName === "A" && targetDom?.tagName !== "A") {
         const resolvedPos = view.domAtPos(selection.from - 1);
         if (resolvedPos.node) {
           targetDom = resolvedPos.node as HTMLElement;
           if (targetDom.nodeType === Node.TEXT_NODE) {
             targetDom = targetDom.parentElement;
           }
+        }
+      }
+
+      if (targetDom && targetNodeTagName !== targetDom.tagName) {
+        const child = targetDom.querySelector<HTMLElement>(targetNodeTagName);
+        if (child) {
+          targetDom = child;
         }
       }
     }

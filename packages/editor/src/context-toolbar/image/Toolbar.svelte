@@ -15,6 +15,7 @@
 <ContextToolbar
   {editor}
   targetNodeName="image"
+  targetNodeTagName="IMG"
   condition={() => !tiptap.isActive("link") && tiptap.isActive("image")}
   {items}
 />
