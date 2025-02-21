@@ -4,7 +4,6 @@ import { Extension as TiptapExtension } from "@tiptap/core";
 import { Document } from "@tiptap/extension-document";
 import { Text } from "@tiptap/extension-text";
 import { Image } from "@tiptap/extension-image";
-import { History } from "@tiptap/extension-history";
 import { HardBreak } from "@tiptap/extension-hard-break";
 import { Bold } from "@tiptap/extension-bold";
 import { Italic } from "@tiptap/extension-italic";
@@ -49,6 +48,7 @@ import { BackgroundColor } from "./extension/background-color";
 import { Script } from "./extension/script";
 import { EmbedObject } from "./extension/embed-object";
 import { Markdown } from "./extension/markdown";
+import { History } from "./extension/history";
 import { MovableType } from "./extension/movable-type";
 
 const defaultLinkOptions = {
@@ -63,6 +63,10 @@ export const Extension = TiptapExtension.create({
 
     if (this.options.movableType !== false) {
       extensions.push(MovableType.configure(this.options?.movableType));
+    }
+
+    if (this.options.history !== false) {
+      extensions.push(History.configure(this.options?.history));
     }
 
     // core
@@ -83,10 +87,6 @@ export const Extension = TiptapExtension.create({
           }
         )
       );
-    }
-
-    if (this.options.history !== false) {
-      extensions.push(History.configure(this.options?.history));
     }
 
     if (this.options.hardBreak !== false) {
