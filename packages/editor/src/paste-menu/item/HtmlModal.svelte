@@ -146,7 +146,7 @@
           const doc = htmlDocument.cloneNode(true) as Document;
           doc.querySelectorAll<HTMLElement>("[style]").forEach((e) => {
             const style = e.style;
-            for (let i = 0; i < style.length; i++) {
+            for (let i = style.length - 1; i >= 0; i--) {
               const p = style[i];
               if (disabledAttributes.includes(p)) {
                 style.removeProperty(p);
