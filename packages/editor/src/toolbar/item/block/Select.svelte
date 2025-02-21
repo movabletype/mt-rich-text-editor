@@ -51,9 +51,9 @@
       selectedBlock = `h${parent.attrs.level}`;
     } else {
       selectedBlock = parent.type.name;
-      if (!blocks.some((b) => b.value === selectedBlock)) {
-        selectedBlock = blocks[0].value;
-      }
+    }
+    if (!blocks.some((b) => b.value === selectedBlock)) {
+      selectedBlock = blocks[0].value;
     }
   };
 
