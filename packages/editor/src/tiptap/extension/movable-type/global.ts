@@ -83,6 +83,7 @@ export const Global = Extension.create({
           "orderedList",
           "paragraph",
           "span",
+          "script",
           "table",
           "tableRow",
           "tableCell",

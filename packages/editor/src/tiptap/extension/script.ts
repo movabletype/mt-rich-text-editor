@@ -1,12 +1,53 @@
-import { Node, mergeAttributes } from "@tiptap/core";
+import { Node } from "@tiptap/core";
 
-window.customElements.define(
-  "mt-rich-text-editor-script",
-  class extends HTMLElement {
-    connectedCallback() {
-      const allowedOrigins = ["https://gist.github.com"];
-      const src = this.getAttribute("src");
-      if (src && allowedOrigins.some((origin) => src.startsWith(`${origin}/`))) {
+export const Script = Node.create({
+  name: "script",
+
+  group: "inline",
+  content: "text*",
+  inline: true,
+  atom: true,
+
+  parseHTML() {
+    return [
+      {
+        tag: "mt-rich-text-editor-script",
+        preserveWhitespace: "full",
+      },
+    ];
+  },
+
+  addNodeView() {
+    const allowedOrigins = ["https://gist.github.com"];
+
+    // return ({ editor, node, getPos, HTMLAttributes, decorations, extension }) => {
+    return ({ node }) => {
+      const dom = document.createElement("div");
+      dom.classList.add("mt-rich-text-editor-script");
+
+      const attributes = node.attrs.MTRichTextEditorHTMLAttributes || {};
+
+      dom.dataset.mtRichTextEditorScriptTitle =
+        `<script ` +
+        Object.entries(attributes)
+          .map(([key, value]) => `${key}="${value}"`)
+          .join(" ") +
+        `/>`;
+
+      const src = attributes.src;
+      const srcOrigin =
+        src &&
+        (() => {
+          try {
+            return new URL(src).origin;
+          } catch (error) {
+            return undefined;
+          }
+        })();
+
+      if (srcOrigin && allowedOrigins.some((origin) => srcOrigin === origin)) {
+        dom.classList.add("mt-rich-text-editor-script--preview");
+
         const iframe = document.createElement("iframe");
         iframe.style.width = "100%";
         iframe.style.border = "none";
@@ -30,7 +71,7 @@ window.customElements.define(
                   const height = document.body.scrollHeight;
                   window.frameElement.style.height = \`\${height}px\`;
                 });
-                
+
                 window.addEventListener('load', () => {
                   resizeObserver.observe(document.body);
                 });
@@ -50,58 +91,26 @@ window.customElements.define(
           </html>
         `;
         iframe.srcdoc = html;
+        dom.appendChild(iframe);
 
-        this.appendChild(iframe);
+        return {
+          dom,
+        };
       }
-    }
-  }
-);
 
-export const Script = Node.create({
-  name: "mt-rich-text-editor-script",
+      dom.innerText = node.content.content
+        .map((content) => content.text)
+        .join("")
+        .replace(/^\n/, "")
+        .replace(/\s+$/, "");
 
-  group: "inline",
-  inline: true,
-  atom: true,
-
-  addAttributes() {
-    return {
-      HTMLAttributes: {
-        default: {},
-        parseHTML: (element) => {
-          const attrs: Record<string, string> = {};
-          const ignoreAttributes = ["data-tag-name", "contenteditable", "style", "class"];
-
-          Array.from(element.attributes)
-            .filter((attr) => !ignoreAttributes.includes(attr.name))
-            .forEach((attr) => {
-              attrs[attr.name] = attr.value;
-            });
-
-          return attrs;
-        },
-        renderHTML: (attributes) => attributes.HTMLAttributes,
-      },
+      return {
+        dom,
+      };
     };
   },
 
-  parseHTML() {
-    return [
-      {
-        tag: "mt-rich-text-editor-script",
-        getAttrs: (node: HTMLElement) => {
-          if (!(node instanceof HTMLElement)) {
-            return {};
-          }
-          return Object.fromEntries(
-            Array.from(node.attributes).map((attr) => [attr.name, attr.value])
-          );
-        },
-      },
-    ];
-  },
-
   renderHTML({ HTMLAttributes }) {
-    return ["mt-rich-text-editor-script", mergeAttributes(HTMLAttributes)];
+    return ["mt-rich-text-editor-script", HTMLAttributes, 0];
   },
 });

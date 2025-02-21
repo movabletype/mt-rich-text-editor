@@ -33,6 +33,8 @@ describe("HTML parsing", () => {
     "<ol><li>test</li></ol>",
     "<pre>test</pre>",
     "<p><span>test</span></p>",
+    "<p><script src='/js/script.js' data-attribute='{&quot;key&quot;: &quot;value&quot;}'></script></p>",
+    "<p><script>console.log('test');</script></p>",
   ])("should preserve HTML structure through Tiptap: %s", (input) => {
     editor.setContent(input);
     const output = editor.getContent();
