@@ -75,6 +75,7 @@ export const Extension = TiptapExtension.create({
         Image.configure(
           this.options?.image ?? {
             inline: true,
+            allowBase64: true,
           }
         )
       );
