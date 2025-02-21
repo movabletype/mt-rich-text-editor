@@ -61,6 +61,10 @@ export const Extension = TiptapExtension.create({
   addExtensions() {
     const extensions = [];
 
+    if (this.options.movableType !== false) {
+      extensions.push(MovableType.configure(this.options?.movableType));
+    }
+
     // core
     if (this.options.document !== false) {
       extensions.push(Document.configure(this.options?.document));
@@ -250,10 +254,6 @@ export const Extension = TiptapExtension.create({
 
     if (this.options.markdown !== false) {
       extensions.push(Markdown.configure(this.options?.markdown));
-    }
-
-    if (this.options.movableType !== false) {
-      extensions.push(MovableType.configure(this.options?.movableType));
     }
 
     return extensions;
