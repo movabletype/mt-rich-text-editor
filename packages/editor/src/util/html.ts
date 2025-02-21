@@ -118,6 +118,15 @@ export const normalizeHTML = (html: string): string => {
       element.removeAttribute("data-mt-rich-text-editor-content");
     });
 
+  doc.body.querySelectorAll("mt-rich-text-editor-script").forEach((script) => {
+    const element = document.createElement("script");
+    element.textContent = script.textContent;
+    Array.from(script.attributes).forEach((attr) => {
+      element.setAttribute(attr.name, attr.value);
+    });
+    script.parentNode?.replaceChild(element, script);
+  });
+
   const res = doc.body.innerHTML;
   if (/^<p[^>]*><\/p>$/i.test(res)) {
     return "";

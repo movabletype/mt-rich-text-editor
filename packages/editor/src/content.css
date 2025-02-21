@@ -67,3 +67,25 @@ table {
 .resize-cursor {
   cursor: col-resize;
 }
+
+.mt-rich-text-editor-script {
+  &::before {
+    content: attr(data-mt-rich-text-editor-script-title);
+    display: block;
+    position: absolute;
+    top: -13px;
+    left: 10px;
+    background-color: #fff;
+    padding: 0 5px;
+  }
+
+  position: relative;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  margin-top: 10px;
+  padding: 10px;
+
+  &.mt-rich-text-editor-script--preview {
+    padding: 10px 0 0 0;
+  }
+}
