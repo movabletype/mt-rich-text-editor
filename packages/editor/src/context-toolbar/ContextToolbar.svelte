@@ -40,7 +40,7 @@
   let showInBottom = $state(false);
 
   const update = () => {
-    isOpen = condition();
+    isOpen = !editor.getStructureMode() && condition();
     if (isOpen) {
       updatePosition(tiptap.view);
       for (const key in buttonRefs) {
