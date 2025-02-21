@@ -5,7 +5,7 @@ import { mount, unmount } from "svelte";
 interface ToolbarOptions {
   target: HTMLDivElement;
   editor: Editor;
-  toolbar: string[][][][];
+  toolbar?: string[][][][];
   options: Record<string, any>;
   inline: boolean;
 }
@@ -14,7 +14,7 @@ export class Toolbar {
   #toolbar: ReturnType<typeof mount> | undefined;
 
   constructor({ target, editor, toolbar, options, inline }: ToolbarOptions) {
-    if (toolbar.length === 0) {
+    if (!toolbar || toolbar.length === 0) {
       return;
     }
 
