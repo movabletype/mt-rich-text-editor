@@ -53,7 +53,7 @@
   tiptap.on("selectionUpdate", update);
   tiptap.on("update", update);
 
-  const updatePosition = (view: EditorView) => {
+  const tryUpdatePosition = (view: EditorView) => {
     const viewRect = view.dom.getBoundingClientRect();
     const { selection } = view.state;
 
@@ -135,6 +135,13 @@
       top = showInBottom ? bottomPosition : topPosition;
       left = targetRect.left - viewRect.left + targetWidth / 2 - toolbarWidth / 2;
     })();
+  };
+  const updatePosition = () => {
+    try {
+      tryUpdatePosition(tiptap.view);
+    } catch (e) {
+      // ignore error
+    }
   };
 
   function bindRef(node: HTMLElement, key: string) {
