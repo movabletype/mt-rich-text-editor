@@ -166,7 +166,9 @@
   bind:this={toolbarElement}
   class={`toolbar ${showInBottom ? "toolbar--bottom" : "toolbar--top"}`}
   style={`
-    display: ${isOpen && top && left ? "flex" : "none"}; 
+    display: ${isOpen && top && left ? "flex" : "none"};
+    background-color: #fff;
+    z-index: 1000;
     top: ${top}px; 
     left: ${left}px;
   `}
