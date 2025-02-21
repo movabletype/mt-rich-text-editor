@@ -229,7 +229,13 @@
 
 <div
   class="paste-menu"
-  style={`display: ${isOpen ? "block" : "none"}; top: ${top}px; left: ${left}px; width: max-content;`}
+  style={`
+    display: ${isOpen ? "block" : "none"};
+    z-index: 1000;
+    top: ${top}px;
+    left: ${left}px;
+    width: max-content;
+  `}
 >
   <button
     type="button"
