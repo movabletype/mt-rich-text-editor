@@ -247,6 +247,29 @@
       const createOptions = {
         id: "editor",
         language: "ja",
+        toolbar: [
+          [
+            [
+              ["bold", "italic", "underline", "strike"],
+              ["blockquote", "bulletList", "orderedList", "horizontalRule"],
+              ["link", "unlink"],
+              ["insertHtml", "file", "image"],
+              ["table"],
+              ["boilerplate"],
+            ],
+            [["source"]],
+          ],
+          [
+            [
+              ["undo", "redo"],
+              ["foregroundColor", "backgroundColor", "removeFormat"],
+              ["alignLeft", "alignCenter", "alignRight", "indent", "outdent"],
+              ["block"],
+              ["fullScreen"],
+            ],
+            [["structure"]],
+          ],
+        ],
         toolbarOptions: {
           file: {
             select: (options) => {

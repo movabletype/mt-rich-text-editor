@@ -45,7 +45,7 @@ export interface EditorOptions {
    *   // more rows...
    * ]
    */
-  toolbar: string[][][][];
+  toolbar?: string[][][][];
   toolbarContainer?: HTMLDivElement | null;
   toolbarOptions?: Record<string, any>;
   /**
@@ -143,7 +143,10 @@ export class Editor {
       shadow.appendChild(mount);
       return mount;
     };
-    const toolbarMount = initBarMount(options.toolbarContainer, "mt-rich-text-editor-toolbar");
+    const toolbarMount = initBarMount(
+      options.toolbarContainer,
+      options.toolbar?.length ? "mt-rich-text-editor-toolbar" : "mt-rich-text-editor-toolbar--empty"
+    );
 
     this.#editorContainerEl = document.createElement("div");
     this.#editorContainerEl.className = "mt-rich-text-editor-content";
@@ -192,7 +195,7 @@ export class Editor {
 
     const statusbarMount = initBarMount(
       options.statusbarContainer,
-      "mt-rich-text-editor-statusbar"
+      options.statusbar?.length ? "mt-rich-text-editor-statusbar" : "mt-rich-text-editor-statusbar--empty"
     );
     this.#statusbar = new Statusbar({
       target: statusbarMount,

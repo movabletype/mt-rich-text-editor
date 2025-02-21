@@ -9,10 +9,9 @@ import { getPanelItem } from "./ui/item/registry";
 
 type EventHandler = (...args: any[]) => void;
 
-export interface EditorCreateOptions extends Omit<EditorOptions, "toolbar"> {
+export interface EditorCreateOptions extends EditorOptions {
   id: string;
   language?: string;
-  toolbar?: EditorOptions["toolbar"];
 }
 
 export class EditorManager {
@@ -53,29 +52,7 @@ export class EditorManager {
     }
 
     const editorCreateOptions = {
-      toolbar: [
-        [
-          [
-            ["bold", "italic", "underline", "strike"],
-            ["blockquote", "bulletList", "orderedList", "horizontalRule"],
-            ["link", "unlink"],
-            ["insertHtml", "file", "image"],
-            ["table"],
-            ["boilerplate"],
-          ],
-          [["source"]],
-        ],
-        [
-          [
-            ["undo", "redo"],
-            ["foregroundColor", "backgroundColor", "removeFormat"],
-            ["alignLeft", "alignCenter", "alignRight", "indent", "outdent"],
-            ["block"],
-            ["fullScreen"],
-          ],
-          [["structure"]],
-        ],
-      ],
+      toolbar: [],
       toolbarOptions: {},
       statusbar: [["path"]],
       statusbarOptions: {},
