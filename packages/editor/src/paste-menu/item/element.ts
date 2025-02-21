@@ -51,7 +51,7 @@ export abstract class PasteMenuItemElement<
     | {
         plainText: string;
         htmlDocument: Document | null;
-        targetDomNode: HTMLElement | null;
+        targetDomNode: HTMLElement | Text | null;
         clipboardData: DataTransfer;
         transaction: (cb: () => void | Promise<void>) => void;
       }
@@ -72,7 +72,7 @@ export abstract class PasteMenuItemElement<
   onEditorSetPasteContent(content: {
     plainText: string;
     htmlDocument: Document | null;
-    targetDomNode: HTMLElement | null;
+    targetDomNode: HTMLElement | Text | null;
     clipboardData: DataTransfer;
     transaction: (cb: () => void | Promise<void>) => void;
   }) {

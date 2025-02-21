@@ -12,7 +12,7 @@ export const extendPasteMenuItem = (
       | {
           plainText: string;
           htmlDocument: Document;
-          targetDomNode: HTMLElement | null;
+          targetDomNode: HTMLElement | Text | null;
           clipboardData: DataTransfer;
           transaction: (cb: () => void) => void;
         }
@@ -27,7 +27,7 @@ export const extendPasteMenuItem = (
     onEditorSetPasteContent(content: {
       plainText: string;
       htmlDocument: Document;
-      targetDomNode: HTMLElement | null;
+      targetDomNode: HTMLElement | Text | null;
       clipboardData: DataTransfer;
       transaction: (cb: () => void) => void;
     }) {

@@ -74,7 +74,7 @@
         top = newTop;
       }
       const newLeft = coords.left - viewRect.left;
-      if (left > newLeft) {
+      if (left !== 0 && left > newLeft) {
         left = newLeft;
       }
       return;
@@ -130,8 +130,8 @@
 
     const targetDomNode = view
       .domAtPos(editor.tiptap.state.selection.from)
-      ?.node?.cloneNode(true) as HTMLElement | null;
-    if (targetDomNode) {
+      ?.node?.cloneNode(true) as HTMLElement | Text | null;
+    if (targetDomNode instanceof HTMLElement) {
       targetDomNode.querySelectorAll("br.ProseMirror-trailingBreak").forEach((br) => {
         br.remove();
       });
@@ -150,7 +150,7 @@
 
     (async () => {
       top = 0;
-      left = 0;
+      left = 9999;
 
       const availablePromiseMap: Record<
         string,
@@ -229,7 +229,7 @@
 
 <div
   class="paste-menu"
-  style={`display: ${isOpen ? "block" : "none"}; top: ${top}px; left: ${left}px;`}
+  style={`display: ${isOpen ? "block" : "none"}; top: ${top}px; left: ${left}px; width: max-content;`}
 >
   <button
     type="button"

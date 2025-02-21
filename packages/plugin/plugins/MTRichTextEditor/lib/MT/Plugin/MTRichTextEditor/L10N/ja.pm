@@ -23,6 +23,8 @@ use vars qw( %Lexicon );
     'Available Blocks'          => '追加可能なブロック',
     'Add New Color'             => '新しい色を追加',
 
+    'Insert (s)'         => '挿入 (s)',
+    'Insert'             => '挿入',
     'Save (s)'           => '保存 (s)',
     'Save'               => '保存',
     'Cancel (x)'         => 'キャンセル (x)',
