@@ -264,7 +264,6 @@ export class InsertHtmlButton extends ToolbarItemElement {
       const modal = mount(InsertHtmlModal, {
         target: document.body,
         props: {
-          text: normalizeHTML(tiptap.getHTML()),
           onSubmit: (html: string) => {
             tiptap.commands.insertContent(preprocessHTML(html));
             unmount(modal);
