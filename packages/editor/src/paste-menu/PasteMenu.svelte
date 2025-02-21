@@ -46,6 +46,7 @@
   let isInTransaction = false;
   let top = $state(0);
   let left = $state(0);
+  let menuElement: HTMLElement | null = null;
   const isAvailableMap: Record<string, number> = $state({});
 
   $effect(() => {
@@ -221,7 +222,7 @@
     return false;
   });
 
-  function bindRef(node: PasteMenuItemElement | HTMLElement, key: string) {
+  const bindRef = (node: PasteMenuItemElement | HTMLElement, key: string) => {
     buttonRefs[key] = node;
     if ("onEditorInit" in node) {
       node.onEditorInit(editor, options[key]);
@@ -231,7 +232,27 @@
         delete buttonRefs[key];
       },
     };
-  }
+  };
+
+  const closeMenuByClickOutside = (ev: MouseEvent) => {
+    if (document.body.classList.contains("modal-open")) {
+      return;
+    }
+    if (menuElement && (ev.composedPath() as EventTarget[]).includes(menuElement)) {
+      return;
+    }
+    isMenuOpen = false;
+  };
+
+  $effect(() => {
+    if (isMenuOpen) {
+      document.addEventListener("click", closeMenuByClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("click", closeMenuByClickOutside);
+    };
+  });
 </script>
 
 <div
@@ -243,6 +264,7 @@
     left: ${left}px;
     width: max-content;
   `}
+  bind:this={menuElement}
 >
   <button
     type="button"
