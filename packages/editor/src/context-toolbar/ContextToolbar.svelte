@@ -64,7 +64,7 @@
           targetDom = targetDom.parentElement;
         }
       }
-      if (targetDom?.tagName !== "A") {
+      if (targetNodeName === "link" && targetDom?.tagName !== "A") {
         const resolvedPos = view.domAtPos(selection.from - 1);
         if (resolvedPos.node) {
           targetDom = resolvedPos.node as HTMLElement;
@@ -165,7 +165,7 @@
   {#each buttons as group}
     <div class="toolbar-group">
       {#each group as button}
-        <svelte:element this={button.elementName} use:bindRef={button.name} class="toolbar-item"/>
+        <svelte:element this={button.elementName} use:bindRef={button.name} class="toolbar-item" />
       {/each}
     </div>
   {/each}
