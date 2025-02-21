@@ -58,7 +58,7 @@
     }
   });
 
-  const updatePosition = (view: EditorView, byScroll: boolean = false) => {
+  const tryUpdatePosition = (view: EditorView, byScroll: boolean = false) => {
     const viewRect = view.dom.getBoundingClientRect();
     const { selection } = view.state;
 
@@ -112,6 +112,13 @@
       setTimeout(() => {
         resizeObserver.disconnect();
       }, 10000);
+    }
+  };
+  const updatePosition = (view: EditorView, byScroll: boolean = false) => {
+    try {
+      tryUpdatePosition(view, byScroll);
+    } catch (e) {
+      // TBD: retry?
     }
   };
 
