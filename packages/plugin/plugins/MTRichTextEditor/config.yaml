@@ -87,6 +87,7 @@ settings:
       }
 
 editors:
+  mt_source_editor: {}
   mt_rich_text_editor:
     label: MTRichTextEditor
     template: mt_rich_text_editor.tmpl
