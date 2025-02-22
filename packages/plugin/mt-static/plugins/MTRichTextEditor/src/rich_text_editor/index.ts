@@ -71,8 +71,19 @@ const toolbarOptions: Record<string, any> = {
       params.set("filter_val", "image");
       openDialog(params);
     },
-    edit: (options: { editor: Editor; element: HTMLElement }) => {
-      console.log(options.editor.id, options.element);
+    edit: ({ editor: { id } }: { editor: Editor; element: HTMLElement }) => {
+      // TODO: edit embedded image metadata
+      const blogId = document.querySelector<HTMLInputElement>("[name=blog_id]")?.value || "0";
+      const params = new URLSearchParams();
+      params.set("__mode", "dialog_asset_modal");
+      params.set("_type", "asset");
+      params.set("edit_field", id);
+      params.set("blog_id", blogId);
+      params.set("dialog_view", "1");
+      params.set("can_multi", "1");
+      params.set("filter", "class");
+      params.set("filter_val", "image");
+      openDialog(params);
     },
   },
   file: {
