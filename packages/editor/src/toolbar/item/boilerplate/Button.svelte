@@ -31,7 +31,6 @@
         boilerplates: element.options.boilerplates,
         onSubmit: (text: string) => {
           element.tiptap?.chain().focus().insertContent(text).run();
-          unmount(modal);
         },
         onClose: () => {
           unmount(modal);

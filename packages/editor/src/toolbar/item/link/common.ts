@@ -63,7 +63,6 @@ export const onClickFunction = (tiptap: TiptapEditor | undefined) => () => {
             ],
           })
           .run();
-        unmount(modal);
       },
       onClose: () => {
         unmount(modal);

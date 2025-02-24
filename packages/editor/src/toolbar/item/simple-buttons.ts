@@ -266,7 +266,6 @@ export class InsertHtmlButton extends ToolbarItemElement {
         props: {
           onSubmit: (html: string) => {
             tiptap.commands.insertContent(preprocessHTML(html));
-            unmount(modal);
           },
           onClose: () => {
             unmount(modal);
@@ -299,7 +298,6 @@ export class SourceButton extends ToolbarItemElement {
           text: normalizeHTML(tiptap.getHTML()),
           onSubmit: (html: string) => {
             tiptap.commands.setContent(preprocessHTML(html));
-            unmount(modal);
           },
           onClose: () => {
             unmount(modal);
