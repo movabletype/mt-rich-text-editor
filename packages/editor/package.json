@@ -17,7 +17,7 @@
     "test:all": "npm run test:unit && npm run test:playwright"
   },
   "devDependencies": {
-    "@eslint/js": "^9.17.0",
+    "@eslint/js": "^9.21.0",
     "@playwright/test": "^1.49.1",
     "@sveltejs/vite-plugin-svelte": "^5.0.3",
     "@types/js-beautify": "^1.14.3",
