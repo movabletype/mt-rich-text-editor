@@ -195,7 +195,9 @@ export class Editor {
 
     const statusbarMount = initBarMount(
       options.statusbarContainer,
-      options.statusbar?.length ? "mt-rich-text-editor-statusbar" : "mt-rich-text-editor-statusbar--empty"
+      options.statusbar?.length
+        ? "mt-rich-text-editor-statusbar"
+        : "mt-rich-text-editor-statusbar--empty"
     );
     this.#statusbar = new Statusbar({
       target: statusbarMount,
