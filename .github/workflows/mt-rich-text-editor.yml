@@ -28,11 +28,11 @@ jobs:
       - name: Run format
         run: npm run format -ws
 
-      - name: Run tests
-        run: npm run test:unit -ws -- --run
-
       - name: Build plugin
         run: npm run build
+
+      - name: Run tests
+        run: npm run test:unit -ws -- --run
 
       - name: Archive plugin
         uses: actions/upload-artifact@v4
