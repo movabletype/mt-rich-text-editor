@@ -21,6 +21,9 @@ export default [
       parserOptions: {
         parser: tseslint.parser
       }
+    },
+    rules: {
+      "svelte/no-at-html-tags": "off"
     }
   },
 ];

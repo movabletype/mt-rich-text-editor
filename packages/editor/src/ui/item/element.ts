@@ -2,7 +2,7 @@ import type { Editor as TiptapEditor } from "@tiptap/core";
 import type { Editor } from "../../editor";
 
 export class PanelItemElement<
-  Options extends Record<string, any> = Record<string, any>,
+  Options extends Record<string, unknown> = Record<string, unknown>,
 > extends HTMLElement {
   get shadowRoot(): ShadowRoot {
     return super.shadowRoot!;

@@ -1,6 +1,5 @@
 import { mount, unmount } from "svelte";
 import type { Editor as TiptapEditor } from "@tiptap/core";
-// @ts-ignore
 import type { CellData } from "./CellPropertiesPanel.svelte";
 import CellPropertiesPanel from "./CellPropertiesPanel.svelte";
 

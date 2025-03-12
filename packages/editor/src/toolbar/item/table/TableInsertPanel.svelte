@@ -38,8 +38,10 @@
 
 <div class="table_insert_panel">
   <div class="grid_container">
+    <!-- eslint-disable-next-line @typescript-eslint/no-unused-vars -->
     {#each Array(maxRows) as _, row}
       <div class="grid_row">
+        <!-- eslint-disable-next-line @typescript-eslint/no-unused-vars -->
         {#each Array(maxCols) as _, col}
           <div
             class="grid_cell"

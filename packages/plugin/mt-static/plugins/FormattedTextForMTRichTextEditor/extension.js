@@ -2,7 +2,7 @@ const dataElm = document.querySelector('[data-formatted-text-for-mt-rich-text-ed
 const boilerplates = JSON.parse(dataElm.dataset.formattedTextForMtRichTextEditor);
 const iconString = document.querySelector('#mt-rich-text-editor-boilerplate-icon').innerHTML;
 
-customElements.define(`mt-rich-text-editor-quick-action-item-boilerplate`, class extends MTRichTextEditor.Component.QuickActionItemElement {
+customElements.define(`mt-rich-text-editor-quick-action-item-boilerplate`, class extends window.MTRichTextEditor.Component.QuickActionItemElement {
   connectedCallback() {
     super.connectedCallback();
 
@@ -31,7 +31,7 @@ customElements.define(`mt-rich-text-editor-quick-action-item-boilerplate`, class
   }
 });
 
-MTRichTextEditor.on("create", (config) => {
+window.MTRichTextEditor.on("create", (config) => {
   config.toolbarOptions = {
     ...config.toolbarOptions,
     boilerplate: boilerplates.length === 0 ? false : {
