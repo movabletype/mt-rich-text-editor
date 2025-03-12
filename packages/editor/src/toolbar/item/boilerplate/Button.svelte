@@ -40,7 +40,6 @@
   });
 </script>
 
-<button use:tooltip={t("Insert Boilerplate")}>
-  {@html icon}
+<button use:tooltip={t("Insert Boilerplate")} class="button-with-text-label">
+  {@html icon}<span>{t("Boilerplate")}</span>
 </button>
-
