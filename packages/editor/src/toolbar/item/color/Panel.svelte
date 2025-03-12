@@ -13,7 +13,7 @@
 </script>
 
 <div class="color-panel">
-  {#each colors as color}
+  {#each colors as color (color)}
     <div
       class="color-item"
       style="background-color: {color}"

@@ -22,8 +22,17 @@ jobs:
       - name: Install dependencies
         run: npm install -ws
 
+      - name: Run lint
+        run: npm run lint -ws
+
+      - name: Run format
+        run: npm run format -ws
+
       - name: Build plugin
         run: npm run build
+
+      - name: Run tests
+        run: npm run test:unit -ws -- --run
 
       - name: Archive plugin
         uses: actions/upload-artifact@v4
@@ -31,6 +40,3 @@ jobs:
           name: plugin
           path: |
             packages/plugin/dist
-
-    # - name: Run tests
-    #   run: npm test

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import i18next from "i18next";
 import i18n from "i18next";
 import ja from "../locales/ja/translation.json";

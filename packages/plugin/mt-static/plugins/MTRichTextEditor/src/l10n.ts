@@ -8,6 +8,6 @@ const lexicon = {
 
 export const currentLanguage = document.querySelector("html")?.getAttribute("lang") || "";
 Object.assign(
-  (window as any).Lexicon,
+  (window as unknown as { Lexicon: Record<string, string> }).Lexicon,
   lexicon[currentLanguage as keyof typeof lexicon] ?? lexicon.en
 );

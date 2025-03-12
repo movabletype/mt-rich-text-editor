@@ -1,5 +1,6 @@
 import { mount, unmount } from "svelte";
 import { undoDepth, redoDepth } from "@tiptap/pm/history";
+import type { ChainedCommands } from "@tiptap/core";
 import { Editor as TiptapEditor } from "@tiptap/core";
 import { t } from "../../i18n";
 import { toKeyboardShortcutLabel } from "../../util/keyboardShortcut";
@@ -72,7 +73,10 @@ const createButtonClass = (
         if (typeof method === "function") {
           method(tiptap);
         } else {
-          (tiptap.chain().focus() as any)[method]().run();
+          const chain = tiptap.chain().focus() as unknown as {
+            [key: string]: () => ChainedCommands;
+          };
+          chain[method]().run();
         }
       });
     }
@@ -163,7 +167,8 @@ export const BulletListButton = createButtonClass(
       .chain()
       .focus()
       // FIXME: fix type error
-      // @ts-ignore
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-expect-error
       .lift(tiptap.state.selection.$from.before())
       .setNode(tiptap.isActive("bulletList") ? "paragraph" : "textBlock")
       .run();
@@ -179,7 +184,8 @@ export const OrderedListButton = createButtonClass(
       .chain()
       .focus()
       // FIXME: fix type error
-      // @ts-ignore
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-expect-error
       .lift(tiptap.state.selection.$from.before())
       .setNode(tiptap.isActive("orderedList") ? "paragraph" : "textBlock")
       .run();

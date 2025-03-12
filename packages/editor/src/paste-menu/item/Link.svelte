@@ -25,7 +25,7 @@
   element.addEventListener("click", toggleDetailPanel);
 
   const { tiptap } = element;
-  let modalComponent: any = null;
+  let modalComponent: ReturnType<typeof mount> | null = null;
 
   const apply = (linkData: LinkData | undefined = undefined) => {
     const content = element.content;

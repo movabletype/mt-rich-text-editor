@@ -42,7 +42,15 @@ const createRichTextEditor = async (
   } as EditorCreateOptions);
 };
 
-let customSettings: Record<string, any> | undefined = undefined;
+let customSettings:
+  | ({
+      embed_default_params: {
+        maxwidth: number;
+        maxheight: number;
+      };
+      toolbar: EditorCreateOptions["toolbar"];
+    } & Record<string, unknown>)
+  | undefined = undefined;
 try {
   customSettings = JSON.parse(
     document.querySelector<HTMLScriptElement>("[data-mt-rich-text-editor-settings]")?.dataset
@@ -56,7 +64,7 @@ const isMarkdownAvailable =
   document.querySelector<HTMLScriptElement>("[data-mt-rich-text-editor-is-markdown-available]")
     ?.dataset.mtRichTextEditorIsMarkdownAvailable === "1";
 
-const toolbarOptions: Record<string, any> = {
+const toolbarOptions: Record<string, unknown> = {
   image: {
     select: ({ editor: { id } }: { editor: Editor }) => {
       const blogId = document.querySelector<HTMLInputElement>("[name=blog_id]")?.value || "0";
@@ -136,6 +144,7 @@ const resolver = async ({
   maxheight?: number;
 }) => {
   const data = await (resolverResponses[`${url}-${maxwidth}-${maxheight}`] ||
+    // eslint-disable-next-line no-async-promise-executor
     (resolverResponses[`${url}-${maxwidth}-${maxheight}`] = new Promise(async (resolve) => {
       const blog_id = document.querySelector<HTMLScriptElement>("[data-blog-id]")?.dataset.blogId;
       resolve(
@@ -241,5 +250,6 @@ class MTRichTextEditor extends MTEditor {
   }
 }
 
-(MTEditor as any).MTRichTextEditor = MTRichTextEditor;
+(MTEditor as unknown as { MTRichTextEditor: typeof MTRichTextEditor }).MTRichTextEditor =
+  MTRichTextEditor;
 MT.EditorManager?.register("mt_rich_text_editor", MTRichTextEditor);

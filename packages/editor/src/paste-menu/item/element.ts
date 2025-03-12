@@ -44,7 +44,7 @@ export type PasteMenuItemPriorityValue =
  *  );
  */
 export abstract class PasteMenuItemElement<
-  Options extends Record<string, any> = Record<string, any>,
+  Options extends Record<string, unknown> = Record<string, unknown>,
 > extends PanelItemElement<Options> {
   static Priority = PasteMenuItemPriority;
   public content?:
@@ -95,8 +95,9 @@ export abstract class PasteMenuItemElement<
 }
 
 declare global {
+  // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace svelteHTML {
-    interface HTMLAttributes<T> {
+    interface HTMLAttributes {
       "onpaste-menu-item-applied"?: (event: CustomEvent) => void;
     }
   }

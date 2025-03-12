@@ -90,6 +90,8 @@ export const InlineLink = Link.extend<InlineLinkOptions>({
       setInlineLinkShortcutHandler: (handler: () => void) =>
         (() => {
           this.options.shortcutHandler = handler;
+          // FIXME: fix type error
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
         }) as any,
     };
   },

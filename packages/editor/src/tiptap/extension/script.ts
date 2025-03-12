@@ -40,7 +40,7 @@ export const Script = Node.create({
         (() => {
           try {
             return new URL(src).origin;
-          } catch (error) {
+          } catch {
             return undefined;
           }
         })();

@@ -26,7 +26,7 @@
   async function updateSelectedBoilerplate(url: string) {
     selectedBoilerplateDescription = boilerplates.find(
       (boilerplate) => boilerplate.url === url
-    )?.description;
+    )?.description || "";
     selectedBoilerplate = await (await fetch(url)).text();
   }
 
@@ -42,6 +42,7 @@
     }
   });
 
+  // eslint-disable-next-line svelte/no-unused-svelte-ignore
   // svelte-ignore non_reactive_update FIXME:
   let close: () => void;
 </script>
@@ -53,7 +54,7 @@
       <div class="form-group mb-3">
         <label for="boilerplate_title">{t("Boilerplate")}</label>
         <select id="boilerplate_title" class="form-control" onchange={onChange}>
-          {#each boilerplates as boilerplate}
+          {#each boilerplates as boilerplate (boilerplate.url)}
             <option value={boilerplate.url}>{boilerplate.title}</option>
           {/each}
         </select>

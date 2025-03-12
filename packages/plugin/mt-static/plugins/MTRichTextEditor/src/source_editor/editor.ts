@@ -6,21 +6,23 @@ import LinkModal from "../link/Modal.svelte";
 import { toggleFullScreen } from "../util/full_screen";
 
 const openDialog = (mode: string, param: string) => {
-  var url = window.ScriptURI + "?" + "__mode=" + mode + "&amp;" + param;
+  const url = window.ScriptURI + "?" + "__mode=" + mode + "&amp;" + param;
   window.jQuery.fn.mtModal.open(url, { large: true });
-  var modalClose = (e: KeyboardEvent) => {
+  const modalClose = (e: KeyboardEvent) => {
     if (e.keyCode == 27) {
       window.jQuery.fn.mtModal.close();
-      window.jQuery("body").off("keyup", modalClose as any);
+      window.jQuery("body").off("keyup", modalClose);
     }
   };
-  window.jQuery("body").on("keyup", modalClose as any);
+  window.jQuery("body").on("keyup", modalClose);
 };
 
 export default class SourceEditor {
   private id: string;
   private textarea: HTMLTextAreaElement;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private editor: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private command: any;
   private toolbar: HTMLDivElement;
   private toolbarMount: ReturnType<typeof mount> | undefined;
@@ -108,7 +110,7 @@ export default class SourceEditor {
             target: document.body,
             props: {
               ...linkData,
-              onSubmit: (data: any) => {
+              onSubmit: (data: { url: string; target: string; title: string; text: string }) => {
                 this.command.execCommand("createLink", null, data.url, {
                   target: data.target,
                   title: data.title,

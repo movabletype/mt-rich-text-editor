@@ -19,7 +19,7 @@ const nodeToTagMap: Record<string, string> = {
 const getHTMLTag = (nodeName: string): string => nodeToTagMap[nodeName] ?? nodeName;
 
 class PathItem<
-  Options extends Record<string, any> = Record<string, any>,
+  Options extends Record<string, unknown> = Record<string, unknown>,
 > extends StatusbarItemElement<Options> {
   onEditorUpdate() {
     if (!this.tiptap) {

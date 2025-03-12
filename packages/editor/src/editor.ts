@@ -12,6 +12,18 @@ import prosemirrorCss from "prosemirror-view/style/prosemirror.css?raw";
 import editorCss from "./editor.css?inline";
 import contentCss from "./content.css?inline";
 
+export interface ExtensionOptions {
+  [key: string]: unknown;
+  embedObject?: {
+    resolver?: (data: { url: string; maxwidth?: number; maxheight?: number }) => Promise<{
+      error?: {
+        message: string;
+      };
+      inline?: boolean;
+    }>;
+  };
+}
+
 export interface EditorOptions {
   inline?: boolean;
   structure?: boolean;
@@ -47,7 +59,7 @@ export interface EditorOptions {
    */
   toolbar?: string[][][][];
   toolbarContainer?: HTMLDivElement | null;
-  toolbarOptions?: Record<string, any>;
+  toolbarOptions?: Record<string, unknown>;
   /**
    * statusbar definition
    * @example
@@ -60,13 +72,13 @@ export interface EditorOptions {
    */
   statusbar?: string[][];
   statusbarContainer?: HTMLDivElement | null;
-  statusbarOptions?: Record<string, any>;
+  statusbarOptions?: Record<string, unknown>;
   extensions?: TiptapExtension[];
-  extensionOptions?: Record<string, any>;
+  extensionOptions?: ExtensionOptions;
   pasteMenu?: string[];
-  pasteMenuOptions?: Record<string, any>;
+  pasteMenuOptions?: ConstructorParameters<typeof PasteMenu>[0]["options"];
   quickAction?: string[];
-  quickActionOptions?: Record<string, any>;
+  quickActionOptions?: ConstructorParameters<typeof QuickAction>[0]["options"];
   autoFocus?: boolean;
 }
 

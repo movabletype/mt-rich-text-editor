@@ -11,6 +11,7 @@
     openImageDialog,
     openLinkDialog,
   }: {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     command: any;
     toggleFullScreen: () => void;
     openFileDialog: () => void;

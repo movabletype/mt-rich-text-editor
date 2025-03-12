@@ -8,7 +8,7 @@ interface PasteMenuOptions {
   editor: Editor;
   onPaste: (callback: (view: EditorView, event: ClipboardEvent) => boolean) => void;
   pasteMenu: string[];
-  options: Record<string, any>;
+  options: Record<string, Record<string, unknown> | undefined | false>;
   inline: boolean;
 }
 

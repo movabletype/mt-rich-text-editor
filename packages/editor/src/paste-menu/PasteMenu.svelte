@@ -24,7 +24,7 @@
     editor: Editor;
     pasteMenu: string[];
     onPaste: (callback: (view: EditorView, event: ClipboardEvent) => boolean) => void;
-    options: Record<string, any>;
+    options: Record<string, Record<string, unknown> | undefined | false>;
     setIsPasting: (isPasting: boolean) => void;
   } = $props();
 
@@ -38,7 +38,7 @@
     .filter((item) => item.elementName && item.options !== false) as {
     name: string;
     elementName: string;
-    options: Record<string, any>;
+    options: Record<string, unknown>;
   }[];
 
   let isOpen = $state(false);
@@ -118,7 +118,7 @@
   const updatePosition = (view: EditorView, byScroll: boolean = false) => {
     try {
       tryUpdatePosition(view, byScroll);
-    } catch (e) {
+    } catch {
       // TBD: retry?
     }
   };
@@ -172,7 +172,7 @@
             htmlDocument,
             targetDomNode,
             clipboardData,
-            transaction: async (cb: Function) => {
+            transaction: async (cb: () => void | Promise<void>) => {
               isInTransaction = true;
               try {
                 await cb();
@@ -225,7 +225,7 @@
   const bindRef = (node: PasteMenuItemElement | HTMLElement, key: string) => {
     buttonRefs[key] = node;
     if ("onEditorInit" in node) {
-      node.onEditorInit(editor, options[key]);
+      node.onEditorInit(editor, (options[key] as Record<string, unknown> | undefined) ?? {});
     }
     return {
       destroy() {
@@ -274,7 +274,7 @@
     {@html clipboardIcon}
   </button>
   <div class="paste-menu-list" style={`display: ${isMenuOpen ? "block" : "none"};`}>
-    {#each buttons as button}
+    {#each buttons as button (button.name)}
       <div
         class="paste-menu-item-container"
         class:is-applied={applyName === button.name}

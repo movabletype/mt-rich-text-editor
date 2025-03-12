@@ -33,7 +33,7 @@
   element.addEventListener("click", toggleDetailPanel);
 
   const { editor, tiptap } = element;
-  let modalComponent: any = null;
+  let modalComponent: ReturnType<typeof mount> | null = null;
 
   const apply = async (embedData: EmbedData | undefined = undefined) => {
     const content = element.content;

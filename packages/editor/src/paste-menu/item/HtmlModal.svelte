@@ -67,6 +67,8 @@
   }
 
   let self: Modal;
+
+  // eslint-disable-next-line svelte/no-unused-svelte-ignore
   // svelte-ignore non_reactive_update FIXME:
   let close: () => void;
 </script>
@@ -84,7 +86,7 @@
             )}
           </div>
           <ul>
-            {#each dataAttributes as attribute}
+            {#each dataAttributes as attribute (attribute.name)}
               <li>
                 <label>
                   <input type="checkbox" name={attribute.name} bind:checked={attribute.checked} />
@@ -113,7 +115,7 @@
             )}
           </div>
           <ul>
-            {#each styleAttributes as attribute}
+            {#each styleAttributes as attribute (attribute.name)}
               <li>
                 <label>
                   <input type="checkbox" name={attribute.name} bind:checked={attribute.checked} />

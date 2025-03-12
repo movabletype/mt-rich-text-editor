@@ -1,7 +1,7 @@
 import { Node } from "@tiptap/core";
 
 export interface PreOptions {
-  HTMLAttributes: Record<string, any>;
+  HTMLAttributes: Record<string, unknown>;
 }
 
 declare module "@tiptap/core" {

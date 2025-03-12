@@ -9,7 +9,8 @@ export const extendToolbarItem = (
 ): new () => ToolbarItemElement =>
   class extends extend(customElementConstructor) implements ToolbarItemElement {
     connectedCallback() {
-      // @ts-ignore
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-expect-error
       super.connectedCallback();
       this.shadowRoot.appendChild(toolbarItemStyle.cloneNode(true));
     }

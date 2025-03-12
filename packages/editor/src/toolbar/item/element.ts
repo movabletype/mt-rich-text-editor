@@ -31,7 +31,8 @@ toolbarItemStyle.textContent = css;
  *  );
  */
 export class ToolbarItemElement<
-  Options extends Record<string, any> = Record<string, any>,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  Options extends Record<string, any> = Record<string, unknown>,
 > extends PanelItemElement<Options> {
   constructor() {
     super();

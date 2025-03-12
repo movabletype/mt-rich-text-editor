@@ -192,11 +192,14 @@
 </script>
 
 <div class="mt-rich-text-editor-toolbar-settings">
+  <!-- eslint-disable-next-line svelte/require-each-key -->
   {#each toolbarItems as row, rowIndex}
     <div class="mt-rich-text-editor-row">
+      <!-- eslint-disable-next-line svelte/require-each-key -->
       {#each row as side, sideIndex}
         {#if side.length > 0}
           <div class="mt-rich-text-editor-side">
+            <!-- eslint-disable-next-line svelte/require-each-key -->
             {#each side as group, groupIndex}
               <div class="mt-rich-text-editor-group">
                 <div

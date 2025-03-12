@@ -7,6 +7,7 @@ import * as TiptapCore from "@tiptap/core";
 import * as Component from "./component";
 import { getPanelItem } from "./ui/item/registry";
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type EventHandler = (...args: any[]) => void;
 
 export interface EditorCreateOptions extends EditorOptions {
@@ -32,6 +33,7 @@ export class EditorManager {
     this.#eventHandlers[name].push(handler);
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static #emit(name: string, ...args: any[]): void {
     const handlers = this.#eventHandlers[name] || [];
     handlers.forEach((handler) => handler(...args));
@@ -62,10 +64,11 @@ export class EditorManager {
       quickActionOptions: {},
       extensions: [],
       inline: false,
-      ...(options as any),
+      ...(options as EditorOptions & EditorCreateOptions),
     } as EditorOptions & EditorCreateOptions;
 
     this.#emit("create", editorCreateOptions);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { id: _, language: __, ...editorOptions } = editorCreateOptions;
 
     const editor = new Editor(textarea, editorOptions);
@@ -93,6 +96,7 @@ export class EditorManager {
   }
 
   public static async import(name: "@tiptap/core"): Promise<typeof import("@tiptap/core")>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public static async import(name: string): Promise<any> {
     if (name === "@tiptap/core") {
       return TiptapCore;
