@@ -54,7 +54,7 @@
       <div class="form-group mb-3">
         <label for="boilerplate_title">{t("Boilerplate")}</label>
         <select id="boilerplate_title" class="form-control" onchange={onChange}>
-          {#each boilerplates as boilerplate}
+          {#each boilerplates as boilerplate (boilerplate.url)}
             <option value={boilerplate.url}>{boilerplate.title}</option>
           {/each}
         </select>

@@ -39,10 +39,10 @@
 <div class="table_insert_panel">
   <div class="grid_container">
     <!-- eslint-disable-next-line @typescript-eslint/no-unused-vars -->
-    {#each Array(maxRows) as _, row}
+    {#each Array(maxRows) as _, row (row)}
       <div class="grid_row">
         <!-- eslint-disable-next-line @typescript-eslint/no-unused-vars -->
-        {#each Array(maxCols) as _, col}
+        {#each Array(maxCols) as _, col (col)}
           <div
             class="grid_cell"
             class:selected={row < hoveredRows && col < hoveredCols}

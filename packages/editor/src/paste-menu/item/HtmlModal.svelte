@@ -86,7 +86,7 @@
             )}
           </div>
           <ul>
-            {#each dataAttributes as attribute}
+            {#each dataAttributes as attribute (attribute.name)}
               <li>
                 <label>
                   <input type="checkbox" name={attribute.name} bind:checked={attribute.checked} />
@@ -115,7 +115,7 @@
             )}
           </div>
           <ul>
-            {#each styleAttributes as attribute}
+            {#each styleAttributes as attribute (attribute.name)}
               <li>
                 <label>
                   <input type="checkbox" name={attribute.name} bind:checked={attribute.checked} />

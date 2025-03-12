@@ -274,7 +274,7 @@
     {@html clipboardIcon}
   </button>
   <div class="paste-menu-list" style={`display: ${isMenuOpen ? "block" : "none"};`}>
-    {#each buttons as button}
+    {#each buttons as button (button.name)}
       <div
         class="paste-menu-item-container"
         class:is-applied={applyName === button.name}

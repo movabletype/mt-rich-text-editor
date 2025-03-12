@@ -58,9 +58,9 @@
 </script>
 
 <div class="statusbar">
-  {#each buttons as groupSides}
+  {#each buttons as groupSides, groupSidesIndex (groupSidesIndex)}
     <div class="statusbar-side">
-      {#each groupSides as button}
+      {#each groupSides as button, buttonIndex (buttonIndex)}
         <svelte:element
           this={button.elementName}
           use:bindRef={button.name}

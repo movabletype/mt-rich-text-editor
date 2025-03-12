@@ -102,7 +102,7 @@
 
   {#if isOpen}
     <div class="options">
-      {#each blocks as block}
+      {#each blocks as block (block.value)}
         <button
           class="option"
           class:active={selectedBlock === block.value}

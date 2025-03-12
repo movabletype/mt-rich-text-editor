@@ -121,15 +121,15 @@
 </script>
 
 <div class="toolbar {inline ? 'toolbar--inline' : ''}" bind:this={toolbarRef}>
-  {#each buttons as row}
+  {#each buttons as row, rowIndex (rowIndex)}
     <div class="toolbar-row">
-      {#each row as groupSides}
+      {#each row as groupSides, groupSidesIndex (groupSidesIndex)}
         <div class="toolbar-side">
-          {#each groupSides as group}
+          {#each groupSides as group, groupIndex (groupIndex)}
             <div
               class={`toolbar-group ${group.length === 1 ? `toolbar-group--${group[0].name}` : ""}`}
             >
-              {#each group as button}
+              {#each group as button, buttonIndex (buttonIndex)}
                 <svelte:element
                   this={button.elementName}
                   use:bindRef={button.name}

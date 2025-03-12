@@ -181,9 +181,9 @@
     left: ${left}px;
   `}
 >
-  {#each buttons as group}
+  {#each buttons as group, groupIndex (groupIndex)}
     <div class="toolbar-group">
-      {#each group as button}
+      {#each group as button (button.name)}
         <svelte:element this={button.elementName} use:bindRef={button.name} class="toolbar-item" />
       {/each}
     </div>
