@@ -6,7 +6,7 @@ interface ToolbarOptions {
   target: HTMLDivElement;
   editor: Editor;
   toolbar?: string[][][][];
-  options: Record<string, any>;
+  options: Record<string, unknown>;
   inline: boolean;
 }
 

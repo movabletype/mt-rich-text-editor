@@ -26,6 +26,7 @@
     }
     const { selection } = tiptap.state;
     const targetPos =
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (selection as any).node?.type.name === "image"
         ? selection.$anchor
         : findParentNode((node) => node.type.name === "image")(selection);

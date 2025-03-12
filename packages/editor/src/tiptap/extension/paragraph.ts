@@ -2,7 +2,7 @@ import { Paragraph as TiptapParagraph } from "@tiptap/extension-paragraph";
 import { mergeAttributes } from "@tiptap/core";
 
 export interface ParagraphOptions {
-  HTMLAttributes: Record<string, any>;
+  HTMLAttributes: Record<string, unknown>;
 }
 
 declare module "@tiptap/core" {
@@ -31,6 +31,7 @@ export const Paragraph = TiptapParagraph.extend<ParagraphOptions>({
   },
 
   renderHTML({ node, HTMLAttributes }) {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { MTRichTextEditorHTMLAttributes, textAlign, ...rest } = node.attrs;
     return ["p", mergeAttributes(this.options.HTMLAttributes, rest, HTMLAttributes), 0];
   },

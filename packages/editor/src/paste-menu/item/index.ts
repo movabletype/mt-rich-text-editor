@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import { t } from "../../i18n";
 import Html from "./Html.svelte";
 import Link from "./Link.svelte";

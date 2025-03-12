@@ -7,7 +7,7 @@ interface EmbedData {
 }
 
 export interface EmbedObjectOptions {
-  HTMLAttributes: Record<string, any>;
+  HTMLAttributes: Record<string, unknown>;
   resolver: (params: EmbedData) => Promise<{ html: string }>;
 }
 
@@ -142,7 +142,7 @@ export const EmbedObject = Node.create<EmbedObjectOptions>({
       getEmbedObject: (embedData: EmbedData) =>
         (() => {
           return this.options.resolver(embedData);
-        }) as any,
+        }) as unknown as Promise<{ html: string; inline?: string }>,
       insertEmbedObject: (html: string) => {
         const { state } = this.editor;
         const pos = state.selection.$anchor.pos;

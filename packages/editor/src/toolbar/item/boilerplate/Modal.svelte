@@ -26,7 +26,7 @@
   async function updateSelectedBoilerplate(url: string) {
     selectedBoilerplateDescription = boilerplates.find(
       (boilerplate) => boilerplate.url === url
-    )?.description;
+    )?.description || "";
     selectedBoilerplate = await (await fetch(url)).text();
   }
 
@@ -42,6 +42,7 @@
     }
   });
 
+  // eslint-disable-next-line svelte/no-unused-svelte-ignore
   // svelte-ignore non_reactive_update FIXME:
   let close: () => void;
 </script>

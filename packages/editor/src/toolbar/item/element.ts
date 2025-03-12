@@ -31,7 +31,7 @@ toolbarItemStyle.textContent = css;
  *  );
  */
 export class ToolbarItemElement<
-  Options extends Record<string, any> = Record<string, any>,
+  Options extends Record<string, unknown> = Record<string, unknown>,
 > extends PanelItemElement<Options> {
   constructor() {
     super();

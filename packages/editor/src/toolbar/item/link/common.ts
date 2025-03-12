@@ -1,5 +1,6 @@
 import { mount, unmount } from "svelte";
 import { Editor as TiptapEditor } from "@tiptap/core";
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import type { LinkData } from "../../../ui/link/Modal.svelte";
 import LinkModal from "../../../ui/link/Modal.svelte";

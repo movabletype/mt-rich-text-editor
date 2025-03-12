@@ -42,7 +42,7 @@
   const update = () => {
     isOpen = !editor.getStructureMode() && condition();
     if (isOpen) {
-      updatePosition(tiptap.view);
+      updatePosition();
       for (const key in buttonRefs) {
         if ("onEditorUpdate" in buttonRefs[key]) {
           (buttonRefs[key] as ToolbarItemElement).onEditorUpdate();
@@ -85,6 +85,7 @@
     }
     if (!targetDom) {
       const targetPos =
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (selection as any).node?.type.name === targetNodeName
           ? selection.$anchor
           : findParentNode((node) => node.type.name === targetNodeName)(selection);
@@ -139,7 +140,7 @@
   const updatePosition = () => {
     try {
       tryUpdatePosition(tiptap.view);
-    } catch (e) {
+    } catch {
       // ignore error
     }
   };
@@ -159,12 +160,12 @@
   $effect(() => {
     viewDom.addEventListener("scroll", () => {
       if (isOpen) {
-        updatePosition(tiptap.view);
+        updatePosition();
       }
     });
 
     if (isOpen) {
-      updatePosition(tiptap.view);
+      updatePosition();
     }
   });
 </script>

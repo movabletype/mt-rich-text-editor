@@ -26,7 +26,7 @@
 
   const { tiptap } = element;
 
-  let modalComponent: any = null;
+  let modalComponent: ReturnType<typeof mount> | null = null;
 
   const apply = (htmlDocument: Document | null | undefined = null) => {
     if (!tiptap) {

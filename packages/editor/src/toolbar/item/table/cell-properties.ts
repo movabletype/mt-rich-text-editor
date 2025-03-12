@@ -1,5 +1,7 @@
 import { mount, unmount } from "svelte";
 import type { Editor as TiptapEditor } from "@tiptap/core";
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
 import type { CellData } from "./CellPropertiesPanel.svelte";
 import CellPropertiesPanel from "./CellPropertiesPanel.svelte";
 

@@ -26,8 +26,6 @@
           : false;
       }
     };
-
-  export interface Options {}
 </script>
 
 <script lang="ts">

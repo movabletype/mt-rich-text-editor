@@ -10,7 +10,7 @@
   }: {
     editor: Editor;
     statusbar: string[][];
-    options: Record<string, any>;
+    options: Record<string, Record<string, unknown> | undefined | false>;
   } = $props();
 
   const buttonRefs: Record<string, StatusbarItemElement | HTMLElement> = {};
@@ -27,7 +27,7 @@
         .filter((item) => item.elementName && item.options !== false) as {
         name: string;
         elementName: string;
-        options: Record<string, any>;
+        options: Record<string, unknown>;
       }[]
   );
 
@@ -47,7 +47,7 @@
   function bindRef(node: StatusbarItemElement | HTMLElement, key: string) {
     buttonRefs[key] = node;
     if ("onEditorInit" in node) {
-      node.onEditorInit(editor, options[key]);
+      node.onEditorInit(editor, (options[key] as Record<string, unknown> | undefined) ?? {});
     }
     return {
       destroy() {

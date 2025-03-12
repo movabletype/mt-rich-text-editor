@@ -2,6 +2,7 @@
   import type { Editor } from "../editor";
   import { debounce } from "../util/event";
   import { getPanelItem } from "../ui/item/registry";
+  import { QuickActionItemElement } from "../component";
 
   const {
     editor,
@@ -10,7 +11,7 @@
   }: {
     editor: Editor;
     quickAction: string[];
-    options: Record<string, any>;
+    options: Record<string, Record<string, unknown> | undefined | false>;
   } = $props();
 
   const buttonRefs: Record<string, HTMLElement> = {};
@@ -30,7 +31,7 @@
     variant?: string;
     elementName: string;
     aliases: string[];
-    options: Record<string, any>;
+    options: Record<string, unknown>;
   }[];
 
   let keyword = $state<string>("");
@@ -119,10 +120,10 @@
     );
   });
 
-  function bindRef(node: HTMLElement, key: string) {
+  function bindRef(node: QuickActionItemElement | HTMLElement, key: string) {
     buttonRefs[key] = node;
     if ("onEditorInit" in node) {
-      (node as any).onEditorInit(editor, options[key]);
+      node.onEditorInit(editor, (options[key] as Record<string, unknown> | undefined) ?? {});
     }
     if ("aliases" in node) {
       const button = buttons.find((button) => button.name === key);

@@ -47,7 +47,7 @@ export interface EditorOptions {
    */
   toolbar?: string[][][][];
   toolbarContainer?: HTMLDivElement | null;
-  toolbarOptions?: Record<string, any>;
+  toolbarOptions?: Record<string, unknown>;
   /**
    * statusbar definition
    * @example
@@ -60,13 +60,13 @@ export interface EditorOptions {
    */
   statusbar?: string[][];
   statusbarContainer?: HTMLDivElement | null;
-  statusbarOptions?: Record<string, any>;
+  statusbarOptions?: Record<string, unknown>;
   extensions?: TiptapExtension[];
-  extensionOptions?: Record<string, any>;
+  extensionOptions?: Record<string, unknown>;
   pasteMenu?: string[];
-  pasteMenuOptions?: Record<string, any>;
+  pasteMenuOptions?: ConstructorParameters<typeof PasteMenu>[0]["options"];
   quickAction?: string[];
-  quickActionOptions?: Record<string, any>;
+  quickActionOptions?: ConstructorParameters<typeof QuickAction>[0]["options"];
   autoFocus?: boolean;
 }
 

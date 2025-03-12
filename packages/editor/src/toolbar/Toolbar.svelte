@@ -12,7 +12,7 @@
   }: {
     editor: Editor;
     toolbar: string[][][][];
-    options: Record<string, any>;
+    options: Record<string, Record<string, unknown> | undefined | false>;
     inline: boolean;
   } = $props();
 
@@ -37,7 +37,7 @@
                   .filter((item) => item.elementName && item.options !== false) as {
                   name: string;
                   elementName: string;
-                  options: Record<string, any>;
+                  options: Record<string, unknown>;
                 }[]
             )
             .filter((group) => group.length > 0)
@@ -110,7 +110,7 @@
   function bindRef(node: ToolbarItemElement | HTMLElement, key: string) {
     buttonRefs[key] = node;
     if ("onEditorInit" in node) {
-      node.onEditorInit(editor, options[key] ?? {});
+      node.onEditorInit(editor, ((options[key] as Record<string, unknown>) || undefined) ?? {});
     }
     return {
       destroy() {

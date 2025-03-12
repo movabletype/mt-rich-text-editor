@@ -19,7 +19,8 @@ export const extendPasteMenuItem = (
       | undefined = undefined;
 
     connectedCallback() {
-      // @ts-ignore
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-expect-error
       super.connectedCallback();
       this.shadowRoot.appendChild(pasteMenuItemStyle.cloneNode(true));
     }

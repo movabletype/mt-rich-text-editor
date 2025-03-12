@@ -68,7 +68,10 @@ export const MTTag = Node.create({
             "text/html"
           ).body.firstChild as HTMLElement;
 
-          const attrs: Record<string, any> = {
+          const attrs: {
+            "data-tag-name": string;
+            HTMLAttributes: Record<string, string>;
+          } = {
             "data-tag-name": match[1],
             HTMLAttributes: {},
           };

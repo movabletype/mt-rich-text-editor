@@ -23,5 +23,5 @@ import { PanelItemElement } from "../../ui/item/element";
  *  );
  */
 export class StatusbarItemElement<
-  Options extends Record<string, any> = Record<string, any>,
+  Options extends Record<string, unknown> = Record<string, unknown>,
 > extends PanelItemElement<Options> {}
