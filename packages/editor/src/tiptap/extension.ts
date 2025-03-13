@@ -3,6 +3,8 @@ import { Extension as TiptapExtension } from "@tiptap/core";
 // core
 import { Document } from "@tiptap/extension-document";
 import { Text } from "@tiptap/extension-text";
+import { Subscript } from "@tiptap/extension-subscript";
+import { Superscript } from "@tiptap/extension-superscript";
 import { Image } from "@tiptap/extension-image";
 import { HardBreak } from "@tiptap/extension-hard-break";
 import { Italic } from "@tiptap/extension-italic";
@@ -76,6 +78,14 @@ export const Extension = TiptapExtension.create({
 
     if (this.options.text !== false) {
       extensions.push(Text.configure(this.options?.text));
+    }
+
+    if (this.options.subscript !== false) {
+      extensions.push(Subscript.configure(this.options?.subscript));
+    }
+
+    if (this.options.superscript !== false) {
+      extensions.push(Superscript.configure(this.options?.superscript));
     }
 
     if (this.options.image !== false) {

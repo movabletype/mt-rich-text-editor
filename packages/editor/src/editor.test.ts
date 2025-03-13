@@ -38,6 +38,7 @@ describe("HTML parsing", () => {
     "<p><span style='top:0' class='custom-class'>test</span></p>",
     "<p><span style='top:0'>t<a href='v' target='v' title='v'>t</a></span></p>",
     "<div class='v'><table style='top:0'><tbody><tr><td style='top:0'>t</td></tr></tbody></table></div>",
+    "<p><sub>test1</sub>test2<sup>test3</sup></p>",
     "<p><strong>te<span>st</span></strong></p>",
   ])("should preserve HTML structure through Tiptap: %s", (input) => {
     editor.setContent(input);
