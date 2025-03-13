@@ -119,7 +119,7 @@ try {
   while (true) {
     // Fetch records in batches
     const results = await client.query(
-      "SELECT entry_id, entry_text, entry_text_more FROM mt_entry WHERE entry_convert_breaks = 'richtext' LIMIT ? OFFSET ?",
+      "SELECT entry_id, entry_text, entry_text_more FROM mt_entry WHERE entry_convert_breaks = 'richtext' ORDER BY entry_id DESC LIMIT ? OFFSET ?",
       [BATCH_SIZE, offset]
     );
 
