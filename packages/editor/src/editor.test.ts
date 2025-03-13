@@ -42,6 +42,7 @@ describe("HTML parsing", () => {
     "<p><sub>test1</sub>test2<sup>test3</sup></p>",
     "<p><strong>te<span>st</span></strong></p>",
     "<p><iframe frameborder='v' height='v' src='v' width='v'></iframe></p>",
+    "<ul><li style='top:0'><ul class='v'><li><a href='v'>t</a></li></ul></li></ul>",
   ])("should preserve HTML structure through Tiptap: %s", (input) => {
     editor.setContent(input);
     const output = editor.getContent();
