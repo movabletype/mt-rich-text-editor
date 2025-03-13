@@ -77,6 +77,7 @@ export const Global = Extension.create({
           "hardBreak",
           "heading",
           "horizontalRule",
+          "iframe",
           "image",
           "inlineLink",
           "listItem",

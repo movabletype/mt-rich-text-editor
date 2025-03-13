@@ -23,6 +23,7 @@ describe("HTML parsing", () => {
   it.each([
     "<p><a href='https://example.com'>test</a></p>",
     "<a href='https://example.com'><div>test</div></a>",
+    "<a href='https://example.com'><div>test</div></a>",
     '<p class="custom-class">test</p>',
     "<div><p>test <strong>bold</strong> text</p></div>",
     "<div>test</div>",
@@ -40,6 +41,7 @@ describe("HTML parsing", () => {
     "<div class='v'><table style='top:0'><tbody><tr><td style='top:0'>t</td></tr></tbody></table></div>",
     "<p><sub>test1</sub>test2<sup>test3</sup></p>",
     "<p><strong>te<span>st</span></strong></p>",
+    "<p><iframe frameborder='v' height='v' src='v' width='v'></iframe></p>",
   ])("should preserve HTML structure through Tiptap: %s", (input) => {
     editor.setContent(input);
     const output = editor.getContent();
