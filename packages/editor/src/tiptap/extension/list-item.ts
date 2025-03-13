@@ -4,7 +4,7 @@ import { mergeAttributes } from "@tiptap/core";
 export const ListItem = TiptapListItem.extend({
   name: "listItem",
   priority: 1000,
-  content: "(textBlock|paragraph) block*",
+  content: "(textBlock|block)*",
 
   parseHTML() {
     return [
