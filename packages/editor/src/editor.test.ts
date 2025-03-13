@@ -43,6 +43,17 @@ describe("HTML parsing", () => {
     expect(normalizeHTML(output)).toBe(normalizeHTML(input));
   });
 
+  it.each([
+    [
+      "<p style='top:0'><strong><a href='v' target='v'>t</a><strong><a href='v' target='v'>t</a></strong></strong></p>",
+      "<p style='top:0'><a href='v' target='v'><strong>tt</strong></a></p>",
+    ],
+  ])("should convert HTML structure through Tiptap: %s", (input, expected) => {
+    editor.setContent(input);
+    const output = editor.getContent();
+    expect(normalizeHTML(output)).toBe(normalizeHTML(expected));
+  });
+
   it("should preserve all html structure", () => {
     const files = globSync(path.join(__dirname, "editor.test.d/**/*.html"));
     for (const file of files) {
