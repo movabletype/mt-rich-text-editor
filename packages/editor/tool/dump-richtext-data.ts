@@ -1,7 +1,12 @@
 import { parse } from "https://deno.land/std@0.220.1/flags/mod.ts";
 import { Client } from "https://deno.land/x/mysql@v2.12.0/mod.ts";
 import { ensureDir } from "https://deno.land/std@0.220.1/fs/mod.ts";
-import { DOMParser, Text, Node, Element } from "https://deno.land/x/deno_dom@v0.1.43/deno-dom-wasm.ts";
+import {
+  DOMParser,
+  Text,
+  Node,
+  Element,
+} from "https://deno.land/x/deno_dom@v0.1.43/deno-dom-wasm.ts";
 
 // Parse command line arguments
 const flags = parse(Deno.args, {
@@ -34,37 +39,37 @@ async function promptForCredentials() {
 
   if (!flags.password) {
     console.log("Please enter database password:");
-    
+
     const password = new Uint8Array(1024);
     let position = 0;
-    
+
     // Disable echo
     Deno.stdin.setRaw(true);
-    
+
     while (true) {
       const chunk = new Uint8Array(1);
       const n = await Deno.stdin.read(chunk);
       if (!n) break;
-      
+
       // Enter key
       if (chunk[0] === 13) {
         break;
       }
-      
+
       // Store the character
       password[position] = chunk[0];
       position++;
     }
-    
+
     // Restore original stdin mode
     Deno.stdin.setRaw(false);
     console.log(); // New line after password input
-    
+
     if (position === 0) {
       console.error("Password is required");
       Deno.exit(1);
     }
-    
+
     flags.password = new TextDecoder().decode(password.subarray(0, position)).trim();
   }
 }
@@ -76,7 +81,7 @@ function replaceTextContent(node: Node) {
     const element = node as Element;
     const attributes = element.attributes;
     for (const attribute of attributes) {
-      attribute.value = "v";
+      attribute.value = attribute.name === "style" ? "top:0" : "v";
     }
   }
 
@@ -135,7 +140,7 @@ try {
 
         const doc = parser.parseFromString(`<html><body>${content}</body></html>`, "text/html");
 
-        if (!doc ||!doc.documentElement) {
+        if (!doc || !doc.documentElement) {
           continue;
         }
 
