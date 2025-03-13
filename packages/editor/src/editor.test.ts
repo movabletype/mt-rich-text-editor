@@ -38,6 +38,7 @@ describe("HTML parsing", () => {
     "<p><span style='top:0' class='custom-class'>test</span></p>",
     "<p><span style='top:0'>t<a href='v' target='v' title='v'>t</a></span></p>",
     "<div class='v'><table style='top:0'><tbody><tr><td style='top:0'>t</td></tr></tbody></table></div>",
+    "<p><strong>te<span>st</span></strong></p>",
   ])("should preserve HTML structure through Tiptap: %s", (input) => {
     editor.setContent(input);
     const output = editor.getContent();
@@ -47,7 +48,7 @@ describe("HTML parsing", () => {
   it.each([
     [
       "<p style='top:0'><strong><a href='v' target='v'>t</a><strong><a href='v' target='v'>t</a></strong></strong></p>",
-      "<p style='top:0'><a href='v' target='v'><strong>tt</strong></a></p>",
+      "<p style='top:0'><strong><a href='v' target='v'>tt</a></strong></p>",
     ],
   ])("should convert HTML structure through Tiptap: %s", (input, expected) => {
     editor.setContent(input);
