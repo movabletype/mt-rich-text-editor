@@ -50,6 +50,14 @@ describe("HTML parsing", () => {
     expect(normalizeHTML(output)).toBe(normalizeHTML(input));
   });
 
+  it.todo.each([
+    "<p><span class='v1'><span class='v2'><img alt='v' class='v' height='v' src='v' style='top:0' title='v' width='v' /></span><br /></span></p>",
+  ])("TODO:should preserve HTML structure through Tiptap: %s", (input) => {
+    editor.setContent(input);
+    const output = editor.getContent();
+    expect(normalizeHTML(output)).toBe(normalizeHTML(input));
+  });
+
   it.each([
     [
       "<p style='top:0'><strong><a href='v' target='v'>t</a><strong><a href='v' target='v'>t</a></strong></strong></p>",
