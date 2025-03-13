@@ -43,6 +43,7 @@ describe("HTML parsing", () => {
     "<p><strong>te<span>st</span></strong></p>",
     "<p><iframe frameborder='v' height='v' src='v' width='v'></iframe></p>",
     "<ul><li style='top:0'><ul class='v'><li><a href='v'>t</a></li></ul></li></ul>",
+    "<p><span class='v1'>a</span><span class='v2'>b</span></p>",
   ])("should preserve HTML structure through Tiptap: %s", (input) => {
     editor.setContent(input);
     const output = editor.getContent();
@@ -53,6 +54,16 @@ describe("HTML parsing", () => {
     [
       "<p style='top:0'><strong><a href='v' target='v'>t</a><strong><a href='v' target='v'>t</a></strong></strong></p>",
       "<p style='top:0'><strong><a href='v' target='v'>tt</a></strong></p>",
+    ],
+    // TBD
+    [
+      "<p><a href='v' target='v'><span><img alt='v' class='v' height='v' src='v' style='top:0' title='v' width='v' /></span></a></p>",
+      "<p><span><a href='v' target='v'><img alt='v' class='v' height='v' src='v' style='top:0' title='v' width='v' /></a></span></p>",
+    ],
+    // TBD
+    [
+      "<p><span style='top:0'><strong>test</strong></span></p>",
+      "<p><strong><span style='top:0'>test</span></strong></p>",
     ],
   ])("should convert HTML structure through Tiptap: %s", (input, expected) => {
     editor.setContent(input);
