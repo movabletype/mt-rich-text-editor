@@ -37,6 +37,7 @@ describe("HTML parsing", () => {
     "<p><script>console.log('test');</script></p>",
     "<p><span style='top:0' class='custom-class'>test</span></p>",
     "<p><span style='top:0'>t<a href='v' target='v' title='v'>t</a></span></p>",
+    "<div class='v'><table style='top:0'><tbody><tr><td style='top:0'>t</td></tr></tbody></table></div>",
   ])("should preserve HTML structure through Tiptap: %s", (input) => {
     editor.setContent(input);
     const output = editor.getContent();

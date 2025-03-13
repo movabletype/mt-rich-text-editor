@@ -25,4 +25,9 @@ export const Table = TiptapTable.extend({
     }
     return options;
   },
+
+  // FIXME: renderHTML with customized attributes
+  renderHTML({ HTMLAttributes }) {
+    return ["table", HTMLAttributes, 0];
+  },
 });
