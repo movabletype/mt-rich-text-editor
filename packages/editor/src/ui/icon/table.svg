@@ -1,11 +1,11 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<svg id="b"
-    xmlns="http://www.w3.org/2000/svg" viewBox="0 0 72 72">
-    <defs>
-        <style>.d{fill:none;}</style>
-    </defs>
-    <g id="c">
-        <path d="M64,2H8C3.58,2,0,5.58,0,10v52c0,4.42,3.58,8,8,8h56c4.42,0,8-3.58,8-8V10c0-4.42-3.58-8-8-8ZM64,22v16h-24v-16h24ZM32,22v16H8v-16h24ZM8,62v-16h24v16H8ZM40,62v-16h24v16h-24Z"/>
-        <rect class="d" width="72" height="72"/>
+<svg width="72" height="72" viewBox="0 0 72 72" fill="none"
+    xmlns="http://www.w3.org/2000/svg">
+    <g clip-path="url(#clip0_57_206)">
+        <path d="M58.4 8.80005H13.6C10.07 8.80005 7.20001 11.67 7.20001 15.2V56.8C7.20001 60.33 10.07 63.2001 13.6 63.2001H58.4C61.93 63.2001 64.8 60.33 64.8 56.8V15.2C64.8 11.67 61.93 8.80005 58.4 8.80005ZM58.4 24.8V37.6H39.2V24.8H58.4ZM32.8 24.8V37.6H13.6V24.8H32.8ZM13.6 56.8V44H32.8V56.8H13.6ZM39.2 56.8V44H58.4V56.8H39.2Z" fill="black"/>
     </g>
+    <defs>
+        <clipPath id="clip0_57_206">
+            <rect width="72" height="72" fill="white"/>
+        </clipPath>
+    </defs>
 </svg>

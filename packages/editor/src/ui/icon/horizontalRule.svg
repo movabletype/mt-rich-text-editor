@@ -1,11 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<svg id="b"
-    xmlns="http://www.w3.org/2000/svg" viewBox="0 0 72 72">
-    <defs>
-        <style>.d{fill:none;}</style>
-    </defs>
-    <g id="c">
-        <rect y="32" width="72" height="12"/>
-        <rect class="d" width="72" height="72"/>
-    </g>
+<svg width="72" height="72" viewBox="0 0 72 72" fill="none"
+    xmlns="http://www.w3.org/2000/svg">
+    <path d="M63 32H9V40H63V32Z" fill="black"/>
 </svg>
