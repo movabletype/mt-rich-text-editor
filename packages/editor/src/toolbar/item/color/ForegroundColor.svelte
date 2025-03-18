@@ -53,6 +53,7 @@
   };
 
   function handleSelect(value: string) {
+    selectedColor = value;
     tiptap?.chain().focus().setColor(value).run();
     isOpen = false;
   }

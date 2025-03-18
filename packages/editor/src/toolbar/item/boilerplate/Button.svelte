@@ -43,4 +43,3 @@
 <button use:tooltip={t("Insert Boilerplate")}>
   {@html icon}
 </button>
-

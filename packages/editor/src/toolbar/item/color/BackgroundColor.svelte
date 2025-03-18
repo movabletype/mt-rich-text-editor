@@ -47,12 +47,14 @@
     "#A1887F",
   ];
 
-  let selectedColor = $state("#000000");
+  const defaultColor = "rgba(0,0,0,0)";
+  let selectedColor = $state(defaultColor);
   element.onEditorUpdate = () => {
-    selectedColor = tiptap?.getAttributes("textStyle").backgroundColor ?? "#000000";
+    selectedColor = tiptap?.getAttributes("textStyle").backgroundColor ?? defaultColor;
   };
 
   function handleSelect(value: string) {
+    selectedColor = value;
     tiptap?.chain().focus().setBackgroundColor(value).run();
     isOpen = false;
   }
@@ -78,7 +80,7 @@
 </script>
 
 <button use:tooltip={t("Background Color")} class:tooltip-disabled={isOpen}>
-  {@html icon.replace(/fill="currentColor"/g, `fill="${selectedColor}"`)}
+  {@html icon.replace(/fill="rgba\(0,0,0,0\)"/g, `fill="${selectedColor}"`)}
 </button>
 
 <div class="color-panel-container">
