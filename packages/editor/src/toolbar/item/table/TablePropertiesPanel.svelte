@@ -1,6 +1,9 @@
 <script lang="ts" module>
   export interface TableData {
     readonly width: string;
+    readonly height: string;
+    readonly cellSpacing: string;
+    readonly borderWidth: string;
   }
 </script>
 
@@ -19,6 +22,9 @@
   } = $props();
 
   let width = $state(tableData.width);
+  let height = $state(tableData.height);
+  let cellSpacing = $state(tableData.cellSpacing);
+  let borderWidth = $state(tableData.borderWidth);
 
   let widthInput: HTMLInputElement;
   $effect(() => {
@@ -45,6 +51,18 @@
           bind:this={widthInput}
         />
       </div>
+      <div class="form-group mb-3">
+        <label for="table-height" class="form-label">{t("Height")}</label>
+        <input type="text" id="table-height" class="form-control" bind:value={height} />
+      </div>
+      <div class="form-group mb-3">
+        <label for="table-cell-spacing" class="form-label">{t("Cell Spacing")}</label>
+        <input type="text" id="table-cell-spacing" class="form-control" bind:value={cellSpacing} />
+      </div>
+      <div class="form-group mb-3">
+        <label for="table-border-width" class="form-label">{t("Border Width")}</label>
+        <input type="text" id="table-border-width" class="form-control" bind:value={borderWidth} />
+      </div>
     </svelte:fragment>
     <svelte:fragment slot="footer">
       <button
@@ -52,7 +70,7 @@
         title={t("Insert (s)")}
         class="action primary button btn btn-primary"
         onclick={() => {
-          onSubmit({ width });
+          onSubmit({ width, height, cellSpacing, borderWidth });
           close();
         }}
       >

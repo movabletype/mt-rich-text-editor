@@ -9,6 +9,7 @@
 </script>
 
 <script lang="ts">
+  import { selectedRect } from "@tiptap/pm/tables";
   import { t } from "../../../i18n";
   import icon from "../../../ui/icon/table.svg?raw";
   import { tooltip } from "../../../tooltip";
@@ -25,9 +26,40 @@
 
   let isOpen = $state(false);
   let isTableActive = $state(tiptap?.isActive("table"));
-  tiptap?.on("update", () => {
-    isTableActive = tiptap?.isActive("table");
-  });
+
+  let canMergeCell = $state<boolean>(false);
+  let canSplitCell = $state<boolean>(false);
+
+  const update = () => {
+    if (!tiptap) {
+      return;
+    }
+
+    isTableActive = tiptap.isActive("table");
+    const tableRect = isTableActive ? selectedRect(tiptap.state) : null;
+    if (tableRect) {
+      const selectedCells = new Set();
+      let canSplitCellSelected = false;
+      const map = tableRect.map;
+      RECT_LOOP: for (let row = tableRect.top; row < tableRect.bottom; row++) {
+        for (let col = tableRect.left; col < tableRect.right; col++) {
+          const cellPos = map.map[row * map.width + col];
+          const cell = tableRect.table.nodeAt(cellPos);
+          if (cell) {
+            selectedCells.add(cell);
+            canSplitCellSelected = cell.attrs.colspan > 1 || cell.attrs.rowspan > 1;
+            if (canSplitCellSelected && selectedCells.size > 1) {
+              break RECT_LOOP;
+            }
+          }
+        }
+      }
+      canSplitCell = canSplitCellSelected;
+      canMergeCell = selectedCells.size > 1;
+    }
+  };
+  tiptap?.on("update", update);
+  tiptap?.on("selectionUpdate", update);
 
   function handleInsert(rows: number, cols: number) {
     tiptap?.chain().focus().insertTable({ rows, cols, withHeaderRow: false }).run();
@@ -94,7 +126,7 @@
           <div class="menu-item-subgroup">
             <button
               class="menu-item"
-              disabled={!isTableActive}
+              disabled={!(isTableActive && canMergeCell)}
               onclick={() => {
                 tiptap?.chain().focus().mergeCells().run();
               }}
@@ -103,7 +135,7 @@
             </button>
             <button
               class="menu-item"
-              disabled={!isTableActive}
+              disabled={!(isTableActive && canSplitCell)}
               onclick={() => {
                 tiptap?.chain().focus().splitCell().run();
               }}
