@@ -120,6 +120,10 @@ use vars qw( %Lexicon );
     'Row Properties'   => '行のプロパティ',
     'Cell Properties'  => 'セルのプロパティ',
 
+    'Cell Spacing' => 'セルの間隔',
+    'Cell Padding' => 'セル内のスペース',
+    'Border Width' => '枠線幅',
+
     'Cell type'                => 'セルの種類',
     'Cell'                     => 'セル',
     'Header cell'              => 'ヘッダーセル',

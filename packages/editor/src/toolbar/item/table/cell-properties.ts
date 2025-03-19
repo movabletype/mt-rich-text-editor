@@ -20,13 +20,15 @@ const getCurrentCellData = (tiptap: TiptapEditor): CellData => {
     depth--;
   }
 
+  const el = document.createElement("div");
+  el.style.cssText = cellNode?.attrs.style || "";
   return {
-    width: cellNode?.attrs.style?.match(/width: ([^;]+)/)?.[1] || "",
-    height: cellNode?.attrs.style?.match(/height: ([^;]+)/)?.[1] || "",
+    width: el.style.width || "",
+    height: el.style.height || "",
     element: cellNode?.type.name === "tableCell" ? "td" : "th",
     scope: cellNode?.attrs.scope || "",
-    horizontalAlign: cellNode?.attrs.style?.match(/text-align: ([^;]+)/)?.[1] || "",
-    verticalAlign: cellNode?.attrs.style?.match(/vertical-align: ([^;]+)/)?.[1] || "",
+    horizontalAlign: el.style.textAlign || "",
+    verticalAlign: el.style.verticalAlign || "",
   };
 };
 
@@ -71,23 +73,18 @@ export const handleCellProperties = (tiptap: TiptapEditor) => {
             .command(({ tr }) => {
               const node = tr.doc.nodeAt(cellPos);
               if (node) {
-                let style = "";
-                if (cellData.width) {
-                  style += `width: ${cellData.width};`;
-                }
-                if (cellData.height) {
-                  style += `height: ${cellData.height};`;
-                }
-                if (cellData.horizontalAlign) {
-                  style += `text-align: ${cellData.horizontalAlign};`;
-                }
-                if (cellData.verticalAlign) {
-                  style += `vertical-align: ${cellData.verticalAlign};`;
-                }
+                const el = document.createElement("div");
+                el.style.cssText = node.attrs.style || "";
+
+                el.style.width = cellData.width;
+                el.style.height = cellData.height;
+                el.style.textAlign = cellData.horizontalAlign;
+                el.style.verticalAlign = cellData.verticalAlign;
+
                 tr.setNodeMarkup(cellPos, null, {
                   ...node.attrs,
                   scope: cellData.scope || undefined,
-                  style,
+                  style: el.style.cssText,
                 });
               }
               return true;
