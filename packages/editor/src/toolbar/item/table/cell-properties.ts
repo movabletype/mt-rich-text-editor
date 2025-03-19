@@ -22,7 +22,11 @@ const getCurrentCellData = (tiptap: TiptapEditor): CellData => {
 
   return {
     width: cellNode?.attrs.style?.match(/width: ([^;]+)/)?.[1] || "",
+    height: cellNode?.attrs.style?.match(/height: ([^;]+)/)?.[1] || "",
     element: cellNode?.type.name === "tableCell" ? "td" : "th",
+    scope: cellNode?.attrs.scope || "",
+    horizontalAlign: cellNode?.attrs.style?.match(/text-align: ([^;]+)/)?.[1] || "",
+    verticalAlign: cellNode?.attrs.style?.match(/vertical-align: ([^;]+)/)?.[1] || "",
   };
 };
 
@@ -53,21 +57,6 @@ export const handleCellProperties = (tiptap: TiptapEditor) => {
       onSubmit: (cellData: CellData) => {
         const cellPos = getCellNodePos(tiptap);
         if (cellPos !== null) {
-          tiptap
-            ?.chain()
-            .focus()
-            .command(({ tr }) => {
-              const node = tr.doc.nodeAt(cellPos);
-              if (node) {
-                tr.setNodeMarkup(cellPos, null, {
-                  ...node.attrs,
-                  style: `width: ${cellData.width}`,
-                });
-              }
-              return true;
-            })
-            .run();
-
           const node = tiptap?.state.selection?.$anchor.node();
           if (
             (node?.type.name === "tableCell" && cellData.element === "th") ||
@@ -75,6 +64,35 @@ export const handleCellProperties = (tiptap: TiptapEditor) => {
           ) {
             tiptap?.chain().focus().toggleHeaderCell().run();
           }
+
+          tiptap
+            ?.chain()
+            .focus()
+            .command(({ tr }) => {
+              const node = tr.doc.nodeAt(cellPos);
+              if (node) {
+                let style = "";
+                if (cellData.width) {
+                  style += `width: ${cellData.width};`;
+                }
+                if (cellData.height) {
+                  style += `height: ${cellData.height};`;
+                }
+                if (cellData.horizontalAlign) {
+                  style += `text-align: ${cellData.horizontalAlign};`;
+                }
+                if (cellData.verticalAlign) {
+                  style += `vertical-align: ${cellData.verticalAlign};`;
+                }
+                tr.setNodeMarkup(cellPos, null, {
+                  ...node.attrs,
+                  scope: cellData.scope || undefined,
+                  style,
+                });
+              }
+              return true;
+            })
+            .run();
         }
         unmount(cellPropertiesModal as ReturnType<typeof mount>);
       },
