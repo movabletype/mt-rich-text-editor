@@ -103,4 +103,10 @@ export class EditorManager {
     }
     throw new Error(`Unknown module: ${name}`);
   }
+
+  public static setLanguage(language: string): void {
+    if (i18n.language !== language) {
+      i18n.changeLanguage(language);
+    }
+  }
 }
