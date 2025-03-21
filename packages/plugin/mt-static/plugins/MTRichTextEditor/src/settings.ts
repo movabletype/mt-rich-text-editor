@@ -1,8 +1,13 @@
+import type {} from "@movabletype/mt-rich-text-editor";
+import { currentLanguage } from "./l10n";
 import { mount } from "svelte";
 import Toolbar from "./settings/Toolbar.svelte";
 import Blocks from "./settings/Blocks.svelte";
 import Colors from "./settings/Colors.svelte";
 import EmbedDefaultParams from "./settings/EmbedDefaultParams.svelte";
+
+window.MTRichTextEditor.setLanguage(currentLanguage);
+
 setTimeout(() => {
   [
     {
