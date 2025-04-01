@@ -16,7 +16,7 @@
     "globals": "^15.6.0",
     "prettier": "^3.4.2",
     "prettier-plugin-svelte": "^3.3.3",
-    "svelte": "^5.12.0",
+    "svelte": "^5.25.6",
     "svelte-check": "^4.1.1",
     "svelte-dnd-action": "^0.9.57",
     "typescript": "^5.7.2",
