@@ -25,7 +25,7 @@ Makefile
 
     $makefile .= << 'Makefile';
 npm-install:
-	npm ci
+	npm ci --include=dev
 
 npm-build:
 	npm run build
