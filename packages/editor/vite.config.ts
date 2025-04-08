@@ -1,10 +1,9 @@
-import { defineConfig } from "vite";
 import dts from "vite-plugin-dts";
 import postcssNesting from "postcss-nesting";
 import postcssInlineSvg from "postcss-inline-svg";
 import { svelte } from "@sveltejs/vite-plugin-svelte";
 
-export default defineConfig(({ mode }) => ({
+export default {
   build: {
     lib: {
       entry: ["src/index.ts", "src/component.ts", "src/mt-rich-text-editor.ts"],
@@ -32,7 +31,4 @@ export default defineConfig(({ mode }) => ({
     watch: false,
     include: ["src/**/*.test.ts"],
   },
-  resolve: {
-    conditions: mode === "test" ? ["browser"] : ["browser"],
-  },
-}));
+};

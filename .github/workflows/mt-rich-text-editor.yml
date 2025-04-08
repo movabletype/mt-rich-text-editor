@@ -1,7 +1,7 @@
 name: movabletype/mt-rich-text-editor
 on: [push]
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
 
     steps:
@@ -22,17 +22,40 @@ jobs:
       - name: Install dependencies
         run: npm install -ws
 
+      - name: Build locales
+        run: npm run build:locales
+
       - name: Run lint
         run: npm run lint -ws
 
       - name: Run format
         run: npm run format -ws
 
-      - name: Build plugin
-        run: npm run build
-
       - name: Run tests
         run: npm run test:unit -ws -- --run
+
+  build:
+    runs-on: ubuntu-latest
+    env:
+      NODE_ENV: production
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: "22"
+
+      - name: Install libs
+        run: sudo apt-get install --no-install-recommends -y libjson-perl libyaml-perl zip
+
+      - name: Install @rollup/rollup-linux-x64-gnu explicitly
+        run: npm install @rollup/rollup-linux-x64-gnu --save-optional
+
+      - name: Build plugin
+        run: npm run build
 
       - name: Archive plugin
         uses: actions/upload-artifact@v4
