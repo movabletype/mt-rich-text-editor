@@ -11,7 +11,7 @@
     "@movabletype/mt-rich-text-editor": "^0.0.1",
     "@movabletype/svelte-components": "../../@movabletype/movabletype-svelte-components-0.0.4.tgz",
     "@sveltejs/vite-plugin-svelte": "^5.0.3",
-    "eslint": "^9.16.0",
+    "eslint": "^9.25.1",
     "eslint-plugin-svelte": "^3.0.2",
     "globals": "^15.6.0",
     "prettier": "^3.5.3",
