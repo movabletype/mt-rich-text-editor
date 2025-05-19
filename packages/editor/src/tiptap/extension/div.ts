@@ -39,6 +39,7 @@ export const Div = Node.create<DivOptions>({
       { tag: "header" },
       { tag: "footer" },
       { tag: "figure" },
+      { tag: "figcaption" },
       { tag: "details" },
       { tag: "dialog" },
     ];

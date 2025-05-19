@@ -6,7 +6,7 @@ export const preprocessHTML = (html: string): string => {
   body.querySelectorAll("a").forEach((a) => {
     if (
       a.querySelector(
-        "address, article, aside, blockquote, details, dialog, div, dl, figure, footer, header, h1, h2, h3, h4, h5, h6, hr, main, nav, ol, p, pre, section, table, td, thead, tr, ul"
+        "address, article, aside, blockquote, details, dialog, div, dl, figure, figcaption, footer, header, h1, h2, h3, h4, h5, h6, hr, main, nav, ol, p, pre, section, table, td, thead, tr, ul"
       )
     ) {
       a.dataset.mtRichTextEditorBlock = "true";
