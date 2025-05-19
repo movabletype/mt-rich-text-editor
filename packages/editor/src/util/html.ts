@@ -24,43 +24,47 @@ export const preprocessHTML = (html: string): string => {
 
   body
     .querySelectorAll(
-      "div, blockquote, main, article, ul, ol, section, aside, nav, header, footer, figure, details, dialog"
+      "div, blockquote, main, article, ul, ol, section, aside, nav, header, footer, figure, figcaption, details, dialog"
     )
     .forEach((div) => {
       const hasDirectTextNode = Array.from(div.childNodes).some(
         (node) =>
           node instanceof HTMLImageElement ||
-          (node.nodeType === Node.TEXT_NODE && node.textContent?.trim())
+          (node.nodeType === Node.TEXT_NODE && node.textContent?.trim()) ||
+          (node.nodeType === Node.ELEMENT_NODE && node.nodeName === "BR")
       );
 
       if (hasDirectTextNode) {
-        const textBlock = document.createElement("mt-text-block");
-        let content = "";
-
-        const nodesToProcess = Array.from(div.childNodes).filter(
-          (node) =>
-            node instanceof HTMLImageElement ||
-            node.nodeType === Node.TEXT_NODE ||
-            (node.nodeType === Node.ELEMENT_NODE && node.nodeName === "BR")
-        );
-
         const encoder = document.createElement("div");
-        nodesToProcess.forEach((node) => {
-          if (node.nodeType === Node.TEXT_NODE) {
-            encoder.textContent = node.textContent;
-            content += encoder.innerHTML;
-          } else if (node.nodeName === "BR") {
-            content += "<br>";
-          } else if (node instanceof HTMLImageElement) {
-            content += node.outerHTML;
+
+        for (let i = 0; i < div.childNodes.length; i++) {
+          const headChild = div.childNodes[i];
+          if (
+            headChild instanceof HTMLImageElement ||
+            headChild.nodeType === Node.TEXT_NODE ||
+            (headChild.nodeType === Node.ELEMENT_NODE && headChild.nodeName === "BR")
+          ) {
+            const textBlock = document.createElement("mt-text-block");
+            let content = "";
+            while (i < div.childNodes.length) {
+              const child = div.childNodes[i];
+              if (child.nodeType === Node.TEXT_NODE) {
+                encoder.textContent = child.textContent;
+                content += encoder.innerHTML;
+              } else if (child.nodeName === "BR") {
+                content += "<br>";
+              } else if (child instanceof HTMLImageElement) {
+                content += child.outerHTML;
+              } else {
+                break;
+              }
+              child.remove();
+            }
+            div.insertBefore(textBlock, div.childNodes[i]);
+            textBlock.innerHTML = content;
+            i--;
           }
-        });
-
-        textBlock.innerHTML = content;
-
-        nodesToProcess.forEach((node) => node.remove());
-
-        div.appendChild(textBlock);
+        }
       }
     });
 
