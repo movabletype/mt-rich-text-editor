@@ -13,6 +13,12 @@
   {editor}
   targetNodeName="link"
   targetNodeTagName="A"
-  condition={() => !editor.isPasting() && editor.tiptap?.isActive("link")}
+  condition={() => {
+    return (
+      !editor.isPasting() &&
+      editor.tiptap?.isActive("link") &&
+      !editor.tiptap?.isActive("link", { class: "mt-asset-link" })
+    );
+  }}
   {items}
 />

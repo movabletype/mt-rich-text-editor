@@ -16,6 +16,8 @@
   {editor}
   targetNodeName="image"
   targetNodeTagName="IMG"
-  condition={() => !tiptap.isActive("link") && tiptap.isActive("image")}
+  condition={() =>
+    !(tiptap.isActive("link") && !tiptap.isActive("link", { class: "mt-asset-link" })) &&
+    tiptap.isActive("image")}
   {items}
 />
