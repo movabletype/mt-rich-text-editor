@@ -79,19 +79,72 @@ const toolbarOptions: Record<string, unknown> = {
       params.set("filter_val", "image");
       openDialog(params);
     },
-    edit: ({ editor: { id } }: { editor: Editor; element: HTMLElement }) => {
-      // TODO: edit embedded image metadata
-      const blogId = document.querySelector<HTMLInputElement>("[name=blog_id]")?.value || "0";
-      const params = new URLSearchParams();
-      params.set("__mode", "dialog_asset_modal");
-      params.set("_type", "asset");
-      params.set("edit_field", id);
-      params.set("blog_id", blogId);
-      params.set("dialog_view", "1");
-      params.set("can_multi", "1");
-      params.set("filter", "class");
-      params.set("filter_val", "image");
-      openDialog(params);
+    edit: ({ editor, element }: { editor: Editor; element: HTMLElement }) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      if ((window.MT as any).AssetUploader) {
+        // new uploader
+
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const initialSelectedData: any = [];
+        const container = element.closest<HTMLElement>("[data-mt-asset-id]");
+        const insertOptions = JSON.parse(
+          element.closest<HTMLElement>("[data-mt-insert-options]")?.dataset.mtInsertOptions || "{}"
+        );
+        console.log(container);
+        if (container) {
+          initialSelectedData.push({
+            id: container.dataset.mtAssetId,
+            alternativeText: element.getAttribute("alt") || insertOptions.alternativeText || "",
+            caption:
+              container
+                .querySelector<HTMLElement>("figcaption")
+                ?.innerHTML.replace(/<br>/g, "\n")
+                .replace(/<[^>]*>/g, "") ||
+              insertOptions.caption ||
+              "",
+            width: parseInt(element.getAttribute("width") || "0") || insertOptions.imageWidth || 0,
+            linkToOriginal:
+              container.tagName === "A" ||
+              container.querySelector<HTMLElement>("a") ||
+              insertOptions.linkToOriginal ||
+              false,
+            align: element.className?.match(/mt-image-(\w+)/)?.[1] || insertOptions.align || "none",
+          });
+
+          const view = editor.tiptap.view;
+          const pos = view.posAtDOM(container, 0);
+          if (pos !== undefined) {
+            const { state } = view;
+            const tr = state.tr.setSelection(
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              (state.selection.constructor as any).create(state.doc, pos - 1, pos + 1)
+            );
+            view.dispatch(tr);
+          }
+        }
+
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (window.MT as any).AssetUploader.open({
+          selectMetaData: true,
+          multiSelect: true,
+          params: {},
+          initialSelectedData,
+          field: editor.id,
+        });
+      } else {
+        // legacy uploader
+        const blogId = document.querySelector<HTMLInputElement>("[name=blog_id]")?.value || "0";
+        const params = new URLSearchParams();
+        params.set("__mode", "dialog_asset_modal");
+        params.set("_type", "asset");
+        params.set("edit_field", editor.id);
+        params.set("blog_id", blogId);
+        params.set("dialog_view", "1");
+        params.set("can_multi", "1");
+        params.set("filter", "class");
+        params.set("filter_val", "image");
+        openDialog(params);
+      }
     },
   },
   file: {
