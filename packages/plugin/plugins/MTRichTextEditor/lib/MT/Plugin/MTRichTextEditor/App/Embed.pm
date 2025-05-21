@@ -135,16 +135,24 @@ sub resolve {
 
         my $tmpl_card = MT->model('template')->load({
             blog_id => $blog->id,
-            type    => 'mt_rich_text_editor_embed_card',
+            type    => 'mt_rte_embed_card',
         });
-        $tmpl_card = plugin()->load_tmpl('mt_rich_text_editor_embed_card.tmpl') unless $tmpl_card && $tmpl_card->text ne '';
+        $tmpl_card = MT->model('template')->new(
+            type   => 'filename',
+            path   => [plugin()->path],
+            source => File::Spec->catdir('default_templates', 'mt_rte_embed_card.mtml'),
+        ) unless $tmpl_card && $tmpl_card->text ne '';
         my $html_card = $tmpl_card->output($param);
 
         my $tmpl_inline = MT->model('template')->load({
             blog_id => $blog->id,
-            type    => 'mt_rich_text_editor_embed_inline',
+            type    => 'mt_rte_embed_inline',
         });
-        $tmpl_inline = plugin()->load_tmpl('mt_rich_text_editor_embed_inline.tmpl') unless $tmpl_inline && $tmpl_inline->text ne '';
+        $tmpl_inline = MT->model('template')->new(
+            type   => 'filename',
+            path   => [plugin()->path],
+            source => File::Spec->catdir('default_templates', 'mt_rte_embed_inline.mtml'),
+        ) unless $tmpl_inline && $tmpl_inline->text ne '';
         my $html_inline = $tmpl_inline->output($param);
 
         response(
