@@ -90,7 +90,6 @@ const toolbarOptions: Record<string, unknown> = {
         const insertOptions = JSON.parse(
           element.closest<HTMLElement>("[data-mt-insert-options]")?.dataset.mtInsertOptions || "{}"
         );
-        console.log(container);
         if (container) {
           initialSelectedData.push({
             id: container.dataset.mtAssetId,
