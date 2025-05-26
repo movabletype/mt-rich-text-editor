@@ -1,4 +1,5 @@
 import type {} from "@movabletype/mt-rich-text-editor";
+import "../css/settings.css";
 import { currentLanguage } from "./l10n";
 import { mount } from "svelte";
 import Toolbar from "./settings/Toolbar.svelte";
@@ -34,7 +35,7 @@ setTimeout(() => {
       throw new Error(`Target element not found: mt_rich_text_editor_${name}`);
     }
     const container = document.createElement("div");
-    textarea.parentElement?.insertBefore(container, textarea);
+    textarea.parentElement?.appendChild(container);
     mount(component, {
       target: container,
       props: {
