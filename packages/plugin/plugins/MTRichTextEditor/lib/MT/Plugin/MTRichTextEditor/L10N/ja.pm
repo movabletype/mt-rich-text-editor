@@ -74,7 +74,7 @@ use vars qw( %Lexicon );
     'Toggle to HTML structure editing mode' => 'HTML構造編集モードへの切り替え',
     'Boilerplate'                           => '定型文',
     'Text Color'                            => 'テキストの色',
-    'Background Color'                      => '背景色',
+    'Highlight Color'                       => 'ハイライトの色',
     'Failed to get embed object'            => '埋め込みオブジェクトの取得に失敗しました',
 
     'Paste as text'                                                                                          => 'テキストとして貼り付け',

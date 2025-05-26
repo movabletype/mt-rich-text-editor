@@ -79,7 +79,7 @@
   });
 </script>
 
-<button use:tooltip={t("Background Color")} class:tooltip-disabled={isOpen}>
+<button use:tooltip={t("Highlight Color")} class:tooltip-disabled={isOpen}>
   {@html icon.replace(/fill="rgba\(0,0,0,0\)"/g, `fill="${selectedColor}"`)}
 </button>
 
