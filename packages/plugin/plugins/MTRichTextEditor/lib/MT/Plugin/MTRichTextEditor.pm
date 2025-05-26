@@ -28,9 +28,6 @@ sub settings {
     my $plugin = plugin();
     $app->add_breadcrumb(
         $plugin->translate('MTRichTextEditor Settings'),
-        $app->uri(
-            'mode' => 'mt_rich_text_editor_settings',
-        ),
     );
 
     my $toolbar_items = [map { @$_ } @{ $app->registry('editors', 'mt_rich_text_editor', 'toolbar_items') }];
