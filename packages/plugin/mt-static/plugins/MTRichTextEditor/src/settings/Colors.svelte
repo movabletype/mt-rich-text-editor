@@ -108,7 +108,7 @@
   .mt-rich-text-editor-colors-settings-current,
   .mt-rich-text-editor-colors-settings-add {
     margin-bottom: 2rem;
-    max-width: 600px;
+    max-width: 450px;
   }
 
   .mt-rich-text-editor-colors-settings-current .mt-rich-text-editor-colors-settings-dndzone {
