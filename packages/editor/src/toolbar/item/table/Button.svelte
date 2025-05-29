@@ -97,35 +97,35 @@
   {@html icon}
 </button>
 
-<div class="menu-container">
+<div class="button-menu-container">
   {#if isOpen}
-    <div class="menu">
+    <div class="button-menu">
       <div
-        class="menu-item-group menu-item-group--insert"
+        class="button-menu-item-group button-menu-item-group--insert"
         onmouseenter={() => (showSubMenu.insert = true)}
         onmouseleave={() => (showSubMenu.insert = false)}
         role="menuitem"
         tabindex="0"
       >
-        <div class="menu-item-group-label">{t("Insert table")}</div>
+        <div class="button-menu-item-group-label">{t("Insert table")}</div>
         {#if showSubMenu.insert}
-          <div class="menu-item-subgroup">
+          <div class="button-menu-item-subgroup">
             <TableInsertPanel onInsert={handleInsert} />
           </div>
         {/if}
       </div>
       <div
-        class="menu-item-group"
+        class="button-menu-item-group"
         onmouseenter={() => (showSubMenu.cell = true)}
         onmouseleave={() => (showSubMenu.cell = false)}
         role="menuitem"
         tabindex="0"
       >
-        <div class="menu-item-group-label">{t("Cell")}</div>
+        <div class="button-menu-item-group-label">{t("Cell")}</div>
         {#if showSubMenu.cell}
-          <div class="menu-item-subgroup">
+          <div class="button-menu-item-subgroup">
             <button
-              class="menu-item"
+              class="button-menu-item"
               disabled={!(isTableActive && canMergeCell)}
               onclick={() => {
                 tiptap?.chain().focus().mergeCells().run();
@@ -134,7 +134,7 @@
               {t("Merge cells")}
             </button>
             <button
-              class="menu-item"
+              class="button-menu-item"
               disabled={!(isTableActive && canSplitCell)}
               onclick={() => {
                 tiptap?.chain().focus().splitCell().run();
@@ -143,7 +143,7 @@
               {t("Split cell")}
             </button>
             <button
-              class="menu-item"
+              class="button-menu-item"
               disabled={!isTableActive}
               onclick={() => {
                 handleCellProperties(tiptap!);
@@ -153,17 +153,17 @@
         {/if}
       </div>
       <div
-        class="menu-item-group"
+        class="button-menu-item-group"
         onmouseenter={() => (showSubMenu.row = true)}
         onmouseleave={() => (showSubMenu.row = false)}
         role="menuitem"
         tabindex="0"
       >
-        <div class="menu-item-group-label">{t("Row")}</div>
+        <div class="button-menu-item-group-label">{t("Row")}</div>
         {#if showSubMenu.row}
-          <div class="menu-item-subgroup">
+          <div class="button-menu-item-subgroup">
             <button
-              class="menu-item"
+              class="button-menu-item"
               disabled={!isTableActive}
               onclick={() => {
                 tiptap?.chain().focus().addRowBefore().run();
@@ -172,7 +172,7 @@
               {t("Insert row before")}
             </button>
             <button
-              class="menu-item"
+              class="button-menu-item"
               disabled={!isTableActive}
               onclick={() => {
                 tiptap?.chain().focus().addRowAfter().run();
@@ -181,7 +181,7 @@
               {t("Insert row after")}
             </button>
             <button
-              class="menu-item"
+              class="button-menu-item"
               disabled={!isTableActive}
               onclick={() => {
                 tiptap?.chain().focus().deleteRow().run();
@@ -192,7 +192,7 @@
             {#if false}
               <!-- TODO: implement row properties -->
               <button
-                class="menu-item"
+                class="button-menu-item"
                 disabled={!isTableActive}
                 onclick={() => {
                   handleRowProperties(tiptap!);
@@ -203,17 +203,17 @@
         {/if}
       </div>
       <div
-        class="menu-item-group"
+        class="button-menu-item-group"
         onmouseenter={() => (showSubMenu.col = true)}
         onmouseleave={() => (showSubMenu.col = false)}
         role="menuitem"
         tabindex="0"
       >
-        <div class="menu-item-group-label">{t("Column")}</div>
+        <div class="button-menu-item-group-label">{t("Column")}</div>
         {#if showSubMenu.col}
-          <div class="menu-item-subgroup">
+          <div class="button-menu-item-subgroup">
             <button
-              class="menu-item"
+              class="button-menu-item"
               disabled={!isTableActive}
               onclick={() => {
                 tiptap?.chain().focus().addColumnBefore().run();
@@ -222,7 +222,7 @@
               {t("Insert column before")}
             </button>
             <button
-              class="menu-item"
+              class="button-menu-item"
               disabled={!isTableActive}
               onclick={() => {
                 tiptap?.chain().focus().addColumnAfter().run();
@@ -231,7 +231,7 @@
               {t("Insert column after")}
             </button>
             <button
-              class="menu-item"
+              class="button-menu-item"
               disabled={!isTableActive}
               onclick={() => {
                 tiptap?.chain().focus().deleteColumn().run();
@@ -242,9 +242,9 @@
           </div>
         {/if}
       </div>
-      <div class="menu-item-group">
+      <div class="button-menu-item-group">
         <button
-          class="menu-item"
+          class="button-menu-item"
           disabled={!isTableActive}
           onclick={() => {
             handleTableProperties(tiptap!);
@@ -253,7 +253,7 @@
           {t("Table properties")}
         </button>
         <button
-          class="menu-item"
+          class="button-menu-item"
           disabled={!isTableActive}
           onclick={() => {
             tiptap?.chain().focus().deleteTable().run();
@@ -267,12 +267,12 @@
 </div>
 
 <style>
-  .menu-container {
+  .button-menu-container {
     position: relative;
     z-index: 3;
   }
 
-  .menu {
+  .button-menu {
     position: absolute;
     left: 0;
     top: 0;
@@ -283,7 +283,7 @@
     background: white;
   }
 
-  .menu-item-group {
+  .button-menu-item-group {
     position: relative;
     background: white;
 
@@ -292,16 +292,16 @@
       border-top-right-radius: 4px;
     }
 
-    &:hover .menu-item-group-label {
+    &:hover .button-menu-item-group-label {
       background: #dee0e2;
     }
   }
 
-  .menu-item-group--insert {
+  .button-menu-item-group--insert {
     border-bottom: 1px solid #ccc;
   }
 
-  .menu-item-group-label {
+  .button-menu-item-group-label {
     font-size: 0.85rem;
     padding: 5px 10px;
     display: flex;
@@ -314,19 +314,19 @@
     }
   }
 
-  .menu-item-subgroup {
+  .button-menu-item-subgroup {
     position: absolute;
     left: calc(100% + 1px);
     top: 0;
     border-radius: 4px;
 
-    .menu-item:first-child {
+    .button-menu-item:first-child {
       border-top-left-radius: 4px;
       border-top-right-radius: 4px;
     }
   }
 
-  .menu-item {
+  .button-menu-item {
     font-size: 0.85rem;
     border: none;
     margin: 0;
@@ -337,6 +337,7 @@
     width: 100%;
     background: white;
     box-shadow: 0 0 0 1px #ccc;
+    white-space: nowrap;
 
     &:last-child {
       border-bottom-left-radius: 4px;
