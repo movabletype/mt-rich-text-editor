@@ -33,6 +33,7 @@ export default defineConfig(({ mode }) => {
       globals: true,
       watch: false,
       include: ["src/**/*.test.ts"],
+      setupFiles: ["./src/test/setup/dom.ts"],
     },
   };
 
