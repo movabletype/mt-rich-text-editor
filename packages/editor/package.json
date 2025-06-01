@@ -23,7 +23,7 @@
     "@types/js-beautify": "^1.14.3",
     "@types/node": "^22.10.5",
     "eslint": "^9.25.1",
-    "eslint-plugin-svelte": "^3.0.2",
+    "eslint-plugin-svelte": "^3.9.0",
     "globals": "^15.9.0",
     "jsdom": "^25.0.1",
     "postcss-inline-svg": "^6.0.0",
