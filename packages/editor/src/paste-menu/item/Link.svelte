@@ -20,11 +20,11 @@
   import { PasteMenuItemElement } from "./element";
   import type { LinkData } from "../../ui/link/Modal.svelte";
   import LinkModal from "../../ui/link/Modal.svelte";
+  import type { Options } from "../../toolbar/item/link/common";
 
   const element = $host<PasteMenuItemElement>();
-  element.addEventListener("click", toggleDetailPanel);
 
-  const { tiptap } = element;
+  const { editor, tiptap } = element;
   let modalComponent: ReturnType<typeof mount> | null = null;
 
   const apply = (linkData: LinkData | undefined = undefined) => {
@@ -40,7 +40,7 @@
       url: content.plainText,
       text: content.plainText,
       title: "",
-      target: "_self",
+      target: (editor?.options.toolbarOptions?.link as Options)?.defaultTarget || "_self",
     };
 
     const anchor = document.createElement("a");
@@ -57,7 +57,7 @@
   };
   element.onEditorPaste = apply;
 
-  function toggleDetailPanel(ev: MouseEvent) {
+  const toggleDetailPanel = (ev: MouseEvent) => {
     if (!tiptap) {
       return;
     }
@@ -71,7 +71,7 @@
             url: element.content!.plainText,
             text: element.content!.plainText,
             title: "",
-            target: "_self",
+            target: (editor?.options.toolbarOptions?.link as Options)?.defaultTarget || "_self",
           },
           onSubmit: apply,
           onClose: () => {
@@ -82,14 +82,16 @@
     } else {
       unmountModal();
     }
-  }
+  };
 
-  function unmountModal() {
+  element.addEventListener("click", toggleDetailPanel);
+
+  const unmountModal = () => {
     if (modalComponent) {
       unmount(modalComponent);
       modalComponent = null;
     }
-  }
+  };
 
   $effect(() => unmountModal);
 </script>

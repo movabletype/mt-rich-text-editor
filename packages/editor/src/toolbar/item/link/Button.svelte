@@ -22,10 +22,11 @@
   import { LinkToolbar } from "../../../context-toolbar/link";
   import type { ToolbarItemElement } from "../element";
   import { onClickFunction } from "./common";
+  import type { Options } from "./common";
 
-  const element = $host<ToolbarItemElement>();
-  const { editor, tiptap } = element;
-  const onClick = onClickFunction(tiptap);
+  const element = $host<ToolbarItemElement<Options>>();
+  const { editor, options, tiptap } = element;
+  const onClick = onClickFunction(tiptap, options);
 
   element.addEventListener("click", onClick);
 
