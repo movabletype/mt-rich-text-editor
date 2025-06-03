@@ -90,7 +90,7 @@
 
   <!-- Add new color -->
   <div class="mt-rich-text-editor-colors-settings-add">
-    <h4>{window.trans("Add New Color")}</h4>
+    <h4>{window.trans("Add color to the palette")}</h4>
     <div class="mt-rich-text-editor-colors-settings-add-form">
       <input type="color" bind:value={newColor} aria-label={window.trans("Select Color")} />
       <button type="button" onclick={handleAddColor}>

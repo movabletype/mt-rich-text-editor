@@ -14,14 +14,19 @@ use base 'MT::Plugin::MTRichTextEditor::L10N::en_us';
 use vars qw( %Lexicon );
 
 %Lexicon = (
-    'MTRichTextEditor'          => 'リッチテキストエディタ',
-    'MTRichTextEditor Settings' => 'リッチテキストエディタ設定',
-    'Toolbar'                   => 'ツールバー',
-    'Blocks'                    => 'フォーマット',
-    'Colors'                    => '文字色と背景色の選択肢',
-    'Available Items'           => '追加可能なアイテム',
-    'Available Blocks'          => '追加可能なブロック',
-    'Add New Color'             => '新しい色を追加',
+    'MTRichTextEditor'                                                                                                                                                                                                                                                                         => 'リッチテキストエディタ',
+    'MTRichTextEditor Settings'                                                                                                                                                                                                                                                                => 'リッチテキストエディタ設定',
+    'Toolbar'                                                                                                                                                                                                                                                                                  => 'ツールバー',
+    'Select items to use in the toolbar.'                                                                                                                                                                                                                                                      => 'ツールバーで利用するアイテムを選択します。',
+    'Paragraph Styles'                                                                                                                                                                                                                                                                         => '段落スタイル',
+    'Select the style to be used in the paragraph style.'                                                                                                                                                                                                                                      => '段落スタイルで利用するスタイルを選択します。',
+    'Color Palette'                                                                                                                                                                                                                                                                            => 'カラーパレット',
+    'Specify the color to be used for "Text color" and "highlight color".'                                                                                                                                                                                                                     => '「テキストの色」や「ハイライトの色」で利用する色を指定します。',
+    'Add color to the palette'                                                                                                                                                                                                                                                                 => 'カラーパレットに色を追加',
+    'Available Items'                                                                                                                                                                                                                                                                          => '追加可能なアイテム',
+    'Available Paragraph Styles'                                                                                                                                                                                                                                                               => '追加可能な段落スタイル',
+    'Parameters for oEmbed API'                                                                                                                                                                                                                                                                => 'oEmbed API呼び出しで指定するパラメータ',
+    'Specify the default value of a parameter when using the oEmbed API to obtain the embed code for content from an external service. <br>Since the handling of the specified parameters depends on the specifications of each service, it may not always be embedded at the specified size.' => '外部サービスのコンテンツの埋め込みコードをoEmbed APIを利用して取得する際の、パラメータの初期値を指定します。<br>指定したパラメータの扱いはサービス毎の仕様によるため、必ずしも指定した通りのサイズで埋め込まれるとは限りません。',
 
     'Insert (s)'         => '挿入 (s)',
     'Insert'             => '挿入',
@@ -74,7 +79,7 @@ use vars qw( %Lexicon );
     'Toggle to HTML structure editing mode' => 'HTML構造編集モードへの切り替え',
     'Boilerplate'                           => '定型文',
     'Text Color'                            => 'テキストの色',
-    'Background Color'                      => '背景色',
+    'Highlight Color'                       => 'ハイライトの色',
     'Failed to get embed object'            => '埋め込みオブジェクトの取得に失敗しました',
 
     'Paste as text'                                                                                          => 'テキストとして貼り付け',
@@ -149,8 +154,6 @@ use vars qw( %Lexicon );
     'Heading 5'    => '見出し 5',
     'Heading 6'    => '見出し 6',
     'Preformatted' => '書式設定済み',
-
-    'Default parameters for embedding by oEmbed' => 'oEmbedによる埋込時のデフォルトのパラメーター',
 );
 
 1;

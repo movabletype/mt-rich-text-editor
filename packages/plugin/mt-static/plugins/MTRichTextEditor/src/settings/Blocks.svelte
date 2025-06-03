@@ -141,7 +141,7 @@
   {#if unusedItems.length > 0}
     <!-- Available blocks -->
     <div class="mt-rich-text-editor-blocks-settings-available">
-      <h4>{window.trans("Available Blocks")}</h4>
+      <h4>{window.trans("Available Paragraph Styles")}</h4>
       <section
         use:dndzone={{
           items: unusedItems,

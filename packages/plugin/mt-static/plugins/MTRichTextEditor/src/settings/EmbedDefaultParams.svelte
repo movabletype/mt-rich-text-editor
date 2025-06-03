@@ -23,7 +23,7 @@
 <div class="mt-rich-text-editor-embed-default-params-settings">
   <div class="mt-rich-text-editor-embed-default-params-settings-current">
     <div class="mb-3">
-      <label for="maxwidth" class="form-label">maxwidth</label>
+      <label for="maxwidth" class="form-label">{window.trans("Width")}</label>
       <input
         type="number"
         class="form-control"
@@ -34,7 +34,7 @@
       />
     </div>
     <div class="mb-3">
-      <label for="maxheight" class="form-label">maxheight</label>
+      <label for="maxheight" class="form-label">{window.trans("Height")}</label>
       <input
         type="number"
         class="form-control"
@@ -46,3 +46,9 @@
     </div>
   </div>
 </div>
+
+<style>
+  .mt-rich-text-editor-embed-default-params-settings {
+    margin-top: 1rem;
+  }
+</style>
