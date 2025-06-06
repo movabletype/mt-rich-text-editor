@@ -138,7 +138,7 @@
     </section>
   </div>
 
-  {#if unusedItems.length > 0}
+  {#if unusedItems.length > 0 || tmpUnusedItems}
     <!-- Available blocks -->
     <div class="mt-rich-text-editor-blocks-settings-available">
       <h4>{window.trans("Available Paragraph Styles")}</h4>
