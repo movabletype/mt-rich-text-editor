@@ -128,7 +128,7 @@ export default class SourceEditor {
           const blogId = document.querySelector<HTMLInputElement>("[name=blog_id]")?.value || 0;
           openDialog(
             "dialog_asset_modal",
-            `_type=asset&amp;edit_field=${this.id}&amp;blog_id=${blogId}&amp;dialog_view=1&amp;filter=class&amp;filter_val=image&amp;can_multi=1`
+            `_type=asset&amp;edit_field=${this.id}&amp;blog_id=${blogId}&amp;dialog_view=1&amp;can_multi=1`
           );
         },
         openImageDialog: () => {
@@ -136,7 +136,7 @@ export default class SourceEditor {
           const blogId = document.querySelector<HTMLInputElement>("[name=blog_id]")?.value || 0;
           openDialog(
             "dialog_asset_modal",
-            `_type=asset&amp;edit_field=${this.id}&amp;blog_id=${blogId}&amp;dialog_view=1&amp;can_multi=1`
+            `_type=asset&amp;edit_field=${this.id}&amp;blog_id=${blogId}&amp;dialog_view=1&amp;filter=class&amp;filter_val=image&amp;can_multi=1`
           );
         },
       },
