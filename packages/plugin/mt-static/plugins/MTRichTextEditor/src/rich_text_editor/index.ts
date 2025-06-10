@@ -101,7 +101,7 @@ const toolbarOptions: Record<string, unknown> = {
                 .replace(/<[^>]*>/g, "") ||
               insertOptions.caption ||
               "",
-            width: parseInt(element.getAttribute("width") || "0") || insertOptions.imageWidth || 0,
+            width: parseInt(element.getAttribute("width") || "0") || insertOptions.width || 0,
             linkToOriginal:
               container.tagName === "A" ||
               container.querySelector<HTMLElement>("a") ||
