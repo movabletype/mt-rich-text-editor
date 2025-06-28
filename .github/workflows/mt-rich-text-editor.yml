@@ -1,5 +1,8 @@
 name: movabletype/mt-rich-text-editor
-on: [push]
+on:
+  pull_request:
+    types: [opened, synchronize]
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -58,6 +61,7 @@ jobs:
         run: npm run build
 
       - name: Upload tarball
+        id: upload-tarball
         uses: actions/upload-artifact@v4
         with:
           name: tarball
@@ -65,8 +69,21 @@ jobs:
             packages/plugin/dist/*.tar.gz
 
       - name: Upload zip
+        id: upload-zip
         uses: actions/upload-artifact@v4
         with:
           name: zip
           path: |
             packages/plugin/dist/*.zip
+
+      - name: Add comment to PR
+        uses: peter-evans/create-or-update-comment@71345be0265236311c031f5c7866368bd1eff043
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          body: |
+            ### Download Links
+            
+            You can download the build artifacts from the following links:
+            
+            - **Tarball**: [Download from Actions Artifacts](${{ steps.upload-tarball.outputs.artifact-url }})
+            - **Zip**: [Download from Actions Artifacts](${{ steps.upload-zip.outputs.artifact-url }})
