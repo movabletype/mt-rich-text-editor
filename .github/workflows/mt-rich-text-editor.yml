@@ -57,9 +57,16 @@ jobs:
       - name: Build plugin
         run: npm run build
 
-      - name: Archive plugin
+      - name: Upload tarball
         uses: actions/upload-artifact@v4
         with:
-          name: plugin
+          name: tarball
           path: |
-            packages/plugin/dist
+            packages/plugin/dist/*.tar.gz
+
+      - name: Upload zip
+        uses: actions/upload-artifact@v4
+        with:
+          name: zip
+          path: |
+            packages/plugin/dist/*.zip
