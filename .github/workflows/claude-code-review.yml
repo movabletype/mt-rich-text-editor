@@ -50,6 +50,7 @@ jobs:
             - Test coverage
             
             Be constructive and helpful in your feedback.
+            Messages to be output to GitHub must be in Japanese.
           
           # Optional: Customize review based on file types
           # direct_prompt: |
@@ -66,7 +67,7 @@ jobs:
           #   'Please provide a thorough code review focusing on our coding standards and best practices.' }}
           
           # Optional: Add specific tools for running tests or linting
-          # allowed_tools: "Bash(npm run test),Bash(npm run lint),Bash(npm run typecheck)"
+          allowed_tools: "Bash(git:*),Bash(npm install),Bash(npm test),Bash(npm run lint),View,GlobTool,GrepTool,BatchTool"
           
           # Optional: Skip review for certain conditions
           # if: |

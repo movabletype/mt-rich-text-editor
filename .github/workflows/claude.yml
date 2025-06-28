@@ -45,13 +45,11 @@ jobs:
           # assignee_trigger: "claude-bot"
           
           # Optional: Allow Claude to run specific commands
-          # allowed_tools: "Bash(npm install),Bash(npm run build),Bash(npm run test:*),Bash(npm run lint:*)"
+          allowed_tools: "Bash(git:*),Bash(npm install),Bash(npm test),Bash(npm run lint),View,GlobTool,GrepTool,BatchTool"
           
           # Optional: Add custom instructions for Claude to customize its behavior for your project
-          # custom_instructions: |
-          #   Follow our coding standards
-          #   Ensure all new code has tests
-          #   Use TypeScript for new files
+          custom_instructions: |
+            Messages to be output to GitHub must be in Japanese.
           
           # Optional: Custom environment variables for Claude
           # claude_env: |
