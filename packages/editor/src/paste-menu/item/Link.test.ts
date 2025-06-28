@@ -124,7 +124,7 @@ describe("Link", () => {
   });
 
   describe("edit", () => {
-    it("should open modal with default target", async () => {
+    it("should open modal without default target", async () => {
       await Promise.resolve();
 
       element.content = {
@@ -145,7 +145,7 @@ describe("Link", () => {
       );
     });
 
-    it("should open modal with default target", async () => {
+    it("should open modal with default target _blank", async () => {
       initElement({
         toolbarOptions: {
           link: {

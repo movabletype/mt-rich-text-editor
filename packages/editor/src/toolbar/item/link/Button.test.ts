@@ -50,7 +50,7 @@ describe("Button", () => {
   });
 
   describe("onClick", () => {
-    it("should open modal with default target", async () => {
+    it("should open modal without default target", async () => {
       await Promise.resolve();
 
       const clickEvent = new MouseEvent("click");
@@ -63,7 +63,7 @@ describe("Button", () => {
       );
     });
 
-    it("should open modal with default target", async () => {
+    it("should open modal with default target _blank", async () => {
       initElement({
         toolbarOptions: {
           link: {
