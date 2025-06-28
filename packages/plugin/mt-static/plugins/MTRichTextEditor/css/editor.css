@@ -5,7 +5,7 @@
   left: 0;
   width: 100vw;
   height: 100vh;
-  z-index: 1049;
+  z-index: 10000;
 
   & #field-convert_breaks {
     display: none !important;
