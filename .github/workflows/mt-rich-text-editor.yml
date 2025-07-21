@@ -60,6 +60,14 @@ jobs:
       - name: Build plugin
         run: npm run build
 
+      - name: Upload all plugins
+        id: upload-all-plugins
+        uses: actions/upload-artifact@v4
+        with:
+          name: plugin
+          path: |
+            packages/plugin/dist
+
       - name: Upload tarball
         id: upload-tarball
         uses: actions/upload-artifact@v4
@@ -67,14 +75,6 @@ jobs:
           name: tarball
           path: |
             packages/plugin/dist/*.tar.gz
-
-      - name: Upload zip
-        id: upload-zip
-        uses: actions/upload-artifact@v4
-        with:
-          name: zip
-          path: |
-            packages/plugin/dist/*.zip
 
       - name: Add comment to PR
         uses: peter-evans/create-or-update-comment@71345be0265236311c031f5c7866368bd1eff043
@@ -84,6 +84,6 @@ jobs:
             ### Download Links
             
             You can download the build artifacts from the following links:
-            
+
+            - **All Plugins**: [Download from Actions Artifacts](${{ steps.upload-all-plugins.outputs.artifact-url }})
             - **Tarball**: [Download from Actions Artifacts](${{ steps.upload-tarball.outputs.artifact-url }})
-            - **Zip**: [Download from Actions Artifacts](${{ steps.upload-zip.outputs.artifact-url }})
