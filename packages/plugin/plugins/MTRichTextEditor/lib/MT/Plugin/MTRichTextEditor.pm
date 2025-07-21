@@ -74,7 +74,13 @@ sub save_settings {
 sub template_source_mt_rich_text_editor {
     my ($cb, $app, $tmpl) = @_;
 
-    my $settings = MT::Util::encode_html(MT::Util::to_json({ map { $_ => MT::Util::from_json(plugin()->get_config_value($_)) } @settings }));
+    my %settings_map = map { $_ => MT::Util::from_json(plugin()->get_config_value($_)) } @settings;
+    if (my $blog = $app->blog) {
+        $settings_map{link} = {
+            defaultTarget => $blog->link_default_target,
+        };
+    }
+    my $settings = MT::Util::encode_html(MT::Util::to_json(\%settings_map));
     $$tmpl =~ s{(data-mt-rich-text-editor-settings)=""}{$1="$settings"}g;
 
     my $is_markdown_available = $app->registry('text_filters', 'markdown') ? 1 : 0;

@@ -160,6 +160,7 @@ const toolbarOptions: Record<string, unknown> = {
     },
   },
 };
+
 if (customSettings?.blocks) {
   toolbarOptions.block = {
     blocks: customSettings.blocks,
@@ -173,6 +174,10 @@ if (customSettings?.colors) {
   toolbarOptions.backgroundColor = {
     presetColors: customSettings.colors,
   };
+}
+
+if (customSettings?.link) {
+  toolbarOptions.link = Object.assign({}, toolbarOptions.link, customSettings.link);
 }
 
 const MTEditor = MT.Editor || (class {} as NonNullable<typeof MT.Editor>);
