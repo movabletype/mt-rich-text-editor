@@ -17,6 +17,12 @@ const openDialog = (mode: string, param: string) => {
   window.jQuery("body").on("keyup", modalClose);
 };
 
+type ToolbarOptions = {
+  link?: {
+    defaultTarget?: "_self" | "_blank";
+  };
+};
+
 export default class SourceEditor {
   private id: string;
   private textarea: HTMLTextAreaElement;
@@ -26,9 +32,11 @@ export default class SourceEditor {
   private command: any;
   private toolbar: HTMLDivElement;
   private toolbarMount: ReturnType<typeof mount> | undefined;
+  private toolbarOptions: ToolbarOptions | undefined;
 
-  constructor({ id }: { id: string }) {
+  constructor({ id, toolbarOptions }: { id: string; toolbarOptions: ToolbarOptions | undefined }) {
     this.id = id;
+    this.toolbarOptions = toolbarOptions;
     const textarea = document.querySelector<HTMLTextAreaElement>(`#${id}`);
     if (!textarea) {
       throw new Error(`textarea not found: ${id}`);
@@ -94,7 +102,7 @@ export default class SourceEditor {
                   url: "",
                   text: selectedText,
                   title: "",
-                  target: "_self",
+                  target: this.toolbarOptions?.link?.defaultTarget || "_self",
                 }
           ) as {
             url: string;
