@@ -110,7 +110,7 @@ export default class SourceEditor {
             title: string;
             target: "_self" | "_blank";
           };
-          if (["_self", "_blank"].includes(linkData.target)) {
+          if (!["_self", "_blank"].includes(linkData.target)) {
             linkData.target = "_self";
           }
 
