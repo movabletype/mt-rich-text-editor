@@ -5,6 +5,7 @@ import type { EditorCreateOptions } from "@movabletype/mt-rich-text-editor";
 import { Editor } from "@movabletype/mt-rich-text-editor";
 import { currentLanguage } from "../l10n";
 import { convertToolbar } from "../util/tinymce";
+import { getCustomSettings } from "../util/settings";
 import editorCss from "../../css/rich-text-editor.css?inline";
 
 import { openDialog } from "../util/dialog";
@@ -42,24 +43,7 @@ const createRichTextEditor = async (
   } as EditorCreateOptions);
 };
 
-let customSettings:
-  | ({
-      embed_default_params: {
-        maxwidth: number;
-        maxheight: number;
-      };
-      toolbar: EditorCreateOptions["toolbar"];
-    } & Record<string, unknown>)
-  | undefined = undefined;
-try {
-  customSettings = JSON.parse(
-    document.querySelector<HTMLScriptElement>("[data-mt-rich-text-editor-settings]")?.dataset
-      .mtRichTextEditorSettings || "{}"
-  );
-} catch (e) {
-  console.error(e);
-}
-
+const customSettings = getCustomSettings();
 const isMarkdownAvailable =
   document.querySelector<HTMLScriptElement>("[data-mt-rich-text-editor-is-markdown-available]")
     ?.dataset.mtRichTextEditorIsMarkdownAvailable === "1";
@@ -160,6 +144,7 @@ const toolbarOptions: Record<string, unknown> = {
     },
   },
 };
+
 if (customSettings?.blocks) {
   toolbarOptions.block = {
     blocks: customSettings.blocks,
@@ -173,6 +158,10 @@ if (customSettings?.colors) {
   toolbarOptions.backgroundColor = {
     presetColors: customSettings.colors,
   };
+}
+
+if (customSettings?.link) {
+  toolbarOptions.link = Object.assign({}, toolbarOptions.link, customSettings.link);
 }
 
 const MTEditor = MT.Editor || (class {} as NonNullable<typeof MT.Editor>);
