@@ -6,7 +6,7 @@ author_name: Six Apart Ltd.
 description: <MT_TRANS phrase="Movable Type Rich Text Editor.">
 l10n_class: MT::Plugin::MTRichTextEditor::L10N
 
-schema_version: 1
+schema_version: 1.0001
 
 settings:
   toolbar:
@@ -150,6 +150,7 @@ applications:
       template_source.mt_rich_text_editor: $MTRichTextEditor::MT::Plugin::MTRichTextEditor::template_source_mt_rich_text_editor
 
 default_templates:
+  base_path: default_templates
   system:
     mt_rte_embed_card:
       label: Embed webpage as card
