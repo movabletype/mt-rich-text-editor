@@ -1,5 +1,11 @@
 name: movabletype/mt-rich-text-editor
 on:
+  push:
+    branches:
+      - "**/*"
+    tags:
+      - "v*"
+      - "*@v*"
   pull_request:
     types: [opened, synchronize]
 
@@ -87,3 +93,12 @@ jobs:
 
             - **All Plugins**: [Download from Actions Artifacts](${{ steps.upload-all-plugins.outputs.artifact-url }})
             - **Tarball**: [Download from Actions Artifacts](${{ steps.upload-tarball.outputs.artifact-url }})
+
+      - name: Upload package to GitHub Releases
+        if: ${{ startsWith(github.ref, 'refs/tags/v') }}
+        uses: softprops/action-gh-release@v2
+        with:
+          draft: true
+          files: |
+            packages/plugin/dist/*.zip
+            packages/plugin/dist/*.tar.gz
