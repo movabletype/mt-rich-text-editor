@@ -84,6 +84,7 @@ jobs:
 
       - name: Add comment to PR
         uses: peter-evans/create-or-update-comment@71345be0265236311c031f5c7866368bd1eff043
+        if: ${{ github.event_name == 'pull_request' }}
         with:
           issue-number: ${{ github.event.pull_request.number }}
           body: |
