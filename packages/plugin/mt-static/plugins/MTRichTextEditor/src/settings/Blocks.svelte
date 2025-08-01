@@ -10,32 +10,36 @@
   }>();
 
   type BlockItem = { value: string; label: string };
-  type BlockInternalItem = { id: string; value: string; label: string };
+  type BlockInternalItem = { id: string; value: string; label: string; isBlockItem: true };
 
   const availableBlocks: BlockInternalItem[] = convertToItems(
     JSON.parse(textarea.getAttribute("data-available-blocks") ?? "[]")
   );
 
   function convertToItems(data: (BlockItem | string)[]): BlockInternalItem[] {
-    return data.map((item) => {
-      if (typeof item === "string") {
-        const block = availableBlocks.find((block) => block.value === item);
-        if (!block) {
+    return data
+      .map((item) => {
+        if (typeof item === "string") {
+          const block = availableBlocks.find((block) => block.value === item);
+          if (!block) {
             return undefined;
+          }
+          return {
+            id: block.value,
+            value: block.value,
+            label: block.label,
+            isBlockItem: true,
+          };
+        } else {
+          return {
+            id: item.value,
+            value: item.value,
+            label: item.label,
+            isBlockItem: true,
+          };
         }
-        return {
-          id: block.value,
-          value: block.value,
-          label: block.label,
-        };
-      } else {
-        return {
-          id: item.value,
-          value: item.value,
-          label: item.label,
-        };
-      }
-    }).filter((item) => item !== undefined);
+      })
+      .filter((item) => item !== undefined) as BlockInternalItem[];
   }
 
   function convertToData(items: BlockInternalItem[]): (BlockItem | string)[] {
@@ -59,17 +63,28 @@
   }
 
   // Handle DnD events for current blocks
-  function handleDndConsider(e: CustomEvent<{ items: BlockInternalItem[] }>) {
-    blocksItems = e.detail.items;
+  function handleDndConsider({ detail: { items } }: CustomEvent<{ items: BlockInternalItem[] }>) {
+    if (items.some((item) => !item.isBlockItem)) {
+      return;
+    }
+    blocksItems = items;
   }
 
-  function handleDndFinalize(e: CustomEvent<{ items: BlockInternalItem[] }>) {
-    blocksItems = e.detail.items;
+  function handleDndFinalize({ detail: { items } }: CustomEvent<{ items: BlockInternalItem[] }>) {
+    if (items.some((item) => !item.isBlockItem)) {
+      return;
+    }
+    blocksItems = items;
   }
 
   // Handle DnD events for available blocks
-  function handleAvailableDndConsider(e: CustomEvent<{ items: BlockInternalItem[] }>) {
-    tmpUnusedItems = e.detail.items;
+  function handleAvailableDndConsider({
+    detail: { items },
+  }: CustomEvent<{ items: BlockInternalItem[] }>) {
+    if (items.some((item) => !item.isBlockItem)) {
+      return;
+    }
+    tmpUnusedItems = items;
   }
 
   function handleAvailableDndFinalize() {

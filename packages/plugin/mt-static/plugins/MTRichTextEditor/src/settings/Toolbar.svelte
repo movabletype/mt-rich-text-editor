@@ -7,15 +7,16 @@
     textarea: HTMLTextAreaElement;
   }>();
 
-  type ToolbarItem = { id: string; element: string; isSentinel?: boolean };
+  type ToolbarItem = { id: string; element: string; isSentinel?: boolean; isToolbarItem: true };
 
   let isDragging = $state(false);
 
   const availableItems: ToolbarItem[] = JSON.parse(
     textarea.getAttribute("data-available-items") ?? "[]"
   ).map((id: string) => ({
-    id,
+    id: `toolbar-item-${id}`,
     element: window.MTRichTextEditor.Component.getPanelItem("toolbar", id),
+    isToolbarItem: true,
   }));
 
   function createSentinel(): ToolbarItem {
@@ -23,6 +24,7 @@
       id: `sentinel-${Math.random().toString(36).slice(2)}`,
       element: "div",
       isSentinel: true,
+      isToolbarItem: true,
     };
   }
 
@@ -34,21 +36,32 @@
         .map((row) =>
           (row || []).map((group) => [
             ...group.map((id) => ({
-              id,
+              id: `toolbar-item-${id}`,
               element: window.MTRichTextEditor.Component.getPanelItem("toolbar", id) ?? "div",
+              isToolbarItem: true,
             })),
             createSentinel(),
           ])
         )
-    );
+    ) as ToolbarItem[][][][];
   }
 
   function convertToData(items: ToolbarItem[][][][]): string[][][][] {
-    return items.map((groupSides) =>
-      groupSides.map((row) =>
-        row.map((group) => group.filter((item) => !item.isSentinel).map((button) => button.id))
+    return items
+      .map((groupSides) =>
+        groupSides
+          .map((row) =>
+            row
+              .map((group) =>
+                group
+                  .filter((item) => !item.isSentinel)
+                  .map((button) => button.id.replace(/^toolbar-item-/, ""))
+              )
+              .filter((group) => group.length > 0)
+          )
+          .filter((row) => row.length > 0)
       )
-    );
+      .filter((groupSides) => groupSides.length > 0);
   }
 
   const toolbarItems = $state(convertToItems(JSON.parse(textarea.value)));
@@ -95,10 +108,14 @@
     rowIndex: number,
     sideIndex: number,
     groupIndex: number,
-    e: CustomEvent<{ items: ToolbarItem[] }>,
+    { detail: { items, info } }: CustomEvent<{ items: ToolbarItem[]; info: { id: string } }>,
     on: "consider" | "finalize"
   ) {
-    const newItems = e.detail.items;
+    if (!info.id.startsWith("toolbar-item-")) {
+      return;
+    }
+
+    const newItems = items;
     const hasSentinel = newItems.some((item) => item.isSentinel);
 
     if (!hasSentinel) {
@@ -257,10 +274,10 @@
         flipDurationMs,
         dropTargetStyle,
         dragDisabled: false,
-        dropFromOthersDisabled: false,
+        dropFromOthersDisabled: true,
       }}
-      onconsider={(e) => {
-        tmpUnusedItems = e.detail.items;
+      onconsider={({ detail: { items } }: CustomEvent<{ items: ToolbarItem[] }>) => {
+        tmpUnusedItems = items;
 
         if (!isDragging) {
           isDragging = true;
