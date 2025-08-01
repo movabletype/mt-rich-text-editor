@@ -137,7 +137,7 @@
       toolbarItems[rowIndex][sideIndex][groupIndex].filter((item) => !item.isSentinel).length === 0
     ) {
       toolbarItems[rowIndex][sideIndex].splice(groupIndex, 1);
-      if (toolbarItems[rowIndex][sideIndex].length === 0) {
+      if (toolbarItems[rowIndex].every((side) => side.length === 0)) {
         toolbarItems.splice(rowIndex, 1);
       }
     }
