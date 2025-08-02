@@ -50,7 +50,7 @@ import { BackgroundColor } from "./extension/background-color";
 import { Script } from "./extension/script";
 import { EmbedObject } from "./extension/embed-object";
 import { Markdown } from "./extension/markdown";
-import { History } from "./extension/history";
+import { UndoRedo } from "./extension/undo-redo";
 import { MovableType } from "./extension/movable-type";
 
 const defaultLinkOptions = {
@@ -67,8 +67,8 @@ export const Extension = TiptapExtension.create({
       extensions.push(MovableType.configure(this.options?.movableType));
     }
 
-    if (this.options.history !== false) {
-      extensions.push(History.configure(this.options?.history));
+    if (this.options.undoRedo !== false) {
+      extensions.push(UndoRedo.configure(this.options?.undoRedo));
     }
 
     // core

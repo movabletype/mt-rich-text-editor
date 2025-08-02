@@ -1,18 +1,18 @@
 import {
-  History as TiptapHistory,
-  HistoryOptions as TiptapHistoryOptions,
-} from "@tiptap/extension-history";
+  UndoRedo as TiptapUndoRedo,
+  UndoRedoOptions as TiptapUndoRedoOptions,
+} from "@tiptap/extensions";
 
-export interface HistoryOptions extends TiptapHistoryOptions {
+export interface UndoRedoOptions extends TiptapUndoRedoOptions {
   registerShortcuts?: boolean;
 }
 
-export const History = TiptapHistory.extend<HistoryOptions>({
+export const UndoRedo = TiptapUndoRedo.extend<UndoRedoOptions>({
   addOptions() {
     return {
       ...this.parent?.(),
       registerShortcuts: true,
-    };
+    } as UndoRedoOptions;
   },
 
   addKeyboardShortcuts() {
