@@ -19,7 +19,7 @@ import { Dropcursor } from "@tiptap/extension-dropcursor";
 import { Gapcursor } from "@tiptap/extension-gapcursor";
 import { TextAlign } from "@tiptap/extension-text-align";
 import { Color } from "@tiptap/extension-color";
-import TextStyle from "@tiptap/extension-text-style";
+import { TextStyleKit } from "@tiptap/extension-text-style";
 
 // experiments
 import Iframe from "./extension/experiments/iframe";
@@ -184,8 +184,8 @@ export const Extension = TiptapExtension.create({
       extensions.push(Color.configure(this.options?.color));
     }
 
-    if (this.options.textStyle !== false) {
-      extensions.push(TextStyle.configure(this.options?.textStyle));
+    if (this.options.textStyleKit !== false) {
+      extensions.push(TextStyleKit.configure(this.options?.textStyleKit));
     }
 
     // experiments
