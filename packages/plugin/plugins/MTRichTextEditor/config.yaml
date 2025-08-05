@@ -138,10 +138,15 @@ applications:
     menus:
       settings::mt_rich_text_editor:
         label: MTRichTextEditor
-        order: 1000
+        order: 1100
         mode: mt_rich_text_editor_settings
         view:
           - system
+        condition: |
+          sub {
+            require MT::Util::Editor;
+            MT::Util::Editor::current_wysiwyg_editor(MT->instance) eq 'mt_rich_text_editor';
+          }
     methods:
       mt_rich_text_editor_settings: $MTRichTextEditor::MT::Plugin::MTRichTextEditor::settings
       mt_rich_text_editor_save_settings: $MTRichTextEditor::MT::Plugin::MTRichTextEditor::save_settings
