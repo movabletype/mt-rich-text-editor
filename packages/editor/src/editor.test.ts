@@ -92,6 +92,73 @@ describe("HTML parsing", () => {
   });
 });
 
+describe("HTML formatting", () => {
+  let textarea: HTMLTextAreaElement;
+  let editor: Editor;
+
+  beforeEach(() => {
+    textarea = document.createElement("textarea");
+    document.body.appendChild(textarea);
+  });
+
+  afterEach(() => {
+    editor.destroy();
+    textarea.remove();
+  });
+
+  describe("with default format option", () => {
+    beforeEach(() => {
+      editor = new Editor(textarea, {
+        toolbar: [],
+        inline: false,
+      });
+    });
+
+    it.each([
+      [
+        "<p><strong><a>t</a></strong></p><p>next paragraph</p>",
+        `<p><strong><a>t</a></strong></p>
+<p>next paragraph</p>`,
+      ],
+      [
+        `<table style="width: 100%"><tbody><tr><td>b</td></tr></tbody></table>`,
+        `<table style="width: 100%">
+<tbody>
+<tr>
+<td>b</td>
+</tr>
+</tbody>
+</table>`,
+      ],
+    ])("should output formatted HTML: %s", (input, expected) => {
+      editor.setContent(input);
+      const output = editor.getContent();
+      expect(output).toBe(expected);
+    });
+  });
+
+  describe("with format: false", () => {
+    beforeEach(() => {
+      editor = new Editor(textarea, {
+        toolbar: [],
+        inline: false,
+        htmlOutputOptions: {
+          format: false,
+        },
+      });
+    });
+
+    it.each([
+      ["<p><strong><a>t</a></strong></p><p>next paragraph</p>"],
+      [`<table style="width: 100%"><tbody><tr><td>b</td></tr></tbody></table>`],
+    ])("should output unformatted HTML: %s", (input) => {
+      editor.setContent(input);
+      const output = editor.getContent();
+      expect(output).toBe(input);
+    });
+  });
+});
+
 const normalizeHTML = (html: string): string => {
   const parser = new DOMParser();
   const doc = parser.parseFromString(html, "text/html");

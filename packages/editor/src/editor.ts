@@ -1,5 +1,7 @@
 import { Editor as TiptapEditor, Extension as TiptapExtension, generateJSON } from "@tiptap/core";
 import type { EditorView } from "@tiptap/pm/view";
+import { html } from "js-beautify";
+import type { HTMLBeautifyOptions } from "js-beautify";
 import { Extension } from "./tiptap/extension";
 import { Toolbar } from "./toolbar";
 import { Statusbar } from "./statusbar";
@@ -11,6 +13,12 @@ import { insertStylesheets } from "./util/dom";
 import prosemirrorCss from "prosemirror-view/style/prosemirror.css?raw";
 import editorCss from "./editor.css?inline";
 import contentCss from "./content.css?inline";
+
+interface HtmlOutputOptions {
+  format?: boolean;
+  indentSize?: number;
+  contentUnformatted?: string[];
+}
 
 export interface ExtensionOptions {
   [key: string]: unknown;
@@ -80,6 +88,7 @@ export interface EditorOptions {
   quickAction?: string[];
   quickActionOptions?: ConstructorParameters<typeof QuickAction>[0]["options"];
   autoFocus?: boolean;
+  htmlOutputOptions?: HtmlOutputOptions;
 }
 
 const DEFAULT_HEIGHT = 350;
@@ -103,11 +112,25 @@ export class Editor {
   #pasteMenu: PasteMenu;
   #quickAction: QuickAction;
   #structureMode: StructureMode | undefined;
+  #htmlOutputOptions: HTMLBeautifyOptions | undefined;
 
   constructor(textarea: HTMLTextAreaElement, options: EditorOptions) {
     this.id = textarea.id;
     this.#textarea = textarea;
     this.options = options;
+
+    this.#htmlOutputOptions =
+      options.htmlOutputOptions?.format === false
+        ? undefined
+        : {
+            indent_size: options.htmlOutputOptions?.indentSize ?? 0,
+            wrap_line_length: 0,
+            content_unformatted: options.htmlOutputOptions?.contentUnformatted ?? [
+              "pre",
+              "style",
+              "script",
+            ],
+          };
 
     const inline = options.inline ?? false;
     const height =
@@ -250,7 +273,9 @@ export class Editor {
   }
 
   public getContent(): string {
-    return normalizeHTML(this.tiptap.getHTML());
+    return this.#htmlOutputOptions === undefined
+      ? normalizeHTML(this.tiptap.getHTML())
+      : html(normalizeHTML(this.tiptap.getHTML()), this.#htmlOutputOptions);
   }
 
   public setContent(content: string): void {
