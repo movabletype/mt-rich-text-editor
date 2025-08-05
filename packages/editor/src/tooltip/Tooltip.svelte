@@ -29,7 +29,6 @@
     padding: 4px;
     border-radius: 5px;
     width: max-content;
-    max-width: 200px;
     white-space: nowrap;
     font-size: 90%;
     z-index: 2000;
