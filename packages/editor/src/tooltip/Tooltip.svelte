@@ -1,13 +1,14 @@
 <script lang="ts">
   const { title }: { title: string } = $props();
+  const margin = 10;
   let tooltipEl: HTMLDivElement;
   $effect(() => {
     if (tooltipEl) {
       const rect = tooltipEl.getBoundingClientRect();
-      if (rect.x < 10) {
-        tooltipEl.style.left = `calc(50% + ${-(rect.x - 10)}px)`;
-      } else if (rect.x + rect.width > window.innerWidth - 10) {
-        tooltipEl.style.left = `calc(50% - ${rect.x + rect.width - window.innerWidth + 10}px)`;
+      if (rect.x < margin) {
+        tooltipEl.style.left = `calc(50% + ${-(rect.x - margin)}px)`;
+      } else if (rect.x + rect.width > window.innerWidth - margin) {
+        tooltipEl.style.left = `calc(50% - ${rect.x + rect.width - window.innerWidth + margin}px)`;
       }
     }
   });
