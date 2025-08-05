@@ -21,12 +21,13 @@ export const tooltip = (node: HTMLElement, title?: string) => {
     return;
   }
   node.addEventListener("mouseenter", () => {
+    node.title = "";
+
     clearTimeout(timerId);
     timerId = setTimeout(() => {
       if (tooltipMount) {
         return;
       }
-      node.title = "";
       node.setAttribute("aria-describedby", "mt-rich-text-editor-tooltip");
       tooltipMount = mount(Tooltip, {
         target: node,
@@ -39,12 +40,13 @@ export const tooltip = (node: HTMLElement, title?: string) => {
     }, showDelay);
   });
   node.addEventListener("mouseleave", () => {
+    node.title = title;
+
     clearTimeout(timerId);
 
     if (!tooltipMount) {
       return;
     }
-    node.title = title;
     node.removeAttribute("aria-describedby");
     unmount(tooltipMount);
     tooltipMount = undefined;
