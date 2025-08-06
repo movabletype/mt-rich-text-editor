@@ -1,8 +1,20 @@
 <script lang="ts">
   const { title }: { title: string } = $props();
+  const margin = 10;
+  let tooltipEl: HTMLDivElement;
+  $effect(() => {
+    if (tooltipEl) {
+      const rect = tooltipEl.getBoundingClientRect();
+      if (rect.x < margin) {
+        tooltipEl.style.left = `calc(50% + ${-(rect.x - margin)}px)`;
+      } else if (rect.x + rect.width > window.innerWidth - margin) {
+        tooltipEl.style.left = `calc(50% - ${rect.x + rect.width - window.innerWidth + margin}px)`;
+      }
+    }
+  });
 </script>
 
-<div id="mt-rich-text-editor-tooltip" class="mt-rich-text-editor-tooltip">
+<div bind:this={tooltipEl} id="mt-rich-text-editor-tooltip" class="mt-rich-text-editor-tooltip">
   {title}
 </div>
 
@@ -17,9 +29,8 @@
     padding: 4px;
     border-radius: 5px;
     width: max-content;
-    max-width: 200px;
     white-space: nowrap;
     font-size: 90%;
-    z-index: 1;
+    z-index: 2000;
   }
 </style>
