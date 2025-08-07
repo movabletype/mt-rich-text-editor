@@ -78,7 +78,7 @@ sub template_source_mt_rich_text_editor {
     if (my $blog = $app->blog) {
         $settings_map{link} = {
             defaultTarget => $blog->link_default_target,
-        };
+        } if $blog->has_column('link_default_target');
     }
     my $settings = MT::Util::encode_html(MT::Util::to_json(\%settings_map));
     $$tmpl =~ s{(data-mt-rich-text-editor-settings)=""}{$1="$settings"}g;
