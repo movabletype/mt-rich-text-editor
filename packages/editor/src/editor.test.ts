@@ -130,6 +130,63 @@ describe("HTML formatting", () => {
 </tbody>
 </table>`,
       ],
+      [
+        `<table style="width: 100%"><tbody><tr><td>b</td></tr></tbody></table>`,
+        `<table style="width: 100%">
+<tbody>
+<tr>
+<td>b</td>
+</tr>
+</tbody>
+</table>`,
+      ],
+      [
+        `<pre><code>
+function() {
+  console.log("test");
+    console.log("test2");
+}
+</code></pre>`,
+        `<pre><code>
+function() {
+  console.log("test");
+    console.log("test2");
+}
+</code></pre>`,
+      ],
+      [
+        `<p><script>
+function() {
+  console.log("test");
+    console.log("test2");
+}
+</script></p>`,
+        `<p>
+<script>
+function() {
+  console.log("test");
+    console.log("test2");
+}
+</script>
+</p>`,
+      ],
+      // TODO: style element is not allowed now
+      //       [
+      //         `<p><style>
+      // html {
+      //   margin: 0;
+      //     padding: 0;
+      // }
+      // </style>
+      // </p>`,
+      //         `<p><style>
+      // html {
+      //   margin: 0;
+      //     padding: 0;
+      // }
+      // </style>
+      // </p>`,
+      //       ],
     ])("should output formatted HTML: %s", (input, expected) => {
       editor.setContent(input);
       const output = editor.getContent();
