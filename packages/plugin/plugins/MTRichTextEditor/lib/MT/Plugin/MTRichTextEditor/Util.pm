@@ -6,7 +6,7 @@ use utf8;
 
 use MT::Util;
 
-sub install_toolbar_items {
+sub add_toolbar_items {
     shift if $_[0] eq __PACKAGE__;
     my ($options) = @_;
 
