@@ -18,8 +18,9 @@ import { Strike } from "@tiptap/extension-strike";
 import { Dropcursor } from "@tiptap/extension-dropcursor";
 import { Gapcursor } from "@tiptap/extension-gapcursor";
 import { TextAlign } from "@tiptap/extension-text-align";
-import { Color } from "@tiptap/extension-color";
-import TextStyle from "@tiptap/extension-text-style";
+import { TextStyle } from "@tiptap/extension-text-style/text-style";
+import { Color } from "@tiptap/extension-text-style/color";
+import { BackgroundColor } from "@tiptap/extension-text-style/background-color";
 
 // experiments
 import Iframe from "./extension/experiments/iframe";
@@ -46,11 +47,10 @@ import { DescriptionTerm } from "./extension/description-term";
 import { DescriptionDetails } from "./extension/description-details";
 import { Summary } from "./extension/summary";
 import { ListItem } from "./extension/list-item";
-import { BackgroundColor } from "./extension/background-color";
 import { Script } from "./extension/script";
 import { EmbedObject } from "./extension/embed-object";
 import { Markdown } from "./extension/markdown";
-import { History } from "./extension/history";
+import { UndoRedo } from "./extension/undo-redo";
 import { MovableType } from "./extension/movable-type";
 
 const defaultLinkOptions = {
@@ -67,8 +67,8 @@ export const Extension = TiptapExtension.create({
       extensions.push(MovableType.configure(this.options?.movableType));
     }
 
-    if (this.options.history !== false) {
-      extensions.push(History.configure(this.options?.history));
+    if (this.options.undoRedo !== false) {
+      extensions.push(UndoRedo.configure(this.options?.undoRedo));
     }
 
     // core
@@ -184,6 +184,10 @@ export const Extension = TiptapExtension.create({
       extensions.push(Color.configure(this.options?.color));
     }
 
+    if (this.options.backgroundColor !== false) {
+      extensions.push(BackgroundColor.configure(this.options?.backgroundColor));
+    }
+
     if (this.options.textStyle !== false) {
       extensions.push(TextStyle.configure(this.options?.textStyle));
     }
@@ -248,10 +252,6 @@ export const Extension = TiptapExtension.create({
 
     if (this.options.blockLink !== false) {
       extensions.push(BlockLink.configure(this.options?.blockLink ?? defaultLinkOptions));
-    }
-
-    if (this.options.backgroundColor !== false) {
-      extensions.push(BackgroundColor.configure(this.options?.backgroundColor));
     }
 
     if (this.options.script !== false) {
