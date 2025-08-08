@@ -1,12 +1,12 @@
 id: FormattedTextForMTRichTextEditor
 name: FormattedTextForMTRichTextEditor
-version: 1.0.1
+version: 1.0.2
 author_link: http://www.movabletype.org/
 author_name: Six Apart Ltd.
 description: <MT_TRANS phrase='Add the "Insert Boilerplate" button to the MTRichTextEditor.'>
 l10n_class: FormattedTextForMTRichTextEditor::L10N
 
-schema_version: 1
+schema_version: 1.0002
 
 editors:
   mt_rich_text_editor:
@@ -21,3 +21,22 @@ applications:
     methods:
       mt_rich_text_editor_view_formatted_text_text:
         code: $FormattedTextForMTRichTextEditor::FormattedTextForMTRichTextEditor::App::view_text
+
+callbacks:
+    MT::Upgrade::upgrade_end: |
+        sub {
+            my ( $cb, $self, %param ) = @_;
+            return 1 if do {
+                my $cfg = MT->model('config')->load(1);
+                $cfg && $cfg->data =~ /PluginSchemaVersion FormattedTextForMTRichTextEditor=/i;
+            };
+            return 1 unless eval { require MT::Plugin::MTRichTextEditor::Util };
+
+            $self->progress(
+                MT->component('FormattedTextForMTRichTextEditor')->translate('Adding the "Insert Boilerplate" button to the MTRichTextEditor toolbar...')
+            );
+            MT::Plugin::MTRichTextEditor::Util->add_toolbar_items({
+              items => ['boilerplate'],
+              row   => 0,
+            });
+        }
