@@ -328,8 +328,9 @@ export class Editor {
     this.tiptap.commands.insertContent(json);
   }
 
-  public notify({ level, message }: { level: "error" | "warning"; message: string }): void {
-    alert(`${level}: ${message}`);
+  public notify({ message }: { level: "error" | "warning"; message: string }): void {
+    // TODO: Implement different notification methods for different levels
+    alert(message);
   }
 
   public isPasting(): boolean {
