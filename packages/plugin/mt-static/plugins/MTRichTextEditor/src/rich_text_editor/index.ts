@@ -166,15 +166,6 @@ if (customSettings?.link) {
 
 const MTEditor = MT.Editor || (class {} as NonNullable<typeof MT.Editor>);
 
-const resolverResponses: Record<
-  string,
-  Promise<{
-    error?: {
-      message: string;
-    };
-    inline?: boolean;
-  }>
-> = {};
 const resolver = async ({
   url,
   maxwidth,
@@ -184,32 +175,26 @@ const resolver = async ({
   maxwidth?: number;
   maxheight?: number;
 }) => {
-  const data = await (resolverResponses[`${url}-${maxwidth}-${maxheight}`] ||
-    // eslint-disable-next-line no-async-promise-executor
-    (resolverResponses[`${url}-${maxwidth}-${maxheight}`] = new Promise(async (resolve) => {
-      const blog_id = document.querySelector<HTMLScriptElement>("[data-blog-id]")?.dataset.blogId;
-      resolve(
-        await (
-          await fetch(
-            window.CMSScriptURI +
-              "?" +
-              new URLSearchParams({
-                __mode: "mt_rich_text_editor_embed",
-                url: url,
-                maxwidth: String(
-                  (maxwidth || customSettings?.embed_default_params?.maxwidth) ?? ""
-                ),
-                maxheight: String(
-                  (maxheight || customSettings?.embed_default_params?.maxheight) ?? ""
-                ),
-                blog_id: String(blog_id),
-              })
-          )
-        ).json()
-      );
-    })));
+  const blog_id = document.querySelector<HTMLScriptElement>("[data-blog-id]")?.dataset.blogId;
+  const data = await (
+    await fetch(
+      window.CMSScriptURI +
+        "?" +
+        new URLSearchParams({
+          __mode: "mt_rich_text_editor_embed",
+          url,
+          maxwidth: String((maxwidth || customSettings?.embed_default_params?.maxwidth) ?? ""),
+          maxheight: String((maxheight || customSettings?.embed_default_params?.maxheight) ?? ""),
+          blog_id: String(blog_id),
+        })
+    )
+  ).json();
   if (data.error?.message) {
-    throw new Error(data.error.message);
+    console.info(data.error.message);
+    return {
+      html: "",
+      inline: undefined,
+    };
   }
   return data;
 };
