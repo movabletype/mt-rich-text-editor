@@ -85,7 +85,10 @@ use vars qw( %Lexicon );
     'Boilerplate'                           => '定型文',
     'Text Color'                            => 'テキストの色',
     'Highlight Color'                       => 'ハイライトの色',
-    'Failed to get embed object'            => '埋め込みオブジェクトの取得に失敗しました',
+
+    'Can not get data from [_1]: [_2]' => '[_1]からデータを取得できませんでした: [_2]',
+    'Failed to parse HTML: [_1]'       => 'HTMLの解析に失敗しました: [_1]',
+    'Failed to get embed object: [_1]' => '埋め込みオブジェクトの取得に失敗しました: [_1]',
 
     'Paste as text'                                                                                          => 'テキストとして貼り付け',
     'Paste as HTML'                                                                                          => 'HTMLとして貼り付け',
