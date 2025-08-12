@@ -19,7 +19,7 @@ i18next.init({
 export default i18n;
 
 type TFunction = {
-  (strings: TemplateStringsArray, ...values: any[]): string;
+  (strings: TemplateStringsArray | string, ...values: any[]): string;
   (string: string): string;
 };
 
