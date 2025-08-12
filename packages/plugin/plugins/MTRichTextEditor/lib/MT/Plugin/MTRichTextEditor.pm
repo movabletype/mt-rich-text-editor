@@ -81,10 +81,14 @@ sub template_source_mt_rich_text_editor {
         } if $blog->has_column('link_default_target');
     }
     my $settings = MT::Util::encode_html(MT::Util::to_json(\%settings_map));
-    $$tmpl =~ s{(data-mt-rich-text-editor-settings)=""}{$1="$settings"}g;
+    $$tmpl =~ s{(?<=data-mt-rich-text-editor-settings=")(?=")}{$settings}g;
 
-    my $is_markdown_available = $app->registry('text_filters', 'markdown') ? 1 : 0;
-    $$tmpl =~ s{(data-mt-rich-text-editor-is-markdown-available)=""}{$1="$is_markdown_available"}g;
+    for my $format (qw(commonmark markdown)) {
+        if ($app->registry('text_filters', $format)) {
+            $$tmpl =~ s{(?<=data-mt-rich-text-editor-markdown-format=")(?=")}{$format}g;
+            last;
+        }
+    }
 }
 
 1;

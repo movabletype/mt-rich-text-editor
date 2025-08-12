@@ -44,9 +44,9 @@ const createRichTextEditor = async (
 };
 
 const customSettings = getCustomSettings();
-const isMarkdownAvailable =
-  document.querySelector<HTMLScriptElement>("[data-mt-rich-text-editor-is-markdown-available]")
-    ?.dataset.mtRichTextEditorIsMarkdownAvailable === "1";
+const availableMarkdownFormat = document.querySelector<HTMLScriptElement>(
+  "[data-mt-rich-text-editor-markdown-format]"
+)?.dataset.mtRichTextEditorMarkdownFormat;
 
 const toolbarOptions: Record<string, unknown> = {
   image: {
@@ -232,12 +232,12 @@ class MTRichTextEditor extends MTEditor {
     toolbarOptions,
     extensionOptions: {
       markdown: {
-        toHtml: isMarkdownAvailable
+        toHtml: availableMarkdownFormat
           ? async ({ content }: { content: string }) => {
               const formData = new FormData();
               formData.append("__mode", "convert_to_html");
               formData.append("text", content);
-              formData.append("format", "markdown");
+              formData.append("format", availableMarkdownFormat);
               const data = await (
                 await fetch(window.CMSScriptURI, {
                   method: "POST",
