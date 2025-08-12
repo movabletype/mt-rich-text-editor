@@ -8,49 +8,51 @@
   import { t } from "../../i18n";
   import { extendPasteMenuItem } from "./svelte";
   import { PasteMenuItemElement } from "./element";
-  type EmbedInlineElement = PasteMenuItemElement & {
-    inline: string | undefined;
-  };
-  const extend = (customElementConstructor: typeof HTMLElement): new () => EmbedInlineElement =>
+  import { getObject } from "./embed/util";
+  const extend = (customElementConstructor: typeof HTMLElement): new () => PasteMenuItemElement =>
     class extends extendPasteMenuItem(customElementConstructor) {
-      public inline: string | undefined = undefined;
-
       async isEditorItemAvailable() {
         const content = this.content?.plainText || "";
         if (!/^https?:\/\/[^\s]+(\s*)?$/.test(content)) {
           return false;
         }
 
-        const res = await this.tiptap?.commands
-          .getEmbedObject({
+        const res = await getObject({
+          embedData: {
             url: content,
             maxwidth: 0,
             maxheight: 0,
-          })
-          .catch(() => ({ html: "", inline: undefined }));
+          },
+          tiptap: this.tiptap,
+          editor: this.editor,
+        });
 
-        if (!res?.html) {
-          this.editor?.notify({
-            level: "error",
-            message: t("Failed to get embed object"),
-          });
-          return false;
-        }
-
-        this.inline = res?.inline;
-        return !!this.inline;
+        return !!res.inline;
       }
     };
 </script>
 
 <script lang="ts">
-  const element = $host<EmbedInlineElement>();
+  const element = $host<PasteMenuItemElement>();
   const apply = () => {
-    if (!element.inline) {
+    const content = element.content;
+    if (!content) {
       return;
     }
-
-    element.insertContent(element.inline);
+    getObject({
+      embedData: {
+        url: content.plainText,
+        maxwidth: 0,
+        maxheight: 0,
+      },
+      tiptap: element.tiptap,
+      editor: element.editor,
+    }).then((res) => {
+      const content = res.inline;
+      if (content) {
+        element.insertContent(content);
+      }
+    });
   };
   element.onEditorPaste = apply;
   element.addEventListener("click", apply);
