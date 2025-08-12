@@ -97,6 +97,9 @@ settings:
         "maxwidth": 500,
         "maxheight": 500
       }
+  embed_site_rule:
+    scope: system
+    default: 1 # EMBED_ALLOW_SITE
 
 editors:
   mt_source_editor: {}

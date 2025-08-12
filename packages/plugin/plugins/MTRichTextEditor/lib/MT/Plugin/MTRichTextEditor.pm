@@ -9,7 +9,11 @@ use MT::Util;
 our @EXPORT_OK = qw(plugin translate);
 use base qw(Exporter);
 
-my @settings = qw(toolbar blocks colors embed_default_params);
+my @settings = qw(toolbar blocks colors embed_default_params embed_site_rule);
+
+our $EMBED_ALLOW_SITE = 1;
+our $EMBED_ALLOW_ALL  = 2;
+our $EMBED_DENY_ALL   = 3;
 
 sub component {
     __PACKAGE__ =~ m/::([^:]+)\z/;
