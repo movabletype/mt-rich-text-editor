@@ -142,6 +142,7 @@ applications:
         mode: mt_rich_text_editor_settings
         view:
           - system
+        permission: administer
         condition: |
           sub {
             require MT::Util::Editor;
