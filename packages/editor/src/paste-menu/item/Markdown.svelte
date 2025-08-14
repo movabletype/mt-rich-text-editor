@@ -11,15 +11,7 @@
     class extends extendPasteMenuItem(customElementConstructor) {
       isEditorItemAvailable() {
         return this.tiptap?.commands.isMarkdownConversionAvailable() &&
-          (this.content?.plainText ?? "")
-            .split("\n")
-            .some(
-              (line) =>
-                line.startsWith("#") ||
-                line.startsWith("```") ||
-                /^=+$/.test(line) ||
-                /^-+$/.test(line)
-            )
+          /^(#|```|- |\* |\d+\. |> |=+$|-+$)/m.test(this.content?.plainText ?? "")
           ? this.content?.htmlDocument
             ? PasteMenuItemElement.Priority.Default
             : PasteMenuItemElement.Priority.High
