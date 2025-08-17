@@ -24,7 +24,7 @@ export const preprocessHTML = (html: string): string => {
 
   body
     .querySelectorAll(
-      "div, blockquote, main, article, ul, ol, section, aside, nav, header, footer, figure, figcaption, details, dialog"
+      "div, blockquote, main, article, ul, ol, section, aside, nav, header, footer, figure, figcaption, details, dialog, td, th"
     )
     .forEach((div) => {
       const hasDirectTextNode = Array.from(div.childNodes).some(
