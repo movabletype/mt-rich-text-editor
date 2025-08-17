@@ -16,6 +16,8 @@
     onClose: () => void;
   } = $props();
 
+  let insertButton: HTMLElement;
+
   const dataAttributes: {
     name: string;
     checked: boolean;
@@ -72,6 +74,12 @@
       dataAttributes.forEach((d) => (d.checked = true));
     }
   }
+
+  $effect(() => {
+    if (insertButton && dataAttributes.length === 0 && styleAttributes.length === 0) {
+      insertButton.click();
+    }
+  });
 
   let self: Modal;
 
@@ -150,6 +158,7 @@
         type="button"
         title={t("Insert (s)")}
         class="action primary button btn btn-primary"
+        bind:this={insertButton}
         onclick={() => {
           const disabledAttributes = styleAttributes.filter((s) => !s.checked).map((s) => s.name);
           const doc = htmlDocument.cloneNode(true) as Document;
