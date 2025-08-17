@@ -9,7 +9,25 @@
   const extend = (customElementConstructor: typeof HTMLElement) =>
     class extends extendPasteMenuItem(customElementConstructor) {
       isEditorItemAvailable() {
-        return !!this.content?.htmlDocument;
+        const doc = this.content?.htmlDocument;
+        if (!doc) {
+          return false;
+        }
+        const childNodes = doc.body.childNodes;
+        if (childNodes.length === 0) {
+          return false;
+        }
+
+        if (
+          childNodes.length === 1 &&
+          childNodes[0] instanceof HTMLParagraphElement &&
+          childNodes[0].getAttribute("data-pm-slice") &&
+          [...childNodes[0].childNodes].every((n) => n instanceof Text)
+        ) {
+          return false;
+        }
+
+        return true;
       }
     };
 </script>
