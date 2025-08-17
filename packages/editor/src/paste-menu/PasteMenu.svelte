@@ -131,6 +131,10 @@
 
   let applyName = $state("");
   onPaste((view, event) => {
+    if (event.clipboardData?.getData("x-mt-rich-text-editor")) {
+      return true; // internal use
+    }
+
     // commit history transaction
     // FIXME: we should more effectively commit history transaction
     editor.tiptap.commands.undo();

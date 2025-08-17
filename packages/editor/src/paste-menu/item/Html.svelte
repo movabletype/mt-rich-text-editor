@@ -34,7 +34,17 @@
     }
 
     htmlDocument ??= element.content?.htmlDocument;
-    element.insertContent(preprocessHTML(htmlDocument?.body.innerHTML ?? ""));
+    const html = preprocessHTML(htmlDocument?.body.innerHTML ?? "");
+
+    const event = new ClipboardEvent("paste", {
+      clipboardData: new DataTransfer(),
+    });
+
+    event.clipboardData?.setData("text/html", html);
+    event.clipboardData?.setData("x-mt-rich-text-editor", "1");
+
+    tiptap?.$doc.element.dispatchEvent(event);
+    element.parentElement?.dispatchEvent(new Event("paste-menu-item-applied"));
 
     unmountModal();
   };
