@@ -37,7 +37,13 @@
 </script>
 
 <div class="table_insert_panel">
-  <div class="grid_container">
+  <div
+    class="grid_container"
+    onclick={handleClick}
+    onkeydown={handleKeyDown}
+    tabindex="-1"
+    role="grid"
+  >
     <!-- eslint-disable-next-line @typescript-eslint/no-unused-vars -->
     {#each Array(maxRows) as _, row (row)}
       <div class="grid_row">
@@ -46,8 +52,6 @@
           <div
             class="grid_cell"
             class:selected={row < hoveredRows && col < hoveredCols}
-            onclick={handleClick}
-            onkeydown={handleKeyDown}
             onmouseover={() => handleCellHover(row, col)}
             onfocus={() => handleCellHover(row, col)}
             role="button"
