@@ -1,3 +1,7 @@
+<script module lang="ts">
+  const ignoredAttributes: Set<string> = new Set(["mtIndent", "pmSlice"]);
+</script>
+
 <script lang="ts">
   import { t } from "../../i18n";
   import { Modal, ModalContent } from "@movabletype/svelte-components";
@@ -19,6 +23,9 @@
   htmlDocument.body.querySelectorAll<HTMLElement>("*").forEach((e) => {
     const data = e.dataset;
     for (const key in data) {
+      if (ignoredAttributes.has(key)) {
+        continue;
+      }
       if (!dataAttributes.find((d) => d.name === key)) {
         dataAttributes.push({ name: key, checked: false });
       }
