@@ -216,7 +216,7 @@ export class Editor {
         handlePaste,
       },
     });
-    if (options.autoFocus ?? inline) {
+    if (options.autoFocus) {
       this.focus();
     }
 
