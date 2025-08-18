@@ -25,6 +25,14 @@ sub plugin {
 
 sub settings {
     my ($app) = @_;
+
+    if ($app->param('blog_id')) {
+        return $app->return_to_dashboard(redirect => 1);
+    }
+
+    return $app->permission_denied()
+        unless $app->user->is_superuser();
+
     my $plugin = plugin();
     $app->add_breadcrumb(
         $plugin->translate('MTRichTextEditor Settings'),
@@ -58,6 +66,10 @@ sub settings {
 
 sub save_settings {
     my ($app) = @_;
+
+    $app->validate_magic or return;
+    return $app->permission_denied()
+        unless $app->user->is_superuser();
 
     my $plugin = plugin();
     for my $key (@settings) {
