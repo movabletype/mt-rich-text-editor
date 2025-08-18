@@ -1,14 +1,14 @@
 <script lang="ts">
+  import { WINDOW_EDGE_MARGIN } from "../constant";
   const { title }: { title: string } = $props();
-  const margin = 10;
   let tooltipEl: HTMLDivElement;
   $effect(() => {
     if (tooltipEl) {
       const rect = tooltipEl.getBoundingClientRect();
-      if (rect.x < margin) {
-        tooltipEl.style.left = `calc(50% + ${-(rect.x - margin)}px)`;
-      } else if (rect.x + rect.width > window.innerWidth - margin) {
-        tooltipEl.style.left = `calc(50% - ${rect.x + rect.width - window.innerWidth + margin}px)`;
+      if (rect.x < WINDOW_EDGE_MARGIN) {
+        tooltipEl.style.left = `calc(50% + ${-(rect.x - WINDOW_EDGE_MARGIN)}px)`;
+      } else if (rect.x + rect.width > window.innerWidth - WINDOW_EDGE_MARGIN) {
+        tooltipEl.style.left = `calc(50% - ${rect.x + rect.width - window.innerWidth + WINDOW_EDGE_MARGIN}px)`;
       }
     }
   });

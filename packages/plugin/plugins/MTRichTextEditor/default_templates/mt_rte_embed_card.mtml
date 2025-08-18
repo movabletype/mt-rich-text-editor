@@ -56,7 +56,7 @@ if (! document.querySelector("#mt-rich-text-editor-embed-card-style")) {
     <div class="mt-rich-text-editor-embed-card__description"><mt:Var name="og_description" trim_to="100+..." encode_html="1" /></div>
     <div class="mt-rich-text-editor-embed-card__site-name">
       <mt:If name="icon"><img src="<mt:Var name="icon" encode_html="1" />" class="mt-rich-text-editor-embed-card__icon" /></mt:If>
-      <mt:Var name="og_url" regex_replace="/^https?:\/\/([^/]+).*/","\1" encode_html="1" />
+      <mt:Var name="og_url" regex_replace="/^https?:\/\/([^/]+).*/","$1" encode_html="1" />
     </div>
   </div>
 </a>

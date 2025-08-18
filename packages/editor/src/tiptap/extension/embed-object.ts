@@ -1,4 +1,5 @@
 import { Node, mergeAttributes } from "@tiptap/core";
+import type { Editor } from "@tiptap/core";
 
 interface EmbedData {
   url: string;
@@ -143,23 +144,24 @@ export const EmbedObject = Node.create<EmbedObjectOptions>({
         (() => {
           return this.options.resolver(embedData);
         }) as unknown as Promise<{ html: string; inline?: string }>,
-      insertEmbedObject: (html: string) => {
-        const { state } = this.editor;
-        const pos = state.selection.$anchor.pos;
+      insertEmbedObject:
+        (html: string) =>
+        ({ state, commands }: Editor) => {
+          const pos = state.selection.$anchor.pos;
 
-        // Insert the embed object
-        this.editor.commands.insertContent({
-          type: this.name,
-          attrs: {
-            content: html,
-          },
-        });
+          // Insert the embed object
+          commands.insertContent({
+            type: this.name,
+            attrs: {
+              content: html,
+            },
+          });
 
-        // Move cursor after the inserted node
-        this.editor.commands.setTextSelection(pos + 2);
+          // Move cursor after the inserted node
+          commands.setTextSelection(pos + 2);
 
-        return true;
-      },
+          return true;
+        },
     };
   },
 });

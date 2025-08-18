@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { WINDOW_EDGE_MARGIN } from "../constant";
   import type { Editor } from "../editor";
   import type { EditorView } from "@tiptap/pm/view";
   import { findParentNode } from "@tiptap/core";
@@ -134,7 +135,15 @@
       showInBottom = topPosition < 0;
 
       top = showInBottom ? bottomPosition : topPosition;
-      left = targetRect.left - viewRect.left + targetWidth / 2 - toolbarWidth / 2;
+
+      const tmpLeft = targetRect.left - viewRect.left + targetWidth / 2 - toolbarWidth / 2;
+      if (tmpLeft + viewRect.left < WINDOW_EDGE_MARGIN) {
+        left = WINDOW_EDGE_MARGIN - viewRect.left;
+      } else if (tmpLeft + viewRect.left + targetWidth > window.innerWidth - WINDOW_EDGE_MARGIN) {
+        left = window.innerWidth - WINDOW_EDGE_MARGIN - viewRect.left - targetWidth;
+      } else {
+        left = tmpLeft;
+      }
     })();
   };
   const updatePosition = () => {
@@ -174,9 +183,8 @@
   bind:this={toolbarElement}
   class={`toolbar ${showInBottom ? "toolbar--bottom" : "toolbar--top"}`}
   style={`
-    display: ${isOpen && top && left ? "flex" : "none"};
+    display: ${isOpen && (top || left) ? "flex" : "none"};
     background-color: #fff;
-    z-index: 1000;
     top: ${top}px; 
     left: ${left}px;
   `}
@@ -195,7 +203,7 @@
     position: absolute;
     background-color: #fff;
     border: 1px solid #ccc;
-    z-index: 1;
+    z-index: 1200;
     border-radius: 4px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     gap: 5px;
