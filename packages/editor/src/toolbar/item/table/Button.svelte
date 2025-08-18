@@ -10,6 +10,11 @@
 
 <script lang="ts">
   import { selectedRect } from "@tiptap/pm/tables";
+  import { createTable } from "@tiptap/extension-table";
+  import { TextSelection } from "@tiptap/pm/state";
+  import type { Transaction } from "@tiptap/pm/state";
+  import type { Node } from "@tiptap/pm/model";
+  import type { Editor as TiptapEditor } from "@tiptap/core";
   import { t } from "../../../i18n";
   import icon from "../../../ui/icon/table.svg?raw";
   import { tooltip } from "../../../tooltip";
@@ -18,8 +23,6 @@
   import { handleTableProperties } from "./table-properties";
   import { handleCellProperties } from "./cell-properties";
   import { handleRowProperties } from "./row-properties";
-  import { createTable } from "@tiptap/extension-table";
-  import { TextSelection } from "@tiptap/pm/state";
 
   const element = $host<ToolbarItemElement>();
   const { tiptap } = element;
@@ -118,6 +121,52 @@
       showSubMenu = {};
     }
   });
+
+  const getCurrentCells = (tiptap: TiptapEditor) => {
+    const cells: Set<Node> = new Set();
+    const table = tiptap.state.doc.nodeAt(tiptap.state.selection.$anchor.before(1));
+    if (table && table.type.name === "table") {
+      table.forEach((rowNode) => {
+        rowNode.forEach((cellNode) => {
+          cells.add(cellNode);
+        });
+      });
+    }
+    return cells;
+  };
+
+  const copyTableStyleCommand = (tiptap: TiptapEditor) => {
+    const existingCells = getCurrentCells(tiptap);
+    return ({ tr }: { tr: Transaction }) => {
+      let basePos = tr.selection.$anchor.before(1);
+      const table = tr.doc.nodeAt(basePos);
+      if (table && table.type.name === "table") {
+        const parserEl = document.createElement("div");
+        const serializerEl = document.createElement("div");
+        parserEl.style.cssText = table.attrs.style || "";
+        serializerEl.style.borderWidth = parserEl.style.borderWidth;
+        const cellStyle = serializerEl.style.cssText;
+
+        table.forEach((rowNode, rowOffset) => {
+          rowNode.forEach((cellNode, cellOffset) => {
+            if (!existingCells.has(cellNode)) {
+              const cellPos = basePos + rowOffset + cellOffset + 2; // +2 for table and row nodes
+              const cellStart = cellPos + 1;
+              const cellEnd = cellPos + cellNode.nodeSize - 1;
+
+              tr.setNodeMarkup(cellPos, undefined, {
+                ...cellNode.attrs,
+                style: cellStyle,
+              });
+
+              tr.replaceWith(cellStart, cellEnd, tiptap.schema.nodes.textBlock.create());
+            }
+          });
+        });
+      }
+      return true;
+    };
+  };
 </script>
 
 <button use:tooltip={t("Table")}>
@@ -193,7 +242,12 @@
               class="button-menu-item"
               disabled={!isTableActive}
               onclick={() => {
-                tiptap?.chain().focus().addRowBefore().run();
+                tiptap
+                  ?.chain()
+                  .focus()
+                  .addRowBefore()
+                  .command(copyTableStyleCommand(tiptap!))
+                  .run();
               }}
             >
               {t("Insert row before")}
@@ -202,7 +256,7 @@
               class="button-menu-item"
               disabled={!isTableActive}
               onclick={() => {
-                tiptap?.chain().focus().addRowAfter().run();
+                tiptap?.chain().focus().addRowAfter().command(copyTableStyleCommand(tiptap!)).run();
               }}
             >
               {t("Insert row after")}
@@ -243,7 +297,12 @@
               class="button-menu-item"
               disabled={!isTableActive}
               onclick={() => {
-                tiptap?.chain().focus().addColumnBefore().run();
+                tiptap
+                  ?.chain()
+                  .focus()
+                  .addColumnBefore()
+                  .command(copyTableStyleCommand(tiptap!))
+                  .run();
               }}
             >
               {t("Insert column before")}
@@ -252,7 +311,12 @@
               class="button-menu-item"
               disabled={!isTableActive}
               onclick={() => {
-                tiptap?.chain().focus().addColumnAfter().run();
+                tiptap
+                  ?.chain()
+                  .focus()
+                  .addColumnAfter()
+                  .command(copyTableStyleCommand(tiptap!))
+                  .run();
               }}
             >
               {t("Insert column after")}
