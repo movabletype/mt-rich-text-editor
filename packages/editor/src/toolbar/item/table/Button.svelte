@@ -75,6 +75,7 @@
       false,
       tiptap.schema.nodes.textBlock.create()
     );
+    (table.attrs as {style: string}).style = "width: 100%;";
 
     tiptap
       .chain()

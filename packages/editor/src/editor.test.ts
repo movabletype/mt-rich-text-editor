@@ -45,7 +45,7 @@ describe("HTML parsing", () => {
     "<ul><li style='top:0'><ul class='v'><li><a href='v'>t</a></li></ul></li></ul>",
     "<p><span class='v1'>a</span><span class='v2'>b</span></p>",
     "<figure style='display: inline-block' class='mt-figure'><img src='http://example.com/image.jpg' width='800' height='657' alt='alternative text' class='asset asset-image at-xid-1'/><figcaption>caption text</figcaption></figure>",
-    `<table style="width: 100%"><tbody><tr><td>b</td></tr></tbody></table>`,
+    `<table><tbody><tr><td>b</td></tr></tbody></table>`,
     `<table style="width: 100%"><tbody><tr><td><div>b</div></td></tr></tbody></table>`,
   ])("should preserve HTML structure through Tiptap: %s", (input) => {
     editor.setContent(input);
