@@ -1,5 +1,6 @@
 import { mount, unmount } from "svelte";
 import type { Editor as TiptapEditor } from "@tiptap/core";
+import { cssSize } from "../../../util/html";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import type { CellData } from "./CellPropertiesPanel.svelte";
@@ -76,8 +77,8 @@ export const handleCellProperties = (tiptap: TiptapEditor) => {
                 const el = document.createElement("div");
                 el.style.cssText = node.attrs.style || "";
 
-                el.style.width = cellData.width;
-                el.style.height = cellData.height;
+                el.style.width = cssSize(cellData.width);
+                el.style.height = cssSize(cellData.height);
                 el.style.textAlign = cellData.horizontalAlign;
                 el.style.verticalAlign = cellData.verticalAlign;
 
