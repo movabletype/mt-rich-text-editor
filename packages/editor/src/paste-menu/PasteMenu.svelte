@@ -4,6 +4,7 @@
   import { getPanelItem } from "../ui/item/registry";
   import type { PasteMenuItemElement, PasteMenuItemPriorityValue } from "./item/element";
   import clipboardIcon from "../ui/icon/clipboard.svg?raw";
+  import normalizeExternalHTML from "quill/modules/normalizeExternalHTML";
 
   function getText(clipboardData: DataTransfer): string | undefined {
     const text = clipboardData.getData("text/plain") || clipboardData.getData("Text");
@@ -158,6 +159,9 @@
     let htmlDocument = null;
     if (htmlText) {
       htmlDocument = new DOMParser().parseFromString(htmlText, "text/html");
+      if (!htmlDocument.body.querySelector("[data-pm-slice]")) {
+        normalizeExternalHTML(htmlDocument);
+      }
     }
 
     (async () => {
