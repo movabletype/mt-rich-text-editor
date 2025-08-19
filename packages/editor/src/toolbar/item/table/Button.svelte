@@ -18,6 +18,8 @@
   import { handleTableProperties } from "./table-properties";
   import { handleCellProperties } from "./cell-properties";
   import { handleRowProperties } from "./row-properties";
+  import { createTable } from "@tiptap/extension-table";
+  import { TextSelection } from "@tiptap/pm/state";
 
   const element = $host<ToolbarItemElement>();
   const { tiptap } = element;
@@ -62,7 +64,31 @@
   tiptap?.on("selectionUpdate", update);
 
   function handleInsert(rows: number, cols: number) {
-    tiptap?.chain().focus().insertTable({ rows, cols, withHeaderRow: false }).run();
+    if (!tiptap) {
+      return;
+    }
+
+    const table = createTable(
+      tiptap.schema,
+      rows,
+      cols,
+      false,
+      tiptap.schema.nodes.textBlock.create()
+    );
+
+    tiptap
+      .chain()
+      .command(({ tr }) => {
+        const offset = tr.selection.from + 1;
+
+        tr.replaceSelectionWith(table)
+          .scrollIntoView()
+          .setSelection(TextSelection.near(tr.doc.resolve(offset)));
+
+        return true;
+      })
+      .run();
+
     isOpen = false;
   }
 
