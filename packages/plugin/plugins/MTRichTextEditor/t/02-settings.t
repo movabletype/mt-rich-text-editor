@@ -57,7 +57,7 @@ subtest 'settings' => sub {
 subtest 'save_settings' => sub {
     $app->login($admin);
 
-    my %default_params = map { ("mt_rich_text_editor_$_" => $plugin->get_config_value($_)) } qw(toolbar blocks colors embed_default_params);
+    my %default_params = map { ("mt_rich_text_editor_$_" => $plugin->get_config_value($_)) } qw(toolbar blocks colors embed_default_params embed_site_rule);
 
     subtest 'can save settings as admin' => sub {
         my $new_embed_default_params = '{"maxwidth":1200,"maxheight":1200}';
