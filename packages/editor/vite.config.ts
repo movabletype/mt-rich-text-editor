@@ -4,6 +4,8 @@ import dts from "vite-plugin-dts";
 import postcssNesting from "postcss-nesting";
 import postcssInlineSvg from "postcss-inline-svg";
 import { svelte } from "@sveltejs/vite-plugin-svelte";
+import license from "rollup-plugin-license";
+import path from "node:path";
 
 export default defineConfig(({ mode }) => {
   const config: ViteUserConfig = {
@@ -20,6 +22,13 @@ export default defineConfig(({ mode }) => {
       svelte({
         compilerOptions: {
           customElement: true,
+        },
+      }),
+      license({
+        thirdParty: {
+          output: {
+            file: path.join(__dirname, "dist", "THIRD-PARTY-LICENSES"),
+          },
         },
       }),
     ],
