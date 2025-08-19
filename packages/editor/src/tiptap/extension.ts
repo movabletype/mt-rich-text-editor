@@ -21,6 +21,7 @@ import { TextAlign } from "@tiptap/extension-text-align";
 import { TextStyle } from "@tiptap/extension-text-style/text-style";
 import { Color } from "@tiptap/extension-text-style/color";
 import { BackgroundColor } from "@tiptap/extension-text-style/background-color";
+import { FileHandler } from "@tiptap/extension-file-handler";
 
 // experiments
 import Iframe from "./extension/experiments/iframe";
@@ -190,6 +191,10 @@ export const Extension = TiptapExtension.create({
 
     if (this.options.textStyle !== false) {
       extensions.push(TextStyle.configure(this.options?.textStyle));
+    }
+
+    if (this.options.fileHandler !== false) {
+      extensions.push(FileHandler.configure(this.options?.fileHandler));
     }
 
     // experiments
