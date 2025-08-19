@@ -154,6 +154,18 @@
     display: flex;
     justify-content: space-between;
     border-bottom: 1px solid #ccc;
+    position: relative;
+  }
+  .toolbar-row::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 90%;
+    background-image: url("data:image/svg+xml;utf8,<svg width='100%' height='39' xmlns='http://www.w3.org/2000/svg'><line x1='0' y1='39' x2='10000' y2='39' stroke='%23ccc' stroke-width='2'/></svg>");
+    background-repeat: repeat-y;
+    background-size: 100% 39px;
   }
   .toolbar-row:last-child {
     border-bottom: none;

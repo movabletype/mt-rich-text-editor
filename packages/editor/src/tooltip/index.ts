@@ -10,6 +10,10 @@ let showDelay = DEFAULT_SHOW_DELAY;
 let resetTimerId: ReturnType<typeof setTimeout> | undefined;
 
 export const tooltip = (node: HTMLElement, title?: string) => {
+  if (window.matchMedia("(any-hover: none)").matches) {
+    return;
+  }
+
   let tooltipMount: ReturnType<typeof mount> | undefined;
   let timerId: ReturnType<typeof setTimeout> | undefined;
   if (title) {
