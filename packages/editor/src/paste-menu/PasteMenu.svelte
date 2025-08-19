@@ -132,7 +132,7 @@
   let applyName = $state("");
   onPaste((view, event) => {
     if (event.clipboardData?.getData("x-mt-rich-text-editor")) {
-      return true; // internal use
+      return false; // internal use
     }
 
     // commit history transaction
