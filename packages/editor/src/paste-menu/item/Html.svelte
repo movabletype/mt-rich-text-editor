@@ -61,7 +61,10 @@
     event.clipboardData?.setData("text/html", html);
     event.clipboardData?.setData("x-mt-rich-text-editor", "1");
 
-    tiptap?.$doc.element.dispatchEvent(event);
+    element.content?.transaction(() => {
+      tiptap.chain().undo().focus().run();
+      tiptap.view.dom.dispatchEvent(event);
+    });
     element.parentElement?.dispatchEvent(new Event("paste-menu-item-applied"));
 
     unmountModal();
