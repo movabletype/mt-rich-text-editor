@@ -1,5 +1,9 @@
 import { Node, mergeAttributes, InputRule } from "@tiptap/core";
 
+export interface MTTagOptions {
+  tags: string[];
+}
+
 window.customElements.define(
   "mt-rich-text-editor-mt-function-tag",
   class extends HTMLElement {
@@ -58,9 +62,13 @@ export const MTTag = Node.create({
   },
 
   addInputRules() {
+    const tags = this.options.tags;
+    if (!tags?.length) {
+      return [];
+    }
     return [
       new InputRule({
-        find: /<\$?mt:?(var|include)([^>]*)\$?>$/i,
+        find: new RegExp(`<\\$?mt:?(${tags.join("|")})[^>]*\\$?>$`, "i"),
         handler: ({ state, range, match }) => {
           const parser = new DOMParser();
           const element = parser.parseFromString(
