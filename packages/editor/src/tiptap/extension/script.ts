@@ -1,12 +1,31 @@
 import { Node } from "@tiptap/core";
 
-export const Script = Node.create({
+export interface ScriptOptions {
+  allowedOrigins?: string[];
+}
+
+const getOrigin = (src: string | undefined) => {
+  if (!src) {
+    return undefined;
+  }
+  const anchor = document.createElement("a");
+  anchor.href = src;
+  return anchor.origin;
+};
+
+export const Script = Node.create<ScriptOptions>({
   name: "script",
 
   group: "inline",
   content: "text*",
   inline: true,
   atom: true,
+
+  addOptions() {
+    return {
+      allowedOrigins: ["https://gist.github.com", "https://pastebin.com"],
+    };
+  },
 
   parseHTML() {
     return [
@@ -18,9 +37,8 @@ export const Script = Node.create({
   },
 
   addNodeView() {
-    const allowedOrigins = ["https://gist.github.com"];
+    const allowedOrigins = this.options.allowedOrigins || [];
 
-    // return ({ editor, node, getPos, HTMLAttributes, decorations, extension }) => {
     return ({ node }) => {
       const dom = document.createElement("div");
       dom.classList.add("mt-rich-text-editor-script");
@@ -35,17 +53,9 @@ export const Script = Node.create({
         `/>`;
 
       const src = attributes.src;
-      const srcOrigin =
-        src &&
-        (() => {
-          try {
-            return new URL(src).origin;
-          } catch {
-            return undefined;
-          }
-        })();
+      const srcOrigin = getOrigin(src);
 
-      if (srcOrigin && allowedOrigins.some((origin) => srcOrigin === origin)) {
+      if (srcOrigin && allowedOrigins.includes(srcOrigin)) {
         dom.classList.add("mt-rich-text-editor-script--preview");
 
         const iframe = document.createElement("iframe");
