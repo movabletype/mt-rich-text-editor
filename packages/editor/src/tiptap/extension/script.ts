@@ -13,7 +13,7 @@ const getOrigin = (src: string | undefined) => {
   return anchor.origin;
 };
 
-export const Script = Node.create({
+export const Script = Node.create<ScriptOptions>({
   name: "script",
 
   group: "inline",
@@ -37,7 +37,7 @@ export const Script = Node.create({
   },
 
   addNodeView() {
-    const allowedOrigins = (this.options.allowedOrigins || []) as string[];
+    const allowedOrigins = this.options.allowedOrigins || [];
 
     return ({ node }) => {
       const dom = document.createElement("div");
