@@ -41,7 +41,7 @@
     <svelte:fragment slot="title">{t("Edit attributes")}</svelte:fragment>
     <svelte:fragment slot="body">
       <div class="form-group mb-3">
-        <label for="structure-id" class="form-label">{t("ID")}</label>
+        <label for="structure-id" class="form-label">id</label>
         <input
           type="text"
           id="structure-id"
@@ -51,11 +51,11 @@
         />
       </div>
       <div class="form-group mb-3">
-        <label for="structure-class-name" class="form-label">{t("Class name")}</label>
+        <label for="structure-class-name" class="form-label">class</label>
         <input type="text" id="structure-class-name" class="form-control" bind:value={className} />
       </div>
       <div class="form-group mb-3">
-        <label for="structure-style" class="form-label">{t("Style")}</label>
+        <label for="structure-style" class="form-label">style</label>
         <input type="text" id="structure-style" class="form-control" bind:value={style} />
       </div>
     </svelte:fragment>

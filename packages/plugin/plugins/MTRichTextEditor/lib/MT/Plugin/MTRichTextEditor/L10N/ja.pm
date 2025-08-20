@@ -109,8 +109,6 @@ use vars qw( %Lexicon );
     'Convert from Markdown'        => 'Markdownから変換',
 
     'Edit attributes' => '属性値の編集',
-    'Class name'      => 'クラス名',
-    'Style'           => 'スタイル',
 
     'Cell'                 => 'セル',
     'Row'                  => '行',
