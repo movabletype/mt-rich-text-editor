@@ -10,7 +10,7 @@ describe("isSameOrigin", () => {
 
   it("should return false for same host but different port", () => {
     const attributes = {
-      src: `${location.protocol}//${location.hostname}/iframe.html`,
+      src: `${location.protocol}//${location.hostname}:${location.port + 1}/iframe.html`,
     };
     expect(isSameOrigin(attributes)).toBe(false);
   });
