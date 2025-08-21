@@ -30,7 +30,7 @@ export class QuickActionItemElement extends PanelItemElement {
     tiptap.chain().focus().undo().insertContent(content).run();
 
     if (isFirstContent) {
-      tiptap.chain().blur().focus("end");
+      tiptap.chain().blur().focus("end").run();
     }
   }
 }
