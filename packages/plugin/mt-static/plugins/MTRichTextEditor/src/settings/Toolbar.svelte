@@ -122,7 +122,10 @@
       newItems.push(createSentinel());
     }
 
-    toolbarItems[rowIndex][sideIndex][groupIndex] = newItems;
+    // Remove duplicates because items are sometimes passed in duplicate, causing errors
+    toolbarItems[rowIndex][sideIndex][groupIndex] = newItems.filter(
+      (item, index, self) => self.findIndex((i) => i.element === item.element) === index
+    );
 
     if (on === "consider" && !isDragging) {
       isDragging = true;
