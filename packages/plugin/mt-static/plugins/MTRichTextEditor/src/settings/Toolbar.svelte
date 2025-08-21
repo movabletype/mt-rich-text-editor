@@ -430,6 +430,7 @@
   }
 
   .mt-rich-text-editor-buttons {
+    display: flex;
     min-height: 2rem;
     min-width: 3rem;
   }
