@@ -5,6 +5,7 @@
   import type { PasteMenuItemElement, PasteMenuItemPriorityValue } from "./item/element";
   import clipboardIcon from "../ui/icon/clipboard.svg?raw";
   import normalizeExternalHTML from "quill/modules/normalizeExternalHTML";
+  import { INTERNAL_PASTE_CONTENT_TYPE } from "./item";
 
   function getText(clipboardData: DataTransfer): string | undefined {
     const text = clipboardData.getData("text/plain") || clipboardData.getData("Text");
@@ -132,7 +133,7 @@
 
   let applyName = $state("");
   onPaste((view, event) => {
-    if (event.clipboardData?.getData("x-mt-rich-text-editor")) {
+    if (event.clipboardData?.getData(INTERNAL_PASTE_CONTENT_TYPE)) {
       return false; // internal use
     }
 

@@ -38,6 +38,7 @@
   import { preprocessHTML } from "../../util/html";
   import HtmlModal from "./HtmlModal.svelte";
   import type { PasteMenuItemElement } from "./element";
+  import { INTERNAL_PASTE_CONTENT_TYPE } from ".";
 
   const element = $host<PasteMenuItemElement>();
   element.addEventListener("click", toggleDetailPanel);
@@ -59,7 +60,7 @@
     });
 
     event.clipboardData?.setData("text/html", html);
-    event.clipboardData?.setData("x-mt-rich-text-editor", "1");
+    event.clipboardData?.setData(INTERNAL_PASTE_CONTENT_TYPE, "1");
 
     element.content?.transaction(() => {
       tiptap.chain().undo().focus().run();

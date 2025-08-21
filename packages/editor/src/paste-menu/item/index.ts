@@ -8,6 +8,8 @@ import Markdown from "./Markdown.svelte";
 
 import { PasteMenuItemElement } from "./element";
 
+export const INTERNAL_PASTE_CONTENT_TYPE = "x-mt-rich-text-editor";
+
 export class AsText extends PasteMenuItemElement {
   constructor() {
     super();
@@ -17,11 +19,18 @@ export class AsText extends PasteMenuItemElement {
   }
 
   onEditorPaste() {
-    const encoder = document.createElement("div");
-    encoder.textContent = this.content?.plainText ?? "";
-    this.insertContent(encoder.innerHTML.replace(/\n/g, "<br>"));
-    // TBD: enclose with <p> tag
-    // this.insertContent(preprocessHTML(`<p>${encoder.innerHTML}</p>`));
+    const event = new ClipboardEvent("paste", {
+      clipboardData: new DataTransfer(),
+    });
+
+    event.clipboardData?.setData("text/plain", this.content?.plainText ?? "");
+    event.clipboardData?.setData(INTERNAL_PASTE_CONTENT_TYPE, "1");
+
+    this.content?.transaction(() => {
+      this.tiptap?.chain().undo().focus().run();
+      this.tiptap?.view.dom.dispatchEvent(event);
+    });
+    this.parentElement?.dispatchEvent(new Event("paste-menu-item-applied"));
   }
 
   connectedCallback() {
