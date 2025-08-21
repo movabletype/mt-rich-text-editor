@@ -206,6 +206,28 @@
       }
     }
   }
+
+  const styleEl = document.createElement("style");
+  const elementStyles: Record<string, string> = {};
+  $effect(() => {
+    document.head.appendChild(styleEl);
+    return () => {
+      styleEl.remove();
+    };
+  });
+
+  const fixSize = (el: HTMLElement) => {
+    setTimeout(() => {
+      const { width, height } = getComputedStyle(el);
+      el.style.minWidth = width;
+      el.style.minHeight = height;
+      elementStyles[el.tagName.toLowerCase()] = el.style.cssText;
+
+      styleEl.textContent = Object.entries(elementStyles)
+        .map(([tag, styles]) => `${tag} { ${styles} }`)
+        .join("\n");
+    });
+  };
 </script>
 
 <div class="mt-rich-text-editor-toolbar-settings">
@@ -250,7 +272,11 @@
                         >
                           ×
                         </button>
-                        <svelte:element this={button.element} />
+                        <svelte:element
+                          this={button.element}
+                          class="mt-rich-text-editor-button-element"
+                          use:fixSize
+                        />
                       </div>
                     {/if}
                   {/each}
@@ -296,7 +322,11 @@
     >
       {#each unusedItems as item (item.id)}
         <div class="mt-rich-text-editor-button">
-          <svelte:element this={item.element} />
+          <svelte:element
+            this={item.element}
+            class="mt-rich-text-editor-button-element"
+            use:fixSize
+          />
         </div>
       {/each}
     </div>
