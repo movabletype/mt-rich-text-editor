@@ -24,8 +24,9 @@ type ToolbarOptions = {
 };
 
 export default class SourceEditor {
+  public textarea: HTMLTextAreaElement;
+
   private id: string;
-  private textarea: HTMLTextAreaElement;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private editor: any;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

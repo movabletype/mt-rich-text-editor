@@ -23,13 +23,19 @@ class MTSourceEditor extends MTEditor {
       },
     });
     this.editor.setFormat(format);
+    this.editor.textarea.addEventListener("update", this.#onUpdate);
   }
+
+  #onUpdate = () => {
+    this.setDirty();
+  };
 
   async initOrShow(format: string) {
     await this.initEditor(format);
   }
 
   hide() {
+    this.editor?.textarea.removeEventListener("update", this.#onUpdate);
     this.editor?.unload();
     this.editor = undefined;
   }
