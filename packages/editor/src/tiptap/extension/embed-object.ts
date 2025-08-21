@@ -31,10 +31,6 @@ export const EmbedObject = Node.create<EmbedObjectOptions>({
 
   addAttributes() {
     return {
-      "data-mt-rich-text-editor-block": {
-        default: null,
-        renderHTML: () => null,
-      },
       content: {
         default: null,
       },
@@ -44,18 +40,14 @@ export const EmbedObject = Node.create<EmbedObjectOptions>({
   parseHTML() {
     return [
       {
-        tag: "mt-rich-text-editor-embed-object",
+        tag: "div[data-mt-rich-text-editor-embed-object]",
         getAttrs: (element) => {
           if (!(element instanceof HTMLElement)) {
             return false;
           }
 
           return {
-            href: element.getAttribute("href"),
-            "data-mt-rich-text-editor-block": element.getAttribute(
-              "data-mt-rich-text-editor-block"
-            ),
-            content: element.getAttribute("data-mt-rich-text-editor-content") || element.innerHTML,
+            content: element.innerHTML,
           };
         },
       },
@@ -64,8 +56,9 @@ export const EmbedObject = Node.create<EmbedObjectOptions>({
 
   renderHTML({ HTMLAttributes }) {
     return [
-      "mt-rich-text-editor-embed-object",
-      mergeAttributes(this.options.HTMLAttributes, {
+      "div",
+      mergeAttributes({
+        "data-mt-rich-text-editor-embed-object": "",
         "data-mt-rich-text-editor-content": HTMLAttributes.content,
       }),
       0,
