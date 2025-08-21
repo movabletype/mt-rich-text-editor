@@ -1,9 +1,16 @@
+const isEditable = (element: HTMLElement): boolean =>
+  !element.closest("div[data-mt-rich-text-editor-embed-object]");
+
 export const preprocessHTML = (html: string): string => {
   const parser = new DOMParser();
   const doc = parser.parseFromString(`<body>${html}</body>`, "text/html");
   const body = doc.body;
 
   body.querySelectorAll("a").forEach((a) => {
+    if (!isEditable(a)) {
+      return;
+    }
+
     if (
       a.querySelector(
         "address, article, aside, blockquote, details, dialog, div, dl, figure, figcaption, footer, header, h1, h2, h3, h4, h5, h6, hr, main, nav, ol, p, pre, section, table, td, thead, tr, ul"
@@ -14,6 +21,10 @@ export const preprocessHTML = (html: string): string => {
   });
 
   body.querySelectorAll("script").forEach((script) => {
+    if (!isEditable(script)) {
+      return;
+    }
+
     const element = document.createElement("mt-rich-text-editor-script");
     element.textContent = script.textContent;
     Array.from(script.attributes).forEach((attr) => {
@@ -23,10 +34,14 @@ export const preprocessHTML = (html: string): string => {
   });
 
   body
-    .querySelectorAll(
+    .querySelectorAll<HTMLElement>(
       "div, blockquote, main, article, ul, ol, section, aside, nav, header, footer, figure, figcaption, details, dialog, td, th"
     )
     .forEach((div) => {
+      if (!isEditable(div)) {
+        return;
+      }
+
       const hasDirectTextNode = Array.from(div.childNodes).some(
         (node) =>
           node instanceof HTMLImageElement ||
