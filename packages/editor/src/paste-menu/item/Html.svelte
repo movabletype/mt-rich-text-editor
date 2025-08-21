@@ -94,6 +94,7 @@
       modalComponent = mount(HtmlModal, {
         target: document.body,
         props: {
+          keepDataAttributes: !!options.keepDataAttributes,
           htmlDocument: element.content!.htmlDocument!,
           onSubmit: apply,
           onClose: () => {
