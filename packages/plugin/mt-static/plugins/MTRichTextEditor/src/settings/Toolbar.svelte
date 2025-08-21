@@ -376,6 +376,10 @@
     background: #fff;
   }
 
+  .mt-rich-text-editor-button-element {
+    pointer-events: none;
+  }
+
   .mt-rich-text-editor-remove-button {
     position: absolute;
     top: -8px;
