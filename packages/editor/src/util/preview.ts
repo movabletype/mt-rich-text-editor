@@ -72,6 +72,7 @@ export const createPreviewIframe = (editor: TiptapEditor, content: string): HTML
       <!DOCTYPE html>
       <html>
         <head>
+          <meta charset="${document.characterSet || "UTF-8"}">
           <style>
             html, body {
               margin: 0;
