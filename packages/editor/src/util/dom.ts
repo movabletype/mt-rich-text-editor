@@ -28,3 +28,20 @@ export const insertStylesheets = async (root: ShadowRoot, stylesheets: string[])
     }
   }
 };
+
+export const isSameOrigin = (attributes: Record<string, string>): boolean => {
+  if ("srcdoc" in attributes) {
+    return true;
+  }
+  const src = attributes["src"];
+  if (!src) {
+    return true;
+  }
+  const a = document.createElement("a");
+  a.href = src;
+  return (
+    a.hostname === window.location.hostname &&
+    a.protocol === window.location.protocol &&
+    a.port === window.location.port
+  );
+};

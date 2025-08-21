@@ -1,4 +1,5 @@
 import { Node } from "@tiptap/core";
+import { createPreviewIframe, destroyPreviewIframe } from "../../util/preview";
 
 export interface ScriptOptions {
   allowedOrigins?: string[];
@@ -39,7 +40,7 @@ export const Script = Node.create<ScriptOptions>({
   addNodeView() {
     const allowedOrigins = this.options.allowedOrigins || [];
 
-    return ({ node }) => {
+    return ({ editor, node }) => {
       const dom = document.createElement("div");
       dom.classList.add("mt-rich-text-editor-script");
 
@@ -58,53 +59,17 @@ export const Script = Node.create<ScriptOptions>({
       if (srcOrigin && allowedOrigins.includes(srcOrigin)) {
         dom.classList.add("mt-rich-text-editor-script--preview");
 
-        const iframe = document.createElement("iframe");
-        iframe.style.width = "100%";
-        iframe.style.border = "none";
+        const script = document.createElement("script");
+        script.src = src;
+        const iframe = createPreviewIframe(editor, script.outerHTML);
 
-        const html = `
-          <!DOCTYPE html>
-          <html>
-            <head>
-              <style>
-                html, body {
-                  margin: 0;
-                  padding: 0;
-                  overflow: hidden;
-                }
-                ::-webkit-scrollbar {
-                  display: none;
-                }
-              </style>
-              <script>
-                const resizeObserver = new ResizeObserver((entries) => {
-                  const height = document.body.scrollHeight;
-                  window.frameElement.style.height = \`\${height}px\`;
-                });
-
-                window.addEventListener('load', () => {
-                  resizeObserver.observe(document.body);
-                });
-
-                const events = ['mousedown', 'mouseup', 'click', 'dblclick', 'contextmenu', 'mousemove'];
-                events.forEach(eventName => {
-                  document.addEventListener(eventName, (e) => {
-                    e.stopPropagation();
-                    e.preventDefault();
-                    window.frameElement.click();
-                  }, true);
-                });
-              </script>
-              <script src="${src}"></script>
-            </head>
-            <body></body>
-          </html>
-        `;
-        iframe.srcdoc = html;
         dom.appendChild(iframe);
 
         return {
           dom,
+          destroy: () => {
+            destroyPreviewIframe(iframe);
+          },
         };
       }
 
