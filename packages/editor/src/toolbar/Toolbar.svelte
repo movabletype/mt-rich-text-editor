@@ -176,6 +176,7 @@
   }
   .toolbar-group {
     padding: 0 4px;
+    display: flex;
   }
   .toolbar-group:not(:last-child) {
     border-right: 1px solid #ccc;
