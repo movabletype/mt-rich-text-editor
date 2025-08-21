@@ -321,6 +321,16 @@
         isDragging = false;
         removeEmptyRow();
         removeEmptyGroups();
+        tick().then(() => {
+          document
+            .querySelectorAll<HTMLDivElement>(
+              ".mt-rich-text-editor-available-buttons .mt-rich-text-editor-button"
+            )
+            .forEach((button) => {
+              // Reset visibility:hidden, which is set while dragging, as it may not return.
+              button.style.visibility = "";
+            });
+        });
       }}
     >
       {#each unusedItems as item (item.id)}
