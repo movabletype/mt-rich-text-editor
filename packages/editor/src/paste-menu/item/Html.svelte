@@ -43,7 +43,7 @@
   const element = $host<PasteMenuItemElement>();
   element.addEventListener("click", toggleDetailPanel);
 
-  const { tiptap } = element;
+  const { options, tiptap } = element;
 
   let modalComponent: ReturnType<typeof mount> | null = null;
 
@@ -52,7 +52,19 @@
       return;
     }
 
-    htmlDocument ??= element.content?.htmlDocument;
+    if (!htmlDocument) {
+      htmlDocument = element.content?.htmlDocument?.cloneNode(true) as Document | undefined;
+      if (htmlDocument && !options.keepDataAttributes) {
+        htmlDocument.body.querySelectorAll<HTMLElement>("*").forEach((e) => {
+          for (const key in e.dataset) {
+            delete e.dataset[key];
+          }
+        });
+      }
+    }
+    if (htmlDocument) {
+      (options.handler as ((doc: Document) => void) | undefined)?.(htmlDocument);
+    }
     const html = preprocessHTML(htmlDocument?.body.innerHTML ?? "");
 
     const event = new ClipboardEvent("paste", {
