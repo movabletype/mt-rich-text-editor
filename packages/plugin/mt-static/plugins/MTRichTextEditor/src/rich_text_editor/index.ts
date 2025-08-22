@@ -262,6 +262,9 @@ class MTRichTextEditor extends MTEditor {
       options.toolbar = inlineToolbar;
     }
     this.editor = await createRichTextEditor(this.id, options);
+    this.editor.tiptap.on("update", () => {
+      this.setDirty();
+    });
   }
 
   async initOrShow(format: string, content?: string, height?: number) {
