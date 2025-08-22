@@ -113,4 +113,31 @@ export const EmbedObject = Node.create<EmbedObjectOptions>({
         },
     };
   },
+
+  addKeyboardShortcuts() {
+    return {
+      Enter: ({ editor }) => {
+        if (!editor.isActive(this.name)) {
+          return false;
+        }
+
+        const { state } = editor;
+
+        let pos = 0;
+        for (let depth = state.selection.$anchor.depth; depth > 0; depth--) {
+          const currentNode = state.selection.$anchor.node(depth);
+          if (currentNode.type.name === "embedObject") {
+            pos = state.selection.$anchor.before(depth);
+            break;
+          }
+        }
+
+        editor.commands.insertContentAt(pos, {
+          type: "paragraph",
+        });
+
+        return true;
+      },
+    };
+  },
 });
