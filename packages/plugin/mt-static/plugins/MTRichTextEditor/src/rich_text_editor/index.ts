@@ -261,6 +261,12 @@ class MTRichTextEditor extends MTEditor {
     if (options.inline) {
       options.toolbar = inlineToolbar;
     }
+    if (MTEditor.defaultCommonOptions.body_class_list) {
+      options.classNames = MTEditor.defaultCommonOptions.body_class_list;
+    }
+    if (MTEditor.defaultCommonOptions.content_css_list) {
+      options.stylesheets = MTEditor.defaultCommonOptions.content_css_list;
+    }
     this.editor = await createRichTextEditor(this.id, options);
     this.editor.tiptap.on("update", () => {
       this.setDirty();
