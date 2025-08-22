@@ -7,10 +7,12 @@
   import { Modal, ModalContent } from "@movabletype/svelte-components";
 
   let {
+    keepDataAttributes,
     htmlDocument,
     onSubmit,
     onClose,
   }: {
+    keepDataAttributes: boolean;
     htmlDocument: Document;
     onSubmit: (htmlDocument: Document) => void;
     onClose: () => void;
@@ -29,7 +31,7 @@
         continue;
       }
       if (!dataAttributes.find((d) => d.name === key)) {
-        dataAttributes.push({ name: key, checked: false });
+        dataAttributes.push({ name: key, checked: keepDataAttributes });
       }
     }
   });
