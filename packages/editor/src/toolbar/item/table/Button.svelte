@@ -115,10 +115,15 @@
     };
   });
 
-  let showSubMenu = $state<Record<string, boolean>>({});
+  let showSubMenuFlags = $state<Record<string, boolean>>({});
+  const showSubMenu = (key: string) => {
+    showSubMenuFlags = {
+      [key]: true,
+    };
+  };
   $effect(() => {
     if (!isOpen) {
-      showSubMenu = {};
+      showSubMenuFlags = {};
     }
   });
 
@@ -167,6 +172,21 @@
       return true;
     };
   };
+
+  const menuitemHandler = (node: HTMLElement, key: string) => {
+    node.addEventListener("mouseenter", () => (showSubMenuFlags[key] = true));
+    node.addEventListener("mouseleave", () => (showSubMenuFlags[key] = false));
+    node.addEventListener("focus", () => showSubMenu(key));
+    node.addEventListener("click", (ev) => {
+      if (
+        ev.target instanceof HTMLElement &&
+        (ev.target === node || ev.target.parentElement === node)
+      ) {
+        // If the menu itself is clicked, the action is left to the focus event and no action is taken here.
+        ev.stopPropagation();
+      }
+    });
+  };
 </script>
 
 <button use:tooltip={t("Table")}>
@@ -178,27 +198,20 @@
     <div class="button-menu">
       <div
         class="button-menu-item-group button-menu-item-group--insert"
-        onmouseenter={() => (showSubMenu.insert = true)}
-        onmouseleave={() => (showSubMenu.insert = false)}
+        use:menuitemHandler={"insert"}
         role="menuitem"
         tabindex="0"
       >
         <div class="button-menu-item-group-label">{t("Insert table")}</div>
-        {#if showSubMenu.insert}
+        {#if showSubMenuFlags.insert}
           <div class="button-menu-item-subgroup">
             <TableInsertPanel onInsert={handleInsert} />
           </div>
         {/if}
       </div>
-      <div
-        class="button-menu-item-group"
-        onmouseenter={() => (showSubMenu.cell = true)}
-        onmouseleave={() => (showSubMenu.cell = false)}
-        role="menuitem"
-        tabindex="0"
-      >
+      <div class="button-menu-item-group" use:menuitemHandler={"cell"} role="menuitem" tabindex="0">
         <div class="button-menu-item-group-label">{t("Cell")}</div>
-        {#if showSubMenu.cell}
+        {#if showSubMenuFlags.cell}
           <div class="button-menu-item-subgroup">
             <button
               class="button-menu-item"
@@ -228,15 +241,9 @@
           </div>
         {/if}
       </div>
-      <div
-        class="button-menu-item-group"
-        onmouseenter={() => (showSubMenu.row = true)}
-        onmouseleave={() => (showSubMenu.row = false)}
-        role="menuitem"
-        tabindex="0"
-      >
+      <div class="button-menu-item-group" use:menuitemHandler={"row"} role="menuitem" tabindex="0">
         <div class="button-menu-item-group-label">{t("Row")}</div>
-        {#if showSubMenu.row}
+        {#if showSubMenuFlags.row}
           <div class="button-menu-item-subgroup">
             <button
               class="button-menu-item"
@@ -283,15 +290,9 @@
           </div>
         {/if}
       </div>
-      <div
-        class="button-menu-item-group"
-        onmouseenter={() => (showSubMenu.col = true)}
-        onmouseleave={() => (showSubMenu.col = false)}
-        role="menuitem"
-        tabindex="0"
-      >
+      <div class="button-menu-item-group" use:menuitemHandler={"col"}>
         <div class="button-menu-item-group-label">{t("Column")}</div>
-        {#if showSubMenu.col}
+        {#if showSubMenuFlags.col}
           <div class="button-menu-item-subgroup">
             <button
               class="button-menu-item"

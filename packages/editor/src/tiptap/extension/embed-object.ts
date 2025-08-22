@@ -1,4 +1,6 @@
 import { Node, mergeAttributes } from "@tiptap/core";
+import type { Editor } from "@tiptap/core";
+import { createPreviewIframe, destroyPreviewIframe } from "../../util/preview";
 
 interface EmbedData {
   url: string;
@@ -29,10 +31,6 @@ export const EmbedObject = Node.create<EmbedObjectOptions>({
 
   addAttributes() {
     return {
-      "data-mt-rich-text-editor-block": {
-        default: null,
-        renderHTML: () => null,
-      },
       content: {
         default: null,
       },
@@ -42,18 +40,14 @@ export const EmbedObject = Node.create<EmbedObjectOptions>({
   parseHTML() {
     return [
       {
-        tag: "mt-rich-text-editor-embed-object",
+        tag: "div[data-mt-rich-text-editor-embed-object]",
         getAttrs: (element) => {
           if (!(element instanceof HTMLElement)) {
             return false;
           }
 
           return {
-            href: element.getAttribute("href"),
-            "data-mt-rich-text-editor-block": element.getAttribute(
-              "data-mt-rich-text-editor-block"
-            ),
-            content: element.getAttribute("data-mt-rich-text-editor-content") || element.innerHTML,
+            content: element.innerHTML,
           };
         },
       },
@@ -62,8 +56,9 @@ export const EmbedObject = Node.create<EmbedObjectOptions>({
 
   renderHTML({ HTMLAttributes }) {
     return [
-      "mt-rich-text-editor-embed-object",
-      mergeAttributes(this.options.HTMLAttributes, {
+      "div",
+      mergeAttributes({
+        "data-mt-rich-text-editor-embed-object": "",
         "data-mt-rich-text-editor-content": HTMLAttributes.content,
       }),
       0,
@@ -71,58 +66,10 @@ export const EmbedObject = Node.create<EmbedObjectOptions>({
   },
 
   addNodeView() {
-    return ({ node }) => {
-      const iframe = document.createElement("iframe");
-      iframe.setAttribute("frameborder", "0");
-      iframe.setAttribute("allowfullscreen", "true");
-      iframe.style.width = "100%";
-
-      const html = `
-      <!DOCTYPE html>
-      <html>
-        <head>
-          <style>
-            html, body {
-              margin: 0;
-              padding: 0;
-              overflow: hidden;
-            }
-            ::-webkit-scrollbar {
-              display: none;
-            }
-          </style>
-          <script>
-            const resizeObserver = new ResizeObserver((entries) => {
-              const height = document.body.scrollHeight;
-              const width = document.body.scrollWidth;
-              window.frameElement.style.height = \`\${height}px\`;
-              window.frameElement.style.width = \`\${width}px\`;
-            });
-            
-            window.addEventListener('load', () => {
-              resizeObserver.observe(document.body);
-            });
-
-            const events = ['mousedown', 'mouseup', 'click', 'dblclick', 'contextmenu', 'mousemove'];
-            events.forEach(eventName => {
-              document.addEventListener(eventName, (e) => {
-                e.stopPropagation();
-                e.preventDefault();
-                window.frameElement.click();
-              }, true);
-            });
-          </script>
-        </head>
-        <body>
-          ${node.attrs.content}
-        </body>
-      </html>
-    `;
-
-      iframe.srcdoc = html;
-
+    return ({ editor, node }) => {
+      const dom = createPreviewIframe(editor, node.attrs.content);
       return {
-        dom: iframe,
+        dom,
         update: () => {
           // // Update iframe content when node changes
           // const content = node.content.content[0]?.content?.toString() || ''
@@ -132,6 +79,9 @@ export const EmbedObject = Node.create<EmbedObjectOptions>({
           // iframe.contentDocument?.close()
 
           return true;
+        },
+        destroy: () => {
+          destroyPreviewIframe(dom);
         },
       };
     };
@@ -143,23 +93,24 @@ export const EmbedObject = Node.create<EmbedObjectOptions>({
         (() => {
           return this.options.resolver(embedData);
         }) as unknown as Promise<{ html: string; inline?: string }>,
-      insertEmbedObject: (html: string) => {
-        const { state } = this.editor;
-        const pos = state.selection.$anchor.pos;
+      insertEmbedObject:
+        (html: string) =>
+        ({ state, commands }: Editor) => {
+          const pos = state.selection.$anchor.pos;
 
-        // Insert the embed object
-        this.editor.commands.insertContent({
-          type: this.name,
-          attrs: {
-            content: html,
-          },
-        });
+          // Insert the embed object
+          commands.insertContent({
+            type: this.name,
+            attrs: {
+              content: html,
+            },
+          });
 
-        // Move cursor after the inserted node
-        this.editor.commands.setTextSelection(pos + 2);
+          // Move cursor after the inserted node
+          commands.setTextSelection(pos + 2);
 
-        return true;
-      },
+          return true;
+        },
     };
   },
 });

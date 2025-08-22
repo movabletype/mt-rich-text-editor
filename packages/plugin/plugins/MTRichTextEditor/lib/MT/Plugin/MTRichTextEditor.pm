@@ -9,7 +9,11 @@ use MT::Util;
 our @EXPORT_OK = qw(plugin translate);
 use base qw(Exporter);
 
-my @settings = qw(toolbar blocks colors embed_default_params);
+my @settings = qw(toolbar blocks colors embed_default_params embed_site_rule);
+
+our $EMBED_ALLOW_SITE = 1;
+our $EMBED_ALLOW_ALL  = 2;
+our $EMBED_DENY_ALL   = 3;
 
 sub component {
     __PACKAGE__ =~ m/::([^:]+)\z/;
@@ -25,6 +29,14 @@ sub plugin {
 
 sub settings {
     my ($app) = @_;
+
+    if ($app->param('blog_id')) {
+        return $app->return_to_dashboard(redirect => 1);
+    }
+
+    return $app->permission_denied()
+        unless $app->user->is_superuser();
+
     my $plugin = plugin();
     $app->add_breadcrumb(
         $plugin->translate('MTRichTextEditor Settings'),
@@ -58,6 +70,10 @@ sub settings {
 
 sub save_settings {
     my ($app) = @_;
+
+    $app->validate_magic or return;
+    return $app->permission_denied()
+        unless $app->user->is_superuser();
 
     my $plugin = plugin();
     for my $key (@settings) {

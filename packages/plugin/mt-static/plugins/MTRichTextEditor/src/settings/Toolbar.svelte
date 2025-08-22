@@ -122,7 +122,10 @@
       newItems.push(createSentinel());
     }
 
-    toolbarItems[rowIndex][sideIndex][groupIndex] = newItems;
+    // Remove duplicates because items are sometimes passed in duplicate, causing errors
+    toolbarItems[rowIndex][sideIndex][groupIndex] = newItems.filter(
+      (item, index, self) => self.findIndex((i) => i.element === item.element) === index
+    );
 
     if (on === "consider" && !isDragging) {
       isDragging = true;
@@ -206,6 +209,28 @@
       }
     }
   }
+
+  const styleEl = document.createElement("style");
+  const elementStyles: Record<string, string> = {};
+  $effect(() => {
+    document.head.appendChild(styleEl);
+    return () => {
+      styleEl.remove();
+    };
+  });
+
+  const fixSize = (el: HTMLElement) => {
+    setTimeout(() => {
+      const { width, height } = getComputedStyle(el);
+      el.style.minWidth = width;
+      el.style.minHeight = height;
+      elementStyles[el.tagName.toLowerCase()] = el.style.cssText;
+
+      styleEl.textContent = Object.entries(elementStyles)
+        .map(([tag, styles]) => `${tag} { ${styles} }`)
+        .join("\n");
+    });
+  };
 </script>
 
 <div class="mt-rich-text-editor-toolbar-settings">
@@ -250,7 +275,11 @@
                         >
                           ×
                         </button>
-                        <svelte:element this={button.element} />
+                        <svelte:element
+                          this={button.element}
+                          class="mt-rich-text-editor-button-element"
+                          use:fixSize
+                        />
                       </div>
                     {/if}
                   {/each}
@@ -292,11 +321,25 @@
         isDragging = false;
         removeEmptyRow();
         removeEmptyGroups();
+        tick().then(() => {
+          document
+            .querySelectorAll<HTMLDivElement>(
+              ".mt-rich-text-editor-available-buttons .mt-rich-text-editor-button"
+            )
+            .forEach((button) => {
+              // Reset visibility:hidden, which is set while dragging, as it may not return.
+              button.style.visibility = "";
+            });
+        });
       }}
     >
       {#each unusedItems as item (item.id)}
         <div class="mt-rich-text-editor-button">
-          <svelte:element this={item.element} />
+          <svelte:element
+            this={item.element}
+            class="mt-rich-text-editor-button-element"
+            use:fixSize
+          />
         </div>
       {/each}
     </div>
@@ -346,6 +389,10 @@
     background: #fff;
   }
 
+  .mt-rich-text-editor-button-element {
+    pointer-events: none;
+  }
+
   .mt-rich-text-editor-remove-button {
     position: absolute;
     top: -8px;
@@ -393,6 +440,7 @@
   }
 
   .mt-rich-text-editor-buttons {
+    display: flex;
     min-height: 2rem;
     min-width: 3rem;
   }

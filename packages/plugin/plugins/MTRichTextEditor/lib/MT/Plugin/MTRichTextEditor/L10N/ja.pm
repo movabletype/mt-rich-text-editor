@@ -27,6 +27,11 @@ use vars qw( %Lexicon );
     'Available Paragraph Styles'                                                                                                                                                                                                                                                               => '追加可能な段落スタイル',
     'Parameters for oEmbed API'                                                                                                                                                                                                                                                                => 'oEmbed API呼び出しで指定するパラメータ',
     'Specify the default value of a parameter when using the oEmbed API to obtain the embed code for content from an external service. <br>Since the handling of the specified parameters depends on the specifications of each service, it may not always be embedded at the specified size.' => '外部サービスのコンテンツの埋め込みコードをoEmbed APIを利用して取得する際の、パラメータの初期値を指定します。<br>指定したパラメータの扱いはサービス毎の仕様によるため、必ずしも指定した通りのサイズで埋め込まれるとは限りません。',
+    'Retrieval of data when embedding web pages'                                                                                                                                                                                                                                               => 'ウェブページの埋め込み時のデータ取得',
+    'Select the rules that allow the retrieval of web page metadata. This selection affects the ability to embed web page content.'                                                                                                                                                            => 'ウェブページのメタデータの取得を許可するルールを選択します。この選択はウェブページの内容を埋め込む機能に影響します。',
+    'Allow data to be retrieved from URLs of sites in the system'                                                                                                                                                                                                                              => 'システム内のサイトのURLに対してデータ取得を許可する',
+    'Allow data to be retrieved from any URL'                                                                                                                                                                                                                                                  => '任意のURLに対してデータ取得を許可する',
+    'Do not allow data to be retrieved'                                                                                                                                                                                                                                                        => 'データ取得を許可しない',
 
     'Insert (s)'         => '挿入 (s)',
     'Insert'             => '挿入',
@@ -80,7 +85,10 @@ use vars qw( %Lexicon );
     'Boilerplate'                           => '定型文',
     'Text Color'                            => 'テキストの色',
     'Highlight Color'                       => 'ハイライトの色',
-    'Failed to get embed object'            => '埋め込みオブジェクトの取得に失敗しました',
+
+    'Can not get data from [_1]: [_2]' => '[_1]からデータを取得できませんでした: [_2]',
+    'Failed to parse HTML: [_1]'       => 'HTMLの解析に失敗しました: [_1]',
+    'Failed to get embed object: [_1]' => '埋め込みオブジェクトの取得に失敗しました: [_1]',
 
     'Paste as text'                                                                                          => 'テキストとして貼り付け',
     'Paste as HTML'                                                                                          => 'HTMLとして貼り付け',
@@ -101,8 +109,6 @@ use vars qw( %Lexicon );
     'Convert from Markdown'        => 'Markdownから変換',
 
     'Edit attributes' => '属性値の編集',
-    'Class name'      => 'クラス名',
-    'Style'           => 'スタイル',
 
     'Cell'                 => 'セル',
     'Row'                  => '行',

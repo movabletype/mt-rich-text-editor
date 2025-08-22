@@ -47,6 +47,8 @@ describe("HTML parsing", () => {
     "<figure style='display: inline-block' class='mt-figure'><img src='http://example.com/image.jpg' width='800' height='657' alt='alternative text' class='asset asset-image at-xid-1'/><figcaption>caption text</figcaption></figure>",
     `<table><tbody><tr><td>b</td></tr></tbody></table>`,
     `<table style="width: 100%"><tbody><tr><td><div>b</div></td></tr></tbody></table>`,
+    `<div data-mt-rich-text-editor-embed-object=""><iframe width=" 200" height="113" src="https://www.youtube.com/embed/XUAnkKpHaCI?feature=oembed" frameborder="0" allowfullscreen="allowfullscreen"></iframe></div>`,
+    `<div data-mt-rich-text-editor-embed-object=""><div>test</div></div>`,
   ])("should preserve HTML structure through Tiptap: %s", (input) => {
     editor.setContent(input);
     const output = editor.getContent();

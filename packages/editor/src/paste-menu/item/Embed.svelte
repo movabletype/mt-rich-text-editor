@@ -7,15 +7,35 @@
 <script module lang="ts">
   import { extendPasteMenuItem } from "./svelte";
   import { PasteMenuItemElement } from "./element";
+  import { getObject } from "./embed/util";
   const extend = (customElementConstructor: typeof HTMLElement) =>
     class extends extendPasteMenuItem(customElementConstructor) {
       async isEditorItemAvailable() {
-        if (!/^https?:\/\/[^\s]+(\s*)?$/.test(this.content?.plainText ?? "")) {
+        const content = this.content?.plainText || "";
+        if (!/^https?:\/\/[^\s]+(\s*)?$/.test(content)) {
+          return false;
+        }
+
+        const res = await getObject({
+          embedData: {
+            url: content,
+            maxwidth: 0,
+            maxheight: 0,
+          },
+          tiptap: this.tiptap,
+          editor: this.editor,
+        });
+
+        if (!res?.html) {
           return false;
         }
 
         const targetDomNode = this.content?.targetDomNode;
-        if (targetDomNode?.tagName === "P" && targetDomNode.childNodes.length === 0) {
+        if (
+          targetDomNode instanceof HTMLElement &&
+          targetDomNode?.tagName === "P" &&
+          targetDomNode.childNodes.length === 0
+        ) {
           return PasteMenuItemElement.Priority.High;
         }
         return PasteMenuItemElement.Priority.Default;
@@ -50,11 +70,12 @@
       maxheight: 0,
     };
 
-    const res = await tiptap.commands
-      .getEmbedObject(embedData)
-      .catch(() => ({ html: "", inline: undefined }));
-    if (!res?.html) {
-      editor?.notify({ level: "error", message: t("Failed to get embed object") });
+    const res = await getObject({
+      embedData,
+      tiptap: element.tiptap,
+      editor,
+    });
+    if (!res.html) {
       return;
     }
 

@@ -203,6 +203,7 @@
       }
 
       if (applyName) {
+        setIsPasting(true);
         const button = buttonRefs[applyName];
         if ("onEditorPaste" in button) {
           button.onEditorPaste();

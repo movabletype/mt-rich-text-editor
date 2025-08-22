@@ -30,7 +30,7 @@ export const Div = Node.create<DivOptions>({
 
   parseHTML() {
     return [
-      { tag: "div" },
+      { tag: "div:not([data-mt-rich-text-editor-embed-object])" },
       { tag: "main" },
       { tag: "article" },
       { tag: "section" },

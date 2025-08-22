@@ -59,6 +59,20 @@
   <textarea name="mt_rich_text_editor_embed_default_params" class="d-none" rows="10"><mt:var name="mt_rich_text_editor_embed_default_params" escape="html"></textarea>
   </mtapp:setting>
 
+  <mtapp:setting
+     id="mt_rich_text_editor_embed_site_rule"
+     class="mt-rich-text-editor-embed-site-rule"
+     label="<__trans phrase="Retrieval of data when embedding web pages">"
+     hint="<__trans phrase='Select the rules that allow the retrieval of web page metadata. This selection affects the ability to embed web page content.' />"
+     show_hint="1"
+  >
+  <select name="mt_rich_text_editor_embed_site_rule" id="mt_rich_text_editor_embed_site_rule" class="custom-select form-control form-select">
+    <option value="1" <mt:if name="mt_rich_text_editor_embed_site_rule" eq="1">selected</mt:if>><__trans phrase="Allow data to be retrieved from URLs of sites in the system" /></option>
+    <option value="2" <mt:if name="mt_rich_text_editor_embed_site_rule" eq="2">selected</mt:if>><__trans phrase="Allow data to be retrieved from any URL" /></option>
+    <option value="3" <mt:if name="mt_rich_text_editor_embed_site_rule" eq="3">selected</mt:if>><__trans phrase="Do not allow data to be retrieved" /></option>
+  </select>
+  </mtapp:setting>
+
 <mt:setvarblock name="action_buttons">
     <button
         type="submit"

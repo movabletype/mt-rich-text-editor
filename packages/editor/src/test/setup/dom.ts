@@ -37,3 +37,19 @@ class MockDataTransfer implements DataTransfer {
 // Add DataTransfer to global
 (global as unknown as { DataTransfer: typeof DataTransfer }).DataTransfer =
   MockDataTransfer as unknown as typeof DataTransfer;
+
+// Add matchMedia to window if not present
+window.matchMedia ??= function (query: string): MediaQueryList {
+  return {
+    matches: false,
+    media: query,
+    onchange: null,
+    addListener: function () {},
+    removeListener: function () {},
+    addEventListener: function () {},
+    removeEventListener: function () {},
+    dispatchEvent: function () {
+      return false;
+    },
+  } as MediaQueryList;
+};

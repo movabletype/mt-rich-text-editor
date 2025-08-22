@@ -68,11 +68,48 @@ sub response {
 
 sub error {
     my ($app, $msg, $status) = @_;
+    MT::Util::Log->info("[MTRichTextEditor] Failed to retrieve web page metadata: $msg")
+        if !($status == 400 or $status == 500);
     response($app, MT::Util::to_json({ error => { message => $msg, }, }), $status);
+}
+
+sub get_origin {
+    my ($url) = @_;
+    eval {
+        my $uri = URI->new($url);
+        $uri->scheme . '://' . $uri->host_port;
+    } || '';
+}
+
+sub is_allowed_url {
+    my ($app, $blog, $url) = @_;
+    my $embed_site_rule = plugin()->get_config_value('embed_site_rule');
+
+    return 1 if $embed_site_rule == $MT::Plugin::MTRichTextEditor::EMBED_ALLOW_ALL;
+    return 0 if $embed_site_rule == $MT::Plugin::MTRichTextEditor::EMBED_DENY_ALL;
+
+    my $origin = get_origin($url);
+    my @sites  = MT->model('blog')->load({
+            class    => '*',
+            site_url => { not_like => '/%' },
+        },
+        {
+            fetchonly => ['parent_id', 'site_url'],
+        },
+    );
+    for my $site (@sites) {
+        return 1 if get_origin($site->site_url) eq $origin;
+    }
+
+    return 0;
 }
 
 sub resolve {
     my ($app) = @_;
+
+    require MT::Util::Log;
+    MT::Util::Log::init();
+
     my $blog = $app->blog;
     return error($app, translate('Invalid request.'), 400) unless $blog && $app->can_do('create_post');
 
@@ -82,33 +119,58 @@ sub resolve {
 
     return error($app, translate('Invalid request.'), 400) unless $url;
 
+    my $param = {
+        url => $url,
+    };
+    my $filter_result = $app->run_callbacks('mt_rich_text_editor_embed_url', $param);
+    if (!$filter_result || !$param->{url}) {
+        MT::Util::Log->debug("[MTRichTextEditor] Skipping because the URL is marked as excluded by the callback: $url");
+        return response(
+            $app,
+            MT::Util::to_json({
+                html   => '',
+                inline => '',
+            }));
+    }
+    $url = $param->{url};    # Use URL rewritten by user
+
     if (my $oembed_url = get_oembed_url($url)) {
         my $ua  = MT->new_ua;
         my $res = $ua->get($oembed_url . "&format=json" . ($maxwidth ? "&maxwidth=${maxwidth}" : "") . ($maxheight ? "&maxheight=${maxheight}" : ""));
 
         if ($res->code >= 500) {
             MT->log({
-                message  => translate('Can not get oEmbed data from [_1]: [_2]', $oembed_url, $res->decoded_content),
+                message  => translate('Can not get data from [_1]: [_2]', $oembed_url, $res->decoded_content),
                 class    => 'system',
                 category => 'MTRichTextEditor',
                 level    => MT::Log::ERROR(),
             });
-            return error($app, translate('Can not get oEmbed data from [_1]: [_2]', $oembed_url, translate('An error occurred.')), 500);
+            return error($app, translate('Can not get data from [_1]: [_2]', $oembed_url, translate('An error occurred.')), 500);
         }
 
-        return error($app, translate('Can not get oEmbed data from [_1]: [_2]', $oembed_url, $res->decoded_content), 500)
+        return error($app, translate('Can not get data from [_1]: [_2]', $oembed_url, $res->decoded_content), 200)
             unless $res->is_success;
 
         response($app, Encode::decode('UTF-8', $res->content));
     } else {
+        if (!is_allowed_url($app, $blog, $url)) {
+            MT::Util::Log->debug("[MTRichTextEditor] Skipping because the URL does not allow metadata retrieval: $url");
+            return response(
+                $app,
+                MT::Util::to_json({
+                    html   => '',
+                    inline => '',
+                }));
+        }
+
         my $ua  = MT->new_ua;
         my $res = $ua->get($url);
 
-        return error($app, translate("Can not get site data from URL: ${url}"), 500) unless $res->is_success;
+        return error($app, translate('Can not get data from [_1]: [_2]', $url, $res->status_line), 200) unless $res->is_success;
 
         my $parser = MT::Plugin::MTRichTextEditor::HeadParser->new;
         eval { $parser->parse($res->decoded_content) };
-        return error($app, translate("Failed to parse HTML: ${url}"), 500) if $@;
+        return error($app, translate("Failed to parse HTML: [_1]", $url), 200) if $@;
 
         my $hash  = $parser->hash;
         my $param = {
@@ -127,7 +189,7 @@ sub resolve {
         my $uri;
         for my $key (qw(icon og_image)) {
             if ($param->{$key} =~ m{^/}) {
-                $uri ||= new URI($url);
+                $uri ||= URI->new($url);
                 $uri->path($param->{$key});
                 $param->{$key} = $uri->as_string;
             }
@@ -155,6 +217,7 @@ sub resolve {
         ) unless $tmpl_inline && $tmpl_inline->text ne '';
         my $html_inline = $tmpl_inline->output($param);
 
+        MT::Util::Log->info("[MTRichTextEditor] Retrieved web page metadata: $url");
         response(
             $app,
             MT::Util::to_json({
