@@ -48,7 +48,7 @@ describe("HTML parsing", () => {
     `<table style="width: 100%"><tbody><tr><td>b</td></tr></tbody></table>`,
     `<table style="width: 100%"><tbody><tr><td><div>b</div></td></tr></tbody></table>`,
     `<div data-mt-rich-text-editor-embed-object=""><iframe width=" 200" height="113" src="https://www.youtube.com/embed/XUAnkKpHaCI?feature=oembed" frameborder="0" allowfullscreen="allowfullscreen"></iframe></div>`,
-    `<div data-mt-rich-text-editor-embed-object=""><div>test</div></iframe></div>`,
+    `<div data-mt-rich-text-editor-embed-object=""><div>test</div></div>`,
   ])("should preserve HTML structure through Tiptap: %s", (input) => {
     editor.setContent(input);
     const output = editor.getContent();
