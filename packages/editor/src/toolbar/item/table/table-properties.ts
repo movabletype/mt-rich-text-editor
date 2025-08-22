@@ -1,6 +1,7 @@
 import { mount, unmount } from "svelte";
 import type { Editor as TiptapEditor } from "@tiptap/core";
 import { selectedRect } from "@tiptap/pm/tables";
+import { cssSize } from "../../../util/html";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import type { TableData } from "./TablePropertiesPanel.svelte";
@@ -64,10 +65,10 @@ export const handleTableProperties = (tiptap: TiptapEditor) => {
                 const el = document.createElement("div");
                 el.style.cssText = node.attrs.style || "";
 
-                el.style.width = tableData.width;
-                el.style.height = tableData.height;
+                el.style.width = cssSize(tableData.width);
+                el.style.height = cssSize(tableData.height);
                 el.style.borderSpacing = tableData.cellSpacing;
-                el.style.borderWidth = tableData.borderWidth;
+                el.style.borderWidth = cssSize(tableData.borderWidth);
 
                 tr.setNodeMarkup(tablePos, null, {
                   ...node.attrs,
@@ -81,7 +82,7 @@ export const handleTableProperties = (tiptap: TiptapEditor) => {
                     if (cell) {
                       const el = document.createElement("div");
                       el.style.cssText = cell.attrs.style || "";
-                      el.style.borderWidth = tableData.borderWidth;
+                      el.style.borderWidth = cssSize(tableData.borderWidth);
 
                       tr.setNodeMarkup(rect.tableStart + i, null, {
                         ...cell.attrs,

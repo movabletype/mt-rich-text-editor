@@ -146,3 +146,10 @@ export const normalizeHTML = (html: string): string => {
   }
   return res;
 };
+
+export const cssSize = (value: string): string => {
+  if (value !== "0" && /^-?(\d+|\d*\.\d+)$/.test(value)) {
+    return `${value}px`;
+  }
+  return value;
+};

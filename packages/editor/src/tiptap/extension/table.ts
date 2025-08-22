@@ -5,9 +5,7 @@ export const Table = TiptapTable.extend({
   addAttributes() {
     return {
       ...this.parent?.(),
-      style: {
-        default: "width: 100%;",
-      },
+      style: {},
     };
   },
 
