@@ -38,11 +38,12 @@
   import { preprocessHTML } from "../../util/html";
   import HtmlModal from "./HtmlModal.svelte";
   import type { PasteMenuItemElement } from "./element";
+  import { INTERNAL_PASTE_CONTENT_TYPE } from ".";
 
   const element = $host<PasteMenuItemElement>();
   element.addEventListener("click", toggleDetailPanel);
 
-  const { tiptap } = element;
+  const { options, tiptap } = element;
 
   let modalComponent: ReturnType<typeof mount> | null = null;
 
@@ -51,7 +52,19 @@
       return;
     }
 
-    htmlDocument ??= element.content?.htmlDocument;
+    if (!htmlDocument) {
+      htmlDocument = element.content?.htmlDocument?.cloneNode(true) as Document | undefined;
+      if (htmlDocument && !options.keepDataAttributes) {
+        htmlDocument.body.querySelectorAll<HTMLElement>("*").forEach((e) => {
+          for (const key in e.dataset) {
+            delete e.dataset[key];
+          }
+        });
+      }
+    }
+    if (htmlDocument) {
+      (options.handler as ((doc: Document) => void) | undefined)?.(htmlDocument);
+    }
     const html = preprocessHTML(htmlDocument?.body.innerHTML ?? "");
 
     const event = new ClipboardEvent("paste", {
@@ -59,7 +72,7 @@
     });
 
     event.clipboardData?.setData("text/html", html);
-    event.clipboardData?.setData("x-mt-rich-text-editor", "1");
+    event.clipboardData?.setData(INTERNAL_PASTE_CONTENT_TYPE, "1");
 
     element.content?.transaction(() => {
       tiptap.chain().undo().focus().run();
@@ -81,6 +94,7 @@
       modalComponent = mount(HtmlModal, {
         target: document.body,
         props: {
+          keepDataAttributes: !!options.keepDataAttributes,
           htmlDocument: element.content!.htmlDocument!,
           onSubmit: apply,
           onClose: () => {
