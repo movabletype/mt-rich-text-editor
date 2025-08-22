@@ -13,6 +13,7 @@ node_modules/
 
 mt-static/plugins/MTRichTextEditor/dist/
 mt-static/plugins/MTRichTextEditor/locales/
+mt-static/plugins/MTRichTextEditor/THIRD-PARTY-LICENSES
 
 cypress/videos/*
 cypress/screenshots/*
