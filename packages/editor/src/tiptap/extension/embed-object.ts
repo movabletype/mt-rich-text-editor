@@ -1,12 +1,48 @@
 import { Node, mergeAttributes } from "@tiptap/core";
+import { Node as ProseMirrorNode } from "@tiptap/pm/model";
 import type { Editor } from "@tiptap/core";
 import { createPreviewIframe, destroyPreviewIframe } from "../../util/preview";
+import { getAnchorNodePos } from "../../util/tiptap";
 
 interface EmbedData {
   url: string;
   maxwidth?: number;
   maxheight?: number;
 }
+
+const insertParagraphBefore = ({ editor }: { editor: Editor }) => {
+  if (!editor.isActive("embedObject")) {
+    return false;
+  }
+
+  const pos = getAnchorNodePos(editor, "embedObject") as number;
+  if (pos === 0) {
+    editor.commands.insertContentAt(0, {
+      type: "paragraph",
+    });
+    return true;
+  } else {
+    return false;
+  }
+};
+
+const insertParagraphAfter = ({ editor }: { editor: Editor }) => {
+  if (!editor.isActive("embedObject")) {
+    return false;
+  }
+
+  const pos = getAnchorNodePos(editor, "embedObject") as number;
+  const node = editor.state.doc.nodeAt(pos) as ProseMirrorNode;
+  const nextPos = pos + node.nodeSize;
+  if (nextPos >= editor.$doc.content.size) {
+    editor.commands.insertContentAt(editor.$doc.content.size, {
+      type: "paragraph",
+    });
+    return true;
+  } else {
+    return false;
+  }
+};
 
 export interface EmbedObjectOptions {
   HTMLAttributes: Record<string, unknown>;
@@ -121,23 +157,17 @@ export const EmbedObject = Node.create<EmbedObjectOptions>({
           return false;
         }
 
-        const { state } = editor;
-
-        let pos = 0;
-        for (let depth = state.selection.$anchor.depth; depth > 0; depth--) {
-          const currentNode = state.selection.$anchor.node(depth);
-          if (currentNode.type.name === "embedObject") {
-            pos = state.selection.$anchor.before(depth);
-            break;
-          }
-        }
-
+        const pos = getAnchorNodePos(editor, "embedObject") as number;
         editor.commands.insertContentAt(pos, {
           type: "paragraph",
         });
 
         return true;
       },
+      ArrowUp: insertParagraphBefore,
+      ArrowLeft: insertParagraphBefore,
+      ArrowDown: insertParagraphAfter,
+      ArrowRight: insertParagraphAfter,
     };
   },
 });
