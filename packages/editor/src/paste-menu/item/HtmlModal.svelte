@@ -1,16 +1,24 @@
+<script module lang="ts">
+  const ignoredAttributes: Set<string> = new Set(["mtIndent", "pmSlice"]);
+</script>
+
 <script lang="ts">
   import { t } from "../../i18n";
   import { Modal, ModalContent } from "@movabletype/svelte-components";
 
   let {
+    keepDataAttributes,
     htmlDocument,
     onSubmit,
     onClose,
   }: {
+    keepDataAttributes: boolean;
     htmlDocument: Document;
     onSubmit: (htmlDocument: Document) => void;
     onClose: () => void;
   } = $props();
+
+  let insertButton: HTMLElement;
 
   const dataAttributes: {
     name: string;
@@ -19,8 +27,11 @@
   htmlDocument.body.querySelectorAll<HTMLElement>("*").forEach((e) => {
     const data = e.dataset;
     for (const key in data) {
+      if (ignoredAttributes.has(key)) {
+        continue;
+      }
       if (!dataAttributes.find((d) => d.name === key)) {
-        dataAttributes.push({ name: key, checked: false });
+        dataAttributes.push({ name: key, checked: keepDataAttributes });
       }
     }
   });
@@ -65,6 +76,12 @@
       dataAttributes.forEach((d) => (d.checked = true));
     }
   }
+
+  $effect(() => {
+    if (insertButton && dataAttributes.length === 0 && styleAttributes.length === 0) {
+      insertButton.click();
+    }
+  });
 
   let self: Modal;
 
@@ -143,6 +160,7 @@
         type="button"
         title={t("Insert (s)")}
         class="action primary button btn btn-primary"
+        bind:this={insertButton}
         onclick={() => {
           const disabledAttributes = styleAttributes.filter((s) => !s.checked).map((s) => s.name);
           const doc = htmlDocument.cloneNode(true) as Document;

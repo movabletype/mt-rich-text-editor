@@ -4,6 +4,8 @@
   import { getPanelItem } from "../ui/item/registry";
   import type { PasteMenuItemElement, PasteMenuItemPriorityValue } from "./item/element";
   import clipboardIcon from "../ui/icon/clipboard.svg?raw";
+  import normalizeExternalHTML from "quill/modules/normalizeExternalHTML";
+  import { INTERNAL_PASTE_CONTENT_TYPE } from "./item";
 
   function getText(clipboardData: DataTransfer): string | undefined {
     const text = clipboardData.getData("text/plain") || clipboardData.getData("Text");
@@ -131,6 +133,10 @@
 
   let applyName = $state("");
   onPaste((view, event) => {
+    if (event.clipboardData?.getData(INTERNAL_PASTE_CONTENT_TYPE)) {
+      return false; // internal use
+    }
+
     // commit history transaction
     // FIXME: we should more effectively commit history transaction
     editor.tiptap.commands.undo();
@@ -154,6 +160,9 @@
     let htmlDocument = null;
     if (htmlText) {
       htmlDocument = new DOMParser().parseFromString(htmlText, "text/html");
+      if (!htmlDocument.body.querySelector("[data-pm-slice]")) {
+        normalizeExternalHTML(htmlDocument);
+      }
     }
 
     (async () => {
