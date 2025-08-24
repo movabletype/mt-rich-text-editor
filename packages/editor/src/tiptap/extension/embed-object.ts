@@ -106,16 +106,6 @@ export const EmbedObject = Node.create<EmbedObjectOptions>({
       const dom = createPreviewIframe(editor, node.attrs.content);
       return {
         dom,
-        update: () => {
-          // // Update iframe content when node changes
-          // const content = node.content.content[0]?.content?.toString() || ''
-
-          // iframe.contentDocument?.open()
-          // iframe.contentDocument?.write(content)
-          // iframe.contentDocument?.close()
-
-          return true;
-        },
         destroy: () => {
           destroyPreviewIframe(dom);
         },
