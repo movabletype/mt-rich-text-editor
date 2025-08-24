@@ -154,6 +154,20 @@ export const EmbedObject = Node.create<EmbedObjectOptions>({
 
         return true;
       },
+      Backspace: ({ editor }) => {
+        if (!editor.isActive(this.name)) {
+          return false;
+        }
+
+        const pos = getAnchorNodePos(editor, "embedObject") as number;
+        if (pos > 0 && pos <= 2) {
+          editor.commands.deleteRange({ from: 0, to: 1 }); // delete first empty paragraph
+          return true;
+        } else {
+          editor.commands.setTextSelection(pos - 1); // move to previous node
+          return false; // then proceed to the original delete operation
+        }
+      },
       ArrowUp: insertParagraphBefore,
       ArrowLeft: insertParagraphBefore,
       ArrowDown: insertParagraphAfter,
