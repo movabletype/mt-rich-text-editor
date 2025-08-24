@@ -38,6 +38,12 @@ const insertParagraphAfter = ({ editor }: { editor: Editor }) => {
     editor.commands.insertContentAt(editor.$doc.content.size, {
       type: "paragraph",
     });
+    if (!editor.state.doc.nodeAt(editor.$doc.content.size - 2)) {
+      // FIXME: the insertion fails. So retry
+      editor.commands.insertContentAt(editor.$doc.content.size, {
+        type: "paragraph",
+      });
+    }
     return true;
   } else {
     return false;
