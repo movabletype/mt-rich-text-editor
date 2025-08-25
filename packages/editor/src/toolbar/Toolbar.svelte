@@ -65,7 +65,9 @@
 
       let isShow = false;
       let isNewLine = false;
-      if (editor.tiptap.state.selection.empty) {
+      if (!editor.tiptap.isFocused) {
+        isShow = false;
+      } else if (editor.tiptap.state.selection.empty) {
         const node = editor.tiptap.state.selection.$head.parent;
         isShow = node.type.name === "paragraph" && node.content.size === 0;
         isNewLine = true;
@@ -104,6 +106,8 @@
     }, 50);
 
     editor.tiptap.on("selectionUpdate", updateToolbarVisibility);
+    editor.tiptap.on("focus", updateToolbarVisibility);
+    editor.tiptap.on("blur", updateToolbarVisibility);
     updateToolbarVisibility();
   }
 
