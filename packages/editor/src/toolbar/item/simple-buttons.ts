@@ -78,6 +78,8 @@ const createButtonClass = (
           };
           chain[method]().run();
         }
+
+        this.onEditorUpdate();
       });
     }
 
