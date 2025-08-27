@@ -58,8 +58,9 @@
   });
 
   if (inline) {
+    let inToolbarOperation = false;
     const updateToolbarVisibility = debounce(() => {
-      if (!toolbarRef) {
+      if (!toolbarRef || inToolbarOperation) {
         return;
       }
 
@@ -109,6 +110,28 @@
     editor.tiptap.on("focus", updateToolbarVisibility);
     editor.tiptap.on("blur", updateToolbarVisibility);
     updateToolbarVisibility();
+
+    $effect(() => {
+      const startToolbarOperation = () => (inToolbarOperation = true);
+      const endToolbarOperation = () => (inToolbarOperation = false);
+      toolbarRef?.addEventListener("mousedown", startToolbarOperation, {
+        capture: true,
+        passive: true,
+      });
+      document.addEventListener("mouseup", endToolbarOperation, {
+        capture: true,
+        passive: true,
+      });
+
+      () => {
+        toolbarRef?.removeEventListener("mousedown", startToolbarOperation, {
+          capture: true,
+        });
+        document.removeEventListener("mouseup", endToolbarOperation, {
+          capture: true,
+        });
+      };
+    });
   }
 
   function bindRef(node: ToolbarItemElement | HTMLElement, key: string) {
