@@ -123,7 +123,7 @@
         passive: true,
       });
 
-      () => {
+      return () => {
         toolbarRef?.removeEventListener("mousedown", startToolbarOperation, {
           capture: true,
         });
