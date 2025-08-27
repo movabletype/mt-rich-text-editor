@@ -20,12 +20,17 @@ export class QuickActionItemElement extends PanelItemElement {
   }
 
   insertContent(content: string) {
-    this.tiptap
-      ?.chain()
-      .focus()
-      .selectParentNode()
-      // .deleteSelection()
-      .insertContent(content)
-      .run();
+    const tiptap = this.tiptap;
+    if (!tiptap) {
+      return;
+    }
+
+    const isFirstContent = tiptap.state.doc.childCount <= 1;
+
+    tiptap.chain().focus().undo().insertContent(content).run();
+
+    if (isFirstContent) {
+      tiptap.chain().blur().focus("end").run();
+    }
   }
 }
