@@ -40,6 +40,10 @@ const createRichTextEditor = async (
     id,
     ...MTRichTextEditor.config,
     ...options,
+    extensionOptions: {
+      ...(MTRichTextEditor.config.extensionOptions || {}),
+      ...(options?.extensionOptions || {}),
+    },
   } as EditorCreateOptions);
 };
 
@@ -260,6 +264,84 @@ class MTRichTextEditor extends MTEditor {
     }
     if (options.inline) {
       options.toolbar = inlineToolbar;
+    } else {
+      const fileHandler = (_: Editor["tiptap"], files: File[]) => {
+        const canUpload = document.querySelector<HTMLScriptElement>(
+          "[data-mt-rich-text-editor-can-upload]"
+        )?.dataset.mtRichTextEditorCanUpload;
+        if (!canUpload) {
+          return;
+        }
+
+        files = files.filter((file) => file.type.startsWith("image/"));
+        if (!files.length) {
+          return;
+        }
+
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        if ((window.MT as any).AssetUploader) {
+          // new uploader
+
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (window.MT as any).AssetUploader.open({
+            selectMetaData: true,
+            multiSelect: true,
+            params: {},
+            initialSelectedData: [],
+            field: this.id,
+            files,
+          });
+        } else {
+          // legacy uploader
+
+          const blogId = document.querySelector<HTMLInputElement>("[name=blog_id]")?.value || "0";
+          const params = new URLSearchParams();
+          params.set("__mode", "dialog_asset_modal");
+          params.set("_type", "asset");
+          params.set("edit_field", this.id);
+          params.set("blog_id", blogId);
+          params.set("dialog_view", "1");
+          params.set("can_multi", "1");
+          params.set("filter", "class");
+          params.set("filter_val", "image");
+          openDialog(params);
+
+          const dialogIframe = document.querySelector<HTMLIFrameElement>("#mt-dialog-iframe");
+          if (!dialogIframe) {
+            return;
+          }
+          const intervalId = setInterval(() => {
+            if (
+              !(
+                dialogIframe.contentWindow &&
+                // new dialog page has been loaded
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                (dialogIframe.contentWindow as any).uploadFiles &&
+                // content has been loaded
+                dialogIframe.contentWindow.document.readyState !== "loading" &&
+                // jQuery(initFunc) has been finished
+                dialogIframe.contentWindow.jQuery
+              )
+            ) {
+              return;
+            }
+
+            clearInterval(intervalId);
+            const win = dialogIframe.contentWindow;
+            const uploadForm = win.document.querySelector<HTMLFormElement>("#upload");
+            win.uploadFiles(files);
+            uploadForm?.style.setProperty("display", "none", "important");
+          }, 100);
+        }
+      };
+      options.extensionOptions ||= {};
+      options.extensionOptions.fileHandler = Object.assign(
+        options.extensionOptions.fileHandler || {},
+        {
+          onDrop: fileHandler,
+          onPaste: fileHandler,
+        }
+      );
     }
     if (MTEditor.defaultCommonOptions.body_class_list) {
       options.classNames = MTEditor.defaultCommonOptions.body_class_list;
