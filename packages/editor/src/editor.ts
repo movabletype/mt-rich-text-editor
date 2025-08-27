@@ -36,6 +36,7 @@ export interface EditorOptions {
   inline?: boolean;
   structure?: boolean;
   height?: number | string;
+  classNames?: string[];
   stylesheets?: string[];
   editorStylesheets?: string[];
   /**
@@ -214,6 +215,9 @@ export class Editor {
       content: preprocessHTML(this.#textarea.value),
       editorProps: {
         handlePaste,
+        attributes: {
+          class: options.classNames?.join(" ") || "",
+        },
       },
     });
     if (options.autoFocus) {
