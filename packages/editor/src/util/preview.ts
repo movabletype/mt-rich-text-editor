@@ -66,6 +66,7 @@ export const createPreviewIframe = (editor: TiptapEditor, content: string): HTML
   iframe.setAttribute("frameborder", "0");
   iframe.setAttribute("allowfullscreen", "true");
   iframe.style.width = "100%";
+  iframe.style.display = "block";
   iframe.sandbox = "allow-scripts allow-same-origin";
 
   const html = `
