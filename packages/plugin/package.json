@@ -35,7 +35,8 @@
     "lint:fix": "eslint --fix",
     "format": "prettier --check --cache \"mt-static/plugins/MTRichTextEditor/src/**/*.ts\"",
     "format:fix": "prettier --write --cache --cache-strategy metadata \"mt-static/plugins/MTRichTextEditor/src/**/*.ts\"",
-    "test:unit": "vitest"
+    "test:unit": "vitest",
+    "test:all": "npm run test:unit"
   },
   "description": ""
 }
