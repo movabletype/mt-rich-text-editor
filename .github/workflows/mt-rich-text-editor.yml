@@ -79,7 +79,7 @@ jobs:
         run: npm run format -ws
 
       - name: Run tests
-        run: npm run test:unit -ws -- --run
+        run: npm run test:all -ws -- --run
 
   build:
     runs-on: ubuntu-latest
