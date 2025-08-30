@@ -19,7 +19,10 @@
   </head>
   <body>
     <div id="editor-container">
-      <textarea id="editor">
+      <textarea id="editor"></textarea>
+
+      <!--
+        <textarea id="editor">
         <p></p>
 
         <p>
@@ -205,7 +208,7 @@
         </section>
         
       </textarea>
-
+      -->
 
       <!--
         <div>
@@ -223,6 +226,8 @@
     <script type="module">
       import { marked } from "https://cdnjs.cloudflare.com/ajax/libs/marked/15.0.4/lib/marked.esm.min.js";
       import MTRichTextEditor from "/src/index.ts";
+
+      window.MTRichTextEditor = MTRichTextEditor;
 
       // event listener demo
       MTRichTextEditor.on("create", (createOptions) => {
