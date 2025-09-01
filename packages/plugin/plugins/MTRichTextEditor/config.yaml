@@ -1,10 +1,12 @@
 id: MTRichTextEditor
 name: MTRichTextEditor
-version: 0.0.1
+version: 1.0.2
 author_link: http://www.movabletype.org/
 author_name: Six Apart Ltd.
 description: <MT_TRANS phrase="Movable Type Rich Text Editor.">
 l10n_class: MT::Plugin::MTRichTextEditor::L10N
+
+schema_version: 1.0001
 
 settings:
   toolbar:
@@ -12,83 +14,154 @@ settings:
     default: |
       [
         [
-          ["bold", "italic", "underline", "strike"],
-          ["blockquote", "bulletList", "orderedList", "horizontalRule"],
-          ["link", "unlink"],
-          ["insertHtml", "mtFile", "mtImage"],
-          ["table"],
-          ["source"],
+          [
+            ["bold", "italic", "underline", "strike"],
+            ["blockquote", "bulletList", "orderedList", "horizontalRule"],
+            ["link", "unlink"],
+            ["insertHtml", "file", "image"],
+            ["table"]
+          ],
+          [
+            ["source"]
+          ]
         ],
         [
-          ["undo", "redo"],
-          ["foregroundColor", "backgroundColor", "removeFormat"],
-          ["alignLeft", "alignCenter", "alignRight"],
-          ["indent", "outdent"],
-          ["block"],
-          ["fullScreen"],
+          [
+            ["undo", "redo"],
+            ["foregroundColor", "backgroundColor", "removeFormat"],
+            ["alignLeft", "alignCenter", "alignRight"],
+            ["indent", "outdent"],
+            ["block"],
+            ["fullScreen"]
+          ]
         ]
       ]
   blocks:
     scope: system
     default: |
       [
-        { "value": "paragraph", "label": "本文" },
-        { "value": "h1", "label": "見出し1" },
-        { "value": "h2", "label": "見出し2" },
-        { "value": "h3", "label": "見出し3" },
-        { "value": "h4", "label": "見出し4" },
-        { "value": "h5", "label": "見出し5" },
-        { "value": "h6", "label": "見出し6" },
-        { "value": "pre", "label": "整形済みテキスト" }
+        "paragraph",
+        "h1",
+        "h2",
+        "h3",
+        "h4",
+        "h5",
+        "h6",
+        "pre"
       ]
   colors:
     scope: system
     default: |
       [
         "#000000",
+        "#002B76",
+        "#1B4F2A",
+        "#783F04",
+        "#700000",
+        "#351C75",
+        "#6B6B6B",
+        "#1155CC",
+        "#38761D",
+        "#B45F06",
+        "#AC0000",
+        "#674EA7",
+        "#999999",
+        "#4A86E8",
+        "#6AA84F",
+        "#E69138",
+        "#DC3D3D",
+        "#8E7CC3",
+        "#D9D9D9",
+        "#A4C2F4",
+        "#B6D7A8",
+        "#F9CB9C",
+        "#EA9999",
+        "#B4A7D6",
+        "#F3F3F3",
+        "#CFE2F3",
+        "#D9EAD3",
+        "#FFE6C4",
+        "#F4CCCC",
+        "#D9D2E9",
         "#FFFFFF",
-        "#F5F5F5",
-        "#E0E0E0",
-        "#C0C0C0",
-        "#808080",
-        "#404040", 
-        "#FF5733",
-        "#FF8D1A",
-        "#FFC300", 
-        "#DFFF00",
-        "#75FF33",
-        "#33FF57",
-        "#33FFD7",
-        "#33D7FF", 
-        "#3375FF",
-        "#5733FF",
-        "#8D33FF",
-        "#C300FF",
-        "#FF33D7",
-        "#FF3375",
-        "#FF5757",
-        "#FF9999",
-        "#FFD1D1"
+        "#EAF1FB",
+        "#EBF5EB",
+        "#FFF8E1",
+        "#FDEBEE",
+        "#F2EFF9"
       ]
+  embed_default_params:
+    scope: system
+    default: |
+      {
+        "maxwidth": 500,
+        "maxheight": 500
+      }
+  embed_site_rule:
+    scope: system
+    default: 1 # EMBED_ALLOW_SITE
 
 editors:
+  mt_source_editor: {}
   mt_rich_text_editor:
     label: MTRichTextEditor
     template: mt_rich_text_editor.tmpl
+    toolbar_items:
+      - bold
+      - italic
+      - underline
+      - strike
+      - blockquote
+      - bulletList
+      - orderedList
+      - horizontalRule
+      - link
+      - unlink
+      - insertHtml
+      - file
+      - image
+      - table
+      - source
+      - undo
+      - redo
+      - foregroundColor
+      - backgroundColor
+      - removeFormat
+      - alignLeft
+      - alignCenter
+      - alignRight
+      - indent
+      - outdent
+      - block
+      - fullScreen
+      - structure
 
 applications:
   cms:
     menus:
       settings::mt_rich_text_editor:
         label: MTRichTextEditor
-        order: 1000
+        order: 1100
         mode: mt_rich_text_editor_settings
         view:
           - system
+        permission: administer
+        condition: |
+          sub {
+            require MT::Util::Editor;
+            MT::Util::Editor::current_wysiwyg_editor(MT->instance) eq 'mt_rich_text_editor';
+          }
     methods:
-      mt_rich_text_editor_settings:
-        handler: $MTRichTextEditor::MT::Plugin::MTRichTextEditor::settings
-      mt_rich_text_editor_save_settings:
-        handler: $MTRichTextEditor::MT::Plugin::MTRichTextEditor::save_settings
+      mt_rich_text_editor_settings: $MTRichTextEditor::MT::Plugin::MTRichTextEditor::settings
+      mt_rich_text_editor_save_settings: $MTRichTextEditor::MT::Plugin::MTRichTextEditor::save_settings
+      mt_rich_text_editor_embed: $MTRichTextEditor::MT::Plugin::MTRichTextEditor::App::Embed::resolve
     callbacks:
       template_source.mt_rich_text_editor: $MTRichTextEditor::MT::Plugin::MTRichTextEditor::template_source_mt_rich_text_editor
+
+default_templates:
+  base_path: default_templates
+  system:
+    mt_rte_embed_card:
+      label: Embed webpage as card
+    mt_rte_embed_inline:
+      label: Embed webpage as inline link

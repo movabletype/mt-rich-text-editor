@@ -1,6 +1,5 @@
 import "@movabletype/app";
-import { EditorManager } from "./editor_manager";
+import { EditorManager } from "./editor-manager";
 export { Editor } from "./editor";
-export type { EditorCreateOptions } from "./editor_manager";
+export type { EditorCreateOptions } from "./editor-manager";
 export { EditorManager as default };
-export { EditorEventType, EditorEvent } from "./ui/item/registry";

@@ -1,3 +1,7 @@
+.tiptap {
+  overflow: auto;
+}
+
 .mt-rich-text-editor-editor {
   border: 1px solid #ccc;
   border-radius: 4px;
@@ -14,6 +18,10 @@
   left: 0;
   width: 100%;
   z-index: 10000;
+}
+
+.mt-rich-text-editor-content {
+  position: relative;
 }
 
 .mt-rich-text-editor-content-root,
@@ -39,7 +47,6 @@
 .mt-rich-text-editor-content {
   flex-grow: 1;
   min-height: 0;
-  overflow: auto;
 }
 
 .mt-rich-text-editor-toolbar {
@@ -61,5 +68,30 @@
 }
 
 .mt-rich-text-editor-editor--fullscreen .mt-rich-text-editor-resize-handle {
+  display: none;
+}
+
+/**
+ * Inline
+ */
+
+.mt-rich-text-editor-editor--inline,
+.mt-rich-text-editor-editor--inline .mt-rich-text-editor-content,
+.mt-rich-text-editor-content-root {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.tiptap {
+  flex-grow: 1;
+}
+
+.mt-rich-text-editor-toolbar--inline,
+.mt-rich-text-editor-statusbar--inline {
+  border: none;
+}
+
+.mt-rich-text-editor-editor--inline .mt-rich-text-editor-resize-handle {
   display: none;
 }

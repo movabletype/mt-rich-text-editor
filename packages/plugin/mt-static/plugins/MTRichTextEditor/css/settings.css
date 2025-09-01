@@ -1,0 +1,14 @@
+.app-setting small {
+  display: block;
+}
+
+.mt-rich-text-editor-embed-site-rule {
+  margin-top: 40px;
+  display: flex;
+  flex-direction: column;
+
+  select {
+    margin-top: 1rem;
+    order: 3;
+  }
+}

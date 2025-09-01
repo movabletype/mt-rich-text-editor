@@ -19,7 +19,7 @@ export const TextBlock = Node.create({
     ];
   },
 
-  renderHTML({ node }) {
+  renderHTML() {
     return ["mt-text-block", 0];
   },
 
@@ -35,7 +35,14 @@ export const TextBlock = Node.create({
         const { $from } = selection;
 
         const parentNode = $from.node(-1);
-        if (!parentNode) return false;
+        if (!parentNode) {
+          return false;
+        }
+
+        if (parentNode.type.name === "tableCell" || parentNode.type.name === "tableHeader") {
+          editor.chain().insertContent("<br />").run();
+          return true;
+        }
 
         const pos = $from.after(-1);
         const currentNodeContent = $from.parent.content.cut($from.parentOffset).toJSON();

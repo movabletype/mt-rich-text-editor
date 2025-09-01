@@ -1,0 +1,76 @@
+<svelte:options
+  customElement={{
+    extend: extendToolbarItem,
+  }}
+/>
+
+<script module lang="ts">
+  import { extendToolbarItem } from "../svelte";
+  export interface Options {
+    readonly presetColors?: string[];
+  }
+</script>
+
+<script lang="ts">
+  import { t } from "../../../i18n";
+  import icon from "../../../ui/icon/backgroundColor.svg?raw";
+  import { tooltip } from "../../../tooltip";
+  import Panel from "./Panel.svelte";
+  import { defaultColors } from "./constant";
+  import type { ToolbarItemElement } from "../element";
+
+  const element = $host<ToolbarItemElement<Options>>();
+  element.addEventListener("click", toggleColorPanel);
+
+  const { options, tiptap } = element;
+  let isOpen = $state(false);
+
+  const colors = options.presetColors ?? defaultColors;
+
+  const defaultColor = "rgba(0,0,0,0)";
+  let selectedColor = $state(defaultColor);
+  element.onEditorUpdate = () => {
+    selectedColor = tiptap?.getAttributes("textStyle").backgroundColor ?? defaultColor;
+  };
+
+  function handleSelect(value: string) {
+    selectedColor = value;
+    tiptap?.chain().focus().setBackgroundColor(value).run();
+    isOpen = false;
+  }
+
+  function toggleColorPanel(ev: MouseEvent) {
+    if (!tiptap) {
+      return;
+    }
+    ev.stopPropagation();
+    isOpen = !isOpen;
+  }
+
+  function handleClickOutside() {
+    isOpen = false;
+  }
+
+  $effect(() => {
+    document.addEventListener("click", handleClickOutside);
+    return () => {
+      document.removeEventListener("click", handleClickOutside);
+    };
+  });
+</script>
+
+<button use:tooltip={t("Highlight Color")} class:tooltip-disabled={isOpen}>
+  {@html icon.replace(/fill="rgba\(0,0,0,0\)"/g, `fill="${selectedColor}"`)}
+</button>
+
+<div class="color-panel-container">
+  {#if isOpen}
+    <Panel {colors} onSelect={handleSelect} />
+  {/if}
+</div>
+
+<style>
+  .color-panel-container {
+    position: relative;
+  }
+</style>

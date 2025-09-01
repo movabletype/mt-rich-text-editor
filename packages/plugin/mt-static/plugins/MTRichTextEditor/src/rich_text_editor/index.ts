@@ -3,15 +3,24 @@ import { MT } from "@movabletype/app";
 import "@movabletype/mt-rich-text-editor/mt-rich-text-editor";
 import type { EditorCreateOptions } from "@movabletype/mt-rich-text-editor";
 import { Editor } from "@movabletype/mt-rich-text-editor";
-import { DEFAULT_HEIGHT } from "../constant";
 import { currentLanguage } from "../l10n";
 import { convertToolbar } from "../util/tinymce";
+import { getCustomSettings } from "../util/settings";
 import editorCss from "../../css/rich-text-editor.css?inline";
 
-import "./File.svelte";
-import "./Image.svelte";
+import { openDialog } from "../util/dialog";
 
 const MTRichTextEditorManager = window.MTRichTextEditor;
+
+const inlineToolbar: EditorCreateOptions["toolbar"] = [
+  [
+    [
+      ["bold", "italic", "underline", "strike"],
+      ["blockquote", "bulletList", "orderedList", "horizontalRule"],
+      ["link", "unlink"],
+    ],
+  ],
+];
 
 const createRichTextEditor = async (
   id: string,
@@ -21,65 +30,217 @@ const createRichTextEditor = async (
     options.toolbar = convertToolbar(options.toolbar);
   }
 
+  if (document.readyState === "loading") {
+    await new Promise<void>((resolve) => {
+      document.addEventListener("DOMContentLoaded", () => resolve(), { once: true });
+    });
+  }
+
   return MTRichTextEditorManager.create({
     id,
     ...MTRichTextEditor.config,
     ...options,
+    extensionOptions: {
+      ...(MTRichTextEditor.config.extensionOptions || {}),
+      ...(options?.extensionOptions || {}),
+    },
   } as EditorCreateOptions);
 };
 
-let customSettings: Record<string, any> | undefined = undefined;
-try {
-  customSettings = JSON.parse(document.querySelector<HTMLScriptElement>('[data-mt-rich-text-editor-settings]')?.dataset.mtRichTextEditorSettings || '{}');
-} catch (e) {
-  console.error(e);
-}
+const customSettings = getCustomSettings();
+const availableMarkdownFormat = document.querySelector<HTMLScriptElement>(
+  "[data-mt-rich-text-editor-markdown-format]"
+)?.dataset.mtRichTextEditorMarkdownFormat;
 
-const toolbarOptions: Record<string, any> = {}
+const toolbarOptions: Record<string, unknown> = {
+  image: {
+    select: ({ editor: { id } }: { editor: Editor }) => {
+      const blogId = document.querySelector<HTMLInputElement>("[name=blog_id]")?.value || "0";
+      const params = new URLSearchParams();
+      params.set("__mode", "dialog_asset_modal");
+      params.set("_type", "asset");
+      params.set("edit_field", id);
+      params.set("blog_id", blogId);
+      params.set("dialog_view", "1");
+      params.set("can_multi", "1");
+      params.set("filter", "class");
+      params.set("filter_val", "image");
+      openDialog(params);
+    },
+    edit: ({ editor, element }: { editor: Editor; element: HTMLElement }) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      if ((window.MT as any).AssetUploader) {
+        // new uploader
+
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const initialSelectedData: any = [];
+        const container = element.closest<HTMLElement>("[data-mt-asset-id]");
+        const insertOptions = JSON.parse(
+          element.closest<HTMLElement>("[data-mt-insert-options]")?.dataset.mtInsertOptions || "{}"
+        );
+        if (container) {
+          initialSelectedData.push({
+            id: container.dataset.mtAssetId,
+            alternativeText: element.getAttribute("alt") || insertOptions.alternativeText || "",
+            caption:
+              container
+                .querySelector<HTMLElement>("figcaption")
+                ?.innerHTML.replace(/<br>/g, "\n")
+                .replace(/<[^>]*>/g, "") ||
+              insertOptions.caption ||
+              "",
+            width: parseInt(element.getAttribute("width") || "0") || insertOptions.width || 0,
+            linkToOriginal:
+              container.tagName === "A" ||
+              container.querySelector<HTMLElement>("a") ||
+              insertOptions.linkToOriginal ||
+              false,
+            align: element.className?.match(/mt-image-(\w+)/)?.[1] || insertOptions.align || "none",
+          });
+
+          const view = editor.tiptap.view;
+          const pos = view.posAtDOM(container, 0);
+          if (pos !== undefined) {
+            const { state } = view;
+            const tr = state.tr.setSelection(
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              (state.selection.constructor as any).create(state.doc, pos - 1, pos + 1)
+            );
+            view.dispatch(tr);
+          }
+        }
+
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (window.MT as any).AssetUploader.open({
+          selectMetaData: true,
+          multiSelect: true,
+          params: {},
+          initialSelectedData,
+          field: editor.id,
+        });
+      } else {
+        // legacy uploader
+        const blogId = document.querySelector<HTMLInputElement>("[name=blog_id]")?.value || "0";
+        const params = new URLSearchParams();
+        params.set("__mode", "dialog_asset_modal");
+        params.set("_type", "asset");
+        params.set("edit_field", editor.id);
+        params.set("blog_id", blogId);
+        params.set("dialog_view", "1");
+        params.set("can_multi", "1");
+        params.set("filter", "class");
+        params.set("filter_val", "image");
+        openDialog(params);
+      }
+    },
+  },
+  file: {
+    select: ({ editor: { id } }: { editor: Editor }) => {
+      const blogId = document.querySelector<HTMLInputElement>("[name=blog_id]")?.value || "0";
+      const params = new URLSearchParams();
+      params.set("__mode", "dialog_asset_modal");
+      params.set("_type", "asset");
+      params.set("edit_field", id);
+      params.set("blog_id", blogId);
+      params.set("dialog_view", "1");
+      params.set("can_multi", "1");
+      openDialog(params);
+    },
+  },
+};
+
 if (customSettings?.blocks) {
   toolbarOptions.block = {
     blocks: customSettings.blocks,
-  }
+  };
 }
 
 if (customSettings?.colors) {
   toolbarOptions.foregroundColor = {
     presetColors: customSettings.colors,
-  }
+  };
   toolbarOptions.backgroundColor = {
     presetColors: customSettings.colors,
-  }
+  };
+}
+
+if (customSettings?.link) {
+  toolbarOptions.link = Object.assign({}, toolbarOptions.link, customSettings.link);
 }
 
 const MTEditor = MT.Editor || (class {} as NonNullable<typeof MT.Editor>);
+
+const resolver = async ({
+  url,
+  maxwidth,
+  maxheight,
+}: {
+  url: string;
+  maxwidth?: number;
+  maxheight?: number;
+}) => {
+  const blog_id = document.querySelector<HTMLScriptElement>("[data-blog-id]")?.dataset.blogId;
+  const data = await (
+    await fetch(
+      window.CMSScriptURI +
+        "?" +
+        new URLSearchParams({
+          __mode: "mt_rich_text_editor_embed",
+          url,
+          maxwidth: String((maxwidth || customSettings?.embed_default_params?.maxwidth) ?? ""),
+          maxheight: String((maxheight || customSettings?.embed_default_params?.maxheight) ?? ""),
+          blog_id: String(blog_id),
+        })
+    )
+  ).json();
+  if (data.error?.message) {
+    console.info(data.error.message);
+    return {
+      html: "",
+      inline: undefined,
+    };
+  }
+  return data;
+};
+
+MTRichTextEditorManager.on("create", (options) => {
+  // for both RichTextEditor and MTBlockEditor
+  options.extensionOptions ||= {};
+  options.extensionOptions.embedObject ||= {};
+  options.extensionOptions.embedObject.resolver ??= resolver;
+});
 
 class MTRichTextEditor extends MTEditor {
   editor?: Editor;
 
   static config: Partial<EditorCreateOptions> = {
-    height: DEFAULT_HEIGHT,
     inline: false,
     language: currentLanguage,
     editorStylesheets: [editorCss],
-    toolbar: customSettings?.toolbar || [
-      [
-        ["bold", "italic", "underline", "strike"],
-        ["blockquote", "bulletList", "orderedList", "horizontalRule"],
-        ["link", "unlink"],
-        ["insertHtml", "mtFile", "mtImage"],
-        ["table"],
-        ["source"],
-      ],
-      [
-        ["undo", "redo"],
-        ["foregroundColor", "backgroundColor", "removeFormat"],
-        ["alignLeft", "alignCenter", "alignRight"],
-        ["indent", "outdent"],
-        ["block"],
-        ["fullScreen"],
-      ],
-    ],
+    toolbar: customSettings?.toolbar,
     toolbarOptions,
+    extensionOptions: {
+      markdown: {
+        toHtml: availableMarkdownFormat
+          ? async ({ content }: { content: string }) => {
+              const formData = new FormData();
+              formData.append("__mode", "convert_to_html");
+              formData.append("text", content);
+              formData.append("format", availableMarkdownFormat);
+              const data = await (
+                await fetch(window.CMSScriptURI, {
+                  method: "POST",
+                  body: formData,
+                })
+              ).json();
+              if (data.error?.message) {
+                throw new Error(data.error.message);
+              }
+              return { content: data.result.text.replace(/\n/g, "") };
+            }
+          : undefined,
+      },
+    },
   };
 
   static formats() {
@@ -101,7 +262,97 @@ class MTRichTextEditor extends MTEditor {
     if (height !== undefined) {
       options.height = height;
     }
+    if (options.inline) {
+      options.toolbar = inlineToolbar;
+    } else {
+      const fileHandler = (_: Editor["tiptap"], files: File[]) => {
+        const canUpload = document.querySelector<HTMLScriptElement>(
+          "[data-mt-rich-text-editor-can-upload]"
+        )?.dataset.mtRichTextEditorCanUpload;
+        if (!canUpload) {
+          return;
+        }
+
+        files = files.filter((file) => file.type.startsWith("image/"));
+        if (!files.length) {
+          return;
+        }
+
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        if ((window.MT as any).AssetUploader) {
+          // new uploader
+
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (window.MT as any).AssetUploader.open({
+            selectMetaData: true,
+            multiSelect: true,
+            params: {},
+            initialSelectedData: [],
+            field: this.id,
+            files,
+          });
+        } else {
+          // legacy uploader
+
+          const blogId = document.querySelector<HTMLInputElement>("[name=blog_id]")?.value || "0";
+          const params = new URLSearchParams();
+          params.set("__mode", "dialog_asset_modal");
+          params.set("_type", "asset");
+          params.set("edit_field", this.id);
+          params.set("blog_id", blogId);
+          params.set("dialog_view", "1");
+          params.set("can_multi", "1");
+          params.set("filter", "class");
+          params.set("filter_val", "image");
+          openDialog(params);
+
+          const dialogIframe = document.querySelector<HTMLIFrameElement>("#mt-dialog-iframe");
+          if (!dialogIframe) {
+            return;
+          }
+          const intervalId = setInterval(() => {
+            if (
+              !(
+                dialogIframe.contentWindow &&
+                // new dialog page has been loaded
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                (dialogIframe.contentWindow as any).uploadFiles &&
+                // content has been loaded
+                dialogIframe.contentWindow.document.readyState !== "loading" &&
+                // jQuery(initFunc) has been finished
+                dialogIframe.contentWindow.jQuery
+              )
+            ) {
+              return;
+            }
+
+            clearInterval(intervalId);
+            const win = dialogIframe.contentWindow;
+            const uploadForm = win.document.querySelector<HTMLFormElement>("#upload");
+            win.uploadFiles(files);
+            uploadForm?.style.setProperty("display", "none", "important");
+          }, 100);
+        }
+      };
+      options.extensionOptions ||= {};
+      options.extensionOptions.fileHandler = Object.assign(
+        options.extensionOptions.fileHandler || {},
+        {
+          onDrop: fileHandler,
+          onPaste: fileHandler,
+        }
+      );
+    }
+    if (MTEditor.defaultCommonOptions.body_class_list) {
+      options.classNames = MTEditor.defaultCommonOptions.body_class_list;
+    }
+    if (MTEditor.defaultCommonOptions.content_css_list) {
+      options.stylesheets = MTEditor.defaultCommonOptions.content_css_list;
+    }
     this.editor = await createRichTextEditor(this.id, options);
+    this.editor.tiptap.on("update", () => {
+      this.setDirty();
+    });
   }
 
   async initOrShow(format: string, content?: string, height?: number) {
@@ -116,5 +367,6 @@ class MTRichTextEditor extends MTEditor {
   }
 }
 
-(MTEditor as any).MTRichTextEditor = MTRichTextEditor;
+(MTEditor as unknown as { MTRichTextEditor: typeof MTRichTextEditor }).MTRichTextEditor =
+  MTRichTextEditor;
 MT.EditorManager?.register("mt_rich_text_editor", MTRichTextEditor);

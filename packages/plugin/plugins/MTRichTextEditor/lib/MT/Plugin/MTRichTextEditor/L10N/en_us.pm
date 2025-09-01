@@ -15,6 +15,15 @@ use vars qw( %Lexicon );
 %Lexicon = (
     'LINK_TARGET_SELF'  => 'Current window',
     'LINK_TARGET_BLANK' => 'New window',
+
+    'HORIZONTAL_ALIGN_LEFT'    => 'Left',
+    'HORIZONTAL_ALIGN_CENTER'  => 'Center',
+    'HORIZONTAL_ALIGN_RIGHT'   => 'Right',
+    'HORIZONTAL_ALIGN_JUSTIFY' => 'Justify',
+    'Vertical align'           => 'Vertical align',
+    'VERTICAL_ALIGN_TOP'       => 'Top',
+    'VERTICAL_ALIGN_MIDDLE'    => 'Middle',
+    'VERTICAL_ALIGN_BOTTOM'    => 'Bottom',
 );
 
 1;

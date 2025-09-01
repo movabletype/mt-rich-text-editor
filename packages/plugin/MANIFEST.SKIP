@@ -28,6 +28,7 @@ docker-compose.yml
 Dockerfile
 eslint.config.js
 vite.config.ts
+vite.config.*.ts
 
 # npm working directory
 ^node_modules/

@@ -3,13 +3,13 @@ import { convertToolbar } from "./tinymce";
 describe("convertToolbar", () => {
   it("should convert a single toolbar line correctly", () => {
     const input = ["bold,italic | underline"];
-    const expected = [[["bold", "italic"], ["underline"]]];
+    const expected = [[[["bold", "italic"], ["underline"]]]];
 
     expect(convertToolbar(input)).toEqual(expected);
   });
 
   it("should return already converted toolbar as is", () => {
-    const input = [[["bold", "italic"], ["bulletList", "orderedList"], ["clean"]]];
+    const input = [[[["bold", "italic"], ["bulletList", "orderedList"], ["clean"]]]];
 
     expect(convertToolbar(input)).toEqual(input);
   });
@@ -18,8 +18,10 @@ describe("convertToolbar", () => {
     const input = ["bold italic | underline strike"];
     const expected = [
       [
-        ["bold", "italic"],
-        ["underline", "strike"],
+        [
+          ["bold", "italic"],
+          ["underline", "strike"],
+        ],
       ],
     ];
 
@@ -34,13 +36,17 @@ describe("convertToolbar", () => {
     ];
     const expected = [
       [
-        ["strike", "link", "unlink"],
-        ["bulletList", "orderedList"],
+        [
+          ["strike", "link", "unlink"],
+          ["bulletList", "orderedList"],
+        ],
       ],
-      [["foregroundColor", "backgroundColor", "removeFormat"]],
+      [[["foregroundColor", "backgroundColor", "removeFormat"]]],
       [
-        ["alignLeft", "alignCenter", "alignRight"],
-        ["indent", "outdent", "block"],
+        [
+          ["alignLeft", "alignCenter", "alignRight"],
+          ["indent", "outdent", "block"],
+        ],
       ],
     ];
 
@@ -51,8 +57,10 @@ describe("convertToolbar", () => {
     const input = ["bold , italic|underline , strikethrough"];
     const expected = [
       [
-        ["bold", "italic"],
-        ["underline", "strike"],
+        [
+          ["bold", "italic"],
+          ["underline", "strike"],
+        ],
       ],
     ];
 

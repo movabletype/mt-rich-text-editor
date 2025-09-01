@@ -28,15 +28,13 @@ export const convertToolbar = (
     return toolbar;
   }
 
-  return toolbar.map((row) =>
-    row
-      .split("|")
-      .map((group) =>
-        group
-          .trim()
-          .split(/\s*,\s*|\s+/)
-          .map((item) => item.trim())
-          .map((item) => toolbarMigrationMap[item] || item)
-      )
-  );
+  return toolbar.map((row) => [
+    row.split("|").map((group) =>
+      group
+        .trim()
+        .split(/\s*,\s*|\s+/)
+        .map((item) => item.trim())
+        .map((item) => toolbarMigrationMap[item] || item)
+    ),
+  ]);
 };

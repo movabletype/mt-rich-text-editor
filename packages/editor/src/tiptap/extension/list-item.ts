@@ -1,26 +1,20 @@
-import { ListItem as TiptapListItem } from '@tiptap/extension-list-item'
-import { mergeAttributes } from '@tiptap/core'
+import { ListItem as TiptapListItem } from "@tiptap/extension-list-item";
+import { mergeAttributes } from "@tiptap/core";
 
 export const ListItem = TiptapListItem.extend({
-  name: 'listItem',
+  name: "listItem",
   priority: 1000,
-  content: '(textBlock|paragraph) block*',
+  content: "(textBlock|block)*",
 
   parseHTML() {
     return [
       {
-        tag: 'li',
+        tag: "li",
       },
-    ]
+    ];
   },
 
   renderHTML({ HTMLAttributes }) {
-    return ['li', mergeAttributes(this.options.HTMLAttributes, HTMLAttributes), 0]
+    return ["li", mergeAttributes(this.options.HTMLAttributes, HTMLAttributes), 0];
   },
-
-  addKeyboardShortcuts() {
-    return {
-      ...this.parent?.(),
-    }
-  },
-})
+});

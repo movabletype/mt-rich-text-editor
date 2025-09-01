@@ -19,8 +19,11 @@ export default [
     files: ["**/*.svelte"],
     languageOptions: {
       parserOptions: {
-        parser: ts.parser
+        parser: tseslint.parser
       }
+    },
+    rules: {
+      "svelte/no-at-html-tags": "off"
     }
   },
 ];

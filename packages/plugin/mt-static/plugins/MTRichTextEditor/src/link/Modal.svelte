@@ -13,7 +13,7 @@
     text: string;
     title: string;
     target: "_self" | "_blank";
-    onSubmit: (data: any) => void;
+    onSubmit: (data: { url: string; text: string; title: string; target: string }) => void;
     onClose: () => void;
   } = $props();
 
@@ -33,6 +33,7 @@
   });
 
   let self: Modal;
+  // eslint-disable-next-line svelte/no-unused-svelte-ignore
   // svelte-ignore non_reactive_update FIXME:
   let close: () => void;
 </script>

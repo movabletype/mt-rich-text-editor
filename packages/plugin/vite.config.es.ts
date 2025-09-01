@@ -11,8 +11,7 @@ export default defineConfig({
     },
     outDir: "./mt-static/plugins/MTRichTextEditor/dist/es",
     sourcemap: true,
-    minify: true,
-    target: "es2017",
+    minify: false,
   },
   plugins: [
     svelte({

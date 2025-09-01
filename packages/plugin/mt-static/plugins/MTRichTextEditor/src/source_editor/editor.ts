@@ -5,28 +5,39 @@ import Toolbar from "./Toolbar.svelte";
 import LinkModal from "../link/Modal.svelte";
 import { toggleFullScreen } from "../util/full_screen";
 
-function openDialog(mode: string, param: string) {
-  var url = window.ScriptURI + "?" + "__mode=" + mode + "&amp;" + param;
+const openDialog = (mode: string, param: string) => {
+  const url = window.ScriptURI + "?" + "__mode=" + mode + "&amp;" + param;
   window.jQuery.fn.mtModal.open(url, { large: true });
-  var modalClose = function (e: KeyboardEvent) {
+  const modalClose = (e: KeyboardEvent) => {
     if (e.keyCode == 27) {
       window.jQuery.fn.mtModal.close();
-      window.jQuery("body").off("keyup", modalClose as any);
+      window.jQuery("body").off("keyup", modalClose);
     }
   };
-  window.jQuery("body").on("keyup", modalClose as any);
-}
+  window.jQuery("body").on("keyup", modalClose);
+};
+
+type ToolbarOptions = {
+  link?: {
+    defaultTarget?: "_self" | "_blank";
+  };
+};
 
 export default class SourceEditor {
+  public textarea: HTMLTextAreaElement;
+
   private id: string;
-  private textarea: HTMLTextAreaElement;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private editor: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private command: any;
   private toolbar: HTMLDivElement;
   private toolbarMount: ReturnType<typeof mount> | undefined;
+  private toolbarOptions: ToolbarOptions | undefined;
 
-  constructor({ id }: { id: string }) {
+  constructor({ id, toolbarOptions }: { id: string; toolbarOptions: ToolbarOptions | undefined }) {
     this.id = id;
+    this.toolbarOptions = toolbarOptions;
     const textarea = document.querySelector<HTMLTextAreaElement>(`#${id}`);
     if (!textarea) {
       throw new Error(`textarea not found: ${id}`);
@@ -92,7 +103,7 @@ export default class SourceEditor {
                   url: "",
                   text: selectedText,
                   title: "",
-                  target: "_self",
+                  target: this.toolbarOptions?.link?.defaultTarget || "_self",
                 }
           ) as {
             url: string;
@@ -100,7 +111,7 @@ export default class SourceEditor {
             title: string;
             target: "_self" | "_blank";
           };
-          if (["_self", "_blank"].includes(linkData.target)) {
+          if (!["_self", "_blank"].includes(linkData.target)) {
             linkData.target = "_self";
           }
 
@@ -108,7 +119,7 @@ export default class SourceEditor {
             target: document.body,
             props: {
               ...linkData,
-              onSubmit: (data: any) => {
+              onSubmit: (data: { url: string; target: string; title: string; text: string }) => {
                 this.command.execCommand("createLink", null, data.url, {
                   target: data.target,
                   title: data.title,
@@ -126,7 +137,7 @@ export default class SourceEditor {
           const blogId = document.querySelector<HTMLInputElement>("[name=blog_id]")?.value || 0;
           openDialog(
             "dialog_asset_modal",
-            `_type=asset&amp;edit_field=${this.id}&amp;blog_id=${blogId}&amp;dialog_view=1&amp;filter=class&amp;filter_val=image&amp;can_multi=1`
+            `_type=asset&amp;edit_field=${this.id}&amp;blog_id=${blogId}&amp;dialog_view=1&amp;can_multi=1`
           );
         },
         openImageDialog: () => {
@@ -134,7 +145,7 @@ export default class SourceEditor {
           const blogId = document.querySelector<HTMLInputElement>("[name=blog_id]")?.value || 0;
           openDialog(
             "dialog_asset_modal",
-            `_type=asset&amp;edit_field=${this.id}&amp;blog_id=${blogId}&amp;dialog_view=1&amp;can_multi=1`
+            `_type=asset&amp;edit_field=${this.id}&amp;blog_id=${blogId}&amp;dialog_view=1&amp;filter=class&amp;filter_val=image&amp;can_multi=1`
           );
         },
       },
@@ -147,7 +158,6 @@ export default class SourceEditor {
   }
 
   public insertContent(content: string): void {
-    console.log("insertContent", content);
     this.editor.insertContent(content);
   }
 

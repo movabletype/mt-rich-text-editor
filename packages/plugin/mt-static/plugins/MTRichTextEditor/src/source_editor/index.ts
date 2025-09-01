@@ -1,4 +1,5 @@
 import { MT } from "@movabletype/app";
+import { getCustomSettings } from "../util/settings";
 import SourceEditor from "./editor";
 
 const MTEditor = MT.Editor || (class {} as NonNullable<typeof MT.Editor>);
@@ -14,15 +15,27 @@ class MTSourceEditor extends MTEditor {
   }
 
   async initEditor(format: string) {
-    this.editor = new SourceEditor({ id: this.id });
+    const customSettings = getCustomSettings();
+    this.editor = new SourceEditor({
+      id: this.id,
+      toolbarOptions: {
+        link: customSettings?.link ?? {},
+      },
+    });
     this.editor.setFormat(format);
+    this.editor.textarea.addEventListener("update", this.#onUpdate);
   }
+
+  #onUpdate = () => {
+    this.setDirty();
+  };
 
   async initOrShow(format: string) {
     await this.initEditor(format);
   }
 
   hide() {
+    this.editor?.textarea.removeEventListener("update", this.#onUpdate);
     this.editor?.unload();
     this.editor = undefined;
   }

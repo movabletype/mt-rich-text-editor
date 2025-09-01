@@ -1,0 +1,47 @@
+/* Default color of buttons on iOS is different from others, unify them. */
+button:not(:disabled) {
+  color: inherit;
+}
+
+:host > button {
+  width: 34px;
+  height: 34px;
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  font-size: 14px;
+
+  & svg {
+    width: 24px;
+    height: 24px;
+  }
+
+  &:not(.is-disabled):hover,
+  &.is-active {
+    background: #dee0e2;
+  }
+
+  &.button-with-text-label {
+    width: auto;
+
+    & svg + span {
+      padding: 0 0.25rem;
+    }
+  }
+}
+
+:host > button.tooltip-disabled .mt-rich-text-editor-tooltip {
+  display: none;
+}
+
+:host > button:disabled *:not(.mt-rich-text-editor-tooltip) {
+  opacity: 0.5;
+  cursor: default;
+}

@@ -1,6 +1,7 @@
 <script lang="ts">
   import { dndzone } from "svelte-dnd-action";
   import type {} from "@movabletype/mt-rich-text-editor/mt-rich-text-editor";
+  import { flipDurationMs, dropTargetStyle } from "./common";
   import moveIcon from "../asset/move.svg?raw";
   import trashIcon from "../asset/trash.svg?raw";
 
@@ -9,30 +10,52 @@
   }>();
 
   type BlockItem = { value: string; label: string };
-  type BlockInternalItem = { id: string; value: string; label: string };
+  type BlockInternalItem = { id: string; value: string; label: string; isBlockItem: true };
 
   const availableBlocks: BlockInternalItem[] = convertToItems(
     JSON.parse(textarea.getAttribute("data-available-blocks") ?? "[]")
   );
 
-  function convertToItems(data: BlockItem[]): BlockInternalItem[] {
-    return data.map((item) => ({
-      id: item.value,
-      value: item.value,
-      label: item.label,
-    }));
+  function convertToItems(data: (BlockItem | string)[]): BlockInternalItem[] {
+    return data
+      .map((item) => {
+        if (typeof item === "string") {
+          const block = availableBlocks.find((block) => block.value === item);
+          if (!block) {
+            return undefined;
+          }
+          return {
+            id: block.value,
+            value: block.value,
+            label: block.label,
+            isBlockItem: true,
+          };
+        } else {
+          return {
+            id: item.value,
+            value: item.value,
+            label: item.label,
+            isBlockItem: true,
+          };
+        }
+      })
+      .filter((item) => item !== undefined) as BlockInternalItem[];
   }
 
-  function convertToData(items: BlockInternalItem[]): BlockItem[] {
-    return items.map((item) => ({
-      value: item.value,
-      label: item.label,
-    }));
+  function convertToData(items: BlockInternalItem[]): (BlockItem | string)[] {
+    // TODO: In a future version, we'll allow you to specify the label as well.
+    // return items.map((item) => ({
+    //   value: item.value,
+    //   label: item.label,
+    // }));
+    return items.map((item) => item.value);
   }
 
   let blocksItems = $state(convertToItems(JSON.parse(textarea.value)));
+
+  let tmpUnusedItems = $state<BlockInternalItem[] | undefined>(undefined);
   const unusedItems = $derived(
-    availableBlocks.filter((item) => !getUsedItems(blocksItems).has(item.value))
+    tmpUnusedItems ?? availableBlocks.filter((item) => !getUsedItems(blocksItems).has(item.value))
   );
 
   function getUsedItems(items: BlockInternalItem[]): Set<string> {
@@ -40,23 +63,33 @@
   }
 
   // Handle DnD events for current blocks
-  function handleDndConsider(e: CustomEvent<{ items: BlockInternalItem[] }>) {
-    blocksItems = e.detail.items;
+  function handleDndConsider({ detail: { items } }: CustomEvent<{ items: BlockInternalItem[] }>) {
+    if (items.some((item) => !item.isBlockItem)) {
+      return;
+    }
+    blocksItems = items;
   }
 
-  function handleDndFinalize(e: CustomEvent<{ items: BlockInternalItem[] }>) {
-    blocksItems = e.detail.items;
+  function handleDndFinalize({ detail: { items } }: CustomEvent<{ items: BlockInternalItem[] }>) {
+    if (items.some((item) => !item.isBlockItem)) {
+      return;
+    }
+    blocksItems = items;
   }
 
   // Handle DnD events for available blocks
-  function handleAvailableDndConsider(e: CustomEvent<{ items: BlockInternalItem[] }>) {
-    const draggedItem = e.detail.items[0];
-    if (draggedItem && !getUsedItems(blocksItems).has(draggedItem.value)) {
-      blocksItems = [...blocksItems, draggedItem];
+  function handleAvailableDndConsider({
+    detail: { items },
+  }: CustomEvent<{ items: BlockInternalItem[] }>) {
+    if (items.some((item) => !item.isBlockItem)) {
+      return;
     }
+    tmpUnusedItems = items;
   }
 
-  function handleAvailableDndFinalize() {}
+  function handleAvailableDndFinalize() {
+    tmpUnusedItems = undefined;
+  }
 
   // Remove block
   function handleRemoveBlock(id: string) {
@@ -64,9 +97,10 @@
   }
 
   // Update label
-  function handleUpdateLabel(id: string, newLabel: string) {
-    blocksItems = blocksItems.map((item) => (item.id === id ? { ...item, label: newLabel } : item));
-  }
+  // TODO: In a future version, we'll allow you to specify the label as well.
+  // function handleUpdateLabel(id: string, newLabel: string) {
+  //   blocksItems = blocksItems.map((item) => (item.id === id ? { ...item, label: newLabel } : item));
+  // }
 
   $effect(() => {
     textarea.value = JSON.stringify(convertToData(blocksItems));
@@ -77,7 +111,13 @@
   <!-- Current blocks -->
   <div class="mt-rich-text-editor-blocks-settings-current">
     <section
-      use:dndzone={{ items: blocksItems, flipDurationMs: 0 }}
+      use:dndzone={{
+        items: blocksItems,
+        flipDurationMs,
+        dropTargetStyle,
+        dragDisabled: false,
+        dropFromOthersDisabled: false,
+      }}
       onconsider={handleDndConsider}
       onfinalize={handleDndFinalize}
     >
@@ -87,11 +127,16 @@
             <span class="mt-rich-text-editor-blocks-settings-move">
               {@html moveIcon}
             </span>
+            <span class="label">
+              {item.label}
+            </span>
+            <!--
             <input
               type="text"
               value={item.label}
               oninput={(e) => handleUpdateLabel(item.id, e.currentTarget.value)}
             />
+            -->
             <span class="mt-rich-text-editor-blocks-settings-value">{item.value}</span>
           </div>
           <button
@@ -108,25 +153,33 @@
     </section>
   </div>
 
-  <!-- Available blocks -->
-  <div class="mt-rich-text-editor-blocks-settings-available">
-    <h4>{window.trans("Available Blocks")}</h4>
-    <section
-      use:dndzone={{ items: unusedItems, flipDurationMs: 0 }}
-      onconsider={handleAvailableDndConsider}
-      onfinalize={handleAvailableDndFinalize}
-    >
-      {#each unusedItems as item (item.value)}
-        <div class="mt-rich-text-editor-blocks-settings-item">
-          <span class="mt-rich-text-editor-blocks-settings-move">
-            {@html moveIcon}
-          </span>
-          <span class="mt-rich-text-editor-blocks-settings-label">{item.label}</span>
-          <span class="mt-rich-text-editor-blocks-settings-value">{item.value}</span>
-        </div>
-      {/each}
-    </section>
-  </div>
+  {#if unusedItems.length > 0 || tmpUnusedItems}
+    <!-- Available blocks -->
+    <div class="mt-rich-text-editor-blocks-settings-available">
+      <h4>{window.trans("Available Paragraph Styles")}</h4>
+      <section
+        use:dndzone={{
+          items: unusedItems,
+          flipDurationMs,
+          dropTargetStyle,
+          dragDisabled: false,
+          dropFromOthersDisabled: false,
+        }}
+        onconsider={handleAvailableDndConsider}
+        onfinalize={handleAvailableDndFinalize}
+      >
+        {#each unusedItems as item (item.id)}
+          <div class="mt-rich-text-editor-blocks-settings-item">
+            <span class="mt-rich-text-editor-blocks-settings-move">
+              {@html moveIcon}
+            </span>
+            <span class="mt-rich-text-editor-blocks-settings-label">{item.label}</span>
+            <span class="mt-rich-text-editor-blocks-settings-value">{item.value}</span>
+          </div>
+        {/each}
+      </section>
+    </div>
+  {/if}
 </div>
 
 <style>
@@ -213,7 +266,7 @@
     font-size: 0.9em;
   }
 
-  input {
+  .label {
     padding: 0.25rem;
   }
 

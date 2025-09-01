@@ -11,11 +11,14 @@
 </mt:setvarblock>
     
 <mt:setvarblock name="js_include" append="1">
-<script src="<mt:Var name="static_uri" />plugins/MTRichTextEditor/dist/iife/index.js?v=0.0.1"></script>
-<script src="<mt:Var name="static_uri" />plugins/MTRichTextEditor/dist/es/settings.js?v=0.0.1" type="module"></script>
+<mtapp:Stylesheet path="plugins/MTRichTextEditor/dist/es/mt-plugin-mt-rich-text-editor.css" />
+<mtapp:Script path="plugins/MTRichTextEditor/dist/es/settings.js" type="module"></mtapp:Script>
 </mt:setvarblock>
     
 <mt:setvarblock name="page_content">
+
+<mt:include name="include/editor_script.tmpl" id="editor_script_include">
+
 <form name="mt_rich_text_editor_settings_form" method="post" action="<mt:var name="script_url">">
   <input type="hidden" name="__mode" value="mt_rich_text_editor_save_settings" />
   <input type="hidden" name="return_args" value="<mt:var name="return_args" escape="html">" />
@@ -23,20 +26,51 @@
 
   <mtapp:setting
      id="mt_rich_text_editor_toolbar"
-     label="<__trans phrase="Toolbar">">
+     label="<__trans phrase="Toolbar">"
+     hint="<__trans phrase="Select items to use in the toolbar." />"
+     show_hint="1"
+   >
   <textarea name="mt_rich_text_editor_toolbar" class="d-none" rows="10" data-available-items="<mt:var name="mt_rich_text_editor_toolbar_available_items" escape="html">"><mt:var name="mt_rich_text_editor_toolbar" escape="html"></textarea>
   </mtapp:setting>
 
   <mtapp:setting
      id="mt_rich_text_editor_blocks"
-     label="<__trans phrase="Blocks">">
+     label="<__trans phrase="Paragraph Styles">"
+     hint="<__trans phrase="Select the style to be used in the paragraph style." />"
+     show_hint="1">
   <textarea name="mt_rich_text_editor_blocks" class="d-none" rows="10" data-available-blocks="<mt:var name="mt_rich_text_editor_block_available_blocks" escape="html">"><mt:var name="mt_rich_text_editor_blocks" escape="html"></textarea>
   </mtapp:setting>
 
   <mtapp:setting
      id="mt_rich_text_editor_colors"
-     label="<__trans phrase="Colors">">
+     label="<__trans phrase="Color Palette">"
+     hint="<__trans phrase='Specify the color to be used for "Text color" and "highlight color".' />"
+     show_hint="1"
+   >
   <textarea name="mt_rich_text_editor_colors" class="d-none" rows="10"><mt:var name="mt_rich_text_editor_colors" escape="html"></textarea>
+  </mtapp:setting>
+
+  <mtapp:setting
+     id="mt_rich_text_editor_embed_default_params"
+     label="<__trans phrase="Parameters for oEmbed API">"
+     hint="<__trans phrase='Specify the default value of a parameter when using the oEmbed API to obtain the embed code for content from an external service. <br>Since the handling of the specified parameters depends on the specifications of each service, it may not always be embedded at the specified size.' />"
+     show_hint="1"
+  >
+  <textarea name="mt_rich_text_editor_embed_default_params" class="d-none" rows="10"><mt:var name="mt_rich_text_editor_embed_default_params" escape="html"></textarea>
+  </mtapp:setting>
+
+  <mtapp:setting
+     id="mt_rich_text_editor_embed_site_rule"
+     class="mt-rich-text-editor-embed-site-rule"
+     label="<__trans phrase="Retrieval of data when embedding web pages">"
+     hint="<__trans phrase='Select the rules that allow the retrieval of web page metadata. This selection affects the ability to embed web page content.' />"
+     show_hint="1"
+  >
+  <select name="mt_rich_text_editor_embed_site_rule" id="mt_rich_text_editor_embed_site_rule" class="custom-select form-control form-select">
+    <option value="1" <mt:if name="mt_rich_text_editor_embed_site_rule" eq="1">selected</mt:if>><__trans phrase="Allow data to be retrieved from URLs of sites in the system" /></option>
+    <option value="2" <mt:if name="mt_rich_text_editor_embed_site_rule" eq="2">selected</mt:if>><__trans phrase="Allow data to be retrieved from any URL" /></option>
+    <option value="3" <mt:if name="mt_rich_text_editor_embed_site_rule" eq="3">selected</mt:if>><__trans phrase="Do not allow data to be retrieved" /></option>
+  </select>
   </mtapp:setting>
 
 <mt:setvarblock name="action_buttons">

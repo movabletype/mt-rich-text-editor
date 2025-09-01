@@ -1,18 +1,20 @@
 <script lang="ts">
   import { dndzone } from "svelte-dnd-action";
   import type {} from "@movabletype/mt-rich-text-editor/mt-rich-text-editor";
+  import { flipDurationMs, dropTargetStyle } from "./common";
 
   const { textarea } = $props<{
     textarea: HTMLTextAreaElement;
   }>();
 
   type Color = string;
-  type ColorInternalItem = { id: string; value: string };
+  type ColorInternalItem = { id: string; value: string; isColorItem: true };
 
   function convertToItems(data: Color[]): ColorInternalItem[] {
     return data.map((item) => ({
       id: item,
       value: item,
+      isColorItem: true,
     }));
   }
 
@@ -28,12 +30,18 @@
   });
 
   // Handle DnD events
-  function handleDndConsider(e: CustomEvent<{ items: ColorInternalItem[] }>) {
-    colorsItems = e.detail.items;
+  function handleDndConsider({ detail: { items } }: CustomEvent<{ items: ColorInternalItem[] }>) {
+    if (items.some((item) => !item.isColorItem)) {
+      return;
+    }
+    colorsItems = items;
   }
 
-  function handleDndFinalize(e: CustomEvent<{ items: ColorInternalItem[] }>) {
-    colorsItems = e.detail.items;
+  function handleDndFinalize({ detail: { items } }: CustomEvent<{ items: ColorInternalItem[] }>) {
+    if (items.some((item) => !item.isColorItem)) {
+      return;
+    }
+    colorsItems = items;
   }
 
   // Add new color
@@ -44,6 +52,7 @@
         {
           id: newColor,
           value: newColor,
+          isColorItem: true,
         },
       ];
     }
@@ -60,7 +69,7 @@
   <div class="mt-rich-text-editor-colors-settings-current">
     <div
       class="mt-rich-text-editor-colors-settings-dndzone"
-      use:dndzone={{ items: colorsItems, flipDurationMs: 0 }}
+      use:dndzone={{ items: colorsItems, flipDurationMs, dropTargetStyle }}
       onconsider={handleDndConsider}
       onfinalize={handleDndFinalize}
     >
@@ -77,7 +86,7 @@
             <div
               class="mt-rich-text-editor-colors-settings-preview"
               style="background-color: {item.value};"
-            />
+            ></div>
             <div class="mt-rich-text-editor-colors-settings-info">
               <span class="mt-rich-text-editor-colors-settings-value">{item.value}</span>
             </div>
@@ -89,7 +98,7 @@
 
   <!-- Add new color -->
   <div class="mt-rich-text-editor-colors-settings-add">
-    <h4>{window.trans("Add New Color")}</h4>
+    <h4>{window.trans("Add color to the palette")}</h4>
     <div class="mt-rich-text-editor-colors-settings-add-form">
       <input type="color" bind:value={newColor} aria-label={window.trans("Select Color")} />
       <button type="button" onclick={handleAddColor}>
@@ -107,7 +116,7 @@
   .mt-rich-text-editor-colors-settings-current,
   .mt-rich-text-editor-colors-settings-add {
     margin-bottom: 2rem;
-    max-width: 600px;
+    max-width: 450px;
   }
 
   .mt-rich-text-editor-colors-settings-current .mt-rich-text-editor-colors-settings-dndzone {

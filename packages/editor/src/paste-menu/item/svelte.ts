@@ -1,0 +1,47 @@
+import { extend } from "../../ui/item/svelte";
+import { PasteMenuItemElement } from "./element";
+import css from "./element.css?raw";
+
+const pasteMenuItemStyle = document.createElement("style");
+pasteMenuItemStyle.textContent = css;
+export const extendPasteMenuItem = (
+  customElementConstructor: typeof HTMLElement
+): new () => PasteMenuItemElement =>
+  class extends extend(customElementConstructor) implements PasteMenuItemElement {
+    public content:
+      | {
+          plainText: string;
+          htmlDocument: Document;
+          targetDomNode: HTMLElement | Text | null;
+          clipboardData: DataTransfer;
+          transaction: (cb: () => void) => void;
+        }
+      | undefined = undefined;
+
+    connectedCallback() {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-expect-error
+      super.connectedCallback();
+      this.shadowRoot.appendChild(pasteMenuItemStyle.cloneNode(true));
+    }
+
+    onEditorSetPasteContent(content: {
+      plainText: string;
+      htmlDocument: Document;
+      targetDomNode: HTMLElement | Text | null;
+      clipboardData: DataTransfer;
+      transaction: (cb: () => void) => void;
+    }) {
+      this.content = content;
+    }
+
+    isEditorItemAvailable() {
+      return true;
+    }
+
+    insertContent(content: string) {
+      return PasteMenuItemElement.prototype.insertContent.bind(this)(content);
+    }
+
+    onEditorPaste() {}
+  };

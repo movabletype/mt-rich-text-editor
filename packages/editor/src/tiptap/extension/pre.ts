@@ -1,43 +1,50 @@
-import { Node, mergeAttributes } from '@tiptap/core'
+import { Node } from "@tiptap/core";
 
 export interface PreOptions {
-  HTMLAttributes: Record<string, any>
+  HTMLAttributes: Record<string, unknown>;
 }
 
-declare module '@tiptap/core' {
+declare module "@tiptap/core" {
   interface Commands<ReturnType> {
     pre: {
-      setPre: () => ReturnType
-      unsetPre: () => ReturnType
-    }
+      setPre: () => ReturnType;
+      unsetPre: () => ReturnType;
+    };
   }
 }
 
 export const Pre = Node.create<PreOptions>({
-  name: 'pre',
+  name: "pre",
   priority: 1000,
-  group: 'block',
-  content: 'text*',
+  group: "block",
+  content: "inline*|text*",
   defining: true,
 
   parseHTML() {
     return [
-      { tag: 'pre' },
-    ]
+      {
+        tag: "pre",
+        preserveWhitespace: "full",
+      },
+    ];
   },
 
   renderHTML({ HTMLAttributes }) {
-    return ['pre', mergeAttributes(this.options.HTMLAttributes, HTMLAttributes), 0]
+    return ["pre", HTMLAttributes, 0];
   },
 
   addCommands() {
     return {
-      setPre: () => ({ commands }) => {
-        return commands.setNode(this.name)
-      },
-      unsetPre: () => ({ commands }) => {
-        return commands.setNode('paragraph')
-      },
-    }
+      setPre:
+        () =>
+        ({ commands }) => {
+          return commands.setNode(this.name);
+        },
+      unsetPre:
+        () =>
+        ({ commands }) => {
+          return commands.setNode("paragraph");
+        },
+    };
   },
-}) 
+});

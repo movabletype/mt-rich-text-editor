@@ -3,10 +3,10 @@ import { Extension as TiptapExtension } from "@tiptap/core";
 // core
 import { Document } from "@tiptap/extension-document";
 import { Text } from "@tiptap/extension-text";
+import { Subscript } from "@tiptap/extension-subscript";
+import { Superscript } from "@tiptap/extension-superscript";
 import { Image } from "@tiptap/extension-image";
-import { History } from "@tiptap/extension-history";
 import { HardBreak } from "@tiptap/extension-hard-break";
-import { Bold } from "@tiptap/extension-bold";
 import { Italic } from "@tiptap/extension-italic";
 import { Underline } from "@tiptap/extension-underline";
 import { Blockquote } from "@tiptap/extension-blockquote";
@@ -15,29 +15,44 @@ import { Heading } from "@tiptap/extension-heading";
 import { HorizontalRule } from "@tiptap/extension-horizontal-rule";
 import { OrderedList } from "@tiptap/extension-ordered-list";
 import { Strike } from "@tiptap/extension-strike";
-import Table from "@tiptap/extension-table";
-import TableCell from "@tiptap/extension-table-cell";
-import TableHeader from "@tiptap/extension-table-header";
-import TableRow from "@tiptap/extension-table-row";
 import { Dropcursor } from "@tiptap/extension-dropcursor";
 import { Gapcursor } from "@tiptap/extension-gapcursor";
-import { TextAlign } from '@tiptap/extension-text-align'
-import { Color } from '@tiptap/extension-color'
-import TextStyle from '@tiptap/extension-text-style'
+import { TextAlign } from "@tiptap/extension-text-align";
+import { TextStyle } from "@tiptap/extension-text-style/text-style";
+import { Color } from "@tiptap/extension-text-style/color";
+import { BackgroundColor } from "@tiptap/extension-text-style/background-color";
+import { FileHandler } from "@tiptap/extension-file-handler";
 
 // experiments
 import Iframe from "./extension/experiments/iframe";
 
+// table
+import { Table } from "./extension/table";
+import { TableCell } from "./extension/table-cell";
+import { TableHeader } from "./extension/table-header";
+import { TableRow } from "@tiptap/extension-table-row";
+
 // custom
 import { Indent } from "./extension/indent";
 import { Div } from "./extension/div";
+import { Span } from "./extension/span";
+import { Bold } from "./extension/bold";
 import { BlockLink } from "./extension/block-link";
 import { InlineLink } from "./extension/inline-link";
 import { Paragraph } from "./extension/paragraph";
 import { TextBlock } from "./extension/text-block";
 import { Pre } from "./extension/pre";
+import { Code } from "./extension/code";
+import { DescriptionList } from "./extension/description-list";
+import { DescriptionTerm } from "./extension/description-term";
+import { DescriptionDetails } from "./extension/description-details";
+import { Summary } from "./extension/summary";
 import { ListItem } from "./extension/list-item";
-import { BackgroundColor } from "./extension/background-color";
+import { Script } from "./extension/script";
+import { EmbedObject } from "./extension/embed-object";
+import { Markdown } from "./extension/markdown";
+import { UndoRedo } from "./extension/undo-redo";
+import { MovableType } from "./extension/movable-type";
 
 const defaultLinkOptions = {
   openOnClick: false,
@@ -49,6 +64,14 @@ export const Extension = TiptapExtension.create({
   addExtensions() {
     const extensions = [];
 
+    if (this.options.movableType !== false) {
+      extensions.push(MovableType.configure(this.options?.movableType));
+    }
+
+    if (this.options.undoRedo !== false) {
+      extensions.push(UndoRedo.configure(this.options?.undoRedo));
+    }
+
     // core
     if (this.options.document !== false) {
       extensions.push(Document.configure(this.options?.document));
@@ -58,12 +81,23 @@ export const Extension = TiptapExtension.create({
       extensions.push(Text.configure(this.options?.text));
     }
 
-    if (this.options.image !== false) {
-      extensions.push(Image.configure(this.options?.image));
+    if (this.options.subscript !== false) {
+      extensions.push(Subscript.configure(this.options?.subscript));
     }
 
-    if (this.options.history !== false) {
-      extensions.push(History.configure(this.options?.history));
+    if (this.options.superscript !== false) {
+      extensions.push(Superscript.configure(this.options?.superscript));
+    }
+
+    if (this.options.image !== false) {
+      extensions.push(
+        Image.configure(
+          this.options?.image ?? {
+            inline: true,
+            allowBase64: true,
+          }
+        )
+      );
     }
 
     if (this.options.hardBreak !== false) {
@@ -137,18 +171,30 @@ export const Extension = TiptapExtension.create({
     }
 
     if (this.options.textAlign !== false) {
-      extensions.push(TextAlign.configure(this.options?.textAlign ?? {
-        types: ['heading', 'paragraph'],
-        defaultAlignment: '',
-      }));
+      extensions.push(
+        TextAlign.configure(
+          this.options?.textAlign ?? {
+            types: ["heading", "paragraph"],
+            defaultAlignment: "",
+          }
+        )
+      );
     }
 
     if (this.options.color !== false) {
       extensions.push(Color.configure(this.options?.color));
     }
 
+    if (this.options.backgroundColor !== false) {
+      extensions.push(BackgroundColor.configure(this.options?.backgroundColor));
+    }
+
     if (this.options.textStyle !== false) {
       extensions.push(TextStyle.configure(this.options?.textStyle));
+    }
+
+    if (this.options.fileHandler !== false) {
+      extensions.push(FileHandler.configure(this.options?.fileHandler));
     }
 
     // experiments
@@ -173,12 +219,36 @@ export const Extension = TiptapExtension.create({
       extensions.push(Pre.configure(this.options?.pre));
     }
 
+    if (this.options.code !== false) {
+      extensions.push(Code.configure(this.options?.code));
+    }
+
+    if (this.options.descriptionList !== false) {
+      extensions.push(DescriptionList.configure(this.options?.descriptionList));
+    }
+
+    if (this.options.descriptionTerm !== false) {
+      extensions.push(DescriptionTerm.configure(this.options?.descriptionTerm));
+    }
+
+    if (this.options.descriptionDetails !== false) {
+      extensions.push(DescriptionDetails.configure(this.options?.descriptionDetails));
+    }
+
+    if (this.options.summary !== false) {
+      extensions.push(Summary.configure(this.options?.summary));
+    }
+
     if (this.options.listItem !== false) {
       extensions.push(ListItem.configure(this.options?.listItem));
     }
 
     if (this.options.div !== false) {
       extensions.push(Div.configure(this.options?.div));
+    }
+
+    if (this.options.span !== false) {
+      extensions.push(Span.configure(this.options?.span));
     }
 
     if (this.options.inlineLink !== false) {
@@ -189,8 +259,16 @@ export const Extension = TiptapExtension.create({
       extensions.push(BlockLink.configure(this.options?.blockLink ?? defaultLinkOptions));
     }
 
-    if (this.options.backgroundColor !== false) {
-      extensions.push(BackgroundColor.configure(this.options?.backgroundColor));
+    if (this.options.script !== false) {
+      extensions.push(Script.configure(this.options?.script));
+    }
+
+    if (this.options.embedObject !== false) {
+      extensions.push(EmbedObject.configure(this.options?.embedObject));
+    }
+
+    if (this.options.markdown !== false) {
+      extensions.push(Markdown.configure(this.options?.markdown));
     }
 
     return extensions;
