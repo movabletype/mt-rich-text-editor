@@ -114,6 +114,7 @@ export class Editor {
   #quickAction: QuickAction;
   #structureMode: StructureMode | undefined;
   #htmlOutputOptions: HTMLBeautifyOptions | undefined;
+  #tiptapExtensions: TiptapExtension[];
 
   constructor(textarea: HTMLTextAreaElement, options: EditorOptions) {
     this.id = textarea.id;
@@ -209,9 +210,13 @@ export class Editor {
     pasteMenuContainer.className = "mt-rich-text-editor-paste-menu";
     shadow.appendChild(pasteMenuContainer);
 
+    this.#tiptapExtensions = [
+      Extension.configure(options.extensionOptions),
+      ...(options.extensions ?? []),
+    ];
     this.tiptap = new TiptapEditor({
       element: editorMount,
-      extensions: [Extension.configure(options.extensionOptions), ...(options.extensions ?? [])],
+      extensions: this.#tiptapExtensions,
       content: preprocessHTML(this.#textarea.value),
       editorProps: {
         handlePaste,
@@ -328,7 +333,7 @@ export class Editor {
   }
 
   public insertContent(html: string): void {
-    const json = generateJSON(preprocessHTML(html), this.tiptap.extensionManager.extensions);
+    const json = generateJSON(preprocessHTML(html), this.#tiptapExtensions);
     this.tiptap.commands.insertContent(json);
   }
 
