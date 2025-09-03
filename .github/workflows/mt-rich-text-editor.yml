@@ -69,6 +69,9 @@ jobs:
       - name: Install dependencies
         run: npm install -ws
 
+      - name: Install Playwright dependencies
+        run: npx playwright install --with-deps
+
       - name: Build locales
         run: npm run build:locales
 
@@ -79,7 +82,7 @@ jobs:
         run: npm run format -ws
 
       - name: Run tests
-        run: npm run test:unit -ws -- --run
+        run: npm run test:all -ws -- --run
 
   build:
     runs-on: ubuntu-latest
