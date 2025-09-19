@@ -11,6 +11,9 @@ on:
 
 jobs:
   perl:
+    permissions:
+      contents: read
+      packages: read
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -52,6 +55,8 @@ jobs:
             plugins/FormattedTextForMTRichTextEditor/t
 
   node:
+    permissions:
+      contents: read
     runs-on: ubuntu-latest
 
     steps:
@@ -90,6 +95,9 @@ jobs:
         run: npm run test:all -ws -- --run
 
   build:
+    permissions:
+      actions: write
+      contents: write
     runs-on: ubuntu-latest
     env:
       NODE_ENV: production
