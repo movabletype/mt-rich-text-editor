@@ -1,14 +1,5 @@
-## Movable Type Rich Text Editor
+# Movable Type Rich Text Editor
 
-### Development
+## LICENSE
 
-```
-npm install -ws
-npm run dev
-```
-
-### Build
-
-```
-npm run build
-```
+Copyright (c) Six Apart Ltd. All Rights Reserved.
