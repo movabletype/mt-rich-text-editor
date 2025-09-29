@@ -11,6 +11,9 @@ on:
 
 jobs:
   perl:
+    permissions:
+      contents: read
+      packages: read
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -25,11 +28,14 @@ jobs:
           - { image: fedora42 }
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - uses: actions/checkout@v4
         with:
-          repository: movabletype/internal-movabletype
+          persist-credentials: false
+          repository: movabletype/movabletype
           token: ${{ secrets.FETCH_INTERNAL }}
-          ref: develop9
+          ref: develop
           path: mt
       - uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567
         with:
@@ -49,11 +55,15 @@ jobs:
             plugins/FormattedTextForMTRichTextEditor/t
 
   node:
+    permissions:
+      contents: read
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
       - name: Set up Node.js
         uses: actions/setup-node@v2
@@ -69,6 +79,9 @@ jobs:
       - name: Install dependencies
         run: npm install -ws
 
+      - name: Install Playwright dependencies
+        run: npx playwright install --with-deps
+
       - name: Build locales
         run: npm run build:locales
 
@@ -79,9 +92,12 @@ jobs:
         run: npm run format -ws
 
       - name: Run tests
-        run: npm run test:unit -ws -- --run
+        run: npm run test:all -ws -- --run
 
   build:
+    permissions:
+      actions: write
+      contents: write
     runs-on: ubuntu-latest
     env:
       NODE_ENV: production
@@ -89,6 +105,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
       - name: Set up Node.js
         uses: actions/setup-node@v2
@@ -119,19 +137,6 @@ jobs:
           name: tarball
           path: |
             packages/plugin/dist/*.tar.gz
-
-      - name: Add comment to PR
-        uses: peter-evans/create-or-update-comment@71345be0265236311c031f5c7866368bd1eff043
-        if: ${{ github.event_name == 'pull_request' }}
-        with:
-          issue-number: ${{ github.event.pull_request.number }}
-          body: |
-            ### Download Links
-            
-            You can download the build artifacts from the following links:
-
-            - **All Plugins**: [Download from Actions Artifacts](${{ steps.upload-all-plugins.outputs.artifact-url }})
-            - **Tarball**: [Download from Actions Artifacts](${{ steps.upload-tarball.outputs.artifact-url }})
 
       - name: Upload package to GitHub Releases
         if: ${{ startsWith(github.ref, 'refs/tags/v') }}
