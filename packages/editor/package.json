@@ -65,7 +65,7 @@
     "@tiptap/extension-document": "^3.3.1",
     "@tiptap/extension-dropcursor": "^3.3.1",
     "@tiptap/extension-file-handler": "^3.3.1",
-    "@tiptap/extension-gapcursor": "^3.3.1",
+    "@tiptap/extension-gapcursor": "^3.6.2",
     "@tiptap/extension-hard-break": "^3.3.1",
     "@tiptap/extension-heading": "^3.3.1",
     "@tiptap/extension-horizontal-rule": "^3.3.1",
