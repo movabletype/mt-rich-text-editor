@@ -1,3 +1,8 @@
+---
+title: "MTRichTextEditor"
+titleTemplate: :title 開発者向けガイド
+---
+
 # Movable Type Rich Text Editor 開発者向けガイド
 
 ## プラグインによる拡張
