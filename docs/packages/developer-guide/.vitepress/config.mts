@@ -5,6 +5,9 @@ export default defineConfig({
   base: process.env.VITE_PRESS_BASE_URL || "",
   lang: "ja",
   title: "MTRichTextEditor",
+  titleTemplate: ":title | MTRichTextEditor 開発者向けガイド",
+  description:
+    "Movable Type Rich Text Editorをプラグインを使って拡張する方法を解説します。",
   cleanUrls: true,
   themeConfig: {
     sidebar: [
