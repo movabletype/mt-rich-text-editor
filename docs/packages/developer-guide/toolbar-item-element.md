@@ -22,7 +22,7 @@ description: ツールバーのカスタマイズ方法について説明しま�
 * `strike` 取り消し線
 * `blockquote` 引用
 * `bulletList` 箇条書き
-* `orderedList` 番頭付き箇条書き
+* `orderedList` 番号付き箇条書き
 * `horizontalRule` 水平罫線
 * `link` リンク
   * <dl><dt>defaultTarget : <code>"_self" | "_blank"</code></dt><dd>リンクターゲットの既定値</dd></dl>
