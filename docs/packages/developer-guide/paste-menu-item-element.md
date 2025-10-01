@@ -18,7 +18,7 @@ description: 貼り付け形式の追加について説明します。
 
 * `text` テキストとして貼り付け
 * `html` HTMLとして貼り付け
-  * <dl><dt>keepDataAttributes : <code>boolean</code></dt><dd>HTMLのdata-*属性を保持する場合には <code>true</code>を指定します。デフォルトは<code>false</code>で、data-*属性は削除されます。</dd><dt>handler : <code>(doc: Document) => void</code></dt><dd>挿入されるHTMLを変更するための関数を指定します。変更する場合にはDocumentオブジェクトの中ノードを直接書き換えます。</dd></dl>
+  * <dl><dt>keepDataAttributes : <code>boolean</code></dt><dd>HTMLのdata-*属性を保持する場合には <code>true</code>を指定します。デフォルトは<code>false</code>で、data-*属性は削除されます。</dd><dt>handler : <code>(doc: Document) => void</code></dt><dd>挿入されるHTMLを変更するための関数を指定します。変更する場合にはDocumentオブジェクト中のノードを直接書き換えます。</dd></dl>
 * `link` リンクとして貼り付け
 * `embed` 埋め込みオブジェクト
 * `embedInline` インライン埋め込み
