@@ -63,7 +63,7 @@ Tiptapの<a href="https://tiptap.dev/docs/editor/core-concepts/extensions">Exten
 <dt>format : <code>boolean</code></dt>
 <dd>HTMLをフォーマットするかどうかを指定します。デフォルトは <code>true</code> です。</dd>
 <dt>indentSize : <code>number</code></dt>
-<dd>インデントのサイズを指定します。デフォルトは <code>2</code> です。</dd>
+<dd>インデントのサイズを指定します。デフォルトは <code>0</code> です。</dd>
 <dt>contentUnformatted : <code>string[]</code></dt>
 <dd>フォーマットしないタグのリストを指定します。デフォルトは <code>['pre', 'style', 'script']</code> です。</dd>
 </dl>
