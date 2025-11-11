@@ -18,7 +18,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.21.0",
-    "@playwright/test": "^1.49.1",
+    "@playwright/test": "^1.56.1",
     "@sveltejs/vite-plugin-svelte": "^5.0.3",
     "@types/js-beautify": "^1.14.3",
     "@types/node": "^24.3.0",
@@ -34,9 +34,9 @@
     "svelte-check": "^4.1.1",
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.31.1",
-    "vite": "^6.3.4",
-    "vite-plugin-dts": "^4.4.0",
-    "vitest": "^3.1.2"
+    "vite": "^7.2.2",
+    "vite-plugin-dts": "^4.5.4",
+    "vitest": "^4.0.8"
   },
   "main": "dist/index.js",
   "types": "dist/src/index.d.ts",
