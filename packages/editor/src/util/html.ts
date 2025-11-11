@@ -1,10 +1,11 @@
 const isEditable = (element: HTMLElement): boolean =>
   !element.closest("div[data-mt-rich-text-editor-embed-object]");
 
-export const preprocessHTML = (html: string): string => {
+export const preprocessHTML = (html: string, blockElements: string[]): string => {
   const parser = new DOMParser();
   const doc = parser.parseFromString(`<body>${html}</body>`, "text/html");
   const body = doc.body;
+  const blockElementSelector = blockElements.join(",");
 
   body.querySelectorAll("a").forEach((a) => {
     if (!isEditable(a)) {
@@ -13,7 +14,8 @@ export const preprocessHTML = (html: string): string => {
 
     if (
       a.querySelector(
-        "address, article, aside, blockquote, details, dialog, div, dl, figure, figcaption, footer, header, h1, h2, h3, h4, h5, h6, hr, main, nav, ol, p, pre, section, table, td, thead, tr, ul"
+        "blockquote, div, dl, h1, h2, h3, h4, h5, h6, hr, ol, p, pre, table, td, thead, tr, ul," +
+          blockElementSelector
       )
     ) {
       a.dataset.mtRichTextEditorBlock = "true";
@@ -34,9 +36,7 @@ export const preprocessHTML = (html: string): string => {
   });
 
   body
-    .querySelectorAll<HTMLElement>(
-      "div, blockquote, main, article, ul, ol, section, aside, nav, header, footer, figure, figcaption, details, dialog, td, th"
-    )
+    .querySelectorAll<HTMLElement>("div, blockquote, ul, ol, td, th," + blockElementSelector)
     .forEach((div) => {
       if (!isEditable(div)) {
         return;
