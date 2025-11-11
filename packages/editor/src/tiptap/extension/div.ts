@@ -1,47 +1,26 @@
 import { Node, mergeAttributes } from "@tiptap/core";
 
 export interface DivOptions {
-  HTMLAttributes: Record<string, unknown>;
-}
-
-declare module "@tiptap/core" {
-  interface Commands<ReturnType> {
-    div: {
-      setDiv: () => ReturnType;
-      unsetDiv: () => ReturnType;
-      setMain: () => ReturnType;
-      unsetMain: () => ReturnType;
-      setArticle: () => ReturnType;
-      unsetArticle: () => ReturnType;
-    };
-  }
+  elements: string[];
 }
 
 export const Div = Node.create<DivOptions>({
   name: "div",
-
   priority: 1000,
-
   group: "block",
-
   content: "block+",
-
   defining: true,
+
+  addOptions() {
+    return {
+      elements: [],
+    };
+  },
 
   parseHTML() {
     return [
       { tag: "div:not([data-mt-rich-text-editor-embed-object])" },
-      { tag: "main" },
-      { tag: "article" },
-      { tag: "section" },
-      { tag: "aside" },
-      { tag: "nav" },
-      { tag: "header" },
-      { tag: "footer" },
-      { tag: "figure" },
-      { tag: "figcaption" },
-      { tag: "details" },
-      { tag: "dialog" },
+      ...this.options.elements.map((tag) => ({ tag })),
     ];
   },
 
@@ -49,7 +28,7 @@ export const Div = Node.create<DivOptions>({
     const tag = node.attrs["data-tag"] || "div";
     return [
       tag,
-      mergeAttributes(this.options.HTMLAttributes, HTMLAttributes, {
+      mergeAttributes(HTMLAttributes, {
         "data-tag": undefined,
       }),
       0,
