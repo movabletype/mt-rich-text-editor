@@ -246,7 +246,7 @@ export class Editor {
     this.tiptap = new TiptapEditor({
       element: editorMount,
       extensions: this.#tiptapExtensions,
-      content: preprocessHTML(this.#textarea.value),
+      content: this.preprocessHTML(this.#textarea.value),
       editorProps: {
         handlePaste,
         attributes: {
@@ -310,14 +310,21 @@ export class Editor {
     this.#textarea.value = this.getContent();
   }
 
+  public getNormalizedHTML(): string {
+    return normalizeHTML(this.tiptap.getHTML());
+  }
+
   public getContent(): string {
-    return this.#htmlOutputOptions === undefined
-      ? normalizeHTML(this.tiptap.getHTML())
-      : html(normalizeHTML(this.tiptap.getHTML()), this.#htmlOutputOptions);
+    const content = this.getNormalizedHTML();
+    return this.#htmlOutputOptions === undefined ? content : html(content, this.#htmlOutputOptions);
+  }
+
+  public preprocessHTML(html: string): string {
+    return preprocessHTML(html, this.#blockElements);
   }
 
   public setContent(content: string): void {
-    this.tiptap.commands.setContent(preprocessHTML(content));
+    this.tiptap.commands.setContent(this.preprocessHTML(content));
     this.#textarea.value = content;
   }
 
@@ -362,7 +369,7 @@ export class Editor {
   }
 
   public insertContent(html: string): void {
-    const json = generateJSON(preprocessHTML(html), this.#tiptapExtensions);
+    const json = generateJSON(this.preprocessHTML(html), this.#tiptapExtensions);
     this.tiptap.commands.insertContent(json);
   }
 
