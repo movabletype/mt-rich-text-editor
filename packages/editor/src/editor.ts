@@ -13,6 +13,7 @@ import { insertStylesheets } from "./util/dom";
 import prosemirrorCss from "prosemirror-view/style/prosemirror.css?raw";
 import editorCss from "./editor.css?inline";
 import contentCss from "./content.css?inline";
+import { DEFAULT_BLOCK_ELEMENTS, DEFAULT_INLINE_ELEMENTS } from "./constant";
 
 interface HtmlOutputOptions {
   format?: boolean;
@@ -29,6 +30,16 @@ export interface ExtensionOptions {
       };
       inline?: boolean;
     }>;
+  };
+  div?: {
+    elements?: string[];
+  };
+  span?: {
+    elements?: string[];
+  };
+  movableType?: {
+    additionalGlobalAttributeTypes?: string[];
+    tags?: string[];
   };
 }
 
@@ -90,6 +101,18 @@ export interface EditorOptions {
   quickActionOptions?: ConstructorParameters<typeof QuickAction>[0]["options"];
   autoFocus?: boolean;
   htmlOutputOptions?: HtmlOutputOptions;
+  /**
+   * user-defined additional block (div-like) elements
+   * @example
+   * ["abbr", "address"]
+   */
+  additionalBlockElements?: string[];
+  /**
+   * user-defined additional inline elements
+   * @example
+   * ["time", "var"]
+   */
+  additionalInlineElements?: string[];
 }
 
 const DEFAULT_HEIGHT = 350;
@@ -115,11 +138,15 @@ export class Editor {
   #structureMode: StructureMode | undefined;
   #htmlOutputOptions: HTMLBeautifyOptions | undefined;
   #tiptapExtensions: TiptapExtension[];
+  #blockElements: string[];
+  #inlineElements: string[];
 
   constructor(textarea: HTMLTextAreaElement, options: EditorOptions) {
     this.id = textarea.id;
     this.#textarea = textarea;
     this.options = options;
+    this.#blockElements = DEFAULT_BLOCK_ELEMENTS.concat(options.additionalBlockElements ?? []);
+    this.#inlineElements = DEFAULT_INLINE_ELEMENTS.concat(options.additionalInlineElements ?? []);
 
     this.#htmlOutputOptions =
       options.htmlOutputOptions?.format === false
@@ -210,10 +237,12 @@ export class Editor {
     pasteMenuContainer.className = "mt-rich-text-editor-paste-menu";
     shadow.appendChild(pasteMenuContainer);
 
-    this.#tiptapExtensions = [
-      Extension.configure(options.extensionOptions),
-      ...(options.extensions ?? []),
-    ];
+    const extensionOptions = options.extensionOptions ?? {};
+    extensionOptions.div ??= {};
+    extensionOptions.div.elements ??= this.#blockElements;
+    extensionOptions.span ??= {};
+    extensionOptions.span.elements ??= this.#inlineElements;
+    this.#tiptapExtensions = [Extension.configure(extensionOptions), ...(options.extensions ?? [])];
     this.tiptap = new TiptapEditor({
       element: editorMount,
       extensions: this.#tiptapExtensions,
