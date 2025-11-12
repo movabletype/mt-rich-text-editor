@@ -242,6 +242,8 @@ export class Editor {
     extensionOptions.div.elements ??= this.#blockElements;
     extensionOptions.span ??= {};
     extensionOptions.span.elements ??= this.#inlineElements;
+    extensionOptions.movableType ??= {};
+    extensionOptions.movableType.additionalGlobalAttributeTypes ??= this.#inlineElements;
     this.#tiptapExtensions = [Extension.configure(extensionOptions), ...(options.extensions ?? [])];
     this.tiptap = new TiptapEditor({
       element: editorMount,
