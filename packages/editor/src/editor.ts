@@ -15,6 +15,16 @@ import editorCss from "./editor.css?inline";
 import contentCss from "./content.css?inline";
 import { DEFAULT_BLOCK_ELEMENTS, DEFAULT_INLINE_ELEMENTS } from "./constant";
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type EventHandler = (data: any) => void;
+
+interface Events {
+  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
+  beforeGetContent: {};
+  getContent: { content: string };
+  setContent: { content: string };
+}
+
 interface HtmlOutputOptions {
   format?: boolean;
   indentSize?: number;
@@ -140,6 +150,7 @@ export class Editor {
   #tiptapExtensions: TiptapExtension[];
   #blockElements: string[];
   #inlineElements: string[];
+  #eventHandlers: Record<string, EventHandler[]> = {};
 
   constructor(textarea: HTMLTextAreaElement, options: EditorOptions) {
     this.id = textarea.id;
@@ -306,6 +317,24 @@ export class Editor {
     if (options.structure) {
       this.setStructureMode(true);
     }
+  }
+
+  public emit<K extends keyof Events>(name: K, data: Events[K]): void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  public emit(name: string, data: { [key: string]: any } = {}): void {
+    data.editor = this;
+    this.#eventHandlers[name]?.forEach((handler) => handler(data));
+  }
+
+  public on<K extends keyof Events>(
+    name: K,
+    handler: (data: Events[K] & { editor: Editor }) => void
+  ): void;
+  public on(name: string, handler: EventHandler): void {
+    if (!this.#eventHandlers[name]) {
+      this.#eventHandlers[name] = [];
+    }
+    this.#eventHandlers[name].push(handler);
   }
 
   public save(): void {
