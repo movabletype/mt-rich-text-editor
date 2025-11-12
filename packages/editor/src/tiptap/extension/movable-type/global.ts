@@ -1,5 +1,9 @@
 import { Extension } from "@tiptap/core";
 
+export interface GlobalOptions {
+  additionalGlobalAttributeTypes: string[];
+}
+
 const eventAttrNames = new Set([
   "onabortonblur",
   "oncancel",
@@ -60,8 +64,14 @@ const eventAttrNames = new Set([
   "action",
 ]);
 
-export const Global = Extension.create({
+export const Global = Extension.create<GlobalOptions>({
   name: "mt-rich-text-editor-global",
+
+  addOptions() {
+    return {
+      additionalGlobalAttributeTypes: [],
+    };
+  },
 
   addGlobalAttributes() {
     return [
@@ -83,7 +93,6 @@ export const Global = Extension.create({
           "listItem",
           "orderedList",
           "paragraph",
-          "span",
           "textStyle",
           "script",
           "table",
@@ -95,7 +104,7 @@ export const Global = Extension.create({
           "descriptionList",
           "descriptionTerm",
           "descriptionDetails",
-        ],
+        ].concat(this.options.additionalGlobalAttributeTypes),
         attributes: {
           MTRichTextEditorHTMLAttributes: {
             default: {},
