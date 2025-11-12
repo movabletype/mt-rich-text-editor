@@ -346,3 +346,56 @@ const normalizeHTML = (html: string): string => {
     .map((child) => formatNode(child as HTMLElement, 0, "  "))
     .join("\n");
 };
+
+describe("Event emission", () => {
+  let textarea: HTMLTextAreaElement;
+  let editor: Editor;
+
+  beforeEach(() => {
+    textarea = document.createElement("textarea");
+    document.body.appendChild(textarea);
+    editor = new Editor(textarea, {
+      toolbar: [],
+      inline: false,
+    });
+  });
+
+  afterEach(() => {
+    editor.destroy();
+    textarea.remove();
+  });
+
+  it("should emit beforeGetContent events", () => {
+    editor.on("beforeGetContent", ({ editor }) => {
+      editor.tiptap.commands.setHeading({ level: 2 });
+    });
+    const input = "<h1>Test content</h1>";
+    editor.setContent(input);
+    const output = editor.getContent();
+
+    expect(output).toBe("<h2>Test content</h2>");
+  });
+
+  it("should emit getContent events", () => {
+    editor.on("getContent", (data) => {
+      data.content += "<p>Appended paragraph</p>";
+      console.log("getContent event data:", data.content);
+    });
+    const input = "<p>Initial content</p>";
+    editor.setContent(input);
+    const output = editor.getContent();
+
+    expect(output).toBe("<p>Initial content</p>\n<p>Appended paragraph</p>");
+  });
+
+  it("should emit setContent events", () => {
+    editor.on("setContent", (data) => {
+      data.content = data.content.toUpperCase();
+    });
+    const input = "<p>Initial content</p>";
+    editor.setContent(input);
+    const output = editor.getContent();
+
+    expect(output).toBe("<p>INITIAL CONTENT</p>");
+  });
+});

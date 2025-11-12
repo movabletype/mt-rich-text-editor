@@ -342,7 +342,12 @@ export class Editor {
   }
 
   public getNormalizedHTML(): string {
-    return normalizeHTML(this.tiptap.getHTML());
+    this.emit("beforeGetContent", {});
+    const data = {
+      content: normalizeHTML(this.tiptap.getHTML()),
+    };
+    this.emit("getContent", data);
+    return data.content;
   }
 
   public getContent(): string {
@@ -350,8 +355,10 @@ export class Editor {
     return this.#htmlOutputOptions === undefined ? content : html(content, this.#htmlOutputOptions);
   }
 
-  public preprocessHTML(html: string): string {
-    return preprocessHTML(html, this.#blockElements);
+  public preprocessHTML(content: string): string {
+    const data = { content };
+    this.emit("setContent", data);
+    return preprocessHTML(data.content, this.#blockElements);
   }
 
   public setContent(content: string): void {
