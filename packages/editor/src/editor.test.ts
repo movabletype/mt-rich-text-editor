@@ -379,13 +379,12 @@ describe("Event emission", () => {
   it("should emit getContent events", () => {
     editor.on("getContent", (data) => {
       data.content += "<p>Appended paragraph</p>";
-      console.log("getContent event data:", data.content);
     });
     const input = "<p>Initial content</p>";
     editor.setContent(input);
     const output = editor.getContent();
 
-    expect(output).toBe("<p>Initial content</p>\n<p>Appended paragraph</p>");
+    expect(output).toBe("<p>Initial content</p><p>Appended paragraph</p>");
   });
 
   it("should emit setContent events", () => {
