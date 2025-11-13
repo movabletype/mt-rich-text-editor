@@ -14,6 +14,7 @@ import prosemirrorCss from "prosemirror-view/style/prosemirror.css?raw";
 import editorCss from "./editor.css?inline";
 import contentCss from "./content.css?inline";
 import { DEFAULT_BLOCK_ELEMENTS, DEFAULT_INLINE_ELEMENTS } from "./constant";
+import { previewIframe } from "./event/default";
 import type { Events, EventHandler } from "./event";
 export type { Events } from "./event";
 
@@ -311,6 +312,12 @@ export class Editor {
     if (options.structure) {
       this.setStructureMode(true);
     }
+
+    this.#initDefaultEventHandlers();
+  }
+
+  #initDefaultEventHandlers(): void {
+    this.on("previewIframe", previewIframe);
   }
 
   public emit<K extends keyof Events>(name: K, data: Events[K]): void;
