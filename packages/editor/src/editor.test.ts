@@ -389,10 +389,27 @@ describe("Event emission", () => {
 
   it("should emit setContent events", () => {
     editor.on("setContent", (data) => {
+      expect(data.source).toBe("external");
       data.content = data.content.toUpperCase();
     });
     const input = "<p>Initial content</p>";
     editor.setContent(input);
+    const output = editor.getContent();
+
+    expect(output).toBe("<p>INITIAL CONTENT</p>");
+  });
+
+  it("should emit setContent events with custom source", () => {
+    const source = "text-source";
+    editor.on("setContent", (data) => {
+      expect(data.source).toBe(source);
+      data.content = data.content.toUpperCase();
+    });
+    const input = "<p>Initial content</p>";
+    editor.setContent({
+      source: source,
+      content: input,
+    });
     const output = editor.getContent();
 
     expect(output).toBe("<p>INITIAL CONTENT</p>");

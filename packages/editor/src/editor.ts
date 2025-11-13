@@ -354,14 +354,14 @@ export class Editor {
   }
 
   public preprocessHTML(content: string): string {
-    const data = { content };
-    this.emit("setContent", data);
-    return preprocessHTML(data.content, this.#blockElements);
+    return preprocessHTML(content, this.#blockElements);
   }
 
-  public setContent(content: string): void {
-    this.tiptap.commands.setContent(this.preprocessHTML(content));
-    this.#textarea.value = content;
+  public setContent(content: string | Events["setContent"]): void {
+    const data = typeof content === "string" ? { source: "external", content } : content;
+    this.emit("setContent", data);
+    this.tiptap.commands.setContent(this.preprocessHTML(data.content));
+    this.#textarea.value = data.content;
   }
 
   public getHeight(): number {
