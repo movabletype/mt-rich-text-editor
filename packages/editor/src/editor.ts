@@ -342,18 +342,15 @@ export class Editor {
     this.#textarea.value = this.getContent();
   }
 
-  public getNormalizedHTML(): string {
+  public getContent(): string {
     this.emit("beforeGetContent", {});
-    const data = {
-      content: normalizeHTML(this.tiptap.getHTML()),
-    };
+    let content = normalizeHTML(this.tiptap.getHTML());
+    if (this.#htmlOutputOptions) {
+      content = html(content, this.#htmlOutputOptions);
+    }
+    const data = { content };
     this.emit("getContent", data);
     return data.content;
-  }
-
-  public getContent(): string {
-    const content = this.getNormalizedHTML();
-    return this.#htmlOutputOptions === undefined ? content : html(content, this.#htmlOutputOptions);
   }
 
   public preprocessHTML(content: string): string {
