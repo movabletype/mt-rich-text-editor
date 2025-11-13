@@ -14,16 +14,9 @@ import prosemirrorCss from "prosemirror-view/style/prosemirror.css?raw";
 import editorCss from "./editor.css?inline";
 import contentCss from "./content.css?inline";
 import { DEFAULT_BLOCK_ELEMENTS, DEFAULT_INLINE_ELEMENTS } from "./constant";
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type EventHandler = (data: any) => void;
-
-interface Events {
-  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-  beforeGetContent: {};
-  getContent: { content: string };
-  setContent: { content: string };
-}
+import { previewIframe } from "./event/default";
+import type { Events, EventHandler } from "./event";
+export type { Events } from "./event";
 
 interface HtmlOutputOptions {
   format?: boolean;
@@ -48,6 +41,7 @@ export interface ExtensionOptions {
     elements?: string[];
   };
   movableType?: {
+    editor?: Editor;
     additionalGlobalAttributeTypes?: string[];
     tags?: string[];
   };
@@ -255,6 +249,7 @@ export class Editor {
     extensionOptions.span.elements ??= this.#inlineElements;
     extensionOptions.movableType ??= {};
     extensionOptions.movableType.additionalGlobalAttributeTypes ??= this.#inlineElements;
+    extensionOptions.movableType.editor = this;
     this.#tiptapExtensions = [Extension.configure(extensionOptions), ...(options.extensions ?? [])];
     this.tiptap = new TiptapEditor({
       element: editorMount,
@@ -317,6 +312,12 @@ export class Editor {
     if (options.structure) {
       this.setStructureMode(true);
     }
+
+    this.#initDefaultEventHandlers();
+  }
+
+  #initDefaultEventHandlers(): void {
+    this.on("previewIframe", previewIframe);
   }
 
   public emit<K extends keyof Events>(name: K, data: Events[K]): void;
