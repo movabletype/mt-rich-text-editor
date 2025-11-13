@@ -304,7 +304,10 @@ export class SourceButton extends ToolbarItemElement {
         props: {
           text: editor.getContent(),
           onSubmit: (html: string) => {
-            editor.setContent(html);
+            editor.setContent({
+              source: "sourceEditor",
+              content: html,
+            });
           },
           onClose: () => {
             unmount(modal);
