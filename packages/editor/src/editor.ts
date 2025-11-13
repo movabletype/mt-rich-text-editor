@@ -18,11 +18,16 @@ import { DEFAULT_BLOCK_ELEMENTS, DEFAULT_INLINE_ELEMENTS } from "./constant";
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type EventHandler = (data: any) => void;
 
-interface Events {
+export interface Events {
   // eslint-disable-next-line @typescript-eslint/no-empty-object-type
   beforeGetContent: {};
   getContent: { content: string };
   setContent: { content: string };
+  previewIframe: {
+    sourceType: "data" | "data-wrap" | "blob" | "srcdoc";
+    content: string;
+    sandbox: string;
+  };
 }
 
 interface HtmlOutputOptions {

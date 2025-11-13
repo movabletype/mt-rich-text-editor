@@ -61,13 +61,22 @@ const destroyPostMessageHandler = (id: string) => {
 export const createPreviewIframe = (editor: TiptapEditor, content: string): HTMLIFrameElement => {
   const { id } = createPostMessageHandler(editor);
 
+  const options: Parameters<typeof editor.commands.emitEditorEvent<"previewIframe">>[1] = {
+    sourceType: "data",
+    content,
+    sandbox: "allow-scripts allow-same-origin",
+  };
+  editor.commands.emitEditorEvent("previewIframe", options);
+
+  const wrap = options.sourceType === "data-wrap";
+
   const iframe = document.createElement("iframe");
   iframe.setAttribute("data-mt-rich-text-editor-iframe", id);
   iframe.setAttribute("frameborder", "0");
   iframe.setAttribute("allowfullscreen", "true");
   iframe.style.width = "100%";
   iframe.style.display = "block";
-  iframe.sandbox = "allow-scripts allow-same-origin";
+  iframe.sandbox = options.sandbox;
 
   const html = `
       <!DOCTYPE html>
