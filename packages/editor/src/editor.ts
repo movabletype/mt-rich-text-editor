@@ -14,21 +14,8 @@ import prosemirrorCss from "prosemirror-view/style/prosemirror.css?raw";
 import editorCss from "./editor.css?inline";
 import contentCss from "./content.css?inline";
 import { DEFAULT_BLOCK_ELEMENTS, DEFAULT_INLINE_ELEMENTS } from "./constant";
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type EventHandler = (data: any) => void;
-
-export interface Events {
-  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-  beforeGetContent: {};
-  getContent: { content: string };
-  setContent: { content: string };
-  previewIframe: {
-    sourceType: "data" | "data-wrap" | "blob" | "srcdoc";
-    content: string;
-    sandbox: string;
-  };
-}
+import type { Events, EventHandler } from "./event";
+export type { Events } from "./event";
 
 interface HtmlOutputOptions {
   format?: boolean;
