@@ -48,6 +48,7 @@ export interface ExtensionOptions {
     elements?: string[];
   };
   movableType?: {
+    editor?: Editor;
     additionalGlobalAttributeTypes?: string[];
     tags?: string[];
   };
@@ -255,6 +256,7 @@ export class Editor {
     extensionOptions.span.elements ??= this.#inlineElements;
     extensionOptions.movableType ??= {};
     extensionOptions.movableType.additionalGlobalAttributeTypes ??= this.#inlineElements;
+    extensionOptions.movableType.editor = this;
     this.#tiptapExtensions = [Extension.configure(extensionOptions), ...(options.extensions ?? [])];
     this.tiptap = new TiptapEditor({
       element: editorMount,
