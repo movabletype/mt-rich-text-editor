@@ -19,18 +19,13 @@ export class AsText extends PasteMenuItemElement {
   }
 
   onEditorPaste() {
-    const event = new ClipboardEvent("paste", {
-      clipboardData: new DataTransfer(),
-    });
-
-    event.clipboardData?.setData("text/plain", this.content?.plainText ?? "");
-    event.clipboardData?.setData(INTERNAL_PASTE_CONTENT_TYPE, "1");
-
-    this.content?.transaction(() => {
-      this.tiptap?.chain().undo().focus().run();
-      this.tiptap?.view.dom.dispatchEvent(event);
-    });
-    this.parentElement?.dispatchEvent(new Event("paste-menu-item-applied"));
+    const content = this.content?.plainText;
+    if (content) {
+      this.insertContent({
+        type: "text",
+        text: content,
+      });
+    }
   }
 
   connectedCallback() {

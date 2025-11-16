@@ -79,7 +79,7 @@ export abstract class PasteMenuItemElement<
     this.content = content;
   }
 
-  insertContent(content: string) {
+  insertContent(content: string | Record<string, unknown>) {
     this.content?.transaction(() => {
       this.tiptap?.chain().undo().focus().run();
       this.tiptap?.commands.insertContent(
