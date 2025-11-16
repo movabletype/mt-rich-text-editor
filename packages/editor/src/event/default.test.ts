@@ -13,6 +13,16 @@ describe("previewIframe", () => {
     expect(data.sourceType).toBe("data");
   });
 
+  it("should not change sourceType for blank content", () => {
+    const data: Events["previewIframe"] = {
+      sourceType: "data",
+      content: "",
+      sandbox: "",
+    };
+    previewIframe(data);
+    expect(data.sourceType).toBe("data");
+  });
+
   it("should set sourceType to srcdoc for YouTube iframes", () => {
     const data: Events["previewIframe"] = {
       sourceType: "data",
