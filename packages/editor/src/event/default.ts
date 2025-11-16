@@ -5,6 +5,7 @@ export const previewIframe = (data: Events["previewIframe"]) => {
 
   const doc = parser.parseFromString(data.content, "text/html");
   if (
+    doc.body.children.length > 0 &&
     [...doc.body.children].every(
       (e) => e instanceof HTMLIFrameElement && /^https:\/\/www.youtube.com\//.test(e.src)
     )
