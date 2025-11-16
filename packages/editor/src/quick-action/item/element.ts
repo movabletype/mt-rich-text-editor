@@ -66,7 +66,7 @@ export class QuickActionItemElement extends PanelItemElement {
 
     const isFirstContent = tiptap.state.doc.childCount <= 1;
 
-    tiptap.chain().focus().undo().insertContent(content).run();
+    tiptap.chain().focus().selectParentNode().insertContent(content).run();
 
     if (isFirstContent) {
       tiptap.chain().blur().focus("end").run();
