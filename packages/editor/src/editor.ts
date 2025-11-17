@@ -14,6 +14,9 @@ import prosemirrorCss from "prosemirror-view/style/prosemirror.css?raw";
 import editorCss from "./editor.css?inline";
 import contentCss from "./content.css?inline";
 import { DEFAULT_BLOCK_ELEMENTS, DEFAULT_INLINE_ELEMENTS } from "./constant";
+import { previewIframe } from "./event/default";
+import type { Events, EventHandler } from "./event";
+export type { Events } from "./event";
 
 interface HtmlOutputOptions {
   format?: boolean;
@@ -38,6 +41,7 @@ export interface ExtensionOptions {
     elements?: string[];
   };
   movableType?: {
+    editor?: Editor;
     additionalGlobalAttributeTypes?: string[];
     tags?: string[];
   };
@@ -140,6 +144,7 @@ export class Editor {
   #tiptapExtensions: TiptapExtension[];
   #blockElements: string[];
   #inlineElements: string[];
+  #eventHandlers: Record<string, EventHandler[]> = {};
 
   constructor(textarea: HTMLTextAreaElement, options: EditorOptions) {
     this.id = textarea.id;
@@ -244,6 +249,7 @@ export class Editor {
     extensionOptions.span.elements ??= this.#inlineElements;
     extensionOptions.movableType ??= {};
     extensionOptions.movableType.additionalGlobalAttributeTypes ??= this.#inlineElements;
+    extensionOptions.movableType.editor = this;
     this.#tiptapExtensions = [Extension.configure(extensionOptions), ...(options.extensions ?? [])];
     this.tiptap = new TiptapEditor({
       element: editorMount,
@@ -306,28 +312,56 @@ export class Editor {
     if (options.structure) {
       this.setStructureMode(true);
     }
+
+    this.#initDefaultEventHandlers();
+  }
+
+  #initDefaultEventHandlers(): void {
+    this.on("previewIframe", previewIframe);
+  }
+
+  public emit<K extends keyof Events>(name: K, data: Events[K]): void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  public emit(name: string, data: { [key: string]: any } = {}): void {
+    data.editor = this;
+    this.#eventHandlers[name]?.forEach((handler) => handler(data));
+  }
+
+  public on<K extends keyof Events>(
+    name: K,
+    handler: (data: Events[K] & { editor: Editor }) => void
+  ): void;
+  public on(name: string, handler: EventHandler): void {
+    if (!this.#eventHandlers[name]) {
+      this.#eventHandlers[name] = [];
+    }
+    this.#eventHandlers[name].push(handler);
   }
 
   public save(): void {
     this.#textarea.value = this.getContent();
   }
 
-  public getNormalizedHTML(): string {
-    return normalizeHTML(this.tiptap.getHTML());
-  }
-
   public getContent(): string {
-    const content = this.getNormalizedHTML();
-    return this.#htmlOutputOptions === undefined ? content : html(content, this.#htmlOutputOptions);
+    this.emit("beforeGetContent", {});
+    let content = normalizeHTML(this.tiptap.getHTML());
+    if (this.#htmlOutputOptions) {
+      content = html(content, this.#htmlOutputOptions);
+    }
+    const data = { content };
+    this.emit("getContent", data);
+    return data.content;
   }
 
-  public preprocessHTML(html: string): string {
-    return preprocessHTML(html, this.#blockElements);
+  public preprocessHTML(content: string): string {
+    return preprocessHTML(content, this.#blockElements);
   }
 
-  public setContent(content: string): void {
-    this.tiptap.commands.setContent(this.preprocessHTML(content));
-    this.#textarea.value = content;
+  public setContent(content: string | Events["setContent"]): void {
+    const data = typeof content === "string" ? { source: "external", content } : content;
+    this.emit("setContent", data);
+    this.tiptap.commands.setContent(this.preprocessHTML(data.content));
+    this.#textarea.value = data.content;
   }
 
   public getHeight(): number {

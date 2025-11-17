@@ -302,9 +302,12 @@ export class SourceButton extends ToolbarItemElement {
       const modal = mount(SourceModal, {
         target: document.body,
         props: {
-          text: editor.getNormalizedHTML(),
+          text: editor.getContent(),
           onSubmit: (html: string) => {
-            editor.setContent(html);
+            editor.setContent({
+              source: "sourceEditor",
+              content: html,
+            });
           },
           onClose: () => {
             unmount(modal);
