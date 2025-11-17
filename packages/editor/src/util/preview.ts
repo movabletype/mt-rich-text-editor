@@ -61,15 +61,24 @@ const destroyPostMessageHandler = (id: string) => {
 export const createPreviewIframe = (editor: TiptapEditor, content: string): HTMLIFrameElement => {
   const { id } = createPostMessageHandler(editor);
 
+  const options: Parameters<typeof editor.commands.emitEditorEvent<"previewIframe">>[1] = {
+    sourceType: "data",
+    content,
+    sandbox: "allow-scripts allow-same-origin",
+  };
+  editor.commands.emitEditorEvent("previewIframe", options);
+
+  const wrap = options.sourceType === "data-wrap";
+
   const iframe = document.createElement("iframe");
   iframe.setAttribute("data-mt-rich-text-editor-iframe", id);
   iframe.setAttribute("frameborder", "0");
   iframe.setAttribute("allowfullscreen", "true");
   iframe.style.width = "100%";
   iframe.style.display = "block";
-  iframe.sandbox = "allow-scripts allow-same-origin";
+  iframe.sandbox = options.sandbox;
 
-  const html = `
+  let html = `
       <!DOCTYPE html>
       <html>
         <head>
@@ -85,13 +94,24 @@ export const createPreviewIframe = (editor: TiptapEditor, content: string): HTML
             }
           </style>
           <script>
+            const wrap = ${wrap ? "true" : "false"};
+            const parentWindow = wrap ? window.parent.parent : window.parent;
+
             const resizeObserver = new ResizeObserver((entries) => {
-              window.parent.postMessage({
+              const width = document.body.scrollWidth;
+              const height = document.body.scrollHeight;
+
+              parentWindow.postMessage({
                 method: "resize",
                 id: "${id}",
-                width: document.body.scrollWidth,
-                height: document.body.scrollHeight,
+                width: width,
+                height: height,
               }, "*");
+
+              if (wrap) {
+                window.frameElement.style.width = width + "px";
+                window.frameElement.style.height = height + "px";
+              }
             });
             
             window.addEventListener('load', () => {
@@ -104,7 +124,7 @@ export const createPreviewIframe = (editor: TiptapEditor, content: string): HTML
                 e.stopPropagation();
                 e.preventDefault();
                 if (eventName === "click") {
-                  window.parent.postMessage({
+                  parentWindow.postMessage({
                     method: eventName,
                     id: "${id}",
                   }, "*");
@@ -119,9 +139,50 @@ export const createPreviewIframe = (editor: TiptapEditor, content: string): HTML
       </html>
     `;
 
-  const data = new TextEncoder().encode(html);
-  const base64Html = btoa(String.fromCharCode(...data));
-  iframe.src = `data:text/html;base64,${base64Html}`;
+  if (options.sourceType === "data" || options.sourceType === "data-wrap") {
+    if (options.sourceType === "data-wrap") {
+      const iframe = document.createElement("iframe");
+      iframe.setAttribute("frameborder", "0");
+      iframe.setAttribute("allowfullscreen", "true");
+      iframe.srcdoc = html;
+      html = `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <meta charset="${document.characterSet || "UTF-8"}">
+          <style>
+            html, body {
+              margin: 0;
+              padding: 0;
+              overflow: hidden;
+            }
+            iframe {
+              width: 100%;
+              display: block;
+            }
+            ::-webkit-scrollbar {
+              display: none;
+            }
+          </style>
+        </head>
+        <body>
+          ${iframe.outerHTML}
+        </body>
+      </html>
+      `;
+    }
+    const data = new TextEncoder().encode(html);
+    const base64Html = btoa(String.fromCharCode(...data));
+    iframe.src = `data:text/html;base64,${base64Html}`;
+  } else if (options.sourceType === "blob") {
+    iframe.src = URL.createObjectURL(
+      new Blob([html], {
+        type: "text/html",
+      })
+    );
+  } else if (options.sourceType === "srcdoc") {
+    iframe.srcdoc = html;
+  }
 
   return iframe;
 };

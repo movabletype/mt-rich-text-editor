@@ -13,6 +13,10 @@ import { insertStylesheets } from "./util/dom";
 import prosemirrorCss from "prosemirror-view/style/prosemirror.css?raw";
 import editorCss from "./editor.css?inline";
 import contentCss from "./content.css?inline";
+import { DEFAULT_BLOCK_ELEMENTS, DEFAULT_INLINE_ELEMENTS } from "./constant";
+import { previewIframe } from "./event/default";
+import type { Events, EventHandler } from "./event";
+export type { Events } from "./event";
 
 interface HtmlOutputOptions {
   format?: boolean;
@@ -29,6 +33,17 @@ export interface ExtensionOptions {
       };
       inline?: boolean;
     }>;
+  };
+  div?: {
+    elements?: string[];
+  };
+  span?: {
+    elements?: string[];
+  };
+  movableType?: {
+    editor?: Editor;
+    additionalGlobalAttributeTypes?: string[];
+    tags?: string[];
   };
 }
 
@@ -90,6 +105,18 @@ export interface EditorOptions {
   quickActionOptions?: ConstructorParameters<typeof QuickAction>[0]["options"];
   autoFocus?: boolean;
   htmlOutputOptions?: HtmlOutputOptions;
+  /**
+   * user-defined additional block (div-like) elements
+   * @example
+   * ["abbr", "address"]
+   */
+  additionalBlockElements?: string[];
+  /**
+   * user-defined additional inline elements
+   * @example
+   * ["time", "var"]
+   */
+  additionalInlineElements?: string[];
 }
 
 const DEFAULT_HEIGHT = 350;
@@ -115,11 +142,16 @@ export class Editor {
   #structureMode: StructureMode | undefined;
   #htmlOutputOptions: HTMLBeautifyOptions | undefined;
   #tiptapExtensions: TiptapExtension[];
+  #blockElements: string[];
+  #inlineElements: string[];
+  #eventHandlers: Record<string, EventHandler[]> = {};
 
   constructor(textarea: HTMLTextAreaElement, options: EditorOptions) {
     this.id = textarea.id;
     this.#textarea = textarea;
     this.options = options;
+    this.#blockElements = DEFAULT_BLOCK_ELEMENTS.concat(options.additionalBlockElements ?? []);
+    this.#inlineElements = DEFAULT_INLINE_ELEMENTS.concat(options.additionalInlineElements ?? []);
 
     this.#htmlOutputOptions =
       options.htmlOutputOptions?.format === false
@@ -210,14 +242,19 @@ export class Editor {
     pasteMenuContainer.className = "mt-rich-text-editor-paste-menu";
     shadow.appendChild(pasteMenuContainer);
 
-    this.#tiptapExtensions = [
-      Extension.configure(options.extensionOptions),
-      ...(options.extensions ?? []),
-    ];
+    const extensionOptions = options.extensionOptions ?? {};
+    extensionOptions.div ??= {};
+    extensionOptions.div.elements ??= this.#blockElements;
+    extensionOptions.span ??= {};
+    extensionOptions.span.elements ??= this.#inlineElements;
+    extensionOptions.movableType ??= {};
+    extensionOptions.movableType.additionalGlobalAttributeTypes ??= this.#inlineElements;
+    extensionOptions.movableType.editor = this;
+    this.#tiptapExtensions = [Extension.configure(extensionOptions), ...(options.extensions ?? [])];
     this.tiptap = new TiptapEditor({
       element: editorMount,
       extensions: this.#tiptapExtensions,
-      content: preprocessHTML(this.#textarea.value),
+      content: this.preprocessHTML(this.#textarea.value),
       editorProps: {
         handlePaste,
         attributes: {
@@ -275,6 +312,30 @@ export class Editor {
     if (options.structure) {
       this.setStructureMode(true);
     }
+
+    this.#initDefaultEventHandlers();
+  }
+
+  #initDefaultEventHandlers(): void {
+    this.on("previewIframe", previewIframe);
+  }
+
+  public emit<K extends keyof Events>(name: K, data: Events[K]): void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  public emit(name: string, data: { [key: string]: any } = {}): void {
+    data.editor = this;
+    this.#eventHandlers[name]?.forEach((handler) => handler(data));
+  }
+
+  public on<K extends keyof Events>(
+    name: K,
+    handler: (data: Events[K] & { editor: Editor }) => void
+  ): void;
+  public on(name: string, handler: EventHandler): void {
+    if (!this.#eventHandlers[name]) {
+      this.#eventHandlers[name] = [];
+    }
+    this.#eventHandlers[name].push(handler);
   }
 
   public save(): void {
@@ -282,14 +343,25 @@ export class Editor {
   }
 
   public getContent(): string {
-    return this.#htmlOutputOptions === undefined
-      ? normalizeHTML(this.tiptap.getHTML())
-      : html(normalizeHTML(this.tiptap.getHTML()), this.#htmlOutputOptions);
+    this.emit("beforeGetContent", {});
+    let content = normalizeHTML(this.tiptap.getHTML());
+    if (this.#htmlOutputOptions) {
+      content = html(content, this.#htmlOutputOptions);
+    }
+    const data = { content };
+    this.emit("getContent", data);
+    return data.content;
   }
 
-  public setContent(content: string): void {
-    this.tiptap.commands.setContent(preprocessHTML(content));
-    this.#textarea.value = content;
+  public preprocessHTML(content: string): string {
+    return preprocessHTML(content, this.#blockElements);
+  }
+
+  public setContent(content: string | Events["setContent"]): void {
+    const data = typeof content === "string" ? { source: "external", content } : content;
+    this.emit("setContent", data);
+    this.tiptap.commands.setContent(this.preprocessHTML(data.content));
+    this.#textarea.value = data.content;
   }
 
   public getHeight(): number {
@@ -333,7 +405,7 @@ export class Editor {
   }
 
   public insertContent(html: string): void {
-    const json = generateJSON(preprocessHTML(html), this.#tiptapExtensions);
+    const json = generateJSON(this.preprocessHTML(html), this.#tiptapExtensions);
     this.tiptap.commands.insertContent(json);
   }
 

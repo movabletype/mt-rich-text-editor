@@ -1,5 +1,4 @@
 import { PanelItemElement } from "../../ui/item/element";
-import { preprocessHTML } from "../../util/html";
 import css from "./element.css?raw";
 
 const pasteMenuItemStyle = document.createElement("style");
@@ -81,9 +80,13 @@ export abstract class PasteMenuItemElement<
 
   insertContent(content: string) {
     this.content?.transaction(() => {
-      this.tiptap?.chain().undo().focus().run();
-      this.tiptap?.commands.insertContent(
-        typeof content === "string" ? preprocessHTML(content) : content
+      const { tiptap, editor } = this;
+      if (!tiptap || !editor) {
+        return;
+      }
+      tiptap.chain().undo().focus().run();
+      tiptap.commands.insertContent(
+        typeof content === "string" ? editor.preprocessHTML(content) : content
       );
     });
     this.parentElement?.dispatchEvent(new Event("paste-menu-item-applied"));

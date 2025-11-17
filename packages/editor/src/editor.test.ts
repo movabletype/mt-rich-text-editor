@@ -45,14 +45,62 @@ describe("HTML parsing", () => {
     "<ul><li style='top:0'><ul class='v'><li><a href='v'>t</a></li></ul></li></ul>",
     "<p><span class='v1'>a</span><span class='v2'>b</span></p>",
     "<figure style='display: inline-block' class='mt-figure'><img src='http://example.com/image.jpg' width='800' height='657' alt='alternative text' class='asset asset-image at-xid-1'/><figcaption>caption text</figcaption></figure>",
+    "<hgroup><h1>Title</h1><h2>Subtitle</h2><p>Description</p></hgroup>",
     `<table><tbody><tr><td>b</td></tr></tbody></table>`,
     `<table style="width: 100%"><tbody><tr><td><div>b</div></td></tr></tbody></table>`,
     `<div data-mt-rich-text-editor-embed-object=""><iframe width=" 200" height="113" src="https://www.youtube.com/embed/XUAnkKpHaCI?feature=oembed" frameborder="0" allowfullscreen="allowfullscreen"></iframe></div>`,
     `<div data-mt-rich-text-editor-embed-object=""><div>test</div></div>`,
+    `<p><ruby> 明日 <rp>(</rp><rt>Ashita</rt><rp>)</rp> </ruby></p>`,
   ])("should preserve HTML structure through Tiptap: %s", (input) => {
     editor.setContent(input);
     const output = editor.getContent();
     expect(normalizeHTML(output)).toBe(normalizeHTML(input));
+  });
+
+  describe("additionalBlockElements option", () => {
+    beforeEach(() => {
+      editor.destroy();
+      editor = new Editor(textarea, {
+        toolbar: [],
+        inline: false,
+        additionalBlockElements: ["abbr", "address"],
+      });
+    });
+
+    it.each([
+      "<address>123 Main St.<br>City, State ZIP</address>",
+      "<abbr title='World Health Organization'>WHO</abbr>",
+    ])(
+      "should preserve HTML structure through Tiptap with additionalBlockElements: %s",
+      (input) => {
+        editor.setContent(input);
+        const output = editor.getContent();
+        expect(normalizeHTML(output)).toBe(normalizeHTML(input));
+      }
+    );
+  });
+
+  describe("additionalInlineElements option", () => {
+    beforeEach(() => {
+      editor.destroy();
+      editor = new Editor(textarea, {
+        toolbar: [],
+        inline: false,
+        additionalInlineElements: ["time", "var"],
+      });
+    });
+
+    it.each([
+      "<p>The event is on <time datetime='2023-10-05'>October 5, 2023</time>.</p>",
+      "<p>Calculate the <var>x</var> value in the equation.</p>",
+    ])(
+      "should preserve HTML structure through Tiptap with additionalInlineElements: %s",
+      (input) => {
+        editor.setContent(input);
+        const output = editor.getContent();
+        expect(normalizeHTML(output)).toBe(normalizeHTML(input));
+      }
+    );
   });
 
   it.todo.each([])("TODO:should preserve HTML structure through Tiptap: %s", (input) => {
@@ -298,3 +346,72 @@ const normalizeHTML = (html: string): string => {
     .map((child) => formatNode(child as HTMLElement, 0, "  "))
     .join("\n");
 };
+
+describe("Event emission", () => {
+  let textarea: HTMLTextAreaElement;
+  let editor: Editor;
+
+  beforeEach(() => {
+    textarea = document.createElement("textarea");
+    document.body.appendChild(textarea);
+    editor = new Editor(textarea, {
+      toolbar: [],
+      inline: false,
+    });
+  });
+
+  afterEach(() => {
+    editor.destroy();
+    textarea.remove();
+  });
+
+  it("should emit beforeGetContent events", () => {
+    editor.on("beforeGetContent", ({ editor }) => {
+      editor.tiptap.commands.setHeading({ level: 2 });
+    });
+    const input = "<h1>Test content</h1>";
+    editor.setContent(input);
+    const output = editor.getContent();
+
+    expect(output).toBe("<h2>Test content</h2>");
+  });
+
+  it("should emit getContent events", () => {
+    editor.on("getContent", (data) => {
+      data.content += "<p>Appended paragraph</p>";
+    });
+    const input = "<p>Initial content</p>";
+    editor.setContent(input);
+    const output = editor.getContent();
+
+    expect(output).toBe("<p>Initial content</p><p>Appended paragraph</p>");
+  });
+
+  it("should emit setContent events", () => {
+    editor.on("setContent", (data) => {
+      expect(data.source).toBe("external");
+      data.content = data.content.toUpperCase();
+    });
+    const input = "<p>Initial content</p>";
+    editor.setContent(input);
+    const output = editor.getContent();
+
+    expect(output).toBe("<p>INITIAL CONTENT</p>");
+  });
+
+  it("should emit setContent events with custom source", () => {
+    const source = "text-source";
+    editor.on("setContent", (data) => {
+      expect(data.source).toBe(source);
+      data.content = data.content.toUpperCase();
+    });
+    const input = "<p>Initial content</p>";
+    editor.setContent({
+      source: source,
+      content: input,
+    });
+    const output = editor.getContent();
+
+    expect(output).toBe("<p>INITIAL CONTENT</p>");
+  });
+});

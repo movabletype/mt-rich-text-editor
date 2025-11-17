@@ -35,7 +35,6 @@
 <script lang="ts">
   import { t } from "../../i18n";
   import { mount, unmount } from "svelte";
-  import { preprocessHTML } from "../../util/html";
   import HtmlModal from "./HtmlModal.svelte";
   import type { PasteMenuItemElement } from "./element";
   import { INTERNAL_PASTE_CONTENT_TYPE } from ".";
@@ -43,12 +42,12 @@
   const element = $host<PasteMenuItemElement>();
   element.addEventListener("click", toggleDetailPanel);
 
-  const { options, tiptap } = element;
+  const { options, tiptap, editor } = element;
 
   let modalComponent: ReturnType<typeof mount> | null = null;
 
   const apply = (htmlDocument: Document | null | undefined = null) => {
-    if (!tiptap) {
+    if (!tiptap || !editor) {
       return;
     }
 
@@ -65,7 +64,7 @@
     if (htmlDocument) {
       (options.handler as ((doc: Document) => void) | undefined)?.(htmlDocument);
     }
-    const html = preprocessHTML(htmlDocument?.body.innerHTML ?? "");
+    const html = editor.preprocessHTML(htmlDocument?.body.innerHTML ?? "");
 
     const event = new ClipboardEvent("paste", {
       clipboardData: new DataTransfer(),

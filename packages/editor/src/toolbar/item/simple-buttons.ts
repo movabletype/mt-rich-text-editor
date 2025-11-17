@@ -4,7 +4,6 @@ import type { ChainedCommands } from "@tiptap/core";
 import { Editor as TiptapEditor } from "@tiptap/core";
 import { t } from "../../i18n";
 import { toKeyboardShortcutLabel } from "../../util/keyboardShortcut";
-import { normalizeHTML, preprocessHTML } from "../../util/html";
 
 import type { Editor } from "../../editor";
 import { ToolbarItemElement } from "./element";
@@ -265,15 +264,15 @@ export class InsertHtmlButton extends ToolbarItemElement {
   connectedCallback() {
     super.connectedCallback();
     this.addEventListener("click", () => {
-      const tiptap = this.tiptap;
-      if (!tiptap) {
+      const editor = this.editor;
+      if (!editor) {
         return;
       }
       const modal = mount(InsertHtmlModal, {
         target: document.body,
         props: {
           onSubmit: (html: string) => {
-            tiptap.commands.insertContent(preprocessHTML(html));
+            editor.insertContent(html);
           },
           onClose: () => {
             unmount(modal);
@@ -296,16 +295,19 @@ export class SourceButton extends ToolbarItemElement {
   connectedCallback() {
     super.connectedCallback();
     this.addEventListener("click", () => {
-      const tiptap = this.tiptap;
-      if (!tiptap) {
+      const editor = this.editor;
+      if (!editor) {
         return;
       }
       const modal = mount(SourceModal, {
         target: document.body,
         props: {
-          text: normalizeHTML(tiptap.getHTML()),
+          text: editor.getContent(),
           onSubmit: (html: string) => {
-            tiptap.commands.setContent(preprocessHTML(html));
+            editor.setContent({
+              source: "sourceEditor",
+              content: html,
+            });
           },
           onClose: () => {
             unmount(modal);
