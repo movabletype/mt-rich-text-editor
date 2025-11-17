@@ -2,7 +2,7 @@ import { test, expect } from "@playwright/test";
 import type {} from "../../src/mt-rich-text-editor";
 
 test.describe("Paste Menu", () => {
-  test.only("paste url", async ({ page }) => {
+  test("paste url", async ({ page }) => {
     await page.goto("/");
     const textarea = await page.locator("#editor");
     await page.locator('[data-mt-rich-text-editor-id="editor"]').click();
