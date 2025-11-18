@@ -1,9 +1,11 @@
 import { test, expect } from "@playwright/test";
 import type {} from "../../src/mt-rich-text-editor";
+import { mockEmbedObjectResolver } from "../util";
 
 test.describe("Paste Menu", () => {
   test("paste url", async ({ page }) => {
     await page.goto("/");
+    await mockEmbedObjectResolver(page, async () => ({}));
     const textarea = await page.locator("#editor");
     await page.locator('[data-mt-rich-text-editor-id="editor"]').click();
     await page.evaluate(() => {
@@ -24,7 +26,9 @@ test.describe("Paste Menu", () => {
       await window.MTRichTextEditor.save();
     });
     const content1 = await textarea.evaluate((el: HTMLTextAreaElement) => el.value);
-    expect(content1).toBe(`<p><a href="http://example.com" target="_blank">http://example.com</a></p>`);
+    expect(content1).toBe(
+      `<p><a href="http://example.com" target="_blank">http://example.com</a></p>`
+    );
 
     await page.evaluate(() => {
       return document
@@ -44,6 +48,7 @@ test.describe("Paste Menu", () => {
 
   test("paste url to selected text", async ({ page }) => {
     await page.goto("/");
+    await mockEmbedObjectResolver(page, async () => ({}));
     const textarea = await page.locator("#editor");
     await page.locator('[data-mt-rich-text-editor-id="editor"]').click();
     await page.keyboard.type("Test Link Text");
@@ -98,7 +103,7 @@ test.describe("Paste Menu", () => {
         ?.shadowRoot?.querySelector<HTMLElement>("mt-rich-text-editor-paste-menu-item-link")
         ?.click();
     });
-    await page.locator('.modal button.primary').click();
+    await page.locator(".modal button.primary").click();
 
     await page.evaluate(async () => {
       await window.MTRichTextEditor.save();
