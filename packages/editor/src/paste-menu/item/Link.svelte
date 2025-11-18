@@ -23,6 +23,7 @@
   import type { Options } from "../../toolbar/item/link/common";
 
   const element = $host<PasteMenuItemElement>();
+  const linkTextMap = new WeakMap<object, string>();
 
   const { editor, tiptap } = element;
   let modalComponent: ReturnType<typeof mount> | null = null;
@@ -36,12 +37,24 @@
       return;
     }
 
-    linkData ??= {
-      url: content.plainText,
-      text: content.plainText,
-      title: "",
-      target: (editor?.options.toolbarOptions?.link as Options)?.defaultTarget || "_self",
-    };
+    if (linkData) {
+      linkTextMap.set(content, linkData.text);
+    } else {
+      if (!linkTextMap.has(content)) {
+        linkTextMap.set(
+          content,
+          tiptap.state.doc.textBetween(tiptap.state.selection.from, tiptap.state.selection.to) ||
+            content.plainText
+        );
+      }
+
+      linkData = {
+        url: content.plainText,
+        text: linkTextMap.get(content)!,
+        title: "",
+        target: (editor?.options.toolbarOptions?.link as Options)?.defaultTarget || "_self",
+      };
+    }
 
     const anchor = document.createElement("a");
     anchor.href = linkData.url;
@@ -69,7 +82,7 @@
         props: {
           linkData: {
             url: element.content!.plainText,
-            text: element.content!.plainText,
+            text: linkTextMap.get(element.content!) || element.content!.plainText,
             title: "",
             target: (editor?.options.toolbarOptions?.link as Options)?.defaultTarget || "_self",
           },
