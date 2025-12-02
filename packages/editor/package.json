@@ -58,7 +58,7 @@
   "dependencies": {
     "@movabletype/app": "../../@movabletype/movabletype-app-0.0.1.tgz",
     "@movabletype/svelte-components": "../../@movabletype/movabletype-svelte-components-0.0.4.tgz",
-    "@tiptap/core": "^3.10.5",
+    "@tiptap/core": "^3.11.1",
     "@tiptap/extension-blockquote": "^3.10.5",
     "@tiptap/extension-bold": "^3.10.5",
     "@tiptap/extension-bullet-list": "^3.10.5",
