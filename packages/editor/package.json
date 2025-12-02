@@ -18,7 +18,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.21.0",
-    "@playwright/test": "^1.56.1",
+    "@playwright/test": "^1.57.0",
     "@sveltejs/vite-plugin-svelte": "^5.0.3",
     "@types/js-beautify": "^1.14.3",
     "@types/node": "^24.3.0",
