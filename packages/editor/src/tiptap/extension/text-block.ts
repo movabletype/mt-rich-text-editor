@@ -83,6 +83,23 @@ export const TextBlock = Node.create({
 
         return true;
       },
+      Backspace: ({ editor }) => {
+        if (editor.isActive("paragraph")) {
+          const $from = editor.state.selection.$from;
+          const parentNode = $from.node(-1);
+          if (parentNode.type.name !== "doc") {
+            return;
+          }
+
+          setTimeout(() => {
+            const $from = editor.state.selection.$from;
+            const parentNode = $from.node(-1);
+            if (parentNode.type.name === "listItem") {
+              editor.commands.setNode("textBlock");
+            }
+          });
+        }
+      },
     };
   },
 
