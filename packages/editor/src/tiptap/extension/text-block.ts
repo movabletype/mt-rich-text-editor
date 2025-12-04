@@ -84,6 +84,71 @@ export const TextBlock = Node.create({
         return true;
       },
       Backspace: ({ editor }) => {
+        if (editor.isActive(this.name)) {
+          setTimeout(() => {
+            const { state } = editor;
+            const $from = state.selection.$from;
+            const parentNode = $from.node(-1);
+            if (parentNode.type.name !== "listItem") {
+              return;
+            }
+            // should clean up trailing blank textBlocks in listItem
+
+            let listItemDepth = -1;
+            for (let depth = $from.depth; depth > 0; depth -= 1) {
+              if ($from.node(depth).type.name === "listItem") {
+                listItemDepth = depth;
+                break;
+              }
+            }
+
+            if (listItemDepth === -1) {
+              // failed to find listItem node
+              return;
+            }
+
+            const listItemNode = $from.node(listItemDepth);
+            if (listItemNode.childCount === 1) {
+              // preserve the last blank text block
+              return;
+            }
+
+            const listItemPos = $from.before(listItemDepth);
+
+            let firstTrailingBlankIndex = -1;
+            for (let index = listItemNode.childCount - 1; index >= 0; index -= 1) {
+              const child = listItemNode.child(index);
+              if (child.type.name !== this.name || child.textContent.trim() !== "") {
+                break;
+              }
+              firstTrailingBlankIndex = index;
+            }
+
+            if (firstTrailingBlankIndex === -1) {
+              // no trailing blank textBlocks found
+              return;
+            }
+
+            let removeFrom = listItemPos + 1;
+            for (let i = 0; i < firstTrailingBlankIndex; i += 1) {
+              removeFrom += listItemNode.child(i).nodeSize;
+            }
+
+            let removeTo = removeFrom;
+            for (let i = firstTrailingBlankIndex; i < listItemNode.childCount; i += 1) {
+              const child = listItemNode.child(i);
+              if (child.type.name !== this.name || child.textContent.trim() !== "") {
+                break;
+              }
+              removeTo += child.nodeSize;
+            }
+
+            if (removeTo > removeFrom) {
+              editor.view.dispatch(state.tr.delete(removeFrom, removeTo));
+            }
+          });
+        }
+
         if (editor.isActive("paragraph")) {
           const $from = editor.state.selection.$from;
           const parentNode = $from.node(-1);
