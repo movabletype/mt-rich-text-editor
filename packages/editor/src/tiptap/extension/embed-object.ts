@@ -67,11 +67,39 @@ export const EmbedObject = Node.create<EmbedObjectOptions>({
   },
 
   addNodeView() {
-    return ({ editor, node }) => {
+    return ({ editor, node, getPos }) => {
       const dom = createPreviewIframe(editor, node.attrs.content);
+
+      const setSelection = () => {
+        if (!getPos) {
+          return;
+        }
+
+        let pos: number | undefined;
+        try {
+          pos = getPos();
+        } catch {
+          return;
+        }
+
+        if (typeof pos !== "number") {
+          return;
+        }
+
+        editor.chain().setNodeSelection(pos).focus().run();
+      };
+
+      const handleClick = (event: MouseEvent) => {
+        event.preventDefault();
+        setSelection();
+      };
+
+      dom.addEventListener("click", handleClick);
+
       return {
         dom,
         destroy: () => {
+          dom.removeEventListener("click", handleClick);
           destroyPreviewIframe(dom);
         },
       };
