@@ -1,4 +1,5 @@
 import { Node, mergeAttributes } from "@tiptap/core";
+import { NodeSelection } from "@tiptap/pm/state";
 import type { Editor } from "@tiptap/core";
 import { createPreviewIframe, destroyPreviewIframe } from "../../util/preview";
 import { getAnchorNodePos } from "../../util/tiptap";
@@ -146,6 +147,35 @@ export const EmbedObject = Node.create<EmbedObjectOptions>({
         });
 
         return true;
+      },
+      Backspace: ({ editor }) => {
+        const { state, view } = editor;
+        const { selection } = state;
+
+        // Delete the embedObject when the cursor is at the start of the following paragraph (or any block).
+        if (selection.empty && selection.$from.parentOffset === 0) {
+          const before = selection.$from.before();
+          const nodeBefore = state.doc.resolve(before).nodeBefore;
+
+          if (nodeBefore?.type.name === this.name) {
+            const embedObjectSelection = NodeSelection.create(
+              state.doc,
+              before - nodeBefore.nodeSize
+            );
+            let tr = state.tr.setSelection(embedObjectSelection);
+
+            if (selection.$from.node().content.size === 0) {
+              // if current node is empty, delete the paragraph and select the embedObject
+              tr = tr.delete(selection.from - 1, selection.to);
+            } else {
+              // else, just delete the embedObject
+              tr = tr.deleteSelection();
+            }
+
+            view.dispatch(tr);
+            return true;
+          }
+        }
       },
     };
   },
