@@ -9,6 +9,6 @@ export const BulletList = TiptapBulletList.extend({
         rule.handler(props);
         fixListItemContent(props);
       },
-    }))
+    }));
   },
 });
