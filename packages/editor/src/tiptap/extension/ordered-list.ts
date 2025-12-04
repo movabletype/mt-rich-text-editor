@@ -9,6 +9,6 @@ export const OrderedList = TiptapOrderedList.extend({
         rule.handler(props);
         fixListItemContent(props);
       },
-    }))
+    }));
   },
 });
