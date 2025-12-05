@@ -1,5 +1,5 @@
 import { Node, mergeAttributes } from "@tiptap/core";
-import { Node as ProseMirrorNode } from "@tiptap/pm/model";
+import { NodeSelection } from "@tiptap/pm/state";
 import type { Editor } from "@tiptap/core";
 import { createPreviewIframe, destroyPreviewIframe } from "../../util/preview";
 import { getAnchorNodePos } from "../../util/tiptap";
@@ -9,46 +9,6 @@ interface EmbedData {
   maxwidth?: number;
   maxheight?: number;
 }
-
-const insertParagraphBefore = ({ editor }: { editor: Editor }) => {
-  if (!editor.isActive("embedObject")) {
-    return false;
-  }
-
-  const pos = getAnchorNodePos(editor, "embedObject") as number;
-  if (pos === 0) {
-    editor.commands.insertContentAt(0, {
-      type: "paragraph",
-    });
-    return true;
-  } else {
-    return false;
-  }
-};
-
-const insertParagraphAfter = ({ editor }: { editor: Editor }) => {
-  if (!editor.isActive("embedObject")) {
-    return false;
-  }
-
-  const pos = getAnchorNodePos(editor, "embedObject") as number;
-  const node = editor.state.doc.nodeAt(pos) as ProseMirrorNode;
-  const nextPos = pos + node.nodeSize;
-  if (nextPos >= editor.$doc.content.size) {
-    editor.commands.insertContentAt(editor.$doc.content.size, {
-      type: "paragraph",
-    });
-    if (!editor.state.doc.nodeAt(editor.$doc.content.size - 2)) {
-      // FIXME: the insertion fails. So retry
-      editor.commands.insertContentAt(editor.$doc.content.size, {
-        type: "paragraph",
-      });
-    }
-    return true;
-  } else {
-    return false;
-  }
-};
 
 export interface EmbedObjectOptions {
   HTMLAttributes: Record<string, unknown>;
@@ -108,11 +68,39 @@ export const EmbedObject = Node.create<EmbedObjectOptions>({
   },
 
   addNodeView() {
-    return ({ editor, node }) => {
+    return ({ editor, node, getPos }) => {
       const dom = createPreviewIframe(editor, node.attrs.content);
+
+      const setSelection = () => {
+        if (!getPos) {
+          return;
+        }
+
+        let pos: number | undefined;
+        try {
+          pos = getPos();
+        } catch {
+          return;
+        }
+
+        if (typeof pos !== "number") {
+          return;
+        }
+
+        editor.chain().setNodeSelection(pos).focus().run();
+      };
+
+      const handleClick = (event: MouseEvent) => {
+        event.preventDefault();
+        setSelection();
+      };
+
+      dom.addEventListener("click", handleClick);
+
       return {
         dom,
         destroy: () => {
+          dom.removeEventListener("click", handleClick);
           destroyPreviewIframe(dom);
         },
       };
@@ -161,23 +149,34 @@ export const EmbedObject = Node.create<EmbedObjectOptions>({
         return true;
       },
       Backspace: ({ editor }) => {
-        if (!editor.isActive(this.name)) {
-          return false;
-        }
+        const { state, view } = editor;
+        const { selection } = state;
 
-        const pos = getAnchorNodePos(editor, "embedObject") as number;
-        if (pos > 0 && pos <= 2) {
-          editor.commands.deleteRange({ from: 0, to: 1 }); // delete first empty paragraph
-          return true;
-        } else {
-          editor.commands.setTextSelection(pos - 1); // move to previous node
-          return false; // then proceed to the original delete operation
+        // Delete the embedObject when the cursor is at the start of the following paragraph (or any block).
+        if (selection.empty && selection.$from.parentOffset === 0) {
+          const before = selection.$from.before();
+          const nodeBefore = state.doc.resolve(before).nodeBefore;
+
+          if (nodeBefore?.type.name === this.name) {
+            const embedObjectSelection = NodeSelection.create(
+              state.doc,
+              before - nodeBefore.nodeSize
+            );
+            let tr = state.tr.setSelection(embedObjectSelection);
+
+            if (selection.$from.node().content.size === 0) {
+              // if current node is empty, delete the paragraph and select the embedObject
+              tr = tr.delete(selection.from - 1, selection.to);
+            } else {
+              // else, just delete the embedObject
+              tr = tr.deleteSelection();
+            }
+
+            view.dispatch(tr);
+            return true;
+          }
         }
       },
-      ArrowUp: insertParagraphBefore,
-      ArrowLeft: insertParagraphBefore,
-      ArrowDown: insertParagraphAfter,
-      ArrowRight: insertParagraphAfter,
     };
   },
 });
