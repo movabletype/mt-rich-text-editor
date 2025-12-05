@@ -36,7 +36,7 @@ export const Indent = Extension.create<IndentOptions>({
                     style: `padding-left: ${indent * 80}px`,
                   }
                 : {},
-            parseHTML: (element) => Number(element.getAttribute("data-mt-indent")),
+            parseHTML: (element) => Number(element.getAttribute("data-mt-indent") || null),
           },
         },
       },
