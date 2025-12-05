@@ -53,6 +53,8 @@ test.describe("Paste Menu", () => {
     await page.locator('[data-mt-rich-text-editor-id="editor"]').click();
     await page.keyboard.type("Test Link Text");
 
+    await new Promise((r) => setTimeout(r, 50));
+
     // Select "Link"
     for (let i = 0; i < " Text".length; i++) {
       await page.keyboard.press("ArrowLeft");
@@ -60,6 +62,8 @@ test.describe("Paste Menu", () => {
     for (let i = 0; i < "Link".length; i++) {
       await page.keyboard.press("Shift+ArrowLeft");
     }
+
+    await new Promise((r) => setTimeout(r, 50));
 
     await page.evaluate(() => {
       const clipboardData = new DataTransfer();
