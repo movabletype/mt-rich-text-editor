@@ -76,6 +76,9 @@ export const Indent = Extension.create<IndentOptions>({
               this.editor.commands.sinkListItem("listItem");
             } else if (delta < 0) {
               this.editor.commands.liftListItem("listItem");
+              if (!this.editor.isActive("listItem") && this.editor.isActive("textBlock")) {
+                this.editor.commands.setParagraph();
+              }
             }
             return false;
           }
