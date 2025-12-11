@@ -19,7 +19,7 @@ export const Indent = Extension.create<IndentOptions>({
 
   addOptions() {
     return {
-      types: ["listItem", "paragraph"],
+      types: ["paragraph"],
     };
   },
 
@@ -36,7 +36,7 @@ export const Indent = Extension.create<IndentOptions>({
                     style: `padding-left: ${indent * 80}px`,
                   }
                 : {},
-            parseHTML: (element) => Number(element.getAttribute("data-mt-indent")),
+            parseHTML: (element) => Number(element.getAttribute("data-mt-indent") || null),
           },
         },
       },
@@ -70,6 +70,16 @@ export const Indent = Extension.create<IndentOptions>({
         doc.nodesBetween(from, to, (node, pos) => {
           if (this.options.types.includes(node.type.name)) {
             tr = setNodeIndentMarkup(tr, pos, delta);
+            return false;
+          } else if (node.type.name === "listItem") {
+            if (delta > 0) {
+              this.editor.commands.sinkListItem("listItem");
+            } else if (delta < 0) {
+              this.editor.commands.liftListItem("listItem");
+              if (!this.editor.isActive("listItem") && this.editor.isActive("textBlock")) {
+                this.editor.commands.setParagraph();
+              }
+            }
             return false;
           }
 
