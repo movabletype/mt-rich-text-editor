@@ -1,7 +1,8 @@
 import { test, expect } from "@playwright/test";
 import type {} from "../src/mt-rich-text-editor";
+import { clickToolbarItem } from "./util";
 
-test.describe("EditorManager", () => {
+test.describe("list extension", () => {
   test("insert list by inputRules", async ({ page }) => {
     await page.goto("/");
     const textarea = await page.locator("#editor");
@@ -111,5 +112,79 @@ test.describe("EditorManager", () => {
 <li>test</li>
 <li>next</li>
 </ul>`);
+  });
+
+  test.describe("indent and outdent by keyboard", () => {
+    test("apply indent to list item", async ({ page }) => {
+      await page.goto("/");
+      const textarea = await page.locator("#editor");
+      await page.locator('[data-mt-rich-text-editor-id="editor"]').click();
+      await clickToolbarItem(page, "bulletList");
+      await page.keyboard.type("List item 1");
+      await page.keyboard.press("Enter");
+      await page.keyboard.type("List item 2");
+      await page.keyboard.press("Enter");
+      await page.keyboard.press("Tab");
+      await page.keyboard.type("List item 2.1");
+
+      await page.evaluate(async () => {
+        await window.MTRichTextEditor.save();
+      });
+
+      const content = await textarea.evaluate((el: HTMLTextAreaElement) => el.value);
+      expect(content).toBe(`<ul>
+<li>List item 1</li>
+<li>List item 2<ul>
+<li>List item 2.1</li>
+</ul>
+</li>
+</ul>`);
+    });
+
+    test("apply indent and outdent to list item", async ({ page }) => {
+      await page.goto("/");
+      const textarea = await page.locator("#editor");
+      await page.locator('[data-mt-rich-text-editor-id="editor"]').click();
+      await clickToolbarItem(page, "bulletList");
+      await page.keyboard.type("List item 1");
+      await page.keyboard.press("Enter");
+      await page.keyboard.type("List item 2");
+      await page.keyboard.press("Enter");
+      await page.keyboard.press("Tab");
+      await page.keyboard.type("List item 3");
+      await page.keyboard.press("Shift+Tab");
+
+      await page.evaluate(async () => {
+        await window.MTRichTextEditor.save();
+      });
+
+      const content = await textarea.evaluate((el: HTMLTextAreaElement) => el.value);
+      expect(content).toBe(`<ul>
+<li>List item 1</li>
+<li>List item 2</li>
+<li>List item 3</li>
+</ul>`);
+    });
+
+    test("apply outdent to list item for de-indent", async ({ page }) => {
+      await page.goto("/");
+      const textarea = await page.locator("#editor");
+      await page.locator('[data-mt-rich-text-editor-id="editor"]').click();
+      await clickToolbarItem(page, "bulletList");
+      await page.keyboard.type("List item 1");
+      await page.keyboard.press("Enter");
+      await page.keyboard.type("Paragraph");
+      await page.keyboard.press("Shift+Tab");
+
+      await page.evaluate(async () => {
+        await window.MTRichTextEditor.save();
+      });
+
+      const content = await textarea.evaluate((el: HTMLTextAreaElement) => el.value);
+      expect(content).toBe(`<ul>
+<li>List item 1</li>
+</ul>
+<p>Paragraph</p>`);
+    });
   });
 });

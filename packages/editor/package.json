@@ -94,6 +94,7 @@
     "i18next": "^24.2.2",
     "js-beautify": "^1.15.4",
     "platform": "^1.3.6",
+    "prosemirror-view": "github:ProseMirror/prosemirror-view#76c7c47f03730b18397b94bd269ece8a9cb7f486",
     "quill": "^2.0.3",
     "svelte": "^5.25.6"
   }

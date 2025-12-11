@@ -21,3 +21,18 @@ export const mockEmbedObjectResolver = (
     { resolverStr: resolver.toString() }
   );
 };
+
+export const clickToolbarItem = async (page: Page, itemName: string) => {
+  return await page.evaluate(
+    ({ itemName }) => {
+      document
+        .querySelector('[data-mt-rich-text-editor-id="editor"]')
+        ?.shadowRoot?.querySelector(".mt-rich-text-editor-toolbar")
+        ?.shadowRoot?.querySelector<HTMLElement>(`mt-rich-text-editor-toolbar-item-${itemName}`)
+        ?.click();
+    },
+    {
+      itemName,
+    }
+  );
+};
