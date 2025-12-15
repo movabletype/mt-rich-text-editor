@@ -176,6 +176,8 @@ export const EmbedObject = Node.create<EmbedObjectOptions>({
             return true;
           }
         }
+
+        return false;
       },
     };
   },
