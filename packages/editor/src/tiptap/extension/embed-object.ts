@@ -1,14 +1,83 @@
 import { Node, mergeAttributes } from "@tiptap/core";
-import { NodeSelection } from "@tiptap/pm/state";
 import type { Editor } from "@tiptap/core";
+import { NodeSelection } from "@tiptap/pm/state";
 import { createPreviewIframe, destroyPreviewIframe } from "../../util/preview";
-import { getAnchorNodePos } from "../../util/tiptap";
 
 interface EmbedData {
   url: string;
   maxwidth?: number;
   maxheight?: number;
 }
+
+const selectEntireEmbedObject = ({ editor }: { editor: Editor }) => {
+  if (!editor.isActive("embedObject")) {
+    return false;
+  }
+
+  const selection = editor.state.selection;
+  if (!(selection instanceof NodeSelection) || selection.node.type.name !== "embedObject") {
+    const { $from } = selection;
+    for (let depth = $from.depth; depth > 0; depth--) {
+      if ($from.node(depth).type.name === "embedObject") {
+        editor.chain().setNodeSelection($from.before(depth)).focus().run();
+      }
+    }
+  }
+};
+
+const insertParagraphBefore = ({ editor }: { editor: Editor }) => {
+  if (!editor.isActive("embedObject")) {
+    return false;
+  }
+
+  selectEntireEmbedObject({ editor });
+
+  const selection = editor.state.selection;
+  const { $from } = selection;
+
+  if ($from.nodeBefore) {
+    return false;
+  }
+
+  try {
+    const pos = selection.from;
+    editor
+      .chain()
+      .insertContentAt(pos, { type: "paragraph" })
+      .setTextSelection(pos + 1)
+      .run();
+    return true;
+  } catch {
+    return false;
+  }
+};
+
+const insertParagraphAfter = ({ editor }: { editor: Editor }) => {
+  if (!editor.isActive("embedObject")) {
+    return false;
+  }
+
+  selectEntireEmbedObject({ editor });
+
+  const selection = editor.state.selection;
+  const { $to } = selection;
+
+  if ($to.nodeAfter) {
+    return false;
+  }
+
+  try {
+    const pos = selection.to;
+    editor
+      .chain()
+      .insertContentAt(pos, { type: "paragraph" })
+      .setTextSelection(pos + 1)
+      .run();
+    return true;
+  } catch {
+    return true;
+  }
+};
 
 export interface EmbedObjectOptions {
   HTMLAttributes: Record<string, unknown>;
@@ -141,10 +210,14 @@ export const EmbedObject = Node.create<EmbedObjectOptions>({
           return false;
         }
 
-        const pos = getAnchorNodePos(editor, "embedObject") as number;
-        editor.commands.insertContentAt(pos, {
-          type: "paragraph",
-        });
+        selectEntireEmbedObject({ editor });
+
+        const pos = editor.state.selection.$from.pos;
+        editor
+          .chain()
+          .insertContentAt(pos - 1, { type: "paragraph" })
+          .setTextSelection(pos)
+          .run();
 
         return true;
       },
@@ -179,6 +252,10 @@ export const EmbedObject = Node.create<EmbedObjectOptions>({
 
         return false;
       },
+      ArrowUp: insertParagraphBefore,
+      ArrowLeft: insertParagraphBefore,
+      ArrowDown: insertParagraphAfter,
+      ArrowRight: insertParagraphAfter,
     };
   },
 });
