@@ -20,6 +20,14 @@
   <body>
     <div id="editor-container">
       <textarea id="editor"></textarea>
+      <script>
+        (() => {
+          const content = sessionStorage.getItem("MTRichTextEditorInitialContent");
+          if (content) {
+            document.querySelector("#editor").value = content;
+          }
+        })();
+      </script>
 
       <!--
         <textarea id="editor">
