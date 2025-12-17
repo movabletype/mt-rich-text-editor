@@ -147,6 +147,8 @@ export class Editor {
   #eventHandlers: Record<string, EventHandler[]> = {};
 
   constructor(textarea: HTMLTextAreaElement, options: EditorOptions) {
+    this.#initDefaultEventHandlers();
+
     this.id = textarea.id;
     this.#textarea = textarea;
     this.options = options;
@@ -312,8 +314,6 @@ export class Editor {
     if (options.structure) {
       this.setStructureMode(true);
     }
-
-    this.#initDefaultEventHandlers();
   }
 
   #initDefaultEventHandlers(): void {
