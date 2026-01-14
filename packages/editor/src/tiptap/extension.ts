@@ -49,6 +49,7 @@ import { DescriptionDetails } from "./extension/description-details";
 import { Summary } from "./extension/summary";
 import { ListItem } from "./extension/list-item";
 import { Script } from "./extension/script";
+import { SVG } from "./extension/svg";
 import { EmbedObject } from "./extension/embed-object";
 import { Markdown } from "./extension/markdown";
 import { UndoRedo } from "./extension/undo-redo";
@@ -261,6 +262,10 @@ export const Extension = TiptapExtension.create({
 
     if (this.options.script !== false) {
       extensions.push(Script.configure(this.options?.script));
+    }
+
+    if (this.options.svg !== false) {
+      extensions.push(SVG.configure(this.options?.svg));
     }
 
     if (this.options.embedObject !== false) {

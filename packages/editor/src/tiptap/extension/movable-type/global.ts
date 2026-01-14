@@ -95,6 +95,7 @@ export const Global = Extension.create<GlobalOptions>({
           "paragraph",
           "textStyle",
           "script",
+          "svg",
           "table",
           "tableRow",
           "tableCell",
