@@ -37,7 +37,8 @@ describe("HTML parsing", () => {
     "<p><script src='/js/script.js' data-attribute='{&quot;key&quot;: &quot;value&quot;}'></script></p>",
     "<p><script>console.log('test');</script></p>",
     "<p><span style='top:0' class='custom-class'>test</span></p>",
-    "<p><span style='top:0'>t<a href='v' target='v' title='v'>t</a></span></p>",
+    "<p><a href='v' target='v' title='v'>t<span style='top:0'>t</span></a></p>",
+    "<p><a href='v' target='v'><span><img alt='v' class='v' height='v' src='v' style='top:0' title='v' width='v' /></span></a></p>",
     "<div class='v'><table style='top:0'><tbody><tr><td style='top:0'>t</td></tr></tbody></table></div>",
     "<p><sub>test1</sub>test2<sup>test3</sup></p>",
     "<p><strong>te<span>st</span></strong></p>",
@@ -111,12 +112,16 @@ describe("HTML parsing", () => {
 
   it.each([
     [
-      "<p style='top:0'><strong><a href='v' target='v'>t</a><strong><a href='v' target='v'>t</a></strong></strong></p>",
-      "<p style='top:0'><strong><a href='v' target='v'>tt</a></strong></p>",
+      "<p><span style='top:0'>t<a href='v' target='v' title='v'>t</a></span></p>",
+      "<p><span style='top:0'>t</span><a href='v' target='v' title='v'><span style='top:0'>t</span></a></p>",
     ],
     [
-      "<p><a href='v' target='v'><span><img alt='v' class='v' height='v' src='v' style='top:0' title='v' width='v' /></span></a></p>",
+      "<p style='top:0'><strong><a href='v' target='v'>t</a><strong><a href='v' target='v'>t</a></strong></strong></p>",
+      "<p style='top:0'><a href='v' target='v'><strong>tt</strong></a></p>",
+    ],
+    [
       "<p><span><a href='v' target='v'><img alt='v' class='v' height='v' src='v' style='top:0' title='v' width='v' /></a></span></p>",
+      "<p><a href='v' target='v'><span><img alt='v' class='v' height='v' src='v' style='top:0' title='v' width='v' /></span></a></p>",
     ],
     [
       "<p><span style='top:0'><strong>test</strong></span></p>",
@@ -169,7 +174,7 @@ describe("HTML formatting", () => {
     it.each([
       [
         "<p><strong><a>t</a></strong></p><p>next paragraph</p>",
-        `<p><strong><a>t</a></strong></p>
+        `<p><a><strong>t</strong></a></p>
 <p>next paragraph</p>`,
       ],
       [
@@ -258,7 +263,7 @@ function() {
     });
 
     it.each([
-      ["<p><strong><a>t</a></strong></p><p>next paragraph</p>"],
+      ["<p><a><strong>t</strong></a></p><p>next paragraph</p>"],
       [`<table style="width: 100%"><tbody><tr><td>b</td></tr></tbody></table>`],
     ])("should output unformatted HTML: %s", (input) => {
       editor.setContent(input);
