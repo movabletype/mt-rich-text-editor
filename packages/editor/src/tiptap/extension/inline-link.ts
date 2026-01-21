@@ -13,6 +13,8 @@ declare module "@tiptap/core" {
 }
 
 export const InlineLink = Link.extend<InlineLinkOptions>({
+  priority: 1100,
+
   addOptions() {
     return {
       ...this.parent?.(),

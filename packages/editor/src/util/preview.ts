@@ -173,9 +173,12 @@ export const createPreviewIframe = (editor: TiptapEditor, content: string): HTML
       </html>
       `;
     }
-    const data = new TextEncoder().encode(html);
-    const base64Html = btoa(String.fromCharCode(...data));
-    iframe.src = `data:text/html;base64,${base64Html}`;
+    const blob = new Blob([html], { type: "text/html" });
+    const reader = new FileReader();
+    reader.readAsDataURL(blob);
+    reader.onload = () => {
+      iframe.src = reader.result?.toString() || "";
+    };
   } else if (options.sourceType === "blob") {
     iframe.src = URL.createObjectURL(
       new Blob([html], {
