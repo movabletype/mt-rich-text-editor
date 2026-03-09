@@ -9,6 +9,7 @@
 </script>
 
 <script lang="ts">
+  import { SvelteSet } from "svelte/reactivity";
   import { selectedRect } from "@tiptap/pm/tables";
   import { createTable } from "@tiptap/extension-table";
   import { TextSelection } from "@tiptap/pm/state";
@@ -43,7 +44,7 @@
     isTableActive = tiptap.isActive("table");
     const tableRect = isTableActive ? selectedRect(tiptap.state) : null;
     if (tableRect) {
-      const selectedCells = new Set();
+      const selectedCells = new SvelteSet();
       let canSplitCellSelected = false;
       const map = tableRect.map;
       RECT_LOOP: for (let row = tableRect.top; row < tableRect.bottom; row++) {
@@ -128,7 +129,7 @@
   });
 
   const getCurrentCells = (tiptap: TiptapEditor) => {
-    const cells: Set<Node> = new Set();
+    const cells: Set<Node> = new SvelteSet();
     const table = tiptap.state.doc.nodeAt(tiptap.state.selection.$anchor.before(1));
     if (table && table.type.name === "table") {
       table.forEach((rowNode) => {
