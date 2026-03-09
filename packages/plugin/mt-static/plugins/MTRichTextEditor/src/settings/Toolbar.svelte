@@ -1,5 +1,6 @@
 <script lang="ts">
   import { tick } from "svelte";
+  import { SvelteSet } from "svelte/reactivity";
   import { dndzone } from "svelte-dnd-action";
   import { flipDurationMs, dropTargetStyle } from "./common";
 
@@ -157,7 +158,7 @@
   }
 
   function getUsedItemIds(items: ToolbarItem[][][][]): Set<string> {
-    const usedIds = new Set<string>();
+    const usedIds = new SvelteSet<string>();
     items.forEach((groupSides) => {
       groupSides.forEach((row) => {
         row.forEach((group) => {
