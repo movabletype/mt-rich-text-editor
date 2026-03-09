@@ -20,7 +20,7 @@
     "svelte": "^5.53.7",
     "svelte-check": "^4.4.5",
     "svelte-dnd-action": "^0.9.69",
-    "typescript": "^5.8.3",
+    "typescript": "^5.9.3",
     "typescript-eslint": "^8.56.1",
     "vite": "^7.2.2",
     "vitest": "^4.0.8"
