@@ -182,6 +182,8 @@ const JS_BEAUTIFY_DEFAULT_INLINE_ELEMENTS = [
   "tt",
 ];
 
+const uniqueElements = (elements: string[]): string[] => [...new Set(elements)];
+
 export const EditorEl = Symbol("EditorEl");
 
 type OnPasteCallback = (view: EditorView, event: ClipboardEvent) => boolean;
@@ -212,8 +214,12 @@ export class Editor {
     this.id = textarea.id;
     this.#textarea = textarea;
     this.options = options;
-    this.#blockElements = DEFAULT_BLOCK_ELEMENTS.concat(options.additionalBlockElements ?? []);
-    this.#inlineElements = DEFAULT_INLINE_ELEMENTS.concat(options.additionalInlineElements ?? []);
+    this.#blockElements = uniqueElements(
+      DEFAULT_BLOCK_ELEMENTS.concat(options.additionalBlockElements ?? [])
+    );
+    this.#inlineElements = uniqueElements(
+      DEFAULT_INLINE_ELEMENTS.concat(options.additionalInlineElements ?? [])
+    );
 
     this.#htmlOutputOptions =
       options.htmlOutputOptions?.format === false
@@ -226,7 +232,9 @@ export class Editor {
               "style",
               "script",
             ],
-            inline: JS_BEAUTIFY_DEFAULT_INLINE_ELEMENTS.concat(this.#inlineElements),
+            inline: uniqueElements(
+              JS_BEAUTIFY_DEFAULT_INLINE_ELEMENTS.concat(this.#inlineElements)
+            ),
           };
 
     const inline = options.inline ?? false;
