@@ -48,10 +48,8 @@ export const SVG = Node.create({
         dom.setAttribute(k, node.attrs.MTRichTextEditorHTMLAttributes[k]);
       }
       const content = node.attrs.content;
-      dom.innerHTML = DOMPurify.sanitize(`<svg>${node.attrs.content}</svg>`).substring(
-        5,
-        content.length + 5
-      );
+      const sanitizedContent = DOMPurify.sanitize(`<svg>${content}</svg>`);
+      dom.innerHTML = sanitizedContent.substring(5, sanitizedContent.length - 6);
 
       return {
         dom,
