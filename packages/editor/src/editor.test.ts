@@ -178,6 +178,10 @@ describe("HTML formatting", () => {
 <p>next paragraph</p>`,
       ],
       [
+        "<p><ruby>明日 <rp>(</rp><rt>Ashita</rt><rp>)</rp></ruby></p>",
+        `<p><ruby>明日 <rp>(</rp><rt>Ashita</rt><rp>)</rp></ruby></p>`,
+      ],
+      [
         `<table style="width: 100%"><tbody><tr><td>b</td></tr></tbody></table>`,
         `<table style="width: 100%">
 <tbody>
