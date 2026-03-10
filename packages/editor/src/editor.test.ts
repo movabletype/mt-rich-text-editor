@@ -52,6 +52,11 @@ describe("HTML parsing", () => {
     `<div data-mt-rich-text-editor-embed-object=""><iframe width=" 200" height="113" src="https://www.youtube.com/embed/XUAnkKpHaCI?feature=oembed" frameborder="0" allowfullscreen="allowfullscreen"></iframe></div>`,
     `<div data-mt-rich-text-editor-embed-object=""><div>test</div></div>`,
     `<p><ruby> 明日 <rp>(</rp><rt>Ashita</rt><rp>)</rp> </ruby></p>`,
+    `<div>あ<a href="http://example.com/">リンクテキスト</a>あ</div>`,
+    `<div><sub>a</sub>text<sup>b</sup></div>`,
+    `<div><strong>a</strong><em>b</em><u>c</u></div>`,
+    `<div><code>x</code><script>y</script></div>`,
+    "<div><iframe frameborder='0' src='https://example.com/embed'></iframe><mt-rich-text-editor-mt-function-tag data-tag-name='Var' name='foo'></mt-rich-text-editor-mt-function-tag></div>",
   ])("should preserve HTML structure through Tiptap: %s", (input) => {
     editor.setContent(input);
     const output = editor.getContent();
