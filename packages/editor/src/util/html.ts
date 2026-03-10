@@ -1,12 +1,12 @@
 const isEditable = (element: HTMLElement): boolean =>
   !element.closest("div[data-mt-rich-text-editor-embed-object]");
 
-const isInlineNode = (node: Node, inlineElementSet: Set<string>): boolean =>
+const isInlineNode = (node: Node, inlineElementSet: Set<string>, trim: boolean): boolean =>
   !(
     // a[data-mt-rich-text-editor-block="true"] should be treated as block element even if it contains text nodes or images
     (node instanceof HTMLElement && node.dataset.mtRichTextEditorBlock === "true")
   ) &&
-  (node.nodeType === Node.TEXT_NODE ||
+  ((node.nodeType === Node.TEXT_NODE && (!trim || !!node.textContent?.trim())) ||
     (node.nodeType === Node.ELEMENT_NODE && inlineElementSet.has(node.nodeName)));
 
 export const preprocessHTML = (
@@ -58,15 +58,17 @@ export const preprocessHTML = (
         return;
       }
 
+      const trim = div.nodeName === "UL" || div.nodeName === "OL";
+
       const hasDirectInlineNode = Array.from(div.childNodes).some((node) =>
-        isInlineNode(node, inlineElementSet)
+        isInlineNode(node, inlineElementSet, trim)
       );
       if (hasDirectInlineNode) {
         const encoder = document.createElement("div");
 
         for (let i = 0; i < div.childNodes.length; i++) {
           const headChild = div.childNodes[i];
-          if (isInlineNode(headChild, inlineElementSet)) {
+          if (isInlineNode(headChild, inlineElementSet, trim)) {
             const textBlock = document.createElement("mt-text-block");
             let content = "";
             while (i < div.childNodes.length) {
