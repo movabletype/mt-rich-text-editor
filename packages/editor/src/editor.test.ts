@@ -52,6 +52,7 @@ describe("HTML parsing", () => {
     `<div data-mt-rich-text-editor-embed-object=""><iframe width=" 200" height="113" src="https://www.youtube.com/embed/XUAnkKpHaCI?feature=oembed" frameborder="0" allowfullscreen="allowfullscreen"></iframe></div>`,
     `<div data-mt-rich-text-editor-embed-object=""><div>test</div></div>`,
     `<p><ruby> 明日 <rp>(</rp><rt>Ashita</rt><rp>)</rp> </ruby></p>`,
+    `<div></div>`,
   ])("should preserve HTML structure through Tiptap: %s", (input) => {
     editor.setContent(input);
     const output = editor.getContent();
@@ -131,6 +132,7 @@ describe("HTML parsing", () => {
       "<p><span class='v1'>a<span class='v2'><img alt='v' class='v' height='v' src='v' style='top:0' title='v' width='v' /></span>b</span></p>",
       "<p><span class='v1'>a</span><span class='v2'><img alt='v' class='v' height='v' src='v' style='top:0' title='v' width='v' /></span><span class='v1'>b</span></p>",
     ],
+    ["<div>\n\n\n</div>", "<div></div>"],
   ])("should convert HTML structure through Tiptap: %s", (input, expected) => {
     editor.setContent(input);
     const output = editor.getContent();

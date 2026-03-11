@@ -42,7 +42,8 @@ export const preprocessHTML = (html: string, blockElements: string[]): string =>
         return;
       }
 
-      const hasDirectTextNode = Array.from(div.childNodes).some(
+      const childNode = Array.from(div.childNodes);
+      const hasDirectTextNode = childNode.some(
         (node) =>
           node instanceof HTMLImageElement ||
           (node.nodeType === Node.TEXT_NODE && node.textContent?.trim()) ||
@@ -80,6 +81,10 @@ export const preprocessHTML = (html: string, blockElements: string[]): string =>
             i--;
           }
         }
+      } else if (
+        childNode.every((node) => node.nodeType === Node.TEXT_NODE && !node.textContent?.trim())
+      ) {
+        div.appendChild(document.createElement("mt-text-block"));
       }
     });
 
