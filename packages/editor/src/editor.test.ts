@@ -53,6 +53,12 @@ describe("HTML parsing", () => {
     `<div data-mt-rich-text-editor-embed-object=""><div>test</div></div>`,
     `<p><ruby> 明日 <rp>(</rp><rt>Ashita</rt><rp>)</rp> </ruby></p>`,
     `<p><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="5 5 10 10" width="100" height="100"><circle cx="10" cy="10" r="5" fill="#c44" /></svg></p>`,
+    `<div>あ<a href="http://example.com/">リンクテキスト</a>あ</div>`,
+    `<div><sub>a</sub>text<sup>b</sup></div>`,
+    `<div><strong>a</strong><em>b</em><u>c</u></div>`,
+    `<div><code>x</code><script>y</script></div>`,
+    "<div><iframe frameborder='0' src='https://example.com/embed'></iframe><mt-rich-text-editor-mt-function-tag data-tag-name='Var' name='foo'></mt-rich-text-editor-mt-function-tag></div>",
+    `<div></div>`,
   ])("should preserve HTML structure through Tiptap: %s", (input) => {
     editor.setContent(input);
     const output = editor.getContent();
@@ -132,6 +138,7 @@ describe("HTML parsing", () => {
       "<p><span class='v1'>a<span class='v2'><img alt='v' class='v' height='v' src='v' style='top:0' title='v' width='v' /></span>b</span></p>",
       "<p><span class='v1'>a</span><span class='v2'><img alt='v' class='v' height='v' src='v' style='top:0' title='v' width='v' /></span><span class='v1'>b</span></p>",
     ],
+    ["<div>\n\n\n</div>", "<div></div>"],
   ])("should convert HTML structure through Tiptap: %s", (input, expected) => {
     editor.setContent(input);
     const output = editor.getContent();
@@ -177,6 +184,10 @@ describe("HTML formatting", () => {
         "<p><strong><a>t</a></strong></p><p>next paragraph</p>",
         `<p><a><strong>t</strong></a></p>
 <p>next paragraph</p>`,
+      ],
+      [
+        "<p><ruby>明日 <rp>(</rp><rt>Ashita</rt><rp>)</rp></ruby></p>",
+        `<p><ruby>明日 <rp>(</rp><rt>Ashita</rt><rp>)</rp></ruby></p>`,
       ],
       [
         `<table style="width: 100%"><tbody><tr><td>b</td></tr></tbody></table>`,

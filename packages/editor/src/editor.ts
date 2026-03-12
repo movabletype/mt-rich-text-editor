@@ -121,6 +121,89 @@ export interface EditorOptions {
 
 const DEFAULT_HEIGHT = 350;
 const MIN_HEIGHT = 300;
+// https://github.com/beautifier/js-beautify/blob/575751023a14072efc5adfc67cf1dd407d1a2dd0/js/src/html/options.js#L50-L63
+const JS_BEAUTIFY_DEFAULT_INLINE_ELEMENTS = [
+  "a",
+  "abbr",
+  "area",
+  "audio",
+  "b",
+  "bdi",
+  "bdo",
+  "br",
+  "button",
+  "canvas",
+  "cite",
+  "code",
+  "data",
+  "datalist",
+  "del",
+  "dfn",
+  "em",
+  "embed",
+  "i",
+  "iframe",
+  "img",
+  "input",
+  "ins",
+  "kbd",
+  "keygen",
+  "label",
+  "map",
+  "mark",
+  "math",
+  "meter",
+  "noscript",
+  "object",
+  "output",
+  "progress",
+  "q",
+  "ruby",
+  "s",
+  "samp",
+  "select",
+  "small",
+  "span",
+  "strong",
+  "sub",
+  "sup",
+  "svg",
+  "template",
+  "textarea",
+  "time",
+  "u",
+  "var",
+  "video",
+  "wbr",
+  "text",
+  "acronym",
+  "big",
+  "strike",
+  "tt",
+];
+
+// list of inline elements processed by tiptap in MTRichTextEditor's default configuration
+const INLINE_ELEMENTS_FOR_TIP_TAP = [
+  "a",
+  "img",
+  "br",
+  "strong",
+  "b",
+  "em",
+  "i",
+  "u",
+  "s",
+  "del",
+  "strike",
+  "sub",
+  "sup",
+  "code",
+  "script",
+  "iframe",
+  "mt-rich-text-editor-mt-function-tag",
+];
+
+const uniqueElements = (elements: string[]): string[] => [...new Set(elements)];
 
 export const EditorEl = Symbol("EditorEl");
 
@@ -144,6 +227,7 @@ export class Editor {
   #tiptapExtensions: TiptapExtension[];
   #blockElements: string[];
   #inlineElements: string[];
+  #inlineElementsForPreprocess: string[] = [];
   #eventHandlers: Record<string, EventHandler[]> = {};
 
   constructor(textarea: HTMLTextAreaElement, options: EditorOptions) {
@@ -152,8 +236,15 @@ export class Editor {
     this.id = textarea.id;
     this.#textarea = textarea;
     this.options = options;
-    this.#blockElements = DEFAULT_BLOCK_ELEMENTS.concat(options.additionalBlockElements ?? []);
-    this.#inlineElements = DEFAULT_INLINE_ELEMENTS.concat(options.additionalInlineElements ?? []);
+    this.#blockElements = uniqueElements(
+      DEFAULT_BLOCK_ELEMENTS.concat(options.additionalBlockElements ?? [])
+    );
+    this.#inlineElements = uniqueElements(
+      DEFAULT_INLINE_ELEMENTS.concat(options.additionalInlineElements ?? [])
+    );
+    this.#inlineElementsForPreprocess = uniqueElements(
+      this.#inlineElements.concat(INLINE_ELEMENTS_FOR_TIP_TAP)
+    );
 
     this.#htmlOutputOptions =
       options.htmlOutputOptions?.format === false
@@ -166,6 +257,9 @@ export class Editor {
               "style",
               "script",
             ],
+            inline: uniqueElements(
+              JS_BEAUTIFY_DEFAULT_INLINE_ELEMENTS.concat(this.#inlineElements)
+            ),
           };
 
     const inline = options.inline ?? false;
@@ -354,7 +448,7 @@ export class Editor {
   }
 
   public preprocessHTML(content: string): string {
-    return preprocessHTML(content, this.#blockElements);
+    return preprocessHTML(content, this.#blockElements, this.#inlineElementsForPreprocess);
   }
 
   public setContent(content: string | Events["setContent"]): void {
