@@ -182,6 +182,27 @@ const JS_BEAUTIFY_DEFAULT_INLINE_ELEMENTS = [
   "tt",
 ];
 
+// list of inline elements processed by tiptap in MTRichTextEditor's default configuration
+const INLINE_ELEMENTS_FOR_TIP_TAP = [
+  "a",
+  "img",
+  "br",
+  "strong",
+  "b",
+  "em",
+  "i",
+  "u",
+  "s",
+  "del",
+  "strike",
+  "sub",
+  "sup",
+  "code",
+  "script",
+  "iframe",
+  "mt-rich-text-editor-mt-function-tag",
+];
+
 const uniqueElements = (elements: string[]): string[] => [...new Set(elements)];
 
 export const EditorEl = Symbol("EditorEl");
@@ -206,6 +227,7 @@ export class Editor {
   #tiptapExtensions: TiptapExtension[];
   #blockElements: string[];
   #inlineElements: string[];
+  #inlineElementsForPreprocess: string[] = [];
   #eventHandlers: Record<string, EventHandler[]> = {};
 
   constructor(textarea: HTMLTextAreaElement, options: EditorOptions) {
@@ -219,6 +241,9 @@ export class Editor {
     );
     this.#inlineElements = uniqueElements(
       DEFAULT_INLINE_ELEMENTS.concat(options.additionalInlineElements ?? [])
+    );
+    this.#inlineElementsForPreprocess = uniqueElements(
+      this.#inlineElements.concat(INLINE_ELEMENTS_FOR_TIP_TAP)
     );
 
     this.#htmlOutputOptions =
@@ -423,7 +448,7 @@ export class Editor {
   }
 
   public preprocessHTML(content: string): string {
-    return preprocessHTML(content, this.#blockElements);
+    return preprocessHTML(content, this.#blockElements, this.#inlineElementsForPreprocess);
   }
 
   public setContent(content: string | Events["setContent"]): void {
