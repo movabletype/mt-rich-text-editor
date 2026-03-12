@@ -59,8 +59,8 @@ export const preprocessHTML = (
       }
 
       const trim = div.nodeName === "UL" || div.nodeName === "OL";
-
-      const hasDirectInlineNode = Array.from(div.childNodes).some((node) =>
+      const childNode = Array.from(div.childNodes);
+      const hasDirectInlineNode = childNode.some((node) =>
         isInlineNode(node, inlineElementSet, trim)
       );
       if (hasDirectInlineNode) {
@@ -88,6 +88,10 @@ export const preprocessHTML = (
             i--;
           }
         }
+      } else if (
+        childNode.every((node) => node.nodeType === Node.TEXT_NODE && !node.textContent?.trim())
+      ) {
+        div.appendChild(document.createElement("mt-text-block"));
       }
     });
 

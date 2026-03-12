@@ -57,6 +57,7 @@ describe("HTML parsing", () => {
     `<div><strong>a</strong><em>b</em><u>c</u></div>`,
     `<div><code>x</code><script>y</script></div>`,
     "<div><iframe frameborder='0' src='https://example.com/embed'></iframe><mt-rich-text-editor-mt-function-tag data-tag-name='Var' name='foo'></mt-rich-text-editor-mt-function-tag></div>",
+    `<div></div>`,
   ])("should preserve HTML structure through Tiptap: %s", (input) => {
     editor.setContent(input);
     const output = editor.getContent();
@@ -136,6 +137,7 @@ describe("HTML parsing", () => {
       "<p><span class='v1'>a<span class='v2'><img alt='v' class='v' height='v' src='v' style='top:0' title='v' width='v' /></span>b</span></p>",
       "<p><span class='v1'>a</span><span class='v2'><img alt='v' class='v' height='v' src='v' style='top:0' title='v' width='v' /></span><span class='v1'>b</span></p>",
     ],
+    ["<div>\n\n\n</div>", "<div></div>"],
   ])("should convert HTML structure through Tiptap: %s", (input, expected) => {
     editor.setContent(input);
     const output = editor.getContent();
