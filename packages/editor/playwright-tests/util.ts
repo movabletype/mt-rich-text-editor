@@ -12,15 +12,16 @@ declare global {
 
 export const open = async (page: Page, {
   content = "",
+  url = "/",
 }) => {
-  await page.goto("/");
+  await page.goto(url);
   await page.evaluate(
     ({ content }) => {
       sessionStorage.setItem("MTRichTextEditorInitialContent", content);
     },
     { content }
   );
-  await page.goto("/"); // reload to apply initial content
+  await page.goto(url); // reload to apply initial content
 };
 
 export const save = async (page: Page): Promise<string> => {
@@ -56,5 +57,27 @@ export const clickToolbarItem = async (page: Page, itemName: string) => {
     {
       itemName,
     }
+  );
+};
+
+export const selectToolbarBlock = async (page: Page, value: string) => {
+  return await page.evaluate(
+    async ({ value }) => {
+      const block = document
+        .querySelector('[data-mt-rich-text-editor-id="editor"]')
+        ?.shadowRoot?.querySelector("mt-rich-text-editor-toolbar-item-block");
+      const shadow = block?.shadowRoot;
+
+      shadow?.querySelector<HTMLElement>(".selected")?.click();
+      await Promise.resolve();
+      shadow
+        ?.querySelectorAll<HTMLButtonElement>(".option")
+        .forEach((option) => {
+          if (option.querySelector(`.${value}`)) {
+            option.click();
+          }
+        });
+    },
+    { value }
   );
 };
