@@ -1,18 +1,18 @@
 import { Editor } from "../../editor";
 import type { Events } from "../../editor";
+import type { EditorHarness } from "../../test/helpers/editor";
+import { createEditorHarness } from "../../test/helpers/editor";
 
 describe("SourceButton", () => {
-  let textarea: HTMLTextAreaElement;
   let editor: Editor;
   let sourceButton: HTMLElement;
+  let harness: EditorHarness;
 
   beforeEach(() => {
-    textarea = document.createElement("textarea");
-    document.body.appendChild(textarea);
-    editor = new Editor(textarea, {
+    harness = createEditorHarness({
       toolbar: [[[["source"]]]],
-      inline: false,
     });
+    ({ editor } = harness);
 
     const editorEl = document.querySelector<HTMLElement>(".mt-rich-text-editor");
     const toolbarEl = editorEl!.shadowRoot?.querySelector<HTMLElement>(
@@ -24,9 +24,7 @@ describe("SourceButton", () => {
   });
 
   afterEach(() => {
-    document.querySelector<HTMLElement>(".modal")?.remove();
-    editor.destroy();
-    textarea.remove();
+    harness.cleanup();
   });
 
   describe("update", () => {
