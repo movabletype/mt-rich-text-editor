@@ -198,4 +198,20 @@ test.describe("textBlock", () => {
       "<table><tbody><tr><td>a</td></tr><tr><td>x</td></tr></tbody></table>"
     );
   });
+
+  test("keeps a table cell textBlock on Shift+Tab", async ({ page }) => {
+    await open(page, {
+      content: "<table><tbody><tr><td>a</td></tr></tbody></table>",
+    });
+    await setSelectionByText(page, "a", 1);
+
+    await page.keyboard.press("Shift+Tab");
+
+    await expect.poll(() => getInternalHTML(page)).toBe(
+      "<table><tr><td><mt-text-block>a</mt-text-block></td></tr></table>"
+    );
+    await expect.poll(async () => normalizeHTML(await save(page))).toBe(
+      "<table><tbody><tr><td>a</td></tr></tbody></table>"
+    );
+  });
 });

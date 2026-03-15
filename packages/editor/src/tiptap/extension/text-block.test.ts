@@ -230,4 +230,18 @@ describe("TextBlock", () => {
       "<table><tr><td><mt-text-block>a</mt-text-block></td><td><mt-text-block></mt-text-block></td></tr></table>"
     );
   });
+
+  it("keeps a table cell textBlock on Shift-Tab", async () => {
+    editor.setContent("<table><tbody><tr><td>a</td></tr></tbody></table>");
+    setTextSelection(editor, findTextPosition(editor, "a", 1));
+
+    editor.tiptap.commands.keyboardShortcut("Shift-Tab");
+
+    expect(editor.tiptap.getHTML()).toBe(
+      "<table><tr><td><mt-text-block>a</mt-text-block></td></tr></table>"
+    );
+    expect(normalizeComparableHTML(editor.getContent())).toBe(
+      normalizeComparableHTML("<table><tbody><tr><td>a</td></tr></tbody></table>")
+    );
+  });
 });
