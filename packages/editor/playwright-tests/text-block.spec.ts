@@ -179,4 +179,23 @@ test.describe("textBlock", () => {
       "<table><tbody><tr><td></td></tr></tbody></table>"
     );
   });
+
+  test("creates a new table row with textBlock cells on Tab", async ({ page }) => {
+    await open(page, {
+      content: "<table><tbody><tr><td>a</td></tr></tbody></table>",
+    });
+    await setSelectionByText(page, "a", 1);
+
+    await page.keyboard.press("Tab");
+
+    await expect.poll(() => getInternalHTML(page)).toBe(
+      "<table><tr><td><mt-text-block>a</mt-text-block></td></tr><tr><td><mt-text-block></mt-text-block></td></tr></table>"
+    );
+
+    await page.keyboard.type("x");
+
+    await expect.poll(async () => normalizeHTML(await save(page))).toBe(
+      "<table><tbody><tr><td>a</td></tr><tr><td>x</td></tr></tbody></table>"
+    );
+  });
 });

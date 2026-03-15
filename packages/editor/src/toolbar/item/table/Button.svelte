@@ -72,13 +72,7 @@
       return;
     }
 
-    const table = createTable(
-      tiptap.schema,
-      rows,
-      cols,
-      false,
-      tiptap.schema.nodes.textBlock.create()
-    );
+    const table = createTable(tiptap.schema, rows, cols, false);
     (table.attrs as {style: string}).style = "width: 100%;";
 
     tiptap
@@ -157,15 +151,11 @@
           rowNode.forEach((cellNode, cellOffset) => {
             if (!existingCells.has(cellNode)) {
               const cellPos = basePos + rowOffset + cellOffset + 2; // +2 for table and row nodes
-              const cellStart = cellPos + 1;
-              const cellEnd = cellPos + cellNode.nodeSize - 1;
 
               tr.setNodeMarkup(cellPos, undefined, {
                 ...cellNode.attrs,
                 style: cellStyle,
               });
-
-              tr.replaceWith(cellStart, cellEnd, tiptap.schema.nodes.textBlock.create());
             }
           });
         });
