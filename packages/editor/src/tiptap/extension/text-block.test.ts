@@ -175,4 +175,19 @@ describe("TextBlock", () => {
     expect(editor.tiptap.getHTML()).toBe("<p>x</p>");
     expect(editor.getContent()).toBe("<p>x</p>");
   });
+
+  it("keeps an empty first table cell textBlock on Backspace at the start", async () => {
+    editor.setContent("<table><tbody><tr><td></td></tr></tbody></table>");
+    setTextSelection(editor, findFirstEmptyTextBlockPosition(editor));
+
+    editor.tiptap.commands.keyboardShortcut("Backspace");
+    await waitForBackspaceNormalization();
+
+    expect(editor.tiptap.getHTML()).toBe(
+      "<table><tr><td><mt-text-block></mt-text-block></td></tr></table>"
+    );
+    expect(normalizeComparableHTML(editor.getContent())).toBe(
+      normalizeComparableHTML("<table><tbody><tr><td></td></tr></tbody></table>")
+    );
+  });
 });

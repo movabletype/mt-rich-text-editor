@@ -72,6 +72,8 @@ const getInternalHTML = async (page: Page) => {
   return page.evaluate(() => window.MTRichTextEditor.get({ id: "editor" })!.tiptap.getHTML());
 };
 
+const normalizeHTML = (html: string) => html.replace(/>\s+</g, "><").trim();
+
 test.describe("textBlock", () => {
   test("collapses an empty sibling wrapper on Backspace and keeps editing", async ({ page }) => {
     await open(page, {
@@ -160,5 +162,21 @@ test.describe("textBlock", () => {
     await page.keyboard.type("x");
 
     await expect.poll(() => save(page)).toBe("<p>x</p>");
+  });
+
+  test("keeps an empty first table cell textBlock on Backspace at the start", async ({ page }) => {
+    await open(page, {
+      content: "<table><tbody><tr><td></td></tr></tbody></table>",
+    });
+    await setSelectionToFirstEmptyTextBlock(page);
+
+    await page.keyboard.press("Backspace");
+
+    await expect.poll(() => getInternalHTML(page)).toBe(
+      "<table><tr><td><mt-text-block></mt-text-block></td></tr></table>"
+    );
+    await expect.poll(async () => normalizeHTML(await save(page))).toBe(
+      "<table><tbody><tr><td></td></tr></tbody></table>"
+    );
   });
 });
