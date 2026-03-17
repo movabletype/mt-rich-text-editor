@@ -1,6 +1,6 @@
 import { Node, mergeAttributes } from "@tiptap/core";
 import type { Editor } from "@tiptap/core";
-import { NodeSelection } from "@tiptap/pm/state";
+import { NodeSelection, TextSelection } from "@tiptap/pm/state";
 import { createPreviewIframe, destroyPreviewIframe } from "../../util/preview";
 
 interface EmbedData {
@@ -224,6 +224,37 @@ export const EmbedObject = Node.create<EmbedObjectOptions>({
       Backspace: ({ editor }) => {
         const { state, view } = editor;
         const { selection } = state;
+
+        if (
+          editor.isActive(this.name) &&
+          (!(selection instanceof NodeSelection) || selection.node.type.name !== "embedObject")
+        ) {
+          // Find embedObject and build single transaction
+          const { $from } = selection;
+          for (let depth = $from.depth; depth > 0; depth--) {
+            if ($from.node(depth).type.name === "embedObject") {
+              const pos = $from.before(depth);
+              const nodeBefore = state.doc.resolve(pos).nodeBefore;
+
+              if (!nodeBefore) {
+                // No node before embed - just select it
+                view.dispatch(state.tr.setSelection(NodeSelection.create(state.doc, pos)));
+              } else if (nodeBefore.content.size === 0) {
+                // Remove empty paragraph before embedObject
+                const tr = state.tr.delete(pos - nodeBefore.nodeSize, pos);
+                // After deletion, pos shifts; select the embed at new position
+                const newPos = pos - nodeBefore.nodeSize;
+                tr.setSelection(NodeSelection.create(tr.doc, newPos));
+                view.dispatch(tr);
+              } else {
+                // Move cursor to end of paragraph before embedObject
+                view.dispatch(state.tr.setSelection(TextSelection.create(state.doc, pos - 1)));
+              }
+              break;
+            }
+          }
+          return true;
+        }
 
         // Delete the embedObject when the cursor is at the start of the following paragraph (or any block).
         if (selection.empty && selection.$from.parentOffset === 0) {
