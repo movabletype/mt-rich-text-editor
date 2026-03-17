@@ -38,7 +38,7 @@
     }
 
     if (linkData) {
-      linkTextMap.set(content, linkData.text);
+      linkTextMap.set(content, linkData.text || linkData.url);
     } else {
       if (!linkTextMap.has(content)) {
         linkTextMap.set(
@@ -62,7 +62,7 @@
       anchor.title = linkData.title;
     }
     anchor.target = linkData.target;
-    anchor.textContent = linkData.text;
+    anchor.textContent = linkData.text || linkData.url;
 
     element.insertContent(anchor.outerHTML);
 

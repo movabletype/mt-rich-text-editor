@@ -1,7 +1,7 @@
 <script lang="ts" module>
   export interface LinkData {
     readonly url: string;
-    readonly text: string;
+    readonly text: string | undefined;
     readonly title: string;
     readonly target: "_self" | "_blank";
   }
@@ -31,12 +31,12 @@
     urlInput?.focus();
   });
 
-  let hasTextValue = linkData.text !== "";
+  let hasTextValue = linkData.text !== undefined && linkData.text !== "";
   const onLinkTextChange = () => {
     hasTextValue = true;
   };
   $effect(() => {
-    if (!hasTextValue) {
+    if (linkData.text !== undefined && !hasTextValue) {
       text = url;
     }
   });
@@ -61,16 +61,18 @@
           bind:this={urlInput}
         />
       </div>
-      <div class="form-group mb-3">
-        <label for="link-text" class="form-label">{t("Link Text")}</label>
-        <input
-          type="text"
-          id="link-text"
-          class="form-control"
-          bind:value={text}
-          onchange={onLinkTextChange}
-        />
-      </div>
+      {#if linkData.text !== undefined}
+        <div class="form-group mb-3">
+          <label for="link-text" class="form-label">{t("Link Text")}</label>
+          <input
+            type="text"
+            id="link-text"
+            class="form-control"
+            bind:value={text}
+            onchange={onLinkTextChange}
+          />
+        </div>
+      {/if}
       <div class="form-group mb-3">
         <label for="link-title" class="form-label">{t("Title")}</label>
         <input type="text" id="link-title" class="form-control" bind:value={title} />
