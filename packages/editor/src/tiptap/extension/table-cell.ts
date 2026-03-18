@@ -2,6 +2,8 @@ import { mergeAttributes } from "@tiptap/core";
 import { TableCell as TiptapTableCell } from "@tiptap/extension-table-cell";
 
 export const TableCell = TiptapTableCell.extend({
+  content: "(textBlock|block) block*",
+
   addAttributes() {
     return {
       ...this.parent?.(),
