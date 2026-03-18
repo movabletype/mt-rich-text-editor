@@ -203,7 +203,7 @@
     position: absolute;
     background-color: #fff;
     border: 1px solid #ccc;
-    z-index: 1200;
+    z-index: 1035;
     border-radius: 4px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     gap: 5px;

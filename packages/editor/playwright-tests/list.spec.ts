@@ -29,8 +29,10 @@ test.describe("list extension", () => {
     await page.locator('[data-mt-rich-text-editor-id="editor"]').click();
     await page.keyboard.press("Enter");
     await page.keyboard.press("Enter");
+    await Promise.resolve();
     await page.keyboard.type("paragraph");
     await page.keyboard.press("Enter");
+    await Promise.resolve();
     await page.keyboard.type("* new item");
     await page.evaluate(async () => {
       await window.MTRichTextEditor.save();

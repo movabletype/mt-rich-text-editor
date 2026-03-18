@@ -29,12 +29,24 @@ interface EditorInitElement<TOptions extends Record<string, unknown> = Record<st
   onEditorInit?: (editor: Editor, options: TOptions) => void;
 }
 
+interface CreateEditorHarnessOptions {
+  textareaId?: string;
+  textareaValue?: string;
+}
+
 export const flushMicrotasks = async () => {
   await Promise.resolve();
 };
 
 export const removeOpenModal = () => {
   document.querySelector<HTMLElement>(".modal")?.remove();
+};
+
+export const resetEditorTestState = () => {
+  removeOpenModal();
+  document.body.innerHTML = "";
+  localStorage.clear();
+  sessionStorage.clear();
 };
 
 export const defineCustomElementOnce = (
@@ -46,8 +58,93 @@ export const defineCustomElementOnce = (
   }
 };
 
-export const createEditorHarness = (options: Partial<EditorOptions> = {}): EditorHarness => {
+export const normalizeComparableHTML = (html: string): string => {
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(html, "text/html");
+
+  const normalizeStyleAttribute = (element: Element) => {
+    if (element.hasAttribute("style")) {
+      const styleValue = element.getAttribute("style") || "";
+      const normalizedStyle = styleValue
+        .split(";")
+        .map((rule) => {
+          const [property, value] = rule.split(":", 2).map((part) => part.trim());
+          return property && value ? `${property}:${value}` : "";
+        })
+        .filter(Boolean)
+        .sort()
+        .join(";");
+
+      if (normalizedStyle) {
+        element.setAttribute("style", normalizedStyle);
+      } else {
+        element.removeAttribute("style");
+      }
+    }
+
+    Array.from(element.children).forEach(normalizeStyleAttribute);
+  };
+
+  const sortAttributes = (element: Element) => {
+    const attributes = Array.from(element.attributes);
+    attributes.sort((a, b) => a.name.localeCompare(b.name));
+
+    for (let i = element.attributes.length - 1; i >= 0; i--) {
+      element.removeAttribute(element.attributes[i].name);
+    }
+
+    for (const attr of attributes) {
+      element.setAttribute(attr.name, attr.value);
+    }
+
+    Array.from(element.children).forEach(sortAttributes);
+  };
+
+  const formatNode = (node: HTMLElement, depth: number, tab: string) => {
+    let result = "";
+    if (node.nodeType === Node.TEXT_NODE) {
+      const text = node.textContent?.trim();
+      if (text) {
+        result += `${tab.repeat(depth)}${text}\n`;
+      }
+    } else if (node.nodeType === Node.ELEMENT_NODE) {
+      const tagName = node.tagName.toLowerCase();
+      result += `${tab.repeat(depth)}<${tagName}`;
+
+      for (const attr of node.attributes) {
+        result += ` ${attr.name}="${attr.value}"`;
+      }
+
+      if (node.childNodes.length === 0) {
+        result += " />\n";
+      } else {
+        result += ">\n";
+        depth++;
+        for (const child of node.childNodes) {
+          result += formatNode(child as HTMLElement, depth, tab);
+        }
+        depth--;
+        result += `${tab.repeat(depth)}</${tagName}>\n`;
+      }
+    }
+    return result;
+  };
+
+  normalizeStyleAttribute(doc.documentElement);
+  sortAttributes(doc.documentElement);
+
+  return [...doc.body.children]
+    .map((child) => formatNode(child as HTMLElement, 0, "  "))
+    .join("\n");
+};
+
+export const createEditorHarness = (
+  options: Partial<EditorOptions> = {},
+  { textareaId, textareaValue }: CreateEditorHarnessOptions = {}
+): EditorHarness => {
   const textarea = document.createElement("textarea");
+  textarea.id = textareaId ?? "";
+  textarea.value = textareaValue ?? "";
   document.body.appendChild(textarea);
 
   const editor = new Editor(textarea, {
