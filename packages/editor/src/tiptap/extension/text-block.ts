@@ -28,11 +28,11 @@ const getLastGraphemeLength = (text: string) => {
   return codePoints.length > 0 ? codePoints[codePoints.length - 1].length : 0;
 };
 
-const findAncestorDepth = (editor: Editor, nodeName: string) => {
+const findClosestAncestorDepth = (editor: Editor, nodeNames: string[]) => {
   const { $from } = editor.state.selection;
 
   for (let depth = $from.depth; depth > 0; depth -= 1) {
-    if ($from.node(depth).type.name === nodeName) {
+    if (nodeNames.includes($from.node(depth).type.name)) {
       return depth;
     }
   }
@@ -40,9 +40,21 @@ const findAncestorDepth = (editor: Editor, nodeName: string) => {
   return -1;
 };
 
+const isFirstChildPathFromAncestor = (editor: Editor, ancestorDepth: number) => {
+  const { $from } = editor.state.selection;
+
+  for (let depth = ancestorDepth + 1; depth <= $from.depth; depth += 1) {
+    if ($from.index(depth - 1) !== 0) {
+      return false;
+    }
+  }
+
+  return true;
+};
+
 const cleanupTrailingBlankTextBlocksInListItem = (editor: Editor, textBlockName: string) => {
   const { state } = editor;
-  const listItemDepth = findAncestorDepth(editor, "listItem");
+  const listItemDepth = findClosestAncestorDepth(editor, ["listItem"]);
   if (listItemDepth === -1) {
     return false;
   }
@@ -207,6 +219,27 @@ const deleteBackwardInTextBlock = (editor: Editor, textBlockName: string) => {
   return true;
 };
 
+const preventEmptyTableCellTextBlockBackspace = (editor: Editor, textBlockName: string) => {
+  const { selection } = editor.state;
+  const { $from, empty } = selection;
+
+  if (
+    !empty ||
+    $from.parent.type.name !== textBlockName ||
+    $from.parentOffset !== 0 ||
+    $from.parent.content.size !== 0
+  ) {
+    return false;
+  }
+
+  const tableCellDepth = findClosestAncestorDepth(editor, ["tableCell", "tableHeader"]);
+  if (tableCellDepth === -1) {
+    return false;
+  }
+
+  return isFirstChildPathFromAncestor(editor, tableCellDepth);
+};
+
 const handleTopLevelWrapperBackspace = (editor: Editor, textBlockName: string) => {
   const { state } = editor;
   const { selection } = state;
@@ -352,6 +385,10 @@ export const TextBlock = Node.create({
       },
       Backspace: ({ editor }) => {
         if (editor.isActive(this.name)) {
+          if (preventEmptyTableCellTextBlockBackspace(editor, this.name)) {
+            return true;
+          }
+
           if (handleTopLevelWrapperBackspace(editor, this.name)) {
             return true;
           }

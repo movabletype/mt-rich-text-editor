@@ -1,3 +1,4 @@
+import { createTable } from "@tiptap/extension-table";
 import { Editor } from "../../editor";
 import type { EditorHarness } from "../../test/helpers/editor";
 import {
@@ -174,5 +175,73 @@ describe("TextBlock", () => {
 
     expect(editor.tiptap.getHTML()).toBe("<p>x</p>");
     expect(editor.getContent()).toBe("<p>x</p>");
+  });
+
+  it("keeps an empty first table cell textBlock on Backspace at the start", async () => {
+    editor.setContent("<table><tbody><tr><td></td></tr></tbody></table>");
+    setTextSelection(editor, findFirstEmptyTextBlockPosition(editor));
+
+    editor.tiptap.commands.keyboardShortcut("Backspace");
+    await waitForBackspaceNormalization();
+
+    expect(editor.tiptap.getHTML()).toBe(
+      "<table><tr><td><mt-text-block></mt-text-block></td></tr></table>"
+    );
+    expect(normalizeComparableHTML(editor.getContent())).toBe(
+      normalizeComparableHTML("<table><tbody><tr><td></td></tr></tbody></table>")
+    );
+  });
+
+  it("creates a new table row with textBlock cells on Tab", async () => {
+    editor.setContent("<table><tbody><tr><td>a</td></tr></tbody></table>");
+    setTextSelection(editor, findTextPosition(editor, "a", 1));
+
+    editor.tiptap.commands.keyboardShortcut("Tab");
+    await waitForBackspaceNormalization();
+
+    expect(editor.tiptap.getHTML()).toBe(
+      "<table><tr><td><mt-text-block>a</mt-text-block></td></tr><tr><td><mt-text-block></mt-text-block></td></tr></table>"
+    );
+  });
+
+  it("creates toolbar-style inserted tables with textBlock cells by default", async () => {
+    const table = createTable(editor.tiptap.schema, 1, 1, false);
+
+    editor.tiptap
+      .chain()
+      .command(({ tr }) => {
+        tr.replaceSelectionWith(table);
+        return true;
+      })
+      .run();
+
+    expect(editor.tiptap.getHTML()).toBe(
+      "<table><tr><td><mt-text-block></mt-text-block></td></tr></table>"
+    );
+  });
+
+  it("adds a column with textBlock cells by default", async () => {
+    editor.setContent("<table><tbody><tr><td>a</td></tr></tbody></table>");
+    setTextSelection(editor, findTextPosition(editor, "a", 1));
+
+    editor.tiptap.chain().addColumnAfter().run();
+
+    expect(editor.tiptap.getHTML()).toBe(
+      "<table><tr><td><mt-text-block>a</mt-text-block></td><td><mt-text-block></mt-text-block></td></tr></table>"
+    );
+  });
+
+  it("keeps a table cell textBlock on Shift-Tab", async () => {
+    editor.setContent("<table><tbody><tr><td>a</td></tr></tbody></table>");
+    setTextSelection(editor, findTextPosition(editor, "a", 1));
+
+    editor.tiptap.commands.keyboardShortcut("Shift-Tab");
+
+    expect(editor.tiptap.getHTML()).toBe(
+      "<table><tr><td><mt-text-block>a</mt-text-block></td></tr></table>"
+    );
+    expect(normalizeComparableHTML(editor.getContent())).toBe(
+      normalizeComparableHTML("<table><tbody><tr><td>a</td></tr></tbody></table>")
+    );
   });
 });

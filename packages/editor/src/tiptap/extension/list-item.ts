@@ -23,8 +23,14 @@ export const ListItem = TiptapListItem.extend({
     return {
       ...parentShortcuts,
       "Shift-Tab": () => {
+        const wasListItemActive = this.editor.isActive("listItem");
+
         parentShortcuts["Shift-Tab"]();
-        if (!this.editor.isActive("listItem") && this.editor.isActive("textBlock")) {
+        if (
+          wasListItemActive &&
+          !this.editor.isActive("listItem") &&
+          this.editor.isActive("textBlock")
+        ) {
           this.editor.commands.setParagraph();
         }
         return true;
