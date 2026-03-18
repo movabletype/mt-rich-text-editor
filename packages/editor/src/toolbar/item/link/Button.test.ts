@@ -1,51 +1,38 @@
 import { Editor } from "../../../editor";
 import type { EditorOptions } from "../../../editor";
+import type { MountedEditorElement } from "../../../test/helpers/editor";
+import {
+  flushMicrotasks,
+  mountEditorElement,
+  setNodeSelectionByName,
+  setTextSelection,
+  setTextSelectionByText,
+  findTextPosition,
+} from "../../../test/helpers/editor";
 import { normalizeHTML } from "../../../util/html";
 import type { ToolbarItemElement } from "../element";
 import Button from "./Button.svelte";
 
-window.customElements.define("mt-toolbar-item-link", Button.element!);
-
 describe("Button", () => {
   let element: HTMLElement & ToolbarItemElement;
-  let textarea: HTMLTextAreaElement;
   let editor: Editor;
+  let harness: MountedEditorElement<HTMLElement & ToolbarItemElement>;
 
   const initElement = (options: Partial<EditorOptions> = {}) => {
-    if (element && element.parentNode) {
-      element.remove();
-    }
-    element = document.createElement("mt-toolbar-item-link") as HTMLElement & ToolbarItemElement;
-
-    if (textarea && textarea.parentNode) {
-      editor.destroy();
-      textarea.remove();
-    }
-    textarea = document.createElement("textarea");
-    document.body.appendChild(textarea);
-    editor = new Editor(textarea, {
-      toolbar: [],
-      inline: false,
-      ...options,
+    harness?.cleanup();
+    harness = mountEditorElement<HTMLElement & ToolbarItemElement>({
+      tagName: "mt-toolbar-item-link",
+      elementClass: Button.element!,
+      editorOptions: options,
+      getInitOptions: (mountedEditor) =>
+        (mountedEditor.options.toolbarOptions?.link || {}) as Record<string, unknown>,
     });
-
-    if ("onEditorInit" in element) {
-      element.onEditorInit(
-        editor,
-        (editor.options.toolbarOptions?.link || {}) as Record<string, unknown>
-      );
-    }
-
-    document.body.appendChild(element);
-  };
-
-  const flush = async () => {
-    await Promise.resolve();
+    ({ element, editor } = harness);
   };
 
   const clickButton = async () => {
     element.dispatchEvent(new MouseEvent("click"));
-    await flush();
+    await flushMicrotasks();
   };
 
   const setModalValue = (id: string, value: string) => {
@@ -58,57 +45,7 @@ describe("Button", () => {
 
   const submitModal = async () => {
     document.querySelector<HTMLButtonElement>(".modal button.primary")?.click();
-    await flush();
-  };
-
-  const findTextPosition = (text: string, offset = 0) => {
-    let pos = -1;
-
-    editor.tiptap.state.doc.descendants((node, nodePos) => {
-      if (!node.isText || !node.text) {
-        return;
-      }
-
-      const index = node.text.indexOf(text);
-      if (index === -1) {
-        return;
-      }
-
-      pos = nodePos + index + offset;
-      return false;
-    });
-
-    expect(pos).toBeGreaterThan(-1);
-
-    return pos;
-  };
-
-  const setTextSelection = (from: number, to: number) => {
-    expect(to).toBeGreaterThan(from);
-
-    editor.tiptap.chain().setTextSelection({ from, to }).run();
-  };
-
-  const setTextSelectionByText = (text: string) => {
-    const from = findTextPosition(text);
-    setTextSelection(from, from + text.length);
-  };
-
-  const setNodeSelectionByName = (name: string) => {
-    let pos = -1;
-
-    editor.tiptap.state.doc.descendants((node, nodePos) => {
-      if (node.type.name !== name) {
-        return;
-      }
-
-      pos = nodePos;
-      return false;
-    });
-
-    expect(pos).toBeGreaterThan(-1);
-
-    editor.tiptap.chain().setNodeSelection(pos).run();
+    await flushMicrotasks();
   };
 
   beforeEach(() => {
@@ -116,15 +53,12 @@ describe("Button", () => {
   });
 
   afterEach(() => {
-    document.querySelector<HTMLElement>(".modal")?.remove();
-    element.remove();
-    editor.destroy();
-    textarea.remove();
+    harness.cleanup();
   });
 
   describe("onClick", () => {
     it("should open modal without default target", async () => {
-      await flush();
+      await flushMicrotasks();
       await clickButton();
 
       expect(document.querySelector<HTMLSelectElement>(`select[id="link-target"]`)?.value).toBe(
@@ -141,7 +75,7 @@ describe("Button", () => {
         },
       });
 
-      await flush();
+      await flushMicrotasks();
       await clickButton();
 
       expect(document.querySelector<HTMLSelectElement>(`select[id="link-target"]`)?.value).toBe(
@@ -151,9 +85,9 @@ describe("Button", () => {
 
     it("should allow editing selected plain text", async () => {
       editor.setContent("<p>text value</p>");
-      setTextSelectionByText("text");
+      setTextSelectionByText(editor, "text");
 
-      await flush();
+      await flushMicrotasks();
       await clickButton();
 
       expect(document.querySelector<HTMLInputElement>(`input[id="link-text"]`)?.value).toBe("text");
@@ -171,9 +105,9 @@ describe("Button", () => {
       editor.setContent(
         "<p><span><img alt='v' class='v' height='v' src='v' style='top:0' title='v' width='v' /></span></p>"
       );
-      setNodeSelectionByName("image");
+      setNodeSelectionByName(editor, "image");
 
-      await flush();
+      await flushMicrotasks();
       await clickButton();
 
       expect(document.querySelector<HTMLInputElement>(`input[id="link-text"]`)).toBeNull();
@@ -190,9 +124,9 @@ describe("Button", () => {
 
     it("should allow editing selected decorated text", async () => {
       editor.setContent("<p><strong>abcdefg</strong></p>");
-      setTextSelectionByText("cde");
+      setTextSelectionByText(editor, "cde");
 
-      await flush();
+      await flushMicrotasks();
       await clickButton();
 
       expect(document.querySelector<HTMLInputElement>(`input[id="link-text"]`)?.value).toBe("cde");
@@ -212,9 +146,9 @@ describe("Button", () => {
       editor.setContent(
         "<p><strong><a href='https://old.example' target='_self'>cde</a></strong></p>"
       );
-      setTextSelectionByText("cde");
+      setTextSelectionByText(editor, "cde");
 
-      await flush();
+      await flushMicrotasks();
       await clickButton();
 
       expect(document.querySelector<HTMLInputElement>(`input[id="link-url"]`)?.value).toBe(
@@ -236,9 +170,9 @@ describe("Button", () => {
 
     it("should hide link text input for mixed-mark text selection", async () => {
       editor.setContent("<p>あい<strong>う</strong>え</p>");
-      setTextSelection(findTextPosition("い"), findTextPosition("う") + 1);
+      setTextSelection(editor, findTextPosition(editor, "い"), findTextPosition(editor, "う") + 1);
 
-      await flush();
+      await flushMicrotasks();
       await clickButton();
 
       expect(document.querySelector<HTMLInputElement>(`input[id="link-text"]`)).toBeNull();
@@ -256,13 +190,13 @@ describe("Button", () => {
     it("should keep empty-selection insertion behavior", async () => {
       editor.setContent("<p></p>");
 
-      await flush();
+      await flushMicrotasks();
       await clickButton();
 
       expect(document.querySelector<HTMLInputElement>(`input[id="link-text"]`)?.value).toBe("");
 
       setModalValue("link-url", "https://example.com");
-      await flush();
+      await flushMicrotasks();
       await submitModal();
 
       expect(normalizeHTML(editor.getContent())).toBe(

@@ -1,23 +1,26 @@
 import { globSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { Editor } from "../src/editor";
+import type { EditorOptions } from "../src/editor";
+import { createEditorHarness } from "./test/helpers/editor";
+import type { EditorHarness } from "./test/helpers/editor";
 
 describe("HTML parsing", () => {
-  let textarea: HTMLTextAreaElement;
   let editor: Editor;
+  let harness: EditorHarness;
+
+  const initEditor = (options: Partial<EditorOptions> = {}) => {
+    harness?.cleanup();
+    harness = createEditorHarness(options);
+    ({ editor } = harness);
+  };
 
   beforeEach(() => {
-    textarea = document.createElement("textarea");
-    document.body.appendChild(textarea);
-    editor = new Editor(textarea, {
-      toolbar: [],
-      inline: false,
-    });
+    initEditor();
   });
 
   afterEach(() => {
-    editor.destroy();
-    textarea.remove();
+    harness.cleanup();
   });
 
   it.each([
@@ -67,10 +70,7 @@ describe("HTML parsing", () => {
 
   describe("additionalBlockElements option", () => {
     beforeEach(() => {
-      editor.destroy();
-      editor = new Editor(textarea, {
-        toolbar: [],
-        inline: false,
+      initEditor({
         additionalBlockElements: ["abbr", "address"],
       });
     });
@@ -90,10 +90,7 @@ describe("HTML parsing", () => {
 
   describe("additionalInlineElements option", () => {
     beforeEach(() => {
-      editor.destroy();
-      editor = new Editor(textarea, {
-        toolbar: [],
-        inline: false,
+      initEditor({
         additionalInlineElements: ["time", "var"],
       });
     });
@@ -158,25 +155,26 @@ describe("HTML parsing", () => {
 });
 
 describe("HTML formatting", () => {
-  let textarea: HTMLTextAreaElement;
   let editor: Editor;
+  let harness: EditorHarness;
+
+  const initEditor = (options: Partial<EditorOptions> = {}) => {
+    harness?.cleanup();
+    harness = createEditorHarness(options);
+    ({ editor } = harness);
+  };
 
   beforeEach(() => {
-    textarea = document.createElement("textarea");
-    document.body.appendChild(textarea);
+    initEditor();
   });
 
   afterEach(() => {
-    editor.destroy();
-    textarea.remove();
+    harness.cleanup();
   });
 
   describe("with default format option", () => {
     beforeEach(() => {
-      editor = new Editor(textarea, {
-        toolbar: [],
-        inline: false,
-      });
+      initEditor();
     });
 
     it.each([
@@ -265,9 +263,7 @@ function() {
 
   describe("with format: false", () => {
     beforeEach(() => {
-      editor = new Editor(textarea, {
-        toolbar: [],
-        inline: false,
+      initEditor({
         htmlOutputOptions: {
           format: false,
         },
@@ -365,21 +361,21 @@ const normalizeHTML = (html: string): string => {
 };
 
 describe("Event emission", () => {
-  let textarea: HTMLTextAreaElement;
   let editor: Editor;
+  let harness: EditorHarness;
+
+  const initEditor = (options: Partial<EditorOptions> = {}) => {
+    harness?.cleanup();
+    harness = createEditorHarness(options);
+    ({ editor } = harness);
+  };
 
   beforeEach(() => {
-    textarea = document.createElement("textarea");
-    document.body.appendChild(textarea);
-    editor = new Editor(textarea, {
-      toolbar: [],
-      inline: false,
-    });
+    initEditor();
   });
 
   afterEach(() => {
-    editor.destroy();
-    textarea.remove();
+    harness.cleanup();
   });
 
   it("should emit beforeGetContent events", () => {
