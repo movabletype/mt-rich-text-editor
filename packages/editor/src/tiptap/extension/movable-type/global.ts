@@ -64,6 +64,54 @@ const eventAttrNames = new Set([
   "action",
 ]);
 
+const textStyleProperties = new Set(["color", "background-color"]);
+
+const removeTextStyleProperties = (style: string): string => {
+  return style
+    .split(";")
+    .map((declaration) => declaration.trim())
+    .filter((declaration) => {
+      const [property] = declaration.split(":", 1);
+      return property && !textStyleProperties.has(property.trim().toLowerCase());
+    })
+    .join("; ");
+};
+
+const parseHTMLAttributes = (
+  element: HTMLElement,
+  options: { removeTextStyleProperties?: boolean } = {}
+): Record<string, string> => {
+  const attrs: Record<string, string> = {};
+  const eventAttrs: Record<string, string> = {};
+
+  for (const attr of element.attributes) {
+    if (/^data-mt-rich-text-editor-/.test(attr.name)) {
+      continue;
+    }
+
+    if (eventAttrNames.has(attr.name.toLowerCase())) {
+      eventAttrs[attr.name] = attr.value;
+      continue;
+    }
+
+    if (options.removeTextStyleProperties && attr.name.toLowerCase() === "style") {
+      const style = removeTextStyleProperties(attr.value);
+      if (style) {
+        attrs[attr.name] = style;
+      }
+      continue;
+    }
+
+    attrs[attr.name] = attr.value;
+  }
+
+  if (Object.keys(eventAttrs).length > 0) {
+    attrs["data-mt-rich-text-editor-event-attributes"] = JSON.stringify(eventAttrs);
+  }
+
+  return attrs;
+};
+
 export const Global = Extension.create<GlobalOptions>({
   name: "mt-rich-text-editor-global",
 
@@ -74,6 +122,10 @@ export const Global = Extension.create<GlobalOptions>({
   },
 
   addGlobalAttributes() {
+    const additionalTypes = this.options.additionalGlobalAttributeTypes.filter(
+      (type) => type !== "textStyle"
+    );
+
     return [
       {
         types: [
@@ -93,7 +145,6 @@ export const Global = Extension.create<GlobalOptions>({
           "listItem",
           "orderedList",
           "paragraph",
-          "textStyle",
           "script",
           "svg",
           "table",
@@ -105,29 +156,22 @@ export const Global = Extension.create<GlobalOptions>({
           "descriptionList",
           "descriptionTerm",
           "descriptionDetails",
-        ].concat(this.options.additionalGlobalAttributeTypes),
+        ].concat(additionalTypes),
         attributes: {
           MTRichTextEditorHTMLAttributes: {
             default: {},
-            parseHTML: (element: HTMLElement) => {
-              const attrs: Record<string, string> = {};
-              const eventAttrs: Record<string, string> = {};
-              for (const attr of element.attributes) {
-                if (/^data-mt-rich-text-editor-/.test(attr.name)) {
-                  continue;
-                }
-                if (eventAttrNames.has(attr.name.toLowerCase())) {
-                  eventAttrs[attr.name] = attr.value;
-                } else {
-                  attrs[attr.name] = attr.value;
-                }
-              }
-
-              if (Object.keys(eventAttrs).length > 0) {
-                attrs["data-mt-rich-text-editor-event-attributes"] = JSON.stringify(eventAttrs);
-              }
-              return attrs;
-            },
+            parseHTML: (element: HTMLElement) => parseHTMLAttributes(element),
+            renderHTML: (attributes) => attributes.MTRichTextEditorHTMLAttributes,
+          },
+        },
+      },
+      {
+        types: ["textStyle"],
+        attributes: {
+          MTRichTextEditorHTMLAttributes: {
+            default: {},
+            parseHTML: (element: HTMLElement) =>
+              parseHTMLAttributes(element, { removeTextStyleProperties: true }),
             renderHTML: (attributes) => attributes.MTRichTextEditorHTMLAttributes,
           },
         },
