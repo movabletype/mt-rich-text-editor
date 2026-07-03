@@ -23,8 +23,11 @@ const htmlRoundTripCases = [
   "<ol><li>test</li></ol>",
   "<pre>test</pre>",
   "<p><span>test</span></p>",
+  "<p><span style='color: red'>test</span></p>",
+  "<p><span style='background-color: blue; color: red'>test</span></p>",
   "<p><script src='/js/script.js' data-attribute='{&quot;key&quot;: &quot;value&quot;}'></script></p>",
   "<p><script>console.log('test');</script></p>",
+  "<p><span class='custom-class' style='color: red'>test</span></p>",
   "<p><sub>test1</sub>test2<sup>test3</sup></p>",
   "<p><strong>te<span>st</span></strong></p>",
   "<p><iframe frameborder='v' height='v' src='v' width='v'></iframe></p>",
@@ -66,6 +69,10 @@ const htmlConversionCases = [
   [
     "<p><span style='top:0'><strong>test</strong></span></p>",
     "<p><strong><span style='top:0px'>test</span></strong></p>",
+  ],
+  [
+    "<p><span style='color: red'><span style='background-color: blue'>test</span></span></p>",
+    "<p><span style='color: red; background-color: blue'>test</span></p>",
   ],
   [
     "<p><span class='v1'>a<span class='v2'><img alt='v' class='v' height='v' src='v' style='top:0' title='v' width='v' /></span>b</span></p>",
@@ -216,6 +223,17 @@ describe("HTML round-trip", () => {
       expect(normalizeComparableHTML(editor.getContent())).toBe(normalizeComparableHTML(expected));
     }
   );
+
+  it("preserves text color when applying background color to reloaded content", () => {
+    editor.setContent("<p><span style='color: red'>test</span></p>");
+    setTextSelectionByText(editor, "test");
+
+    editor.tiptap.chain().focus().setBackgroundColor("blue").run();
+
+    expect(normalizeComparableHTML(editor.getContent())).toBe(
+      normalizeComparableHTML("<p><span style='color: red; background-color: blue'>test</span></p>")
+    );
+  });
 
   it("preserves all fixture HTML structures", () => {
     const files = globSync(path.join(__dirname, "editor.test.d/**/*.html"));
