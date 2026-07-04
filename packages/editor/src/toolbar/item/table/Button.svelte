@@ -11,8 +11,6 @@
 <script lang="ts">
   import { SvelteSet } from "svelte/reactivity";
   import { selectedRect } from "@tiptap/pm/tables";
-  import { createTable } from "@tiptap/extension-table";
-  import { TextSelection } from "@tiptap/pm/state";
   import type { Transaction } from "@tiptap/pm/state";
   import type { Node } from "@tiptap/pm/model";
   import type { Editor as TiptapEditor } from "@tiptap/core";
@@ -24,6 +22,7 @@
   import { handleTableProperties } from "./table-properties";
   import { handleCellProperties } from "./cell-properties";
   import { handleRowProperties } from "./row-properties";
+  import { insertTable } from "./insert-table";
 
   const element = $host<ToolbarItemElement>();
   const { tiptap } = element;
@@ -72,21 +71,7 @@
       return;
     }
 
-    const table = createTable(tiptap.schema, rows, cols, false);
-    (table.attrs as {style: string}).style = "width: 100%;";
-
-    tiptap
-      .chain()
-      .command(({ tr }) => {
-        const offset = tr.selection.from + 1;
-
-        tr.replaceSelectionWith(table)
-          .scrollIntoView()
-          .setSelection(TextSelection.near(tr.doc.resolve(offset)));
-
-        return true;
-      })
-      .run();
+    insertTable(tiptap, rows, cols);
 
     isOpen = false;
   }
