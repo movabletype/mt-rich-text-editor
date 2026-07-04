@@ -505,6 +505,7 @@ export class Editor {
     this.#statusbar.destroy();
     this.#pasteMenu.destroy();
     this.#structureMode?.destroy();
+    this.#structureMode = undefined;
     this.#quickAction.destroy();
     this.tiptap.destroy();
     this.#containerEl.remove();
