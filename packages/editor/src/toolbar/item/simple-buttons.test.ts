@@ -51,5 +51,19 @@ describe("SourceButton", () => {
       expect(setContentData?.content).toBe(newContent);
       expect(editor.getContent()).toBe(newContent);
     });
+
+    it("should not insert whitespace inside ruby tags when opening the modal", () => {
+      const content = "<p><ruby>漢字<rp>(</rp><rt>かんじ</rt><rp>)</rp></ruby></p>";
+      editor.setContent(content);
+
+      sourceButton?.click();
+      const sourceModalTextarea = document.querySelector<HTMLTextAreaElement>(".modal textarea");
+      expect(sourceModalTextarea?.value).toBe(editor.getContent());
+
+      const submitButton = document.querySelector<HTMLButtonElement>(".modal button.primary");
+      submitButton?.click();
+
+      expect(editor.getContent()).toBe(content);
+    });
   });
 });

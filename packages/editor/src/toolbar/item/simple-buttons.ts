@@ -303,6 +303,7 @@ export class SourceButton extends ToolbarItemElement {
         target: document.body,
         props: {
           text: editor.getContent(),
+          beautifyOptions: editor.htmlOutputOptions,
           onSubmit: (html: string) => {
             editor.setContent({
               source: "sourceEditor",
