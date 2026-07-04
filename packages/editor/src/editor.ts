@@ -414,6 +414,10 @@ export class Editor {
     this.on("previewIframe", previewIframe);
   }
 
+  public get htmlOutputOptions(): HTMLBeautifyOptions | undefined {
+    return this.#htmlOutputOptions;
+  }
+
   public emit<K extends keyof Events>(name: K, data: Events[K]): void;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public emit(name: string, data: { [key: string]: any } = {}): void {
