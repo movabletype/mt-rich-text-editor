@@ -7,7 +7,8 @@ export const insertTable = (tiptap: TiptapEditor, rows: number, cols: number): v
   const table = created.type.create(
     {
       ...created.attrs,
-      style: "width: 100%;",
+      style: "border-collapse: collapse; width: 100%;",
+      MTRichTextEditorHTMLAttributes: { border: "1" },
     },
     created.content,
     created.marks

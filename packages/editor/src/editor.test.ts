@@ -33,6 +33,7 @@ const htmlRoundTripCases = [
   "<hgroup><h1>Title</h1><h2>Subtitle</h2><p>Description</p></hgroup>",
   `<table><tbody><tr><td>b</td></tr></tbody></table>`,
   `<table style="width: 100%"><tbody><tr><td><div>b</div></td></tr></tbody></table>`,
+  `<table border="1" style="border-collapse: collapse; width: 100%"><tbody><tr><td>b</td></tr></tbody></table>`,
   `<div data-mt-rich-text-editor-embed-object=""><iframe width=" 200" height="113" src="https://www.youtube.com/embed/XUAnkKpHaCI?feature=oembed" frameborder="0" allowfullscreen="allowfullscreen"></iframe></div>`,
   `<div data-mt-rich-text-editor-embed-object=""><div>test</div></div>`,
   `<div data-mt-rich-text-editor-embed-object=""><script async src="https://example.com/embed.js"></script></div>`,
