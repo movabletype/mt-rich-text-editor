@@ -4,7 +4,7 @@
   --table-header-text-color: #333;
   --table-header-font-weight: bold;
   --table-header-text-align: left;
-  --table-selected-cell-background-color: #f0f0f0;
+  --table-selected-cell-background-color: rgba(200, 200, 255, 0.4);
   --table-resize-handle-background-color: #ccc;
 }
 
