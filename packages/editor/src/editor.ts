@@ -106,13 +106,15 @@ export interface EditorOptions {
   autoFocus?: boolean;
   htmlOutputOptions?: HtmlOutputOptions;
   /**
-   * user-defined additional block (div-like) elements
+   * user-defined additional block (div-like) elements.
+   * if an element listed here is also in the default inline elements, it is treated as a block element.
    * @example
    * ["abbr", "address"]
    */
   additionalBlockElements?: string[];
   /**
-   * user-defined additional inline elements
+   * user-defined additional inline elements.
+   * if an element listed here is also in the default block elements, it is treated as an inline element.
    * @example
    * ["time", "var"]
    */
@@ -236,11 +238,17 @@ export class Editor {
     this.id = textarea.id;
     this.#textarea = textarea;
     this.options = options;
+    const additionalBlockElements = options.additionalBlockElements ?? [];
+    const additionalInlineElements = options.additionalInlineElements ?? [];
     this.#blockElements = uniqueElements(
-      DEFAULT_BLOCK_ELEMENTS.concat(options.additionalBlockElements ?? [])
+      DEFAULT_BLOCK_ELEMENTS.filter((el) => !additionalInlineElements.includes(el)).concat(
+        additionalBlockElements
+      )
     );
     this.#inlineElements = uniqueElements(
-      DEFAULT_INLINE_ELEMENTS.concat(options.additionalInlineElements ?? [])
+      DEFAULT_INLINE_ELEMENTS.filter((el) => !additionalBlockElements.includes(el)).concat(
+        additionalInlineElements
+      )
     );
     this.#inlineElementsForPreprocess = uniqueElements(
       this.#inlineElements.concat(INLINE_ELEMENTS_FOR_TIP_TAP)

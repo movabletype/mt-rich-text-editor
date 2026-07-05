@@ -135,6 +135,48 @@ describe("HTML round-trip", () => {
     });
   });
 
+  describe("additionalBlockElements option overriding a default inline element", () => {
+    beforeEach(() => {
+      initEditor({
+        additionalBlockElements: ["button"],
+      });
+    });
+
+    it("treats button as a block element", () => {
+      const input = "<div><p>a</p><button>Click</button><p>b</p></div>";
+      editor.setContent(input);
+
+      expect(normalizeComparableHTML(editor.getContent())).toBe(normalizeComparableHTML(input));
+    });
+
+    it("no longer treats button as inline inside a paragraph", () => {
+      editor.setContent("<p>a<button>b</button>c</p>");
+
+      expect(normalizeComparableHTML(editor.getContent())).toBe(
+        normalizeComparableHTML("<p>abc</p>")
+      );
+    });
+  });
+
+  describe("additionalInlineElements option overriding a default block element", () => {
+    beforeEach(() => {
+      initEditor({
+        additionalInlineElements: ["figure"],
+      });
+    });
+
+    it("resolves figure as an inline mark instead of a block node", () => {
+      editor.setContent("<p><figure>test</figure></p>");
+
+      const marks = editor.tiptap
+        .getJSON()
+        .content?.flatMap((node) => node.content ?? [])
+        .flatMap((node) => node.marks ?? []);
+
+      expect(marks?.some((mark) => mark.type === "figure")).toBe(true);
+    });
+  });
+
   it.each(htmlConversionCases)(
     "normalizes HTML structure through Tiptap: %s",
     (input, expected) => {
