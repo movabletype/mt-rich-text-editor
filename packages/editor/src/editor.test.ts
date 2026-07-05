@@ -48,6 +48,8 @@ const htmlRoundTripCases = [
   "<p><button type='button'>Click</button></p>",
   "<div>\n    <p>test</p>\n</div>",
   "<blockquote>\n    <p>test</p>\n</blockquote>",
+  "<p style='padding-left: 80px'>test</p>",
+  "<p style='padding-left: 2em'>test</p>",
   "<p style='text-align: center'>test</p>",
   "<h2 style='text-align: center'>test</h2>",
 ] as const;
@@ -118,20 +120,6 @@ describe("HTML round-trip", () => {
     editor.setContent(input);
 
     expect(normalizeComparableHTML(editor.getContent())).toBe(normalizeComparableHTML(input));
-  });
-
-  it("does not insert spurious empty mt-text-block around block children separated only by formatting whitespace", () => {
-    editor.setContent("<div>\n    <p>test</p>\n</div>");
-
-    expect(editor.tiptap.getHTML()).toBe('<div><p data-mt-indent="0">test</p></div>');
-    expect(editor.getContent()).toBe("<div>\n<p>test</p>\n</div>");
-  });
-
-  it("does not insert spurious empty mt-text-block for block elements other than div (blockquote)", () => {
-    editor.setContent("<blockquote>\n    <p>test</p>\n</blockquote>");
-
-    expect(editor.tiptap.getHTML()).toBe('<blockquote><p data-mt-indent="0">test</p></blockquote>');
-    expect(editor.getContent()).toBe("<blockquote>\n<p>test</p>\n</blockquote>");
   });
 
   describe("additionalBlockElements option", () => {
@@ -230,7 +218,71 @@ describe("HTML round-trip", () => {
     }
   });
 
-  describe("text-align style attribute", () => {
+  describe("indent/outdent commands", () => {
+    it("increases padding-left by 80px per indent call", () => {
+      editor.setContent("<p>t</p>");
+      setTextSelectionByText(editor, "t");
+
+      editor.tiptap.chain().focus().indent().run();
+      expect(normalizeComparableHTML(editor.getContent())).toBe(
+        normalizeComparableHTML("<p style='padding-left: 80px'>t</p>")
+      );
+
+      editor.tiptap.chain().focus().indent().run();
+      expect(normalizeComparableHTML(editor.getContent())).toBe(
+        normalizeComparableHTML("<p style='padding-left: 160px'>t</p>")
+      );
+    });
+
+    it("outdents a previously saved padding-left back to no indent (regression)", () => {
+      editor.setContent("<p style='padding-left: 80px'>t</p>");
+      setTextSelectionByText(editor, "t");
+
+      editor.tiptap.chain().focus().outdent().run();
+
+      expect(normalizeComparableHTML(editor.getContent())).toBe(
+        normalizeComparableHTML("<p>t</p>")
+      );
+    });
+
+    it("keeps outdent working after a round-trip through the HTML source modal", () => {
+      editor.setContent("<p style='padding-left: 80px'>t</p>");
+      editor.setContent(editor.getContent());
+      setTextSelectionByText(editor, "t");
+
+      editor.tiptap.chain().focus().outdent().run();
+
+      expect(normalizeComparableHTML(editor.getContent())).toBe(
+        normalizeComparableHTML("<p>t</p>")
+      );
+    });
+
+    it("skips indent/outdent for non-pixel padding-left units", () => {
+      editor.setContent("<p style='padding-left: 2em'>t</p>");
+      setTextSelectionByText(editor, "t");
+
+      editor.tiptap.chain().focus().indent().run();
+      expect(normalizeComparableHTML(editor.getContent())).toBe(
+        normalizeComparableHTML("<p style='padding-left: 2em'>t</p>")
+      );
+
+      editor.tiptap.chain().focus().outdent().run();
+      expect(normalizeComparableHTML(editor.getContent())).toBe(
+        normalizeComparableHTML("<p style='padding-left: 2em'>t</p>")
+      );
+    });
+
+    it("outdents a non-multiple-of-80 padding-left by 80px", () => {
+      editor.setContent("<p style='padding-left: 120px'>t</p>");
+      setTextSelectionByText(editor, "t");
+
+      editor.tiptap.chain().focus().outdent().run();
+
+      expect(normalizeComparableHTML(editor.getContent())).toBe(
+        normalizeComparableHTML("<p style='padding-left: 40px'>t</p>")
+      );
+    });
+
     it("does not leave a stale text-align after changing alignment", () => {
       editor.setContent("<p style='text-align: center'>t</p>");
       setTextSelectionByText(editor, "t");

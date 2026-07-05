@@ -66,15 +66,19 @@ export const Extension = TiptapExtension.create({
     const extensions = [];
 
     if (this.options.movableType !== false) {
-      // Properties that a dedicated extension (textAlign) manages on its own
+      // Properties that a dedicated extension (indent, textAlign) manages on its own
       // attribute must be excluded from the Global extension's verbatim style capture,
-      // otherwise the two copies drift out of sync (see TextAlign extension).
+      // otherwise the two copies drift out of sync (see Indent/TextAlign extensions).
       const excludedStyleProperties: Record<string, string[]> = {};
       const excludeStyleProperty = (types: string[], property: string) => {
         for (const type of types) {
           (excludedStyleProperties[type] ??= []).push(property);
         }
       };
+
+      if (this.options.indent !== false) {
+        excludeStyleProperty(this.options?.indent?.types ?? ["paragraph"], "padding-left");
+      }
 
       if (this.options.textAlign !== false) {
         excludeStyleProperty(
