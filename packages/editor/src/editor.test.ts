@@ -50,6 +50,7 @@ const htmlRoundTripCases = [
   "<div><iframe frameborder='0' src='https://example.com/embed'></iframe><mt-rich-text-editor-mt-function-tag data-tag-name='Var' name='foo'></mt-rich-text-editor-mt-function-tag></div>",
   `<section><div><span data-note="x">nested</span></div></section>`,
   `<div></div>`,
+  "<p><button type='button'>Click</button></p>",
 ] as const;
 
 const htmlConversionCases = [
