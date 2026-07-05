@@ -43,18 +43,83 @@ export class StructureMode {
             if (!node) {
               return;
             }
+
+            // `indent`/`textAlign` are only present in the node's attrs when the
+            // corresponding extension manages that attribute for this node type
+            // (see Indent/TextAlign extension `types` options).
+            const hasIndentAttr = Object.prototype.hasOwnProperty.call(node.attrs, "indent");
+            const hasTextAlignAttr = Object.prototype.hasOwnProperty.call(node.attrs, "textAlign");
+            const textAlignExtension = this.#editor.tiptap.extensionManager.extensions.find(
+              (extension) => extension.name === "textAlign"
+            );
+            const alignments: string[] = (
+              textAlignExtension?.options as { alignments?: string[] } | undefined
+            )?.alignments ?? ["left", "center", "right", "justify"];
+
+            // padding-left / text-align are routed to the dedicated indent/textAlign
+            // attributes so they stay in sync with those extensions instead of being
+            // duplicated (and going stale) inside MTRichTextEditorHTMLAttributes.style.
+            let indentValue: string | null = null;
+            let textAlignValue: string | null = null;
+            const remainingDeclarations: string[] = [];
+
+            const declarations: string[] = (structureData.style || "")
+              .split(";")
+              .map((declaration: string) => declaration.trim())
+              .filter((declaration: string) => declaration.length > 0);
+
+            for (const declaration of declarations) {
+              const separatorIndex = declaration.indexOf(":");
+              if (separatorIndex === -1) {
+                remainingDeclarations.push(declaration);
+                continue;
+              }
+
+              const property = declaration.slice(0, separatorIndex).trim().toLowerCase();
+              const value = declaration.slice(separatorIndex + 1).trim();
+
+              if (!value) {
+                continue;
+              }
+
+              if (hasIndentAttr && property === "padding-left") {
+                indentValue = value;
+                continue;
+              }
+
+              if (hasTextAlignAttr && property === "text-align" && alignments.includes(value)) {
+                textAlignValue = value;
+                continue;
+              }
+
+              remainingDeclarations.push(declaration);
+            }
+
             const newAttrs = { ...node.attrs.MTRichTextEditorHTMLAttributes };
             const attrNameMap = {
               className: "class",
             } as Record<keyof StructureData, string>;
-            (["id", "className", "style"] as (keyof StructureData)[]).forEach((attr) => {
+            (["id", "className"] as (keyof StructureData)[]).forEach((attr) => {
               newAttrs[attrNameMap[attr] ?? attr] = structureData[attr] || undefined;
             });
-            const transaction = this.#editor.tiptap.state.tr.setNodeAttribute(
+            newAttrs.style =
+              remainingDeclarations.length > 0 ? remainingDeclarations.join("; ") : undefined;
+
+            let transaction = this.#editor.tiptap.state.tr.setNodeAttribute(
               pos - 1,
               "MTRichTextEditorHTMLAttributes",
               newAttrs
             );
+            if (hasIndentAttr) {
+              transaction = transaction.setNodeAttribute(pos - 1, "indent", indentValue);
+            }
+            if (hasTextAlignAttr) {
+              transaction = transaction.setNodeAttribute(
+                pos - 1,
+                "textAlign",
+                textAlignValue ?? ""
+              );
+            }
             this.#editor.tiptap.view.dispatch(transaction);
 
             if (this.#modal) {
