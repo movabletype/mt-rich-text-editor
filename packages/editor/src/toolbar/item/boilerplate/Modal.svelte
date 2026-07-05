@@ -3,11 +3,15 @@
   import { t } from "../../../i18n";
   import { Modal, ModalContent } from "@movabletype/svelte-components";
   import { onMount } from "svelte";
+  import { insertStylesheets } from "../../../util/dom";
+  import contentCss from "../../../content.css?inline";
 
   const purify = DOMPurify(window);
 
   let {
     boilerplates,
+    stylesheets = [],
+    classNames = [],
     onSubmit,
     onClose,
   }: {
@@ -16,6 +20,8 @@
       url: string;
       description: string;
     }[];
+    stylesheets?: string[];
+    classNames?: string[];
     onSubmit: (text: string) => void;
     onClose: () => void;
   } = $props();
@@ -42,6 +48,22 @@
     }
   });
 
+  // render the preview in a shadow root with the same content styles as the editor body
+  function preview(node: HTMLElement, html: string) {
+    const shadow = node.attachShadow({ mode: "open" });
+    insertStylesheets(shadow, [contentCss, ...stylesheets]);
+    const content = document.createElement("div");
+    if (classNames.length > 0) {
+      content.className = classNames.join(" ");
+    }
+    shadow.appendChild(content);
+    const render = (html: string) => {
+      content.innerHTML = purify.sanitize(html);
+    };
+    render(html);
+    return { update: render };
+  }
+
   // eslint-disable-next-line svelte/no-unused-svelte-ignore
   // svelte-ignore non_reactive_update FIXME:
   let close: () => void;
@@ -63,9 +85,7 @@
       <div class="form-group mb-3">
         {#if selectedBoilerplate}
           <label for="boilerplate_text">{t("Text")}</label>
-          <div id="boilerplate_text" class="form-control">
-            {@html purify.sanitize(selectedBoilerplate)}
-          </div>
+          <div id="boilerplate_text" class="form-control" use:preview={selectedBoilerplate}></div>
         {/if}
       </div>
     </svelte:fragment>

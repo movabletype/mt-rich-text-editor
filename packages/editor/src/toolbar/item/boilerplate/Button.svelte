@@ -29,6 +29,8 @@
       target: document.body,
       props: {
         boilerplates: element.options.boilerplates,
+        stylesheets: element.editor?.options.stylesheets,
+        classNames: element.editor?.options.classNames,
         onSubmit: (text: string) => {
           element.tiptap?.chain().focus().insertContent(text).run();
         },
