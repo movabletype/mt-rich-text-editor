@@ -41,7 +41,10 @@
   let showInBottom = $state(false);
 
   const update = () => {
-    isOpen = !editor.getStructureMode() && condition();
+    isOpen =
+      !editor.getStructureMode() &&
+      (!editor.options.inline || tiptap.state.selection.empty) &&
+      condition();
     if (isOpen) {
       updatePosition();
       for (const key in buttonRefs) {
