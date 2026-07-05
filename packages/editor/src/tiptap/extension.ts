@@ -66,7 +66,29 @@ export const Extension = TiptapExtension.create({
     const extensions = [];
 
     if (this.options.movableType !== false) {
-      extensions.push(MovableType.configure(this.options?.movableType));
+      // Properties that a dedicated extension (textAlign) manages on its own
+      // attribute must be excluded from the Global extension's verbatim style capture,
+      // otherwise the two copies drift out of sync (see TextAlign extension).
+      const excludedStyleProperties: Record<string, string[]> = {};
+      const excludeStyleProperty = (types: string[], property: string) => {
+        for (const type of types) {
+          (excludedStyleProperties[type] ??= []).push(property);
+        }
+      };
+
+      if (this.options.textAlign !== false) {
+        excludeStyleProperty(
+          this.options?.textAlign?.types ?? ["heading", "paragraph"],
+          "text-align"
+        );
+      }
+
+      extensions.push(
+        MovableType.configure({
+          ...this.options?.movableType,
+          excludedStyleProperties,
+        })
+      );
     }
 
     if (this.options.undoRedo !== false) {

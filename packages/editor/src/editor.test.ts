@@ -48,6 +48,8 @@ const htmlRoundTripCases = [
   "<p><button type='button'>Click</button></p>",
   "<div>\n    <p>test</p>\n</div>",
   "<blockquote>\n    <p>test</p>\n</blockquote>",
+  "<p style='text-align: center'>test</p>",
+  "<h2 style='text-align: center'>test</h2>",
 ] as const;
 
 const htmlConversionCases = [
@@ -226,6 +228,21 @@ describe("HTML round-trip", () => {
 
       expect(normalizeComparableHTML(editor.getContent())).toBe(normalizeComparableHTML(input));
     }
+  });
+
+  describe("text-align style attribute", () => {
+    it("does not leave a stale text-align after changing alignment", () => {
+      editor.setContent("<p style='text-align: center'>t</p>");
+      setTextSelectionByText(editor, "t");
+
+      editor.tiptap.chain().focus().setTextAlign("right").run();
+
+      const html = editor.getContent();
+      expect(html).not.toContain("text-align: center");
+      expect(normalizeComparableHTML(html)).toBe(
+        normalizeComparableHTML("<p style='text-align: right'>t</p>")
+      );
+    });
   });
 });
 
