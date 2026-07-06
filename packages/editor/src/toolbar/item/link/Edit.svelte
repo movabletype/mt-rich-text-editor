@@ -6,6 +6,7 @@
 
 <script module lang="ts">
   import { extendToolbarItem } from "../svelte";
+  // eslint-disable-next-line no-useless-assignment -- extend is read by the <svelte:options customElement={{ extend }}> tag above, which this rule's control-flow analysis does not see
   const extend = (customElementConstructor: typeof HTMLElement) =>
     class extends extendToolbarItem(customElementConstructor) {};
 </script>

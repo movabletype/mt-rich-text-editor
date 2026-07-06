@@ -21,17 +21,13 @@
     onClose: () => void;
   } = $props();
 
-  // eslint-disable-next-line svelte/no-unused-svelte-ignore
-  // svelte-ignore state_referenced_locally -- tableData is a one-time snapshot seeded when the modal is mounted
+  // svelte-ignore state_referenced_locally (tableData is a one-time snapshot seeded when the modal is mounted)
   let width = $state(tableData.width);
-  // eslint-disable-next-line svelte/no-unused-svelte-ignore
-  // svelte-ignore state_referenced_locally -- tableData is a one-time snapshot seeded when the modal is mounted
+  // svelte-ignore state_referenced_locally (tableData is a one-time snapshot seeded when the modal is mounted)
   let height = $state(tableData.height);
-  // eslint-disable-next-line svelte/no-unused-svelte-ignore
-  // svelte-ignore state_referenced_locally -- tableData is a one-time snapshot seeded when the modal is mounted
+  // svelte-ignore state_referenced_locally (tableData is a one-time snapshot seeded when the modal is mounted)
   let cellSpacing = $state(tableData.cellSpacing);
-  // eslint-disable-next-line svelte/no-unused-svelte-ignore
-  // svelte-ignore state_referenced_locally -- tableData is a one-time snapshot seeded when the modal is mounted
+  // svelte-ignore state_referenced_locally (tableData is a one-time snapshot seeded when the modal is mounted)
   let borderWidth = $state(tableData.borderWidth);
 
   let widthInput: HTMLInputElement;
@@ -40,7 +36,6 @@
   });
 
   let self: Modal;
-  // eslint-disable-next-line svelte/no-unused-svelte-ignore
   // svelte-ignore non_reactive_update FIXME:
   let close: () => void;
 </script>

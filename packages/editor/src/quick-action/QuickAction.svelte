@@ -15,8 +15,7 @@
   } = $props();
 
   const buttonRefs: Record<string, HTMLElement> = {};
-  // eslint-disable-next-line svelte/no-unused-svelte-ignore
-  // svelte-ignore state_referenced_locally -- quickAction is stable for this component's whole mounted lifetime (one QuickAction per Editor instance)
+  // svelte-ignore state_referenced_locally (quickAction is stable for this component's whole mounted lifetime; one QuickAction per Editor instance)
   const buttons = quickAction
     .map((name) => {
       const [baseName, variant] = name.split(":");
