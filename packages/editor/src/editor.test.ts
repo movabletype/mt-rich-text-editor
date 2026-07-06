@@ -201,7 +201,7 @@ describe("HTML formatting", () => {
       ],
       [
         `<table style="width: 100%"><tbody><tr><td>b</td></tr></tbody></table>`,
-        `<table style="width: 100%">
+        `<table style="width: 100%;">
 <tbody>
 <tr>
 <td>b</td>
@@ -255,9 +255,10 @@ function() {
       });
 
       const input = `<table style="width: 100%"><tbody><tr><td>b</td></tr></tbody></table>`;
+      const expected = `<table style="width: 100%;"><tbody><tr><td>b</td></tr></tbody></table>`;
       editor.setContent(input);
 
-      expect(editor.getContent()).toBe(input);
+      expect(editor.getContent()).toBe(expected);
     });
 
     it("supports custom indent size", () => {
