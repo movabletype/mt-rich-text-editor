@@ -1,4 +1,5 @@
 import { Extension } from "@tiptap/core";
+import type { Attribute } from "@tiptap/core";
 
 export interface GlobalOptions {
   additionalGlobalAttributeTypes: string[];
@@ -89,6 +90,19 @@ export const buildMTRichTextEditorHTMLAttributes = (
   return attrs;
 };
 
+const createGlobalAttribute = (excludeAttributeNames: readonly string[] = []): Attribute => ({
+  default: {},
+  parseHTML: (element: HTMLElement) =>
+    buildMTRichTextEditorHTMLAttributes(
+      Object.fromEntries(
+        Array.from(element.attributes, (attr) => [attr.name, attr.value]).filter(
+          ([name]) => !excludeAttributeNames.includes(name)
+        )
+      )
+    ),
+  renderHTML: (attributes) => attributes.MTRichTextEditorHTMLAttributes,
+});
+
 export const Global = Extension.create<GlobalOptions>({
   name: "mt-rich-text-editor-global",
 
@@ -121,10 +135,7 @@ export const Global = Extension.create<GlobalOptions>({
           "textStyle",
           "script",
           "svg",
-          "table",
           "tableRow",
-          "tableCell",
-          "tableHeader",
           "link",
           "blockLink",
           "descriptionList",
@@ -132,16 +143,19 @@ export const Global = Extension.create<GlobalOptions>({
           "descriptionDetails",
         ].concat(this.options.additionalGlobalAttributeTypes),
         attributes: {
-          MTRichTextEditorHTMLAttributes: {
-            default: {},
-            parseHTML: (element: HTMLElement) =>
-              buildMTRichTextEditorHTMLAttributes(
-                Object.fromEntries(
-                  Array.from(element.attributes, (attr) => [attr.name, attr.value])
-                )
-              ),
-            renderHTML: (attributes) => attributes.MTRichTextEditorHTMLAttributes,
-          },
+          MTRichTextEditorHTMLAttributes: createGlobalAttribute(),
+        },
+      },
+      {
+        types: ["table", "tableCell"],
+        attributes: {
+          MTRichTextEditorHTMLAttributes: createGlobalAttribute(["style"]),
+        },
+      },
+      {
+        types: ["tableHeader"],
+        attributes: {
+          MTRichTextEditorHTMLAttributes: createGlobalAttribute(["style", "scope"]),
         },
       },
     ];

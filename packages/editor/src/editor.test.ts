@@ -214,6 +214,68 @@ describe("HTML round-trip", () => {
   });
 });
 
+describe("dedicated attributes of table types", () => {
+  let editor: Editor;
+  let harness: EditorHarness;
+
+  beforeEach(() => {
+    harness = createEditorHarness();
+    ({ editor } = harness);
+  });
+
+  afterEach(() => {
+    harness.cleanup();
+  });
+
+  it("keeps dedicated attributes out of MTRichTextEditorHTMLAttributes for table, tableCell and tableHeader", () => {
+    editor.setContent(
+      `<table border="1" style="border-collapse: collapse; width: 100%"><tbody><tr><th scope="col" style="width: 30%">h</th><td class="cell" style="text-align: center">b</td></tr></tbody></table>`
+    );
+
+    const table = editor.tiptap.getJSON().content?.find((node) => node.type === "table");
+    expect(table?.attrs?.style).toBe("border-collapse: collapse; width: 100%");
+    expect(table?.attrs?.MTRichTextEditorHTMLAttributes).toEqual({ border: "1" });
+
+    const [header, cell] = table?.content?.[0]?.content ?? [];
+    expect(header?.attrs?.style).toBe("width: 30%");
+    expect(header?.attrs?.scope).toBe("col");
+    expect(header?.attrs?.MTRichTextEditorHTMLAttributes).toEqual({});
+    expect(cell?.attrs?.style).toBe("text-align: center");
+    expect(cell?.attrs?.MTRichTextEditorHTMLAttributes).toEqual({ class: "cell" });
+  });
+
+  it("does not resurrect old style declarations when the dedicated style attribute is edited", () => {
+    editor.setContent(
+      `<table style="border-collapse: collapse; width: 100%"><tbody><tr><td>b</td></tr></tbody></table>`
+    );
+
+    // Mimic the table-properties panel: replace the dedicated style attribute.
+    let tablePos = -1;
+    editor.tiptap.state.doc.descendants((node, pos) => {
+      if (node.type.name === "table") {
+        tablePos = pos;
+      }
+    });
+    editor.tiptap
+      .chain()
+      .command(({ tr }) => {
+        const node = tr.doc.nodeAt(tablePos);
+        if (!node) {
+          return false;
+        }
+        tr.setNodeMarkup(tablePos, null, { ...node.attrs, style: "width: 50%;" });
+        return true;
+      })
+      .run();
+
+    expect(normalizeComparableHTML(editor.getContent())).toBe(
+      normalizeComparableHTML(
+        `<table style="width: 50%;"><tbody><tr><td>b</td></tr></tbody></table>`
+      )
+    );
+  });
+});
+
 describe("HTML formatting", () => {
   let editor: Editor;
   let harness: EditorHarness;
