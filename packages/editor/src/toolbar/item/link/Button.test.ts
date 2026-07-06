@@ -117,7 +117,7 @@ describe("Button", () => {
 
       expect(normalizeHTML(editor.getContent())).toBe(
         normalizeHTML(
-          "<p><a href='https://example.com' target='_self' title=''><span><img alt='v' class='v' height='v' src='v' style='top:0' title='v' width='v' /></span></a></p>"
+          "<p><a href='https://example.com' target='_self' title=''><span><img alt='v' class='v' height='v' src='v' style='top: 0px;' title='v' width='v' /></span></a></p>"
         )
       );
     });

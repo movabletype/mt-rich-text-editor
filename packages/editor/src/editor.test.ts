@@ -25,14 +25,9 @@ const htmlRoundTripCases = [
   "<p><span>test</span></p>",
   "<p><script src='/js/script.js' data-attribute='{&quot;key&quot;: &quot;value&quot;}'></script></p>",
   "<p><script>console.log('test');</script></p>",
-  "<p><span style='top:0' class='custom-class'>test</span></p>",
-  "<p><a href='v' target='v' title='v'>t<span style='top:0'>t</span></a></p>",
-  "<p><a href='v' target='v'><span><img alt='v' class='v' height='v' src='v' style='top:0' title='v' width='v' /></span></a></p>",
-  "<div class='v'><table style='top:0'><tbody><tr><td style='top:0'>t</td></tr></tbody></table></div>",
   "<p><sub>test1</sub>test2<sup>test3</sup></p>",
   "<p><strong>te<span>st</span></strong></p>",
   "<p><iframe frameborder='v' height='v' src='v' width='v'></iframe></p>",
-  "<ul><li style='top:0'><ul class='v'><li><a href='v'>t</a></li></ul></li></ul>",
   "<p><span class='v1'>a</span><span class='v2'>b</span></p>",
   "<figure style='display: inline-block' class='mt-figure'><img src='http://example.com/image.jpg' width='800' height='657' alt='alternative text' class='asset asset-image at-xid-1'/><figcaption>caption text</figcaption></figure>",
   "<hgroup><h1>Title</h1><h2>Subtitle</h2><p>Description</p></hgroup>",
@@ -55,23 +50,43 @@ const htmlRoundTripCases = [
 const htmlConversionCases = [
   [
     "<p><span style='top:0'>t<a href='v' target='v' title='v'>t</a></span></p>",
-    "<p><span style='top:0'>t</span><a href='v' target='v' title='v'><span style='top:0'>t</span></a></p>",
+    "<p><span style='top:0px'>t</span><a href='v' target='v' title='v'><span style='top:0px'>t</span></a></p>",
   ],
   [
     "<p style='top:0'><strong><a href='v' target='v'>t</a><strong><a href='v' target='v'>t</a></strong></strong></p>",
-    "<p style='top:0'><a href='v' target='v'><strong>tt</strong></a></p>",
+    "<p style='top:0px'><a href='v' target='v'><strong>tt</strong></a></p>",
   ],
   [
     "<p><span><a href='v' target='v'><img alt='v' class='v' height='v' src='v' style='top:0' title='v' width='v' /></a></span></p>",
-    "<p><a href='v' target='v'><span><img alt='v' class='v' height='v' src='v' style='top:0' title='v' width='v' /></span></a></p>",
+    "<p><a href='v' target='v'><span><img alt='v' class='v' height='v' src='v' style='top:0px' title='v' width='v' /></span></a></p>",
   ],
   [
     "<p><span style='top:0'><strong>test</strong></span></p>",
-    "<p><strong><span style='top:0'>test</span></strong></p>",
+    "<p><strong><span style='top:0px'>test</span></strong></p>",
   ],
   [
     "<p><span class='v1'>a<span class='v2'><img alt='v' class='v' height='v' src='v' style='top:0' title='v' width='v' /></span>b</span></p>",
-    "<p><span class='v1'>a</span><span class='v2'><img alt='v' class='v' height='v' src='v' style='top:0' title='v' width='v' /></span><span class='v1'>b</span></p>",
+    "<p><span class='v1'>a</span><span class='v2'><img alt='v' class='v' height='v' src='v' style='top:0px' title='v' width='v' /></span><span class='v1'>b</span></p>",
+  ],
+  [
+    "<p><span style='top:0' class='custom-class'>test</span></p>",
+    "<p><span class='custom-class' style='top:0px'>test</span></p>",
+  ],
+  [
+    "<p><a href='v' target='v' title='v'>t<span style='top:0'>t</span></a></p>",
+    "<p><a href='v' target='v' title='v'>t<span style='top:0px'>t</span></a></p>",
+  ],
+  [
+    "<p><a href='v' target='v'><span><img alt='v' class='v' height='v' src='v' style='top:0' title='v' width='v' /></span></a></p>",
+    "<p><a href='v' target='v'><span><img alt='v' class='v' height='v' src='v' style='top:0px' title='v' width='v' /></span></a></p>",
+  ],
+  [
+    "<div class='v'><table style='top:0'><tbody><tr><td style='top:0'>t</td></tr></tbody></table></div>",
+    "<div class='v'><table style='top:0px'><tbody><tr><td style='top:0px'>t</td></tr></tbody></table></div>",
+  ],
+  [
+    "<ul><li style='top:0'><ul class='v'><li><a href='v'>t</a></li></ul></li></ul>",
+    "<ul><li style='top:0px'><ul class='v'><li><a href='v'>t</a></li></ul></li></ul>",
   ],
   ["<div>\n\n\n</div>", "<div></div>"],
 ] as const;
