@@ -1,6 +1,8 @@
 import { t } from "../../../i18n";
 import type { Editor as TiptapEditor } from "@tiptap/core";
 import type { Editor } from "../../../editor";
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
 import type { EmbedData } from "./Modal.svelte";
 
 const resolverResponses: Record<

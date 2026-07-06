@@ -12,6 +12,8 @@ describe("Markdown", () => {
     harness?.cleanup();
     harness = mountEditorElement<HTMLElement & PasteMenuItemElement>({
       tagName: "mt-paste-menu-item-markdown",
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       elementClass: Markdown.element!,
       editorOptions: options,
       getInitOptions: (mountedEditor) =>

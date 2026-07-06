@@ -12,6 +12,8 @@ describe("Link", () => {
     harness?.cleanup();
     harness = mountEditorElement<HTMLElement & PasteMenuItemElement>({
       tagName: "mt-paste-menu-item-link",
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       elementClass: Link.element!,
       editorOptions: options,
     });

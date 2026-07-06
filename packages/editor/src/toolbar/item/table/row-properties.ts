@@ -7,7 +7,7 @@ import RowPropertiesPanel from "./RowPropertiesPanel.svelte";
 
 let rowPropertiesModal: ReturnType<typeof mount> | undefined;
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-export const handleRowProperties = (tiptap: TiptapEditor) => {
+export const handleRowProperties = (_tiptap: TiptapEditor) => {
   rowPropertiesModal = mount(RowPropertiesPanel, {
     target: document.body,
     props: {
@@ -15,7 +15,7 @@ export const handleRowProperties = (tiptap: TiptapEditor) => {
         element: "tbody",
       },
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      onSubmit: (rowData: RowData) => {
+      onSubmit: (_rowData: RowData) => {
         unmount(rowPropertiesModal as ReturnType<typeof mount>);
       },
       onClose: () => {
