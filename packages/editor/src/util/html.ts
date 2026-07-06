@@ -4,7 +4,7 @@ const isEditable = (element: HTMLElement): boolean =>
 const isInlineNode = (node: Node, inlineElementSet: Set<string>, trim: boolean): boolean =>
   !(
     // a[data-mt-rich-text-editor-block="true"] should be treated as block element even if it contains text nodes or images
-    (node instanceof HTMLElement && node.dataset.mtRichTextEditorBlock === "true")
+    node instanceof HTMLElement && node.dataset.mtRichTextEditorBlock === "true"
   ) &&
   ((node.nodeType === Node.TEXT_NODE && (!trim || !!node.textContent?.trim())) ||
     (node.nodeType === Node.ELEMENT_NODE && inlineElementSet.has(node.nodeName)));

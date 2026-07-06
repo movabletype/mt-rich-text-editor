@@ -311,18 +311,16 @@ class MTRichTextEditor extends MTEditor {
             return;
           }
           const intervalId = setInterval(() => {
-            if (
-              !(
-                dialogIframe.contentWindow &&
-                // new dialog page has been loaded
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                (dialogIframe.contentWindow as any).uploadFiles &&
-                // content has been loaded
-                dialogIframe.contentWindow.document.readyState !== "loading" &&
-                // jQuery(initFunc) has been finished
-                dialogIframe.contentWindow.jQuery
-              )
-            ) {
+            if (!(
+              dialogIframe.contentWindow &&
+              // new dialog page has been loaded
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              (dialogIframe.contentWindow as any).uploadFiles &&
+              // content has been loaded
+              dialogIframe.contentWindow.document.readyState !== "loading" &&
+              // jQuery(initFunc) has been finished
+              dialogIframe.contentWindow.jQuery
+            )) {
               return;
             }
 
