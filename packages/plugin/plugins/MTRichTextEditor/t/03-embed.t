@@ -65,6 +65,19 @@ my %response_map = (
     'https://movabletype.jp/path/to/page.html' => HTTP::Response->new(200, 'OK',        ['Content-Type' => 'text/html'], '<html><title>test site</title></html>'),
     'http://movabletype.jp/not-found.html'     => HTTP::Response->new(404, 'Not Found', ['Content-Type' => 'text/html'], '<html><title>test site</title></html>'),
     'http://movabletype.jp/invalid.html'       => HTTP::Response->new(200, 'OK',        ['Content-Type' => 'text/html'], '<html><title>test</html></html>'),
+    'http://movabletype.jp/xss-scheme.html'    => HTTP::Response->new(200, 'OK',        ['Content-Type' => 'text/html'], '<html><head><title>xss scheme test</title>'
+        . '<meta property="og:url" content="javascript:alert(1)">'
+        . '<meta property="og:image" content="javascript:alert(2)">'
+        . '<link rel="icon" href="javascript:alert(3)">'
+        . '</head></html>'),
+    'http://movabletype.jp/xss-tab.html'       => HTTP::Response->new(200, 'OK',        ['Content-Type' => 'text/html'], qq{<html><head><title>xss tab test</title>}
+        . qq{<meta property="og:image" content="java\tscript:alert(1)">}
+        . qq{</head></html>}),
+    'http://movabletype.jp/xss-safe.html'      => HTTP::Response->new(200, 'OK',        ['Content-Type' => 'text/html'], '<html><head><title>xss safe test</title>'
+        . '<meta property="og:url" content="https://example.com/page">'
+        . '<meta property="og:image" content="https://example.com/image.png">'
+        . '<link rel="icon" href="/favicon.ico">'
+        . '</head></html>'),
 );
 my @request_urls = ();
 $mock->mock(
@@ -344,6 +357,72 @@ subtest 'retrieve web page metadata' => sub {
             ok !$res->{error};
             ok $res->{inline};
             ok $res->{html};
+        };
+    };
+
+    subtest 'sanitize embed url fields against unsafe schemes' => sub {
+        subtest 'javascript: scheme is stripped from og_url, og_image and icon' => sub {
+            @request_urls = ();
+            my $url = 'http://movabletype.jp/xss-scheme.html';
+            $app->get_ok({
+                __mode    => 'mt_rich_text_editor_embed',
+                url       => $url,
+                maxwidth  => 500,
+                maxheight => 500,
+                blog_id   => $site->id,
+            });
+            is_deeply \@request_urls, [$url];
+            my $res = $app->json;
+            ok !$res->{error};
+            ok $res->{inline};
+            ok $res->{html};
+            unlike $res->{html},   qr/javascript:/i;
+            unlike $res->{inline}, qr/javascript:/i;
+            like $res->{html},   qr/href=""/;
+            like $res->{html},   qr/src=""/;
+            like $res->{inline}, qr/href=""/;
+        };
+
+        subtest 'a tab character can not be used to smuggle a javascript: scheme' => sub {
+            @request_urls = ();
+            my $url = 'http://movabletype.jp/xss-tab.html';
+            $app->get_ok({
+                __mode    => 'mt_rich_text_editor_embed',
+                url       => $url,
+                maxwidth  => 500,
+                maxheight => 500,
+                blog_id   => $site->id,
+            });
+            is_deeply \@request_urls, [$url];
+            my $res = $app->json;
+            ok !$res->{error};
+            ok $res->{inline};
+            ok $res->{html};
+            unlike $res->{html},   qr/java\s*script\s*:/i;
+            unlike $res->{inline}, qr/java\s*script\s*:/i;
+            like $res->{html}, qr/src=""/;
+        };
+
+        subtest 'legitimate http(s) and relative values are preserved' => sub {
+            @request_urls = ();
+            my $url = 'http://movabletype.jp/xss-safe.html';
+            $app->get_ok({
+                __mode    => 'mt_rich_text_editor_embed',
+                url       => $url,
+                maxwidth  => 500,
+                maxheight => 500,
+                blog_id   => $site->id,
+            });
+            is_deeply \@request_urls, [$url];
+            my $res = $app->json;
+            ok !$res->{error};
+            ok $res->{inline};
+            ok $res->{html};
+            like $res->{html},   qr{href="https://example\.com/page"};
+            like $res->{html},   qr{src="https://example\.com/image\.png"};
+            like $res->{html},   qr{src="http://movabletype\.jp/favicon\.ico"};
+            like $res->{inline}, qr{href="https://example\.com/page"};
+            like $res->{inline}, qr{src="http://movabletype\.jp/favicon\.ico"};
         };
     };
 };

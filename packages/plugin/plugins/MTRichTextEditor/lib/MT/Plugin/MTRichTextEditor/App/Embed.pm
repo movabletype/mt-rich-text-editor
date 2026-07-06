@@ -195,6 +195,15 @@ sub resolve {
             }
         }
 
+        for my $key (qw(icon og_image og_url)) {
+            my $value = $param->{$key};
+            if (defined $value && $value ne '') {
+                my $uri = eval { URI->new($value) };
+                $param->{$key} = ''
+                    unless $uri && ($uri->scheme // '') =~ m{^https?$}i && $uri->host !~ /[\x00-\x20#%\/:<>?\@\[\\\]^|\x7F]/;
+            }
+        }
+
         my $tmpl_card = MT->model('template')->load({
             blog_id => $blog->id,
             type    => 'mt_rte_embed_card',
