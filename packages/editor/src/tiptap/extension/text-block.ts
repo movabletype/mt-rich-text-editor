@@ -409,7 +409,7 @@ export const TextBlock = Node.create({
           const $from = editor.state.selection.$from;
           const parentNode = $from.node(-1);
           if (parentNode.type.name !== "doc") {
-            return;
+            return false;
           }
 
           setTimeout(() => {

@@ -19,13 +19,13 @@ export const ListItem = TiptapListItem.extend({
   },
 
   addKeyboardShortcuts() {
-    const parentShortcuts = this.parent();
+    const parentShortcuts = this.parent!();
     return {
       ...parentShortcuts,
       "Shift-Tab": () => {
         const wasListItemActive = this.editor.isActive("listItem");
 
-        parentShortcuts["Shift-Tab"]();
+        parentShortcuts["Shift-Tab"]({ editor: this.editor });
         if (
           wasListItemActive &&
           !this.editor.isActive("listItem") &&

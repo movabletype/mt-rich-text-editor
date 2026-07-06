@@ -52,7 +52,8 @@ export const SVG = Node.create({
       dom.innerHTML = sanitizedContent.substring(5, sanitizedContent.length - 6);
 
       return {
-        dom,
+        // ProseMirror's NodeView accepts any Element at runtime; TipTap's type only allows HTMLElement.
+        dom: dom as unknown as HTMLElement,
       };
     };
   },
