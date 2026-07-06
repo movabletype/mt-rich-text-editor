@@ -6,6 +6,15 @@
 
 <script module lang="ts">
   import { extendToolbarItem } from "../svelte";
+
+  export interface Options {
+    /**
+     * HTML attributes applied to a newly inserted table. Replaces the built-in default
+     * @example
+     * { border: "1", style: "border-collapse: collapse; width: 100%;" }
+     */
+    readonly initialAttributes?: Record<string, string>;
+  }
 </script>
 
 <script lang="ts">
@@ -24,7 +33,7 @@
   import { handleRowProperties } from "./row-properties";
   import { insertTable } from "./insert-table";
 
-  const element = $host<ToolbarItemElement>();
+  const element = $host<ToolbarItemElement<Options>>();
   const { tiptap } = element;
 
   element.addEventListener("click", toggleTableInsertPanel);
@@ -71,7 +80,7 @@
       return;
     }
 
-    insertTable(tiptap, rows, cols);
+    insertTable(tiptap, rows, cols, element.options.initialAttributes);
 
     isOpen = false;
   }
