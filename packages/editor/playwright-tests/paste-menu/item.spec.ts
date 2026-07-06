@@ -1,12 +1,11 @@
 import { test, expect } from "@playwright/test";
 import type {} from "../../src/mt-rich-text-editor";
-import { mockEmbedObjectResolver } from "../util";
+import { mockEmbedObjectResolver, nextFrame, save } from "../util";
 
 test.describe("Paste Menu", () => {
   test("paste url", async ({ page }) => {
     await page.goto("/");
     await mockEmbedObjectResolver(page, async () => ({}));
-    const textarea = await page.locator("#editor");
     await page.locator('[data-mt-rich-text-editor-id="editor"]').click();
     await page.evaluate(() => {
       const clipboardData = new DataTransfer();
@@ -20,15 +19,10 @@ test.describe("Paste Menu", () => {
         ?.shadowRoot?.querySelector(`[contenteditable="true"]`)
         ?.dispatchEvent(pasteEvent);
     });
-    await new Promise((r) => setTimeout(r, 2300)); // wait for paste menu show
 
-    await page.evaluate(async () => {
-      await window.MTRichTextEditor.save();
-    });
-    const content1 = await textarea.evaluate((el: HTMLTextAreaElement) => el.value);
-    expect(content1).toBe(
-      `<p><a href="http://example.com" target="_blank">http://example.com</a></p>`
-    );
+    await expect
+      .poll(() => save(page))
+      .toBe(`<p><a href="http://example.com" target="_blank">http://example.com</a></p>`);
 
     await page.evaluate(() => {
       return document
@@ -39,21 +33,16 @@ test.describe("Paste Menu", () => {
         ?.click();
     });
 
-    await page.evaluate(async () => {
-      await window.MTRichTextEditor.save();
-    });
-    const content2 = await textarea.evaluate((el: HTMLTextAreaElement) => el.value);
-    expect(content2).toBe(`<p>http://example.com</p>`);
+    await expect.poll(() => save(page)).toBe(`<p>http://example.com</p>`);
   });
 
   test("paste url to selected text", async ({ page }) => {
     await page.goto("/");
     await mockEmbedObjectResolver(page, async () => ({}));
-    const textarea = await page.locator("#editor");
     await page.locator('[data-mt-rich-text-editor-id="editor"]').click();
     await page.keyboard.type("Test Link Text");
 
-    await new Promise((r) => setTimeout(r, 50));
+    await nextFrame(page);
 
     // Select "Link"
     for (let i = 0; i < " Text".length; i++) {
@@ -63,7 +52,7 @@ test.describe("Paste Menu", () => {
       await page.keyboard.press("Shift+ArrowLeft");
     }
 
-    await new Promise((r) => setTimeout(r, 50));
+    await nextFrame(page);
 
     await page.evaluate(() => {
       const clipboardData = new DataTransfer();
@@ -78,11 +67,9 @@ test.describe("Paste Menu", () => {
         ?.dispatchEvent(pasteEvent);
     });
 
-    await page.evaluate(async () => {
-      await window.MTRichTextEditor.save();
-    });
-    const content1 = await textarea.evaluate((el: HTMLTextAreaElement) => el.value);
-    expect(content1).toBe(`<p>Test <a href="http://example.com" target="_blank">Link</a> Text</p>`);
+    await expect
+      .poll(() => save(page))
+      .toBe(`<p>Test <a href="http://example.com" target="_blank">Link</a> Text</p>`);
 
     await page.evaluate(() => {
       return document
@@ -93,11 +80,7 @@ test.describe("Paste Menu", () => {
         ?.click();
     });
 
-    await page.evaluate(async () => {
-      await window.MTRichTextEditor.save();
-    });
-    const content2 = await textarea.evaluate((el: HTMLTextAreaElement) => el.value);
-    expect(content2).toBe(`<p>Test http://example.com Text</p>`);
+    await expect.poll(() => save(page)).toBe(`<p>Test http://example.com Text</p>`);
 
     await page.evaluate(() => {
       return document
@@ -109,10 +92,8 @@ test.describe("Paste Menu", () => {
     });
     await page.locator(".modal button.primary").click();
 
-    await page.evaluate(async () => {
-      await window.MTRichTextEditor.save();
-    });
-    const content3 = await textarea.evaluate((el: HTMLTextAreaElement) => el.value);
-    expect(content3).toBe(`<p>Test <a href="http://example.com" target="_blank">Link</a> Text</p>`);
+    await expect
+      .poll(() => save(page))
+      .toBe(`<p>Test <a href="http://example.com" target="_blank">Link</a> Text</p>`);
   });
 });
