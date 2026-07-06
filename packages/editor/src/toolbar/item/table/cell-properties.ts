@@ -53,7 +53,7 @@ const getCellNodePos = (tiptap: TiptapEditor): number | null => {
 
 let cellPropertiesModal: ReturnType<typeof mount> | undefined;
 export const handleCellProperties = (tiptap: TiptapEditor) => {
-  mount(CellPropertiesPanel, {
+  cellPropertiesModal = mount(CellPropertiesPanel, {
     target: document.body,
     props: {
       cellData: getCurrentCellData(tiptap),
