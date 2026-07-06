@@ -6,7 +6,11 @@
     editor: Editor;
   }>();
 
+  // eslint-disable-next-line svelte/no-unused-svelte-ignore
+  // svelte-ignore state_referenced_locally -- editor is stable for this component's whole mounted lifetime (one Toolbar per Editor instance)
   const tiptap = editor.tiptap;
+  // eslint-disable-next-line svelte/no-unused-svelte-ignore
+  // svelte-ignore state_referenced_locally -- editor is stable for this component's whole mounted lifetime (one Toolbar per Editor instance)
   const items = editor.options.toolbarOptions?.image?.edit
     ? [["deleteImage"], ["editImage"]]
     : [["deleteImage"]];

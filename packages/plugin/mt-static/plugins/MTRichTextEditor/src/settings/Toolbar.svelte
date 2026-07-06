@@ -12,6 +12,8 @@
 
   let isDragging = $state(false);
 
+  // eslint-disable-next-line svelte/no-unused-svelte-ignore
+  // svelte-ignore state_referenced_locally -- textarea is a hidden config-holding DOM element read once at mount
   const availableItems: ToolbarItem[] = JSON.parse(
     textarea.getAttribute("data-available-items") ?? "[]"
   ).map((id: string) => ({
@@ -65,6 +67,8 @@
       .filter((groupSides) => groupSides.length > 0);
   }
 
+  // eslint-disable-next-line svelte/no-unused-svelte-ignore
+  // svelte-ignore state_referenced_locally -- textarea is a hidden config-holding DOM element read once at mount
   const toolbarItems = $state(convertToItems(JSON.parse(textarea.value)));
 
   $effect(() => {

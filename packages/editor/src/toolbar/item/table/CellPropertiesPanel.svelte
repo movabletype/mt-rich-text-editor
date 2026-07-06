@@ -23,11 +23,23 @@
     onClose: () => void;
   } = $props();
 
+  // eslint-disable-next-line svelte/no-unused-svelte-ignore
+  // svelte-ignore state_referenced_locally -- cellData is a one-time snapshot seeded when the modal is mounted
   let width = $state(cellData.width);
+  // eslint-disable-next-line svelte/no-unused-svelte-ignore
+  // svelte-ignore state_referenced_locally -- cellData is a one-time snapshot seeded when the modal is mounted
   let height = $state(cellData.height);
+  // eslint-disable-next-line svelte/no-unused-svelte-ignore
+  // svelte-ignore state_referenced_locally -- cellData is a one-time snapshot seeded when the modal is mounted
   let element = $state(cellData.element);
+  // eslint-disable-next-line svelte/no-unused-svelte-ignore
+  // svelte-ignore state_referenced_locally -- cellData is a one-time snapshot seeded when the modal is mounted
   let scope = $state(cellData.scope);
+  // eslint-disable-next-line svelte/no-unused-svelte-ignore
+  // svelte-ignore state_referenced_locally -- cellData is a one-time snapshot seeded when the modal is mounted
   let horizontalAlign = $state(cellData.horizontalAlign);
+  // eslint-disable-next-line svelte/no-unused-svelte-ignore
+  // svelte-ignore state_referenced_locally -- cellData is a one-time snapshot seeded when the modal is mounted
   let verticalAlign = $state(cellData.verticalAlign);
 
   let widthInput: HTMLInputElement;

@@ -22,6 +22,8 @@
     urlInput?.focus();
   });
 
+  // eslint-disable-next-line svelte/no-unused-svelte-ignore
+  // svelte-ignore state_referenced_locally -- text is a one-time initial prop seeded when the modal is mounted
   let hasTextValue = text !== "";
   const onLinkTextChange = () => {
     hasTextValue = true;

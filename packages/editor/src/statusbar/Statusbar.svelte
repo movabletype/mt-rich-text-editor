@@ -14,6 +14,8 @@
   } = $props();
 
   const buttonRefs: Record<string, StatusbarItemElement | HTMLElement> = {};
+  // eslint-disable-next-line svelte/no-unused-svelte-ignore
+  // svelte-ignore state_referenced_locally -- statusbar is stable for this component's whole mounted lifetime (one Statusbar per Editor instance)
   const buttons = statusbar.map(
     (
       groupSides // left side and right side
@@ -38,7 +40,11 @@
       }
     }
   }
+  // eslint-disable-next-line svelte/no-unused-svelte-ignore
+  // svelte-ignore state_referenced_locally -- editor is stable for this component's whole mounted lifetime (one Statusbar per Editor instance)
   editor.tiptap.on("selectionUpdate", update);
+  // eslint-disable-next-line svelte/no-unused-svelte-ignore
+  // svelte-ignore state_referenced_locally -- editor is stable for this component's whole mounted lifetime (one Statusbar per Editor instance)
   editor.tiptap.on("update", update);
   $effect(() => {
     update();

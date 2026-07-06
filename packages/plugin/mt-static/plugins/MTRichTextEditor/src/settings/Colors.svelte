@@ -22,6 +22,8 @@
     return items.map((item) => item.value);
   }
 
+  // eslint-disable-next-line svelte/no-unused-svelte-ignore
+  // svelte-ignore state_referenced_locally -- textarea is a hidden config-holding DOM element read once at mount
   let colorsItems = $state(convertToItems(JSON.parse(textarea.value)));
   let newColor = $state("#000000");
 

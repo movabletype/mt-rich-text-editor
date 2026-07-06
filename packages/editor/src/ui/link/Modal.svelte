@@ -21,9 +21,17 @@
     onClose: () => void;
   } = $props();
 
+  // eslint-disable-next-line svelte/no-unused-svelte-ignore
+  // svelte-ignore state_referenced_locally -- linkData is a one-time snapshot seeded when the modal is mounted
   let url = $state(linkData.url);
+  // eslint-disable-next-line svelte/no-unused-svelte-ignore
+  // svelte-ignore state_referenced_locally -- linkData is a one-time snapshot seeded when the modal is mounted
   let text = $state(linkData.text);
+  // eslint-disable-next-line svelte/no-unused-svelte-ignore
+  // svelte-ignore state_referenced_locally -- linkData is a one-time snapshot seeded when the modal is mounted
   let title = $state(linkData.title);
+  // eslint-disable-next-line svelte/no-unused-svelte-ignore
+  // svelte-ignore state_referenced_locally -- linkData is a one-time snapshot seeded when the modal is mounted
   let target = $state(linkData.target);
 
   let urlInput: HTMLInputElement;
@@ -31,6 +39,8 @@
     urlInput?.focus();
   });
 
+  // eslint-disable-next-line svelte/no-unused-svelte-ignore
+  // svelte-ignore state_referenced_locally -- linkData is a one-time snapshot seeded when the modal is mounted
   let hasTextValue = linkData.text !== undefined && linkData.text !== "";
   const onLinkTextChange = () => {
     hasTextValue = true;

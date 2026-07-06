@@ -19,6 +19,8 @@
   let toolbarRef: HTMLElement | null = null;
 
   const buttonRefs: Record<string, ToolbarItemElement | HTMLElement> = {};
+  // eslint-disable-next-line svelte/no-unused-svelte-ignore
+  // svelte-ignore state_referenced_locally -- toolbar is stable for this component's whole mounted lifetime (one Toolbar per Editor instance)
   const buttons = toolbar
     .map((row) =>
       row.map(
@@ -51,12 +53,18 @@
       }
     }
   }
+  // eslint-disable-next-line svelte/no-unused-svelte-ignore
+  // svelte-ignore state_referenced_locally -- editor is stable for this component's whole mounted lifetime (one Toolbar per Editor instance)
   editor.tiptap.on("selectionUpdate", update);
+  // eslint-disable-next-line svelte/no-unused-svelte-ignore
+  // svelte-ignore state_referenced_locally -- editor is stable for this component's whole mounted lifetime (one Toolbar per Editor instance)
   editor.tiptap.on("update", update);
   $effect(() => {
     update();
   });
 
+  // eslint-disable-next-line svelte/no-unused-svelte-ignore
+  // svelte-ignore state_referenced_locally -- inline is stable for this component's whole mounted lifetime (one Toolbar per Editor instance)
   if (inline) {
     let inToolbarOperation = false;
     const updateToolbarVisibility = debounce(() => {
@@ -106,8 +114,14 @@
       }
     }, 50);
 
+    // eslint-disable-next-line svelte/no-unused-svelte-ignore
+    // svelte-ignore state_referenced_locally -- editor is stable for this component's whole mounted lifetime (one Toolbar per Editor instance)
     editor.tiptap.on("selectionUpdate", updateToolbarVisibility);
+    // eslint-disable-next-line svelte/no-unused-svelte-ignore
+    // svelte-ignore state_referenced_locally -- editor is stable for this component's whole mounted lifetime (one Toolbar per Editor instance)
     editor.tiptap.on("focus", updateToolbarVisibility);
+    // eslint-disable-next-line svelte/no-unused-svelte-ignore
+    // svelte-ignore state_referenced_locally -- editor is stable for this component's whole mounted lifetime (one Toolbar per Editor instance)
     editor.tiptap.on("blur", updateToolbarVisibility);
     updateToolbarVisibility();
 

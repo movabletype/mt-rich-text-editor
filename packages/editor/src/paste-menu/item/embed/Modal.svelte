@@ -20,8 +20,14 @@
     onClose: () => void;
   } = $props();
 
+  // eslint-disable-next-line svelte/no-unused-svelte-ignore
+  // svelte-ignore state_referenced_locally -- embedData is a one-time snapshot seeded when the modal is mounted
   let url = $state(embedData.url);
+  // eslint-disable-next-line svelte/no-unused-svelte-ignore
+  // svelte-ignore state_referenced_locally -- embedData is a one-time snapshot seeded when the modal is mounted
   let maxwidth = $state(embedData.maxwidth);
+  // eslint-disable-next-line svelte/no-unused-svelte-ignore
+  // svelte-ignore state_referenced_locally -- embedData is a one-time snapshot seeded when the modal is mounted
   let maxheight = $state(embedData.maxheight);
 
   let urlInput: HTMLInputElement;
