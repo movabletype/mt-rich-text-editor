@@ -83,9 +83,16 @@ describe("StructureMode onSubmit attribute routing", () => {
     setModalValue("structure-style", "text-align: diagonal");
     await submitModal();
 
-    expect(normalizeComparableHTML(editor.getContent())).toBe(
-      normalizeComparableHTML(`<p style="text-align: diagonal">t</p>`)
-    );
+    // Asserted against the model attrs rather than rendered HTML: ProseMirror's
+    // NodeView update path applies style changes via `element.style.cssText`,
+    // which runs invalid CSS values (like this deliberately-bogus text-align)
+    // through the browser's CSSOM validation and drops them - a DOM-serialization
+    // quirk unrelated to the routing logic under test here.
+    const paragraph = editor.tiptap.state.doc.firstChild;
+    const htmlAttributes = paragraph?.attrs.MTRichTextEditorHTMLAttributes as
+      { style?: string } | undefined;
+    expect(htmlAttributes?.style).toBe("text-align: diagonal");
+    expect(paragraph?.attrs.textAlign).toBe("");
   });
 
   it("updates id and class alongside the routed style declarations", async () => {
