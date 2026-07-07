@@ -51,6 +51,38 @@ describe("preprocessHTML", () => {
     );
   });
 
+  it("keeps an empty div empty (wrapped only in an empty mt-text-block)", () => {
+    expect(preprocessHTML("<div></div>", blockElements, inlineElements)).toBe(
+      "<div><mt-text-block></mt-text-block></div>"
+    );
+  });
+
+  it("does not wrap whitespace-only text nodes surrounding a block child in mt-text-block", () => {
+    expect(preprocessHTML("<div>\n  <p>test</p>\n</div>", blockElements, inlineElements)).toBe(
+      "<div><p>test</p></div>"
+    );
+  });
+
+  it("does not wrap whitespace-only text nodes surrounding a block child for blockquote/td as well", () => {
+    expect(
+      preprocessHTML("<blockquote>\n  <p>test</p>\n</blockquote>", blockElements, inlineElements)
+    ).toBe("<blockquote><p>test</p></blockquote>");
+
+    expect(
+      preprocessHTML(
+        "<table><tbody><tr><td>\n  <p>test</p>\n</td></tr></tbody></table>",
+        blockElements,
+        inlineElements
+      )
+    ).toBe("<table><tbody><tr><td><p>test</p></td></tr></tbody></table>");
+  });
+
+  it("still wraps direct inline content even when surrounded by whitespace-only text nodes", () => {
+    expect(
+      preprocessHTML("<div>\n  alpha<strong>beta</strong>\n</div>", blockElements, inlineElements)
+    ).toBe("<div><mt-text-block>\n  alpha<strong>beta</strong>\n</mt-text-block></div>");
+  });
+
   it("replaces editable script elements with mt-rich-text-editor-script", () => {
     expect(
       preprocessHTML(
