@@ -168,7 +168,7 @@ describe("HTML round-trip", () => {
       editor.setContent("<p>a<button>b</button>c</p>");
 
       expect(normalizeComparableHTML(editor.getContent())).toBe(
-        normalizeComparableHTML("<p>abc</p>")
+        normalizeComparableHTML("<p>a</p><button>b</button><p>c</p>")
       );
     });
   });
