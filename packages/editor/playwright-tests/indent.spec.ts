@@ -18,7 +18,7 @@ test.describe("indent extension", () => {
 
     const content = await textarea.evaluate((el: HTMLTextAreaElement) => el.value);
     expect(content).toBe(`<p>1st row</p>
-<p style="padding-left: 80px">2nd row</p>`);
+<p style="padding-left: 80px;">2nd row</p>`);
   });
 
   test("apply multi level indent", async ({ page }) => {
@@ -37,7 +37,7 @@ test.describe("indent extension", () => {
 
     const content = await textarea.evaluate((el: HTMLTextAreaElement) => el.value);
     expect(content).toBe(`<p>1st row</p>
-<p style="padding-left: 160px">2nd row</p>`);
+<p style="padding-left: 160px;">2nd row</p>`);
   });
 
   test("apply indent and outdent", async ({ page }) => {
@@ -76,7 +76,7 @@ test.describe("indent extension", () => {
 
     const content = await textarea.evaluate((el: HTMLTextAreaElement) => el.value);
     expect(content).toBe(`<p>1st row</p>
-<p style="padding-left: 80px">2nd row</p>`);
+<p style="padding-left: 80px;">2nd row</p>`);
   });
 
   test("outdent does not go below zero", async ({ page }) => {
