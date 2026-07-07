@@ -85,6 +85,9 @@ jobs:
       - name: Build locales
         run: npm run build:locales
 
+      - name: Build editor
+        run: npm run build:editor
+
       - name: Run lint
         run: npm run lint -ws
 
