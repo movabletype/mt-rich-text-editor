@@ -45,6 +45,7 @@ const htmlRoundTripCases = [
   "<div><iframe frameborder='0' src='https://example.com/embed'></iframe><mt-rich-text-editor-mt-function-tag data-tag-name='Var' name='foo'></mt-rich-text-editor-mt-function-tag></div>",
   `<section><div><span data-note="x">nested</span></div></section>`,
   `<div></div>`,
+  "<p><button type='button'>Click</button></p>",
 ] as const;
 
 const htmlConversionCases = [
@@ -146,6 +147,48 @@ describe("HTML round-trip", () => {
       editor.setContent(input);
 
       expect(normalizeComparableHTML(editor.getContent())).toBe(normalizeComparableHTML(input));
+    });
+  });
+
+  describe("additionalBlockElements option overriding a default inline element", () => {
+    beforeEach(() => {
+      initEditor({
+        additionalBlockElements: ["button"],
+      });
+    });
+
+    it("treats button as a block element", () => {
+      const input = "<div><p>a</p><button>Click</button><p>b</p></div>";
+      editor.setContent(input);
+
+      expect(normalizeComparableHTML(editor.getContent())).toBe(normalizeComparableHTML(input));
+    });
+
+    it("no longer treats button as inline inside a paragraph", () => {
+      editor.setContent("<p>a<button>b</button>c</p>");
+
+      expect(normalizeComparableHTML(editor.getContent())).toBe(
+        normalizeComparableHTML("<p>abc</p>")
+      );
+    });
+  });
+
+  describe("additionalInlineElements option overriding a default block element", () => {
+    beforeEach(() => {
+      initEditor({
+        additionalInlineElements: ["figure"],
+      });
+    });
+
+    it("resolves figure as an inline mark instead of a block node", () => {
+      editor.setContent("<p><figure>test</figure></p>");
+
+      const marks = editor.tiptap
+        .getJSON()
+        .content?.flatMap((node) => node.content ?? [])
+        .flatMap((node) => node.marks ?? []);
+
+      expect(marks?.some((mark) => mark.type === "figure")).toBe(true);
     });
   });
 
