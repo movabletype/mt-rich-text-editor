@@ -227,7 +227,7 @@
               class="button-menu-item"
               disabled={!isTableActive}
               onclick={() => {
-                handleCellProperties(tiptap!);
+                handleCellProperties(tiptap!, options);
               }}>{t("Cell properties")}</button
             >
           </div>

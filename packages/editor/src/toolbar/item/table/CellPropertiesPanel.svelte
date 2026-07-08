@@ -6,19 +6,26 @@
     readonly scope: string;
     readonly horizontalAlign: string;
     readonly verticalAlign: string;
+    readonly borderColor: string;
+    readonly backgroundColor: string;
   }
 </script>
 
 <script lang="ts">
   import { t } from "../../../i18n";
   import { Modal, ModalContent } from "@movabletype/svelte-components";
+  import ColorField from "./ColorField.svelte";
 
   let {
     cellData,
+    borderPresetColors,
+    backgroundPresetColors,
     onSubmit,
     onClose,
   }: {
     cellData: CellData;
+    borderPresetColors?: string[];
+    backgroundPresetColors?: string[];
     onSubmit: (cellData: CellData) => void;
     onClose: () => void;
   } = $props();
@@ -35,6 +42,10 @@
   let horizontalAlign = $state(cellData.horizontalAlign);
   // svelte-ignore state_referenced_locally (cellData is a one-time snapshot seeded when the modal is mounted)
   let verticalAlign = $state(cellData.verticalAlign);
+  // svelte-ignore state_referenced_locally (cellData is a one-time snapshot seeded when the modal is mounted)
+  let borderColor = $state(cellData.borderColor);
+  // svelte-ignore state_referenced_locally (cellData is a one-time snapshot seeded when the modal is mounted)
+  let backgroundColor = $state(cellData.backgroundColor);
 
   let widthInput: HTMLInputElement;
   $effect(() => {
@@ -106,6 +117,20 @@
           </select>
         </div>
       </div>
+      <div class="row">
+        <div class="form-group col-6 mb-3">
+          <label for="cell-border-color" class="form-label">{t("Border Color")}</label>
+          <ColorField id="cell-border-color" bind:value={borderColor} colors={borderPresetColors} />
+        </div>
+        <div class="form-group col-6 mb-3">
+          <label for="cell-background-color" class="form-label">{t("Background Color")}</label>
+          <ColorField
+            id="cell-background-color"
+            bind:value={backgroundColor}
+            colors={backgroundPresetColors}
+          />
+        </div>
+      </div>
     </svelte:fragment>
     <svelte:fragment slot="footer">
       <button
@@ -113,7 +138,16 @@
         title={t("Insert (s)")}
         class="action primary button btn btn-primary"
         onclick={() => {
-          onSubmit({ width, height, element, scope, horizontalAlign, verticalAlign });
+          onSubmit({
+            width,
+            height,
+            element,
+            scope,
+            horizontalAlign,
+            verticalAlign,
+            borderColor,
+            backgroundColor,
+          });
           close();
         }}
       >

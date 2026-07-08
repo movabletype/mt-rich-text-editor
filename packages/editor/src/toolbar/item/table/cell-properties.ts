@@ -1,10 +1,11 @@
 import { mount, unmount } from "svelte";
 import type { Editor as TiptapEditor } from "@tiptap/core";
-import { cssSize } from "../../../util/html";
+import { cssColorToHex, cssSize } from "../../../util/html";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import type { CellData } from "./CellPropertiesPanel.svelte";
 import CellPropertiesPanel from "./CellPropertiesPanel.svelte";
+import type { TableToolbarOptions } from "./table-properties";
 
 const getCurrentCellData = (tiptap: TiptapEditor): CellData => {
   const { state } = tiptap;
@@ -30,6 +31,8 @@ const getCurrentCellData = (tiptap: TiptapEditor): CellData => {
     scope: cellNode?.attrs.scope || "",
     horizontalAlign: el.style.textAlign || "",
     verticalAlign: el.style.verticalAlign || "",
+    borderColor: cssColorToHex(el.style.borderColor) || "",
+    backgroundColor: cssColorToHex(el.style.backgroundColor) || "",
   };
 };
 
@@ -52,11 +55,13 @@ const getCellNodePos = (tiptap: TiptapEditor): number | null => {
 };
 
 let cellPropertiesModal: ReturnType<typeof mount> | undefined;
-export const handleCellProperties = (tiptap: TiptapEditor) => {
+export const handleCellProperties = (tiptap: TiptapEditor, options?: TableToolbarOptions) => {
   cellPropertiesModal = mount(CellPropertiesPanel, {
     target: document.body,
     props: {
       cellData: getCurrentCellData(tiptap),
+      borderPresetColors: options?.borderPresetColors,
+      backgroundPresetColors: options?.backgroundPresetColors,
       onSubmit: (cellData: CellData) => {
         const cellPos = getCellNodePos(tiptap);
         if (cellPos !== null) {
@@ -81,6 +86,8 @@ export const handleCellProperties = (tiptap: TiptapEditor) => {
                 el.style.height = cssSize(cellData.height);
                 el.style.textAlign = cellData.horizontalAlign;
                 el.style.verticalAlign = cellData.verticalAlign;
+                el.style.borderColor = cellData.borderColor;
+                el.style.backgroundColor = cellData.backgroundColor;
 
                 tr.setNodeMarkup(cellPos, null, {
                   ...node.attrs,
