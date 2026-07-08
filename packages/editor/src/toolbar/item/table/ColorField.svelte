@@ -1,42 +1,66 @@
 <script lang="ts">
-  import { cssColorToHex } from "../../../util/html";
+  import Panel from "../color/Panel.svelte";
+  import { defaultColors } from "../color/constant";
 
   let {
     id,
     value = $bindable(),
+    colors = defaultColors,
   }: {
     id: string;
     value: string;
+    colors?: string[];
   } = $props();
 
-  let picker: HTMLInputElement;
+  let isOpen = $state(false);
+
+  function handleSelect(color: string) {
+    value = color;
+    isOpen = false;
+  }
+
+  function toggle(ev: MouseEvent) {
+    ev.stopPropagation();
+    isOpen = !isOpen;
+  }
+
+  function handleClickOutside() {
+    isOpen = false;
+  }
+
   $effect(() => {
-    const hex = cssColorToHex(value);
-    if (picker && hex) {
-      picker.value = hex;
-    }
+    document.addEventListener("click", handleClickOutside);
+    return () => {
+      document.removeEventListener("click", handleClickOutside);
+    };
   });
 </script>
 
-<div class="color-field">
-  <input type="text" {id} class="form-control" bind:value />
-  <input
-    type="color"
-    bind:this={picker}
-    oninput={() => {
-      value = picker.value;
-    }}
-  />
+<button
+  type="button"
+  {id}
+  class="color-swatch"
+  style="background-color: {value || 'transparent'}"
+  aria-label={value || "none"}
+  onclick={toggle}
+></button>
+<div class="color-panel-container">
+  {#if isOpen}
+    <Panel {colors} onSelect={handleSelect} />
+  {/if}
 </div>
 
 <style>
-  .color-field {
-    display: flex;
-    gap: 8px;
-    align-items: center;
+  .color-swatch {
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    cursor: pointer;
   }
 
-  .color-field .form-control {
-    flex: 1;
+  .color-panel-container {
+    position: relative;
   }
 </style>

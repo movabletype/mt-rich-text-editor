@@ -18,10 +18,14 @@
 
   let {
     tableData,
+    borderPresetColors,
+    backgroundPresetColors,
     onSubmit,
     onClose,
   }: {
     tableData: TableData;
+    borderPresetColors?: string[];
+    backgroundPresetColors?: string[];
     onSubmit: (tableData: TableData) => void;
     onClose: () => void;
   } = $props();
@@ -122,11 +126,19 @@
       <div class="row">
         <div class="form-group col-6 mb-3">
           <label for="table-border-color" class="form-label">{t("Border Color")}</label>
-          <ColorField id="table-border-color" bind:value={borderColor} />
+          <ColorField
+            id="table-border-color"
+            bind:value={borderColor}
+            colors={borderPresetColors}
+          />
         </div>
         <div class="form-group col-6 mb-3">
           <label for="table-background-color" class="form-label">{t("Background Color")}</label>
-          <ColorField id="table-background-color" bind:value={backgroundColor} />
+          <ColorField
+            id="table-background-color"
+            bind:value={backgroundColor}
+            colors={backgroundPresetColors}
+          />
         </div>
       </div>
     </svelte:fragment>

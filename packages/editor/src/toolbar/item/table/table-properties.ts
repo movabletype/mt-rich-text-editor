@@ -7,6 +7,11 @@ import { cssSize } from "../../../util/html";
 import type { TableData } from "./TablePropertiesPanel.svelte";
 import TablePropertiesPanel from "./TablePropertiesPanel.svelte";
 
+export interface TableToolbarOptions {
+  readonly borderPresetColors?: string[];
+  readonly backgroundPresetColors?: string[];
+}
+
 const getCurrentTableData = (tiptap: TiptapEditor): TableData => {
   const { state } = tiptap;
   let depth = state.selection.$anchor.depth;
@@ -52,11 +57,13 @@ const getTableNodePos = (tiptap: TiptapEditor): number | null => {
 };
 
 let tablePropertiesModal: ReturnType<typeof mount> | undefined;
-export const handleTableProperties = (tiptap: TiptapEditor) => {
+export const handleTableProperties = (tiptap: TiptapEditor, options?: TableToolbarOptions) => {
   tablePropertiesModal = mount(TablePropertiesPanel, {
     target: document.body,
     props: {
       tableData: getCurrentTableData(tiptap),
+      borderPresetColors: options?.borderPresetColors,
+      backgroundPresetColors: options?.backgroundPresetColors,
       onSubmit: (tableData: TableData) => {
         const tablePos = getTableNodePos(tiptap);
         if (tablePos !== null) {

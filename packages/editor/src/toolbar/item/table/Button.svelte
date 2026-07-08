@@ -22,11 +22,12 @@
   import TableInsertPanel from "./TableInsertPanel.svelte";
   import type { ToolbarItemElement } from "../element";
   import { handleTableProperties } from "./table-properties";
+  import type { TableToolbarOptions } from "./table-properties";
   import { handleCellProperties } from "./cell-properties";
   import { handleRowProperties } from "./row-properties";
 
-  const element = $host<ToolbarItemElement>();
-  const { tiptap } = element;
+  const element = $host<ToolbarItemElement<TableToolbarOptions>>();
+  const { tiptap, options } = element;
 
   element.addEventListener("click", toggleTableInsertPanel);
 
@@ -330,7 +331,7 @@
           class="button-menu-item"
           disabled={!isTableActive}
           onclick={() => {
-            handleTableProperties(tiptap!);
+            handleTableProperties(tiptap!, options);
           }}
         >
           {t("Table properties")}
