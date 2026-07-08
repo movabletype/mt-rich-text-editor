@@ -3,16 +3,18 @@
     readonly width: string;
     readonly height: string;
     readonly cellSpacing: string;
-    readonly borderWidth: string;
+    readonly cellPadding: string;
     readonly borderStyle: string;
+    readonly borderWidth: string;
     readonly borderColor: string;
+    readonly backgroundColor: string;
   }
 </script>
 
 <script lang="ts">
   import { t } from "../../../i18n";
-  import { cssColorToHex } from "../../../util/html";
   import { Modal, ModalContent } from "@movabletype/svelte-components";
+  import ColorField from "./ColorField.svelte";
 
   let {
     tableData,
@@ -31,21 +33,19 @@
   // svelte-ignore state_referenced_locally (tableData is a one-time snapshot seeded when the modal is mounted)
   let cellSpacing = $state(tableData.cellSpacing);
   // svelte-ignore state_referenced_locally (tableData is a one-time snapshot seeded when the modal is mounted)
-  let borderWidth = $state(tableData.borderWidth);
+  let cellPadding = $state(tableData.cellPadding);
+  // svelte-ignore state_referenced_locally (tableData is a one-time snapshot seeded when the modal is mounted)
   let borderStyle = $state(tableData.borderStyle);
+  // svelte-ignore state_referenced_locally (tableData is a one-time snapshot seeded when the modal is mounted)
+  let borderWidth = $state(tableData.borderWidth);
+  // svelte-ignore state_referenced_locally (tableData is a one-time snapshot seeded when the modal is mounted)
   let borderColor = $state(tableData.borderColor);
+  // svelte-ignore state_referenced_locally (tableData is a one-time snapshot seeded when the modal is mounted)
+  let backgroundColor = $state(tableData.backgroundColor);
 
   let widthInput: HTMLInputElement;
   $effect(() => {
     widthInput?.focus();
-  });
-
-  let borderColorPicker: HTMLInputElement;
-  $effect(() => {
-    const hex = cssColorToHex(borderColor);
-    if (borderColorPicker && hex) {
-      borderColorPicker.value = hex;
-    }
   });
 
   let self: Modal;
@@ -84,12 +84,12 @@
           />
         </div>
         <div class="form-group col-6 mb-3">
-          <label for="table-border-width" class="form-label">{t("Border Width")}</label>
+          <label for="table-cell-padding" class="form-label">{t("Cell Padding")}</label>
           <input
             type="text"
-            id="table-border-width"
+            id="table-cell-padding"
             class="form-control"
-            bind:value={borderWidth}
+            bind:value={cellPadding}
           />
         </div>
       </div>
@@ -110,22 +110,23 @@
           </select>
         </div>
         <div class="form-group col-6 mb-3">
+          <label for="table-border-width" class="form-label">{t("Border Width")}</label>
+          <input
+            type="text"
+            id="table-border-width"
+            class="form-control"
+            bind:value={borderWidth}
+          />
+        </div>
+      </div>
+      <div class="row">
+        <div class="form-group col-6 mb-3">
           <label for="table-border-color" class="form-label">{t("Border Color")}</label>
-          <div class="color-field">
-            <input
-              type="text"
-              id="table-border-color"
-              class="form-control"
-              bind:value={borderColor}
-            />
-            <input
-              type="color"
-              bind:this={borderColorPicker}
-              oninput={() => {
-                borderColor = borderColorPicker.value;
-              }}
-            />
-          </div>
+          <ColorField id="table-border-color" bind:value={borderColor} />
+        </div>
+        <div class="form-group col-6 mb-3">
+          <label for="table-background-color" class="form-label">{t("Background Color")}</label>
+          <ColorField id="table-background-color" bind:value={backgroundColor} />
         </div>
       </div>
     </svelte:fragment>
@@ -135,7 +136,16 @@
         title={t("Insert (s)")}
         class="action primary button btn btn-primary"
         onclick={() => {
-          onSubmit({ width, height, cellSpacing, borderWidth, borderStyle, borderColor });
+          onSubmit({
+            width,
+            height,
+            cellSpacing,
+            cellPadding,
+            borderStyle,
+            borderWidth,
+            borderColor,
+            backgroundColor,
+          });
           close();
         }}
       >
@@ -152,15 +162,3 @@
     </svelte:fragment>
   </ModalContent>
 </Modal>
-
-<style>
-  .color-field {
-    display: flex;
-    gap: 8px;
-    align-items: center;
-  }
-
-  .color-field .form-control {
-    flex: 1;
-  }
-</style>

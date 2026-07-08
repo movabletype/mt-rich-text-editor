@@ -28,9 +28,11 @@ const getCurrentTableData = (tiptap: TiptapEditor): TableData => {
     width: el.style.width || "100%",
     height: el.style.height || "",
     cellSpacing: el.style.borderSpacing || "",
-    borderWidth: el.style.borderWidth || "",
+    cellPadding: el.style.padding || "",
     borderStyle: el.style.borderStyle || "",
+    borderWidth: el.style.borderWidth || "",
     borderColor: el.style.borderColor || "",
+    backgroundColor: el.style.backgroundColor || "",
   };
   // <table border="1" style="border-collapse: collapse; width: 100.097%; height: 200px; border-width: 1px; border-spacing: 1px; margin-left: 0px; margin-right: auto;">
 };
@@ -70,9 +72,11 @@ export const handleTableProperties = (tiptap: TiptapEditor) => {
                 el.style.width = cssSize(tableData.width);
                 el.style.height = cssSize(tableData.height);
                 el.style.borderSpacing = tableData.cellSpacing;
-                el.style.borderWidth = cssSize(tableData.borderWidth);
+                el.style.padding = cssSize(tableData.cellPadding);
                 el.style.borderStyle = tableData.borderStyle;
+                el.style.borderWidth = cssSize(tableData.borderWidth);
                 el.style.borderColor = tableData.borderColor;
+                el.style.backgroundColor = tableData.backgroundColor;
 
                 tr.setNodeMarkup(tablePos, null, {
                   ...node.attrs,
@@ -86,9 +90,11 @@ export const handleTableProperties = (tiptap: TiptapEditor) => {
                     if (cell) {
                       const el = document.createElement("div");
                       el.style.cssText = cell.attrs.style || "";
-                      el.style.borderWidth = cssSize(tableData.borderWidth);
+                      el.style.padding = cssSize(tableData.cellPadding);
                       el.style.borderStyle = tableData.borderStyle;
+                      el.style.borderWidth = cssSize(tableData.borderWidth);
                       el.style.borderColor = tableData.borderColor;
+                      el.style.backgroundColor = tableData.backgroundColor;
 
                       tr.setNodeMarkup(rect.tableStart + i, null, {
                         ...cell.attrs,
