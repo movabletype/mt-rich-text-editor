@@ -137,6 +137,7 @@ use vars qw( %Lexicon );
     'Border Style'     => '枠線スタイル',
     'Border Color'     => '枠線の色',
     'Background Color' => '背景色',
+    'Clear Color'      => '色を解除',
     'Solid'            => '実線',
     'Dashed'           => '破線',
     'Dotted'           => '点線',

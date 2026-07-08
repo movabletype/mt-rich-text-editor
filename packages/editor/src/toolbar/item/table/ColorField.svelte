@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t } from "../../../i18n";
   import Panel from "../color/Panel.svelte";
   import { defaultColors } from "../color/constant";
 
@@ -24,6 +25,12 @@
     isOpen = !isOpen;
   }
 
+  function handleClear(ev: MouseEvent) {
+    ev.stopPropagation();
+    value = "";
+    isOpen = false;
+  }
+
   function handleClickOutside() {
     isOpen = false;
   }
@@ -36,31 +43,89 @@
   });
 </script>
 
-<button
-  type="button"
-  {id}
-  class="color-swatch"
-  style="background-color: {value || 'transparent'}"
-  aria-label={value || "none"}
-  onclick={toggle}
-></button>
-<div class="color-panel-container">
+<div class="color-field-container">
+  <div class="form-control color-field-control">
+    <button
+      type="button"
+      {id}
+      class="color-field-open"
+      aria-label={value || t("None")}
+      onclick={toggle}
+    >
+      <span class="color-field-swatch" style="background-color: {value || 'transparent'}"></span>
+      <span class="color-field-value">{value || t("None")}</span>
+    </button>
+    {#if value}
+      <button
+        type="button"
+        class="color-field-clear"
+        aria-label={t("Clear Color")}
+        onclick={handleClear}
+      >
+        <span aria-hidden="true">&times;</span>
+      </button>
+    {/if}
+  </div>
   {#if isOpen}
     <Panel {colors} onSelect={handleSelect} />
   {/if}
 </div>
 
 <style>
-  .color-swatch {
-    width: 36px;
-    height: 36px;
+  .color-field-container {
+    position: relative;
+  }
+
+  .color-field-control {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    background-color: #fff;
+  }
+
+  .color-field-open {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+    min-width: 0;
+    background: none;
+    border: none;
     padding: 0;
-    border: 1px solid #ccc;
-    border-radius: 4px;
+    text-align: left;
     cursor: pointer;
   }
 
-  .color-panel-container {
-    position: relative;
+  .color-field-clear {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 20px;
+    height: 20px;
+    background: none;
+    border: none;
+    padding: 0;
+    border-radius: 2px;
+    cursor: pointer;
+  }
+
+  .color-field-clear:hover {
+    background-color: rgba(0, 0, 0, 0.1);
+  }
+
+  .color-field-swatch {
+    flex: 0 0 auto;
+    width: 18px;
+    height: 18px;
+    border: 1px solid #ccc;
+    border-radius: 2px;
+  }
+
+  .color-field-value {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 </style>
