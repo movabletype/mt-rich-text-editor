@@ -1,7 +1,7 @@
 import { mount, unmount } from "svelte";
 import type { Editor as TiptapEditor } from "@tiptap/core";
 import { selectedRect } from "@tiptap/pm/tables";
-import { cssSize } from "../../../util/html";
+import { cssColorToHex, cssSize } from "../../../util/html";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import type { TableData } from "./TablePropertiesPanel.svelte";
@@ -36,8 +36,8 @@ const getCurrentTableData = (tiptap: TiptapEditor): TableData => {
     cellPadding: el.style.padding || "",
     borderStyle: el.style.borderStyle || "",
     borderWidth: el.style.borderWidth || "",
-    borderColor: el.style.borderColor || "",
-    backgroundColor: el.style.backgroundColor || "",
+    borderColor: cssColorToHex(el.style.borderColor) || "",
+    backgroundColor: cssColorToHex(el.style.backgroundColor) || "",
   };
   // <table border="1" style="border-collapse: collapse; width: 100.097%; height: 200px; border-width: 1px; border-spacing: 1px; margin-left: 0px; margin-right: auto;">
 };
@@ -101,7 +101,6 @@ export const handleTableProperties = (tiptap: TiptapEditor, options?: TableToolb
                       el.style.borderStyle = tableData.borderStyle;
                       el.style.borderWidth = cssSize(tableData.borderWidth);
                       el.style.borderColor = tableData.borderColor;
-                      el.style.backgroundColor = tableData.backgroundColor;
 
                       tr.setNodeMarkup(rect.tableStart + i, null, {
                         ...cell.attrs,

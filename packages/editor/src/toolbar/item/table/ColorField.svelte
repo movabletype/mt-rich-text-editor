@@ -1,5 +1,6 @@
 <script lang="ts">
   import { t } from "../../../i18n";
+  import { cssColorToHex } from "../../../util/html";
   import Panel from "../color/Panel.svelte";
   import { defaultColors } from "../color/constant";
 
@@ -16,7 +17,7 @@
   let isOpen = $state(false);
 
   function handleSelect(color: string) {
-    value = color;
+    value = cssColorToHex(color) ?? color;
     isOpen = false;
   }
 
@@ -78,10 +79,10 @@
 
   .color-field-control {
     display: flex;
-    align-items: center;
-    gap: 8px;
+    align-items: stretch;
     width: 100%;
     background-color: #fff;
+    padding: 0;
   }
 
   .color-field-open {
@@ -92,7 +93,7 @@
     min-width: 0;
     background: none;
     border: none;
-    padding: 0;
+    padding: 0.375rem 0.25rem 0.375rem 0.75rem;
     text-align: left;
     cursor: pointer;
   }
@@ -102,12 +103,9 @@
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    width: 20px;
-    height: 20px;
     background: none;
     border: none;
-    padding: 0;
-    border-radius: 2px;
+    padding: 0.375rem 0.75rem 0.375rem 0.25rem;
     cursor: pointer;
   }
 

@@ -165,3 +165,20 @@ export const cssSize = (value: string): string => {
   }
   return value;
 };
+
+export const cssColorToHex = (value: string): string | null => {
+  const el = document.createElement("div");
+  el.style.color = value;
+  if (!el.style.color) {
+    return null;
+  }
+
+  const canvas = document.createElement("canvas");
+  const ctx = canvas.getContext("2d");
+  if (!ctx) {
+    return null;
+  }
+  ctx.fillStyle = el.style.color;
+
+  return /^#[0-9a-f]{6}$/i.test(ctx.fillStyle) ? ctx.fillStyle : null;
+};
