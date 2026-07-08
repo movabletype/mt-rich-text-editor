@@ -4,11 +4,14 @@
     readonly height: string;
     readonly cellSpacing: string;
     readonly borderWidth: string;
+    readonly borderStyle: string;
+    readonly borderColor: string;
   }
 </script>
 
 <script lang="ts">
   import { t } from "../../../i18n";
+  import { cssColorToHex } from "../../../util/html";
   import { Modal, ModalContent } from "@movabletype/svelte-components";
 
   let {
@@ -29,10 +32,20 @@
   let cellSpacing = $state(tableData.cellSpacing);
   // svelte-ignore state_referenced_locally (tableData is a one-time snapshot seeded when the modal is mounted)
   let borderWidth = $state(tableData.borderWidth);
+  let borderStyle = $state(tableData.borderStyle);
+  let borderColor = $state(tableData.borderColor);
 
   let widthInput: HTMLInputElement;
   $effect(() => {
     widthInput?.focus();
+  });
+
+  let borderColorPicker: HTMLInputElement;
+  $effect(() => {
+    const hex = cssColorToHex(borderColor);
+    if (borderColorPicker && hex) {
+      borderColorPicker.value = hex;
+    }
   });
 
   let self: Modal;
@@ -66,6 +79,39 @@
         <label for="table-border-width" class="form-label">{t("Border Width")}</label>
         <input type="text" id="table-border-width" class="form-control" bind:value={borderWidth} />
       </div>
+      <div class="form-group mb-3">
+        <label for="table-border-style" class="form-label">{t("Border Style")}</label>
+        <select id="table-border-style" class="form-control" bind:value={borderStyle}>
+          <option value="">{t("None")}</option>
+          <option value="solid">{t("Solid")}</option>
+          <option value="dashed">{t("Dashed")}</option>
+          <option value="dotted">{t("Dotted")}</option>
+          <option value="double">{t("Double")}</option>
+          <option value="groove">{t("Groove")}</option>
+          <option value="ridge">{t("Ridge")}</option>
+          <option value="inset">{t("Inset")}</option>
+          <option value="outset">{t("Outset")}</option>
+          <option value="hidden">{t("Hidden")}</option>
+        </select>
+      </div>
+      <div class="form-group mb-3">
+        <label for="table-border-color" class="form-label">{t("Border Color")}</label>
+        <div class="color-field">
+          <input
+            type="text"
+            id="table-border-color"
+            class="form-control"
+            bind:value={borderColor}
+          />
+          <input
+            type="color"
+            bind:this={borderColorPicker}
+            oninput={() => {
+              borderColor = borderColorPicker.value;
+            }}
+          />
+        </div>
+      </div>
     </svelte:fragment>
     <svelte:fragment slot="footer">
       <button
@@ -73,7 +119,7 @@
         title={t("Insert (s)")}
         class="action primary button btn btn-primary"
         onclick={() => {
-          onSubmit({ width, height, cellSpacing, borderWidth });
+          onSubmit({ width, height, cellSpacing, borderWidth, borderStyle, borderColor });
           close();
         }}
       >
@@ -90,3 +136,15 @@
     </svelte:fragment>
   </ModalContent>
 </Modal>
+
+<style>
+  .color-field {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .color-field .form-control {
+    flex: 1;
+  }
+</style>

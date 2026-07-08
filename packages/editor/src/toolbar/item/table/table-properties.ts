@@ -29,6 +29,8 @@ const getCurrentTableData = (tiptap: TiptapEditor): TableData => {
     height: el.style.height || "",
     cellSpacing: el.style.borderSpacing || "",
     borderWidth: el.style.borderWidth || "",
+    borderStyle: el.style.borderStyle || "",
+    borderColor: el.style.borderColor || "",
   };
   // <table border="1" style="border-collapse: collapse; width: 100.097%; height: 200px; border-width: 1px; border-spacing: 1px; margin-left: 0px; margin-right: auto;">
 };
@@ -69,6 +71,8 @@ export const handleTableProperties = (tiptap: TiptapEditor) => {
                 el.style.height = cssSize(tableData.height);
                 el.style.borderSpacing = tableData.cellSpacing;
                 el.style.borderWidth = cssSize(tableData.borderWidth);
+                el.style.borderStyle = tableData.borderStyle;
+                el.style.borderColor = tableData.borderColor;
 
                 tr.setNodeMarkup(tablePos, null, {
                   ...node.attrs,
@@ -83,6 +87,8 @@ export const handleTableProperties = (tiptap: TiptapEditor) => {
                       const el = document.createElement("div");
                       el.style.cssText = cell.attrs.style || "";
                       el.style.borderWidth = cssSize(tableData.borderWidth);
+                      el.style.borderStyle = tableData.borderStyle;
+                      el.style.borderColor = tableData.borderColor;
 
                       tr.setNodeMarkup(rect.tableStart + i, null, {
                         ...cell.attrs,
