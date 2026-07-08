@@ -57,59 +57,75 @@
   <ModalContent bind:close>
     <svelte:fragment slot="title">{t("Table Properties")}</svelte:fragment>
     <svelte:fragment slot="body">
-      <div class="form-group mb-3">
-        <label for="link-url" class="form-label">{t("Width")}</label>
-        <input
-          type="text"
-          id="table-width"
-          class="form-control"
-          bind:value={width}
-          bind:this={widthInput}
-        />
-      </div>
-      <div class="form-group mb-3">
-        <label for="table-height" class="form-label">{t("Height")}</label>
-        <input type="text" id="table-height" class="form-control" bind:value={height} />
-      </div>
-      <div class="form-group mb-3">
-        <label for="table-cell-spacing" class="form-label">{t("Cell Spacing")}</label>
-        <input type="text" id="table-cell-spacing" class="form-control" bind:value={cellSpacing} />
-      </div>
-      <div class="form-group mb-3">
-        <label for="table-border-width" class="form-label">{t("Border Width")}</label>
-        <input type="text" id="table-border-width" class="form-control" bind:value={borderWidth} />
-      </div>
-      <div class="form-group mb-3">
-        <label for="table-border-style" class="form-label">{t("Border Style")}</label>
-        <select id="table-border-style" class="form-control" bind:value={borderStyle}>
-          <option value="">{t("None")}</option>
-          <option value="solid">{t("Solid")}</option>
-          <option value="dashed">{t("Dashed")}</option>
-          <option value="dotted">{t("Dotted")}</option>
-          <option value="double">{t("Double")}</option>
-          <option value="groove">{t("Groove")}</option>
-          <option value="ridge">{t("Ridge")}</option>
-          <option value="inset">{t("Inset")}</option>
-          <option value="outset">{t("Outset")}</option>
-          <option value="hidden">{t("Hidden")}</option>
-        </select>
-      </div>
-      <div class="form-group mb-3">
-        <label for="table-border-color" class="form-label">{t("Border Color")}</label>
-        <div class="color-field">
+      <div class="row">
+        <div class="form-group col-6 mb-3">
+          <label for="table-width" class="form-label">{t("Width")}</label>
           <input
             type="text"
-            id="table-border-color"
+            id="table-width"
             class="form-control"
-            bind:value={borderColor}
+            bind:value={width}
+            bind:this={widthInput}
           />
+        </div>
+        <div class="form-group col-6 mb-3">
+          <label for="table-height" class="form-label">{t("Height")}</label>
+          <input type="text" id="table-height" class="form-control" bind:value={height} />
+        </div>
+      </div>
+      <div class="row">
+        <div class="form-group col-6 mb-3">
+          <label for="table-cell-spacing" class="form-label">{t("Cell Spacing")}</label>
           <input
-            type="color"
-            bind:this={borderColorPicker}
-            oninput={() => {
-              borderColor = borderColorPicker.value;
-            }}
+            type="text"
+            id="table-cell-spacing"
+            class="form-control"
+            bind:value={cellSpacing}
           />
+        </div>
+        <div class="form-group col-6 mb-3">
+          <label for="table-border-width" class="form-label">{t("Border Width")}</label>
+          <input
+            type="text"
+            id="table-border-width"
+            class="form-control"
+            bind:value={borderWidth}
+          />
+        </div>
+      </div>
+      <div class="row">
+        <div class="form-group col-6 mb-3">
+          <label for="table-border-style" class="form-label">{t("Border Style")}</label>
+          <select id="table-border-style" class="form-control" bind:value={borderStyle}>
+            <option value="">{t("None")}</option>
+            <option value="solid">{t("Solid")}</option>
+            <option value="dashed">{t("Dashed")}</option>
+            <option value="dotted">{t("Dotted")}</option>
+            <option value="double">{t("Double")}</option>
+            <option value="groove">{t("Groove")}</option>
+            <option value="ridge">{t("Ridge")}</option>
+            <option value="inset">{t("Inset")}</option>
+            <option value="outset">{t("Outset")}</option>
+            <option value="hidden">{t("Hidden")}</option>
+          </select>
+        </div>
+        <div class="form-group col-6 mb-3">
+          <label for="table-border-color" class="form-label">{t("Border Color")}</label>
+          <div class="color-field">
+            <input
+              type="text"
+              id="table-border-color"
+              class="form-control"
+              bind:value={borderColor}
+            />
+            <input
+              type="color"
+              bind:this={borderColorPicker}
+              oninput={() => {
+                borderColor = borderColorPicker.value;
+              }}
+            />
+          </div>
         </div>
       </div>
     </svelte:fragment>
