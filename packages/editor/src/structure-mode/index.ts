@@ -40,7 +40,7 @@ export class StructureMode {
   #style: HTMLStyleElement;
   #clickCallback: (event: MouseEvent) => void;
   #modal: ReturnType<typeof mount> | null = null;
-  #selector = "section, div, p, ul, ol, li, h1, h2, h3, h4, h5, h6";
+  #selector = "section, div:not(.ProseMirror-widget), p, ul, ol, li, h1, h2, h3, h4, h5, h6";
 
   constructor(editor: Editor) {
     this.#editor = editor;
