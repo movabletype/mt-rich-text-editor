@@ -174,3 +174,9 @@
     </svelte:fragment>
   </ModalContent>
 </Modal>
+
+<style>
+  :global(.modal-body) {
+    overflow: visible !important;
+  }
+</style>
