@@ -31,6 +31,7 @@
   } = $props();
 
   const buttonRefs: Record<string, PasteMenuItemElement | HTMLElement> = {};
+  // svelte-ignore state_referenced_locally (pasteMenu is stable for this component's whole mounted lifetime; one PasteMenu per Editor instance)
   const buttons = pasteMenu
     .map((name) => ({
       name,
@@ -55,6 +56,7 @@
     setIsPasting(isOpen);
   });
 
+  // svelte-ignore state_referenced_locally (editor is stable for this component's whole mounted lifetime; one PasteMenu per Editor instance)
   editor.tiptap.on("update", () => {
     if (!isInTransaction) {
       isOpen = false;
@@ -125,6 +127,7 @@
     }
   };
 
+  // svelte-ignore state_referenced_locally (editor is stable for this component's whole mounted lifetime; one PasteMenu per Editor instance)
   editor.tiptap.view.dom.addEventListener("scroll", () => {
     if (isOpen) {
       updatePosition(editor.tiptap.view, true);
@@ -132,6 +135,7 @@
   });
 
   let applyName = $state("");
+  // svelte-ignore state_referenced_locally (editor is stable for this component's whole mounted lifetime; one PasteMenu per Editor instance)
   onPaste((view, event) => {
     if (event.clipboardData?.getData(INTERNAL_PASTE_CONTENT_TYPE)) {
       return false; // internal use

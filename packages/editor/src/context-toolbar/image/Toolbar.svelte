@@ -6,7 +6,9 @@
     editor: Editor;
   }>();
 
+  // svelte-ignore state_referenced_locally (editor is stable for this component's whole mounted lifetime; one Toolbar per Editor instance)
   const tiptap = editor.tiptap;
+  // svelte-ignore state_referenced_locally (editor is stable for this component's whole mounted lifetime; one Toolbar per Editor instance)
   const items = editor.options.toolbarOptions?.image?.edit
     ? [["deleteImage"], ["editImage"]]
     : [["deleteImage"]];

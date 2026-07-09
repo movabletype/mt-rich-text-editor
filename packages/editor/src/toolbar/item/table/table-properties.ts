@@ -49,7 +49,7 @@ const getTableNodePos = (tiptap: TiptapEditor): number | null => {
 
 let tablePropertiesModal: ReturnType<typeof mount> | undefined;
 export const handleTableProperties = (tiptap: TiptapEditor) => {
-  mount(TablePropertiesPanel, {
+  tablePropertiesModal = mount(TablePropertiesPanel, {
     target: document.body,
     props: {
       tableData: getCurrentTableData(tiptap),

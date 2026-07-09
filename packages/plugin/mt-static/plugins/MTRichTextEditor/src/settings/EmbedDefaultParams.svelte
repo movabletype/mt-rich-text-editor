@@ -5,6 +5,7 @@
     textarea: HTMLTextAreaElement;
   }>();
 
+  // svelte-ignore state_referenced_locally (textarea is a hidden config-holding DOM element read once at mount)
   const embedDefaultParams: {
     maxwidth?: number;
     maxheight?: number;

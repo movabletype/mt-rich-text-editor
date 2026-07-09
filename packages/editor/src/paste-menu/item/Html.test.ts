@@ -32,6 +32,8 @@ describe("Html", () => {
     harness?.cleanup();
     harness = mountEditorElement<HTMLElement & PasteMenuItemElement, HtmlItemOptions>({
       tagName: "mt-paste-menu-item-html",
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       elementClass: Html.element!,
       editorOptions,
       getInitOptions: () => itemOptions,

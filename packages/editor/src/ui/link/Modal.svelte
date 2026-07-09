@@ -21,9 +21,13 @@
     onClose: () => void;
   } = $props();
 
+  // svelte-ignore state_referenced_locally (linkData is a one-time snapshot seeded when the modal is mounted)
   let url = $state(linkData.url);
+  // svelte-ignore state_referenced_locally (linkData is a one-time snapshot seeded when the modal is mounted)
   let text = $state(linkData.text);
+  // svelte-ignore state_referenced_locally (linkData is a one-time snapshot seeded when the modal is mounted)
   let title = $state(linkData.title);
+  // svelte-ignore state_referenced_locally (linkData is a one-time snapshot seeded when the modal is mounted)
   let target = $state(linkData.target);
 
   let urlInput: HTMLInputElement;
@@ -31,6 +35,7 @@
     urlInput?.focus();
   });
 
+  // svelte-ignore state_referenced_locally (linkData is a one-time snapshot seeded when the modal is mounted)
   let hasTextValue = linkData.text !== undefined && linkData.text !== "";
   const onLinkTextChange = () => {
     hasTextValue = true;
@@ -42,7 +47,6 @@
   });
 
   let self: Modal;
-  // eslint-disable-next-line svelte/no-unused-svelte-ignore
   // svelte-ignore non_reactive_update FIXME:
   let close: () => void;
 </script>

@@ -1,6 +1,6 @@
 import { test, expect, type Page } from "@playwright/test";
 import type {} from "../src/mt-rich-text-editor";
-import { open, save } from "./util";
+import { nextFrame, open, save } from "./util";
 
 const setSelectionByText = async (page: Page, text: string, offset = 0) => {
   const selectionPos = await page.evaluate(
@@ -35,9 +35,14 @@ const setSelectionByText = async (page: Page, text: string, offset = 0) => {
     { text, offset }
   );
 
-  await expect.poll(async () => {
-    return page.evaluate(() => window.MTRichTextEditor.get({ id: "editor" })!.tiptap.state.selection.from);
-  }).toBe(selectionPos);
+  await expect
+    .poll(async () => {
+      return page.evaluate(
+        () => window.MTRichTextEditor.get({ id: "editor" })!.tiptap.state.selection.from
+      );
+    })
+    .toBe(selectionPos);
+  await nextFrame(page);
 };
 
 const setSelectionToFirstEmptyTextBlock = async (page: Page) => {
@@ -63,9 +68,14 @@ const setSelectionToFirstEmptyTextBlock = async (page: Page) => {
     return selectionPos;
   });
 
-  await expect.poll(async () => {
-    return page.evaluate(() => window.MTRichTextEditor.get({ id: "editor" })!.tiptap.state.selection.from);
-  }).toBe(selectionPos);
+  await expect
+    .poll(async () => {
+      return page.evaluate(
+        () => window.MTRichTextEditor.get({ id: "editor" })!.tiptap.state.selection.from
+      );
+    })
+    .toBe(selectionPos);
+  await nextFrame(page);
 };
 
 const getInternalHTML = async (page: Page) => {
@@ -83,7 +93,9 @@ test.describe("textBlock", () => {
 
     await page.keyboard.press("Backspace");
 
-    await expect.poll(() => getInternalHTML(page)).toBe("<div><mt-text-block>a</mt-text-block></div>");
+    await expect
+      .poll(() => getInternalHTML(page))
+      .toBe("<div><mt-text-block>a</mt-text-block></div>");
     await expect.poll(() => save(page)).toBe("<div>a</div>");
 
     await page.keyboard.type("x");
@@ -99,7 +111,9 @@ test.describe("textBlock", () => {
 
     await page.keyboard.press("Backspace");
 
-    await expect.poll(() => getInternalHTML(page)).toBe("<div><mt-text-block></mt-text-block></div>");
+    await expect
+      .poll(() => getInternalHTML(page))
+      .toBe("<div><mt-text-block></mt-text-block></div>");
     await expect.poll(() => save(page)).toBe("<div></div>");
 
     await page.keyboard.type("x");
@@ -115,7 +129,9 @@ test.describe("textBlock", () => {
 
     await page.keyboard.press("Backspace");
 
-    await expect.poll(() => getInternalHTML(page)).toBe("<div><mt-text-block></mt-text-block></div>");
+    await expect
+      .poll(() => getInternalHTML(page))
+      .toBe("<div><mt-text-block></mt-text-block></div>");
     await expect.poll(() => save(page)).toBe("<div></div>");
   });
 
@@ -128,11 +144,15 @@ test.describe("textBlock", () => {
 
     await page.keyboard.press("Backspace");
 
-    await expect.poll(() => getInternalHTML(page)).toBe("<div><mt-text-block></mt-text-block></div>");
+    await expect
+      .poll(() => getInternalHTML(page))
+      .toBe("<div><mt-text-block></mt-text-block></div>");
     await expect.poll(() => save(page)).toBe("<div></div>");
   });
 
-  test("does not unwrap the first top-level wrapper on Backspace at the start", async ({ page }) => {
+  test("does not unwrap the first top-level wrapper on Backspace at the start", async ({
+    page,
+  }) => {
     await open(page, {
       content: "<div>a</div>",
     });
@@ -140,7 +160,9 @@ test.describe("textBlock", () => {
 
     await page.keyboard.press("Backspace");
 
-    await expect.poll(() => getInternalHTML(page)).toBe("<div><mt-text-block>a</mt-text-block></div>");
+    await expect
+      .poll(() => getInternalHTML(page))
+      .toBe("<div><mt-text-block>a</mt-text-block></div>");
     await expect.poll(() => save(page)).toBe("<div>a</div>");
 
     await page.keyboard.type("x");
@@ -172,12 +194,12 @@ test.describe("textBlock", () => {
 
     await page.keyboard.press("Backspace");
 
-    await expect.poll(() => getInternalHTML(page)).toBe(
-      "<table><tr><td><mt-text-block></mt-text-block></td></tr></table>"
-    );
-    await expect.poll(async () => normalizeHTML(await save(page))).toBe(
-      "<table><tbody><tr><td></td></tr></tbody></table>"
-    );
+    await expect
+      .poll(() => getInternalHTML(page))
+      .toBe("<table><tr><td><mt-text-block></mt-text-block></td></tr></table>");
+    await expect
+      .poll(async () => normalizeHTML(await save(page)))
+      .toBe("<table><tbody><tr><td></td></tr></tbody></table>");
   });
 
   test("creates a new table row with textBlock cells on Tab", async ({ page }) => {
@@ -188,15 +210,17 @@ test.describe("textBlock", () => {
 
     await page.keyboard.press("Tab");
 
-    await expect.poll(() => getInternalHTML(page)).toBe(
-      "<table><tr><td><mt-text-block>a</mt-text-block></td></tr><tr><td><mt-text-block></mt-text-block></td></tr></table>"
-    );
+    await expect
+      .poll(() => getInternalHTML(page))
+      .toBe(
+        "<table><tr><td><mt-text-block>a</mt-text-block></td></tr><tr><td><mt-text-block></mt-text-block></td></tr></table>"
+      );
 
     await page.keyboard.type("x");
 
-    await expect.poll(async () => normalizeHTML(await save(page))).toBe(
-      "<table><tbody><tr><td>a</td></tr><tr><td>x</td></tr></tbody></table>"
-    );
+    await expect
+      .poll(async () => normalizeHTML(await save(page)))
+      .toBe("<table><tbody><tr><td>a</td></tr><tr><td>x</td></tr></tbody></table>");
   });
 
   test("keeps a table cell textBlock on Shift+Tab", async ({ page }) => {
@@ -207,11 +231,11 @@ test.describe("textBlock", () => {
 
     await page.keyboard.press("Shift+Tab");
 
-    await expect.poll(() => getInternalHTML(page)).toBe(
-      "<table><tr><td><mt-text-block>a</mt-text-block></td></tr></table>"
-    );
-    await expect.poll(async () => normalizeHTML(await save(page))).toBe(
-      "<table><tbody><tr><td>a</td></tr></tbody></table>"
-    );
+    await expect
+      .poll(() => getInternalHTML(page))
+      .toBe("<table><tr><td><mt-text-block>a</mt-text-block></td></tr></table>");
+    await expect
+      .poll(async () => normalizeHTML(await save(page)))
+      .toBe("<table><tbody><tr><td>a</td></tr></tbody></table>");
   });
 });

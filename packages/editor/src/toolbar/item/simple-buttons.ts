@@ -42,7 +42,7 @@ const createButtonClass = (
   method?: string | ((editor: TiptapEditor) => void),
   stateClass?: string | false,
   checkState?: (editor: Editor) => boolean
-) => {
+): new () => ToolbarItemElement => {
   method ??= `toggle${name.slice(0, 1).toUpperCase() + name.slice(1)}`;
   stateClass ??= `is-active`;
   checkState ??= (editor: Editor) => editor.tiptap.isActive(name);
@@ -98,7 +98,7 @@ const createTextAlignButtonClass = (
   label: string | [string, string],
   name: string,
   icon: string
-) => {
+): new () => ToolbarItemElement => {
   const targetAlign = name.substring(5).toLowerCase();
 
   return class extends ToolbarItemElement {

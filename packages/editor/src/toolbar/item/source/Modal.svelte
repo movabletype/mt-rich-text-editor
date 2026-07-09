@@ -16,13 +16,13 @@
     onClose: () => void;
   } = $props();
 
+  // svelte-ignore state_referenced_locally (text/beautifyOptions are one-time initial props, beautified once before binding to the textarea)
   text = beautifyOptions ? html(text, beautifyOptions) : text;
   let textarea: HTMLTextAreaElement;
   $effect(() => {
     textarea?.focus();
   });
 
-  // eslint-disable-next-line svelte/no-unused-svelte-ignore
   // svelte-ignore non_reactive_update FIXME:
   let close: () => void;
 </script>

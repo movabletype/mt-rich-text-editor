@@ -22,6 +22,8 @@ describe("Button", () => {
     harness?.cleanup();
     harness = mountEditorElement<HTMLElement & ToolbarItemElement>({
       tagName: "mt-toolbar-item-link",
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       elementClass: Button.element!,
       editorOptions: options,
       getInitOptions: (mountedEditor) =>

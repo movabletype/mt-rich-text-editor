@@ -10,7 +10,7 @@ export const Table = TiptapTable.extend({
   },
 
   addOptions() {
-    const options = this.parent?.();
+    const options = this.parent!();
     if (options) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (options as any).View = class extends (options.View as any) {

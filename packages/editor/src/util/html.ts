@@ -1,12 +1,12 @@
 const isEditable = (element: HTMLElement): boolean =>
   !element.closest("div[data-mt-rich-text-editor-embed-object]");
 
-const isInlineNode = (node: Node, inlineElementSet: Set<string>, trim: boolean): boolean =>
+const isInlineNode = (node: Node, inlineElementSet: Set<string>): boolean =>
   !(
     // a[data-mt-rich-text-editor-block="true"] should be treated as block element even if it contains text nodes or images
-    (node instanceof HTMLElement && node.dataset.mtRichTextEditorBlock === "true")
+    node instanceof HTMLElement && node.dataset.mtRichTextEditorBlock === "true"
   ) &&
-  ((node.nodeType === Node.TEXT_NODE && (!trim || !!node.textContent?.trim())) ||
+  ((node.nodeType === Node.TEXT_NODE && !!node.textContent?.trim()) ||
     (node.nodeType === Node.ELEMENT_NODE && inlineElementSet.has(node.nodeName)));
 
 export const preprocessHTML = (
@@ -58,17 +58,14 @@ export const preprocessHTML = (
         return;
       }
 
-      const trim = div.nodeName === "UL" || div.nodeName === "OL";
       const childNode = Array.from(div.childNodes);
-      const hasDirectInlineNode = childNode.some((node) =>
-        isInlineNode(node, inlineElementSet, trim)
-      );
+      const hasDirectInlineNode = childNode.some((node) => isInlineNode(node, inlineElementSet));
       if (hasDirectInlineNode) {
         const encoder = document.createElement("div");
 
         for (let i = 0; i < div.childNodes.length; i++) {
           const headChild = div.childNodes[i];
-          if (isInlineNode(headChild, inlineElementSet, trim)) {
+          if (isInlineNode(headChild, inlineElementSet)) {
             const textBlock = document.createElement("mt-text-block");
             let content = "";
             while (i < div.childNodes.length) {
@@ -91,7 +88,17 @@ export const preprocessHTML = (
       } else if (
         childNode.every((node) => node.nodeType === Node.TEXT_NODE && !node.textContent?.trim())
       ) {
-        div.appendChild(document.createElement("mt-text-block"));
+        const textBlock = document.createElement("mt-text-block");
+        while (div.firstChild) {
+          textBlock.appendChild(div.firstChild);
+        }
+        div.appendChild(textBlock);
+      } else {
+        childNode.forEach((node) => {
+          if (node.nodeType === Node.TEXT_NODE && !node.textContent?.trim()) {
+            node.remove();
+          }
+        });
       }
     });
 

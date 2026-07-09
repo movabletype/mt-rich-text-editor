@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 import type {} from "../src/mt-rich-text-editor";
-import { clickToolbarItem } from "./util";
+import { clickToolbarItem, nextFrame } from "./util";
 
 test.describe("list extension", () => {
   test("insert list by inputRules", async ({ page }) => {
@@ -27,12 +27,14 @@ test.describe("list extension", () => {
     });
     const textarea = await page.locator("#editor");
     await page.locator('[data-mt-rich-text-editor-id="editor"]').click();
+    await nextFrame(page);
     await page.keyboard.press("Enter");
+    await nextFrame(page);
     await page.keyboard.press("Enter");
-    await Promise.resolve();
+    await nextFrame(page);
     await page.keyboard.type("paragraph");
     await page.keyboard.press("Enter");
-    await Promise.resolve();
+    await nextFrame(page);
     await page.keyboard.type("* new item");
     await page.evaluate(async () => {
       await window.MTRichTextEditor.save();
@@ -56,7 +58,9 @@ test.describe("list extension", () => {
     await page.locator('[data-mt-rich-text-editor-id="editor"]').click();
     await page.keyboard.type("* test");
     await page.keyboard.press("Enter");
+    await nextFrame(page);
     await page.keyboard.press("Enter");
+    await nextFrame(page);
     await page.keyboard.type("test paragraph");
     await page.evaluate(async () => {
       await window.MTRichTextEditor.save();
@@ -75,10 +79,11 @@ test.describe("list extension", () => {
     await page.locator('[data-mt-rich-text-editor-id="editor"]').click();
     await page.keyboard.type("* test");
     await page.keyboard.press("Enter");
+    await nextFrame(page);
     await page.keyboard.press("Enter");
-    await new Promise((r) => setTimeout(r, 50));
+    await nextFrame(page);
     await page.keyboard.press("Backspace");
-    await new Promise((r) => setTimeout(r, 50));
+    await nextFrame(page);
     await page.keyboard.type("next");
     await page.evaluate(async () => {
       await window.MTRichTextEditor.save();
@@ -97,13 +102,15 @@ test.describe("list extension", () => {
     await page.locator('[data-mt-rich-text-editor-id="editor"]').click();
     await page.keyboard.type("* test");
     await page.keyboard.press("Enter");
+    await nextFrame(page);
     await page.keyboard.type("x");
-    await new Promise((r) => setTimeout(r, 50));
+    await nextFrame(page);
     await page.keyboard.press("Backspace"); // Delete the "x"
+    await nextFrame(page);
     await page.keyboard.press("Backspace"); // Delete second list item
-    await new Promise((r) => setTimeout(r, 50));
+    await nextFrame(page);
     await page.keyboard.press("Enter"); // Add a new list item
-    await new Promise((r) => setTimeout(r, 50));
+    await nextFrame(page);
     await page.keyboard.type("next");
     await page.evaluate(async () => {
       await window.MTRichTextEditor.save();
@@ -126,7 +133,9 @@ test.describe("list extension", () => {
       await page.keyboard.press("Enter");
       await page.keyboard.type("List item 2");
       await page.keyboard.press("Enter");
+      await nextFrame(page);
       await page.keyboard.press("Tab");
+      await nextFrame(page);
       await page.keyboard.type("List item 2.1");
 
       await page.evaluate(async () => {
@@ -152,8 +161,11 @@ test.describe("list extension", () => {
       await page.keyboard.press("Enter");
       await page.keyboard.type("List item 2");
       await page.keyboard.press("Enter");
+      await nextFrame(page);
       await page.keyboard.press("Tab");
+      await nextFrame(page);
       await page.keyboard.type("List item 3");
+      await nextFrame(page);
       await page.keyboard.press("Shift+Tab");
 
       await page.evaluate(async () => {
@@ -175,7 +187,9 @@ test.describe("list extension", () => {
       await clickToolbarItem(page, "bulletList");
       await page.keyboard.type("List item 1");
       await page.keyboard.press("Enter");
+      await nextFrame(page);
       await page.keyboard.type("Paragraph");
+      await nextFrame(page);
       await page.keyboard.press("Shift+Tab");
 
       await page.evaluate(async () => {

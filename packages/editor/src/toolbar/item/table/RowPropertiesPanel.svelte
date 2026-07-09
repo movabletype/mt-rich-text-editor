@@ -18,6 +18,7 @@
     onClose: () => void;
   } = $props();
 
+  // svelte-ignore state_referenced_locally (rowData is a one-time snapshot seeded when the modal is mounted)
   let element = $state(rowData.element);
 
   let elementInput: HTMLSelectElement;
@@ -26,7 +27,6 @@
   });
 
   let self: Modal;
-  // eslint-disable-next-line svelte/no-unused-svelte-ignore
   // svelte-ignore non_reactive_update FIXME:
   let close: () => void;
 </script>

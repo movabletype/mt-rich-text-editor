@@ -1,6 +1,6 @@
 import { test, expect, Page } from "@playwright/test";
 import type {} from "../src/mt-rich-text-editor";
-import { mockEmbedObjectResolver, open, save } from "./util";
+import { mockEmbedObjectResolver, nextFrame, open, save } from "./util";
 
 const insertEmbedObject = async (page: Page) => {
   await mockEmbedObjectResolver(page, async () => ({
@@ -56,6 +56,7 @@ test.describe("embedObject", () => {
         ?.shadowRoot?.querySelector<HTMLElement>("iframe[data-mt-rich-text-editor-iframe]")
         ?.click();
     });
+    await nextFrame(page);
 
     await page.keyboard.press("Backspace");
 
@@ -72,8 +73,9 @@ test.describe("embedObject", () => {
     await insertEmbedObject(page);
 
     await page.keyboard.type("x");
-    await new Promise((r) => setTimeout(r, 50)); // wait for paste menu show
+    await nextFrame(page);
     await page.keyboard.press("ArrowLeft");
+    await nextFrame(page);
     await page.keyboard.press("Backspace"); // press backspace with a paragraph having some
 
     await page.evaluate(async () => {
@@ -90,6 +92,7 @@ test.describe("embedObject", () => {
 
     await page.keyboard.type("x");
     await page.keyboard.press("Backspace"); // make blank paragraph
+    await nextFrame(page);
     await page.keyboard.press("Backspace"); // press backspace with a blank paragraph
 
     await page.evaluate(async () => {
@@ -114,9 +117,9 @@ test.describe("embedObject", () => {
         ?.shadowRoot?.querySelector<HTMLElement>("iframe[data-mt-rich-text-editor-iframe]")
         ?.click();
     });
-    await new Promise((r) => setTimeout(r, 100));
+    await nextFrame(page);
     await page.keyboard.press("ArrowRight");
-    await new Promise((r) => setTimeout(r, 100));
+    await nextFrame(page);
     await page.keyboard.type("Some text after embed!");
 
     const content = await save(page);
@@ -138,14 +141,14 @@ test.describe("embedObject", () => {
         ?.shadowRoot?.querySelector<HTMLElement>("iframe[data-mt-rich-text-editor-iframe]")
         ?.click();
     });
-    await new Promise((r) => setTimeout(r, 100));
+    await nextFrame(page);
     await page.keyboard.press("ArrowLeft");
-    await new Promise((r) => setTimeout(r, 100));
+    await nextFrame(page);
     await page.keyboard.type("Some text before embed!");
     await page.keyboard.press("ArrowRight");
-    await new Promise((r) => setTimeout(r, 100));
+    await nextFrame(page);
     await page.keyboard.press("ArrowLeft");
-    await new Promise((r) => setTimeout(r, 100));
+    await nextFrame(page);
     await page.keyboard.type("And more text!");
 
     const content = await save(page);
@@ -167,15 +170,15 @@ test.describe("embedObject", () => {
         ?.shadowRoot?.querySelector<HTMLElement>("iframe[data-mt-rich-text-editor-iframe]")
         ?.click();
     });
-    await new Promise((r) => setTimeout(r, 100));
+    await nextFrame(page);
     await page.keyboard.press("ArrowRight");
-    await new Promise((r) => setTimeout(r, 100));
+    await nextFrame(page);
     await page.keyboard.type("!");
     await page.keyboard.press("ArrowLeft");
     await page.keyboard.press("ArrowLeft");
-    await new Promise((r) => setTimeout(r, 100)); // now select embed object
+    await nextFrame(page); // now select embed object
     await page.keyboard.press("ArrowRight");
-    await new Promise((r) => setTimeout(r, 100));
+    await nextFrame(page);
     await page.keyboard.type("Some text after embed"); // insert before "!"
 
     const content = await save(page);

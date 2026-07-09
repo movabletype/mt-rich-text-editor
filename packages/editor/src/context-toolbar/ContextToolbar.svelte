@@ -20,10 +20,12 @@
     items: string[][];
   } = $props();
 
+  // svelte-ignore state_referenced_locally (editor is stable for this component's whole mounted lifetime; one ContextToolbar per Editor instance)
   const tiptap = editor.tiptap;
   const viewDom = tiptap.view.dom;
 
   const buttonRefs: Record<string, HTMLElement> = {};
+  // svelte-ignore state_referenced_locally (items is stable for this component's whole mounted lifetime; one ContextToolbar per Editor instance)
   const buttons = items.map((item) => {
     return item.map((name) => {
       return {

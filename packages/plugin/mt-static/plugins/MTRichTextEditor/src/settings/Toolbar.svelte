@@ -12,6 +12,7 @@
 
   let isDragging = $state(false);
 
+  // svelte-ignore state_referenced_locally (textarea is a hidden config-holding DOM element read once at mount)
   const availableItems: ToolbarItem[] = JSON.parse(
     textarea.getAttribute("data-available-items") ?? "[]"
   ).map((id: string) => ({
@@ -65,6 +66,7 @@
       .filter((groupSides) => groupSides.length > 0);
   }
 
+  // svelte-ignore state_referenced_locally (textarea is a hidden config-holding DOM element read once at mount)
   const toolbarItems = $state(convertToItems(JSON.parse(textarea.value)));
 
   $effect(() => {

@@ -115,7 +115,9 @@ describe("EditorManager", () => {
     const TiptapCore = await import("@tiptap/core");
 
     await expect(EditorManager.import("@tiptap/core")).resolves.toBe(TiptapCore);
-    await expect(EditorManager.import("unknown")).rejects.toThrow("Unknown module: unknown");
+    await expect(EditorManager.import("unknown" as "@tiptap/core")).rejects.toThrow(
+      "Unknown module: unknown"
+    );
   });
 
   it("changes language through create() and setLanguage()", async () => {

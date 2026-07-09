@@ -12,6 +12,7 @@
   type BlockItem = { value: string; label: string };
   type BlockInternalItem = { id: string; value: string; label: string; isBlockItem: true };
 
+  // svelte-ignore state_referenced_locally (textarea is a hidden config-holding DOM element read once at mount)
   const availableBlocks: BlockInternalItem[] = convertToItems(
     JSON.parse(textarea.getAttribute("data-available-blocks") ?? "[]")
   );
@@ -51,6 +52,7 @@
     return items.map((item) => item.value);
   }
 
+  // svelte-ignore state_referenced_locally (textarea is a hidden config-holding DOM element read once at mount)
   let blocksItems = $state(convertToItems(JSON.parse(textarea.value)));
 
   let tmpUnusedItems = $state<BlockInternalItem[] | undefined>(undefined);

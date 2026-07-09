@@ -3,7 +3,7 @@ import { fixListItemContent } from "./utils/list";
 
 export const OrderedList = TiptapOrderedList.extend({
   addInputRules() {
-    return this.parent?.().map((rule) => ({
+    return this.parent!().map((rule) => ({
       ...rule,
       handler: (props) => {
         rule.handler(props);

@@ -62,9 +62,7 @@ export abstract class PasteMenuItemElement<
   }
 
   isEditorItemAvailable():
-    | boolean
-    | PasteMenuItemPriorityValue
-    | Promise<boolean | PasteMenuItemPriorityValue> {
+    boolean | PasteMenuItemPriorityValue | Promise<boolean | PasteMenuItemPriorityValue> {
     return Promise.resolve(PasteMenuItemPriority.Default);
   }
 

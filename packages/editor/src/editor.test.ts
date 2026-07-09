@@ -46,6 +46,8 @@ const htmlRoundTripCases = [
   `<section><div><span data-note="x">nested</span></div></section>`,
   `<div></div>`,
   "<p><button type='button'>Click</button></p>",
+  "<div>\n    <p>test</p>\n</div>",
+  "<blockquote>\n    <p>test</p>\n</blockquote>",
 ] as const;
 
 const htmlConversionCases = [
@@ -116,6 +118,20 @@ describe("HTML round-trip", () => {
     expect(normalizeComparableHTML(editor.getContent())).toBe(normalizeComparableHTML(input));
   });
 
+  it("does not insert spurious empty mt-text-block around block children separated only by formatting whitespace", () => {
+    editor.setContent("<div>\n    <p>test</p>\n</div>");
+
+    expect(editor.tiptap.getHTML()).toBe('<div><p data-mt-indent="0">test</p></div>');
+    expect(editor.getContent()).toBe("<div>\n<p>test</p>\n</div>");
+  });
+
+  it("does not insert spurious empty mt-text-block for block elements other than div (blockquote)", () => {
+    editor.setContent("<blockquote>\n    <p>test</p>\n</blockquote>");
+
+    expect(editor.tiptap.getHTML()).toBe('<blockquote><p data-mt-indent="0">test</p></blockquote>');
+    expect(editor.getContent()).toBe("<blockquote>\n<p>test</p>\n</blockquote>");
+  });
+
   describe("additionalBlockElements option", () => {
     beforeEach(() => {
       initEditor({
@@ -168,7 +184,7 @@ describe("HTML round-trip", () => {
       editor.setContent("<p>a<button>b</button>c</p>");
 
       expect(normalizeComparableHTML(editor.getContent())).toBe(
-        normalizeComparableHTML("<p>abc</p>")
+        normalizeComparableHTML("<p>a</p><button>b</button><p>c</p>")
       );
     });
   });
