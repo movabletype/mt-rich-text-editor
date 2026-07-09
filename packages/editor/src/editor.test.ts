@@ -5,6 +5,7 @@ import type { EditorOptions } from "../src/editor";
 import type { EditorHarness } from "./test/helpers/editor";
 import {
   createEditorHarness,
+  flushMicrotasks,
   normalizeComparableHTML,
   setTextSelectionByText,
 } from "./test/helpers/editor";
@@ -594,5 +595,144 @@ describe("Editor lifecycle and public methods", () => {
     editor.tiptap.chain().focus().toggleBold().run();
 
     expect(editor.getContent()).toBe("<p>alpha <strong>beta</strong></p>");
+  });
+});
+
+describe("Structure mode", () => {
+  let editor: Editor;
+  let harness: EditorHarness;
+
+  const initEditor = (options: Partial<EditorOptions> = {}) => {
+    harness?.cleanup();
+    harness = createEditorHarness(options);
+    ({ editor } = harness);
+  };
+
+  const getStructureModeStyleText = (): string => {
+    const styles = editor.tiptap.view.dom.getRootNode().querySelectorAll("style");
+    return styles[styles.length - 1]?.textContent ?? "";
+  };
+
+  const setModalValue = (id: string, value: string) => {
+    const input = document.querySelector<HTMLInputElement>(`#${id}`);
+    expect(input).not.toBeNull();
+    input!.value = value;
+    input!.dispatchEvent(new Event("input"));
+    input!.dispatchEvent(new Event("change"));
+  };
+
+  const submitModal = async () => {
+    document.querySelector<HTMLButtonElement>(".modal button.primary")?.click();
+    await flushMicrotasks();
+  };
+
+  const clickStructureTarget = async (domNode: HTMLElement) => {
+    domNode.dispatchEvent(new MouseEvent("click", { bubbles: true, cancelable: true }));
+    await flushMicrotasks();
+  };
+
+  beforeEach(() => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    initEditor();
+  });
+
+  afterEach(() => {
+    harness.cleanup();
+    vi.restoreAllMocks();
+  });
+
+  it("targets the tableWrapper NodeView wrapper (not the inner table element), labeling it with the table node's own attributes and keeping its outline visible", () => {
+    editor.setContent(
+      "<table id='t1' class='fancy' style='color: red'><tbody><tr><td>b</td></tr></tbody></table>"
+    );
+
+    editor.setStructureMode(true);
+
+    const styleText = getStructureModeStyleText();
+    // The rule's selector still targets the wrapper div's own DOM attributes.
+    expect(styleText).toMatch(/div\[class="tableWrapper"\]\s*\{/);
+    // The inner <table> element itself is not a structure-mode target.
+    expect(styleText).not.toMatch(/^table \{/m);
+    // ...but its outline label describes the table node it wraps.
+    expect(styleText).toContain('content: "table[id=\\"t1\\"]');
+    expect(styleText).toContain('[class=\\"fancy\\"]');
+    expect(styleText).toContain('[style=\\"color: red\\"]"');
+    // content.css's .tableWrapper sets `overflow-x: auto`, which clips the
+    // label positioned above the wrapper's top edge unless structure mode
+    // restores `overflow: visible` for the duration.
+    expect(styleText).toContain("overflow: visible;");
+  });
+
+  it("opens the modal for the tableWrapper NodeView wrapper, prefilled from the table node's attributes, and does nothing for the inner table element", async () => {
+    editor.setContent(
+      "<table id='t1' class='fancy' style='color: red'><tbody><tr><td>b</td></tr></tbody></table>"
+    );
+    editor.setStructureMode(true);
+
+    const tableEl = editor.tiptap.view.dom.querySelector<HTMLElement>("table");
+    await clickStructureTarget(tableEl!);
+    expect(document.querySelector(".modal")).toBeNull();
+
+    const wrapperDiv = editor.tiptap.view.dom.querySelector<HTMLElement>("div.tableWrapper");
+    expect(wrapperDiv).not.toBeNull();
+    await clickStructureTarget(wrapperDiv!);
+
+    expect(document.querySelector(".modal")).not.toBeNull();
+    // The wrapper NodeView doesn't mirror id/class onto its DOM (see
+    // isTableWrapperNodeView), so this also verifies the modal is prefilled
+    // from the table document node's attrs, not the clicked wrapper DOM's.
+    expect(document.querySelector<HTMLInputElement>("#structure-id")!.value).toBe("t1");
+    expect(document.querySelector<HTMLInputElement>("#structure-class-name")!.value).toBe("fancy");
+    expect(document.querySelector<HTMLInputElement>("#structure-style")!.value).toBe("color: red");
+  });
+
+  it("updates table attributes, including the dedicated style attribute, through the structure modal", async () => {
+    editor.setContent("<table style='top: 0'><tbody><tr><td>b</td></tr></tbody></table>");
+    editor.setStructureMode(true);
+
+    const wrapperDiv = editor.tiptap.view.dom.querySelector<HTMLElement>("div.tableWrapper");
+    await clickStructureTarget(wrapperDiv!);
+
+    setModalValue("structure-id", "my-table");
+    setModalValue("structure-class-name", "fancy");
+    setModalValue("structure-style", "color: red");
+    await submitModal();
+
+    expect(normalizeComparableHTML(editor.getContent())).toBe(
+      normalizeComparableHTML(
+        "<table id='my-table' class='fancy' style='color: red'><tbody><tr><td>b</td></tr></tbody></table>"
+      )
+    );
+  });
+
+  it("clears the dedicated style attribute (not just MTRichTextEditorHTMLAttributes) when the modal style field is emptied", async () => {
+    editor.setContent("<table style='top: 0'><tbody><tr><td>b</td></tr></tbody></table>");
+    editor.setStructureMode(true);
+
+    const wrapperDiv = editor.tiptap.view.dom.querySelector<HTMLElement>("div.tableWrapper");
+    await clickStructureTarget(wrapperDiv!);
+
+    setModalValue("structure-style", "");
+    await submitModal();
+
+    expect(normalizeComparableHTML(editor.getContent())).toBe(
+      normalizeComparableHTML("<table><tbody><tr><td>b</td></tr></tbody></table>")
+    );
+  });
+
+  it("still allows editing a plain div through the structure modal", async () => {
+    editor.setContent("<div>text</div>");
+    editor.setStructureMode(true);
+
+    const divEl = editor.tiptap.view.dom.querySelector<HTMLElement>("div");
+    await clickStructureTarget(divEl!);
+
+    setModalValue("structure-id", "my-div");
+    setModalValue("structure-class-name", "highlighted");
+    await submitModal();
+
+    expect(normalizeComparableHTML(editor.getContent())).toBe(
+      normalizeComparableHTML("<div id='my-div' class='highlighted'>text</div>")
+    );
   });
 });
