@@ -15,7 +15,9 @@ declare module "@tiptap/core" {
 }
 
 const INDENT_STEP_PX = 80;
-const PX_VALUE_PATTERN = /^(\d+(?:\.\d+)?)px$/;
+// Matches a valid non-negative px length ("12px", "12.5px") or unitless zero
+// ("0"), which is valid CSS shorthand for 0px.
+const PX_VALUE_PATTERN = /^(?:(\d+(?:\.\d+)?)px|0)$/;
 
 // Extract the raw padding-left declaration value from the style attribute string
 // (not element.style.paddingLeft, which also reflects the padding shorthand).
@@ -68,11 +70,8 @@ export const Indent = Extension.create<IndentOptions>({
         level = 0;
       } else {
         const match = PX_VALUE_PATTERN.exec(String(indent));
-        if (!match) {
-          // Non-pixel (or otherwise unrecognized) indent values are left untouched.
-          return tr;
-        }
-        level = Number(match[1]);
+        // Unrecognized indent values (non-pixel units like "2em" or "50%") are treated as level 0.
+        level = match ? Number(match[1] ?? 0) : 0;
       }
 
       const nextLevel = level + delta * INDENT_STEP_PX;

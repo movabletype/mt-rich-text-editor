@@ -259,18 +259,43 @@ describe("HTML round-trip", () => {
       );
     });
 
-    it("skips indent/outdent for non-pixel padding-left units", () => {
+    it("treats non-pixel padding-left units as level 0 when indenting", () => {
       editor.setContent("<p style='padding-left: 2em'>t</p>");
       setTextSelectionByText(editor, "t");
 
       editor.tiptap.chain().focus().indent().run();
       expect(normalizeComparableHTML(editor.getContent())).toBe(
-        normalizeComparableHTML("<p style='padding-left: 2em'>t</p>")
+        normalizeComparableHTML("<p style='padding-left: 80px'>t</p>")
       );
+    });
+
+    it("treats non-pixel padding-left units as level 0 when outdenting", () => {
+      editor.setContent("<p style='padding-left: 2em'>t</p>");
+      setTextSelectionByText(editor, "t");
 
       editor.tiptap.chain().focus().outdent().run();
       expect(normalizeComparableHTML(editor.getContent())).toBe(
-        normalizeComparableHTML("<p style='padding-left: 2em'>t</p>")
+        normalizeComparableHTML("<p>t</p>")
+      );
+    });
+
+    it("treats unitless zero padding-left as level 0 when indenting", () => {
+      editor.setContent("<p style='padding-left: 0'>t</p>");
+      setTextSelectionByText(editor, "t");
+
+      editor.tiptap.chain().focus().indent().run();
+      expect(normalizeComparableHTML(editor.getContent())).toBe(
+        normalizeComparableHTML("<p style='padding-left: 80px'>t</p>")
+      );
+    });
+
+    it("treats unitless zero padding-left as level 0 when outdenting", () => {
+      editor.setContent("<p style='padding-left: 0'>t</p>");
+      setTextSelectionByText(editor, "t");
+
+      editor.tiptap.chain().focus().outdent().run();
+      expect(normalizeComparableHTML(editor.getContent())).toBe(
+        normalizeComparableHTML("<p>t</p>")
       );
     });
 
