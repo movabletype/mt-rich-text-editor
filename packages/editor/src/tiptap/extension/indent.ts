@@ -14,6 +14,23 @@ declare module "@tiptap/core" {
   }
 }
 
+const INDENT_STEP_PX = 80;
+// Matches a valid non-negative px length ("12px", "12.5px") or unitless zero
+// ("0"), which is valid CSS shorthand for 0px.
+const PX_VALUE_PATTERN = /^(?:(\d+(?:\.\d+)?)px|0)$/;
+
+// Extract the raw padding-left declaration value from the style attribute string
+// (not element.style.paddingLeft, which also reflects the padding shorthand).
+const parsePaddingLeft = (element: HTMLElement): string | null => {
+  const style = element.getAttribute("style");
+  if (!style) {
+    return null;
+  }
+
+  const match = /(?:^|;)\s*padding-left\s*:\s*([^;]+)/i.exec(style);
+  return match ? match[1].trim() : null;
+};
+
 export const Indent = Extension.create<IndentOptions>({
   name: "indent",
 
@@ -28,15 +45,10 @@ export const Indent = Extension.create<IndentOptions>({
       {
         types: this.options.types,
         attributes: {
-          "data-mt-indent": {
+          indent: {
             default: null,
-            renderHTML: ({ "data-mt-indent": indent }) =>
-              indent && indent !== "0"
-                ? {
-                    style: `padding-left: ${indent * 80}px`,
-                  }
-                : {},
-            parseHTML: (element) => Number(element.getAttribute("data-mt-indent") || null),
+            renderHTML: ({ indent }) => (indent ? { style: `padding-left: ${indent}` } : {}),
+            parseHTML: (element) => parsePaddingLeft(element),
           },
         },
       },
@@ -47,15 +59,25 @@ export const Indent = Extension.create<IndentOptions>({
     const setNodeIndentMarkup = (tr: Transaction, pos: number, delta: number): Transaction => {
       const node = tr?.doc?.nodeAt(pos);
 
-      if (node) {
-        let { "data-mt-indent": indent, ...attrs } = node.attrs;
-        indent = (indent || 0) + delta;
-        if (indent > 0) {
-          attrs = { ...attrs, "data-mt-indent": indent };
-        }
-        return tr.setNodeMarkup(pos, node.type, attrs, node.marks);
+      if (!node) {
+        return tr;
       }
-      return tr;
+
+      const { indent, ...attrs } = node.attrs;
+
+      let level: number;
+      if (indent == null) {
+        level = 0;
+      } else {
+        const match = PX_VALUE_PATTERN.exec(String(indent));
+        // Unrecognized indent values (non-pixel units like "2em" or "50%") are treated as level 0.
+        level = match ? Number(match[1] ?? 0) : 0;
+      }
+
+      const nextLevel = level + delta * INDENT_STEP_PX;
+      const nextIndent = nextLevel > 0 ? `${nextLevel}px` : null;
+
+      return tr.setNodeMarkup(pos, node.type, { ...attrs, indent: nextIndent }, node.marks);
     };
 
     const updateIndentLevel = (tr: Transaction, delta: number): Transaction => {

@@ -30,10 +30,8 @@ export const Paragraph = TiptapParagraph.extend<ParagraphOptions>({
     return [{ tag: "p" }];
   },
 
-  renderHTML({ node, HTMLAttributes }) {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { MTRichTextEditorHTMLAttributes, textAlign, ...rest } = node.attrs;
-    return ["p", mergeAttributes(this.options.HTMLAttributes, rest, HTMLAttributes), 0];
+  renderHTML({ HTMLAttributes }) {
+    return ["p", mergeAttributes(this.options.HTMLAttributes, HTMLAttributes), 0];
   },
 
   addCommands() {

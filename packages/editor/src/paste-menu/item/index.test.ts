@@ -9,9 +9,6 @@ const ELEMENT_NAME = "mt-paste-menu-item-text";
 
 const normalizeMarkup = (html: string): string => {
   const doc = new DOMParser().parseFromString(html, "text/html");
-  doc.body.querySelectorAll("[data-mt-indent]").forEach((element) => {
-    element.removeAttribute("data-mt-indent");
-  });
   return doc.body.innerHTML;
 };
 

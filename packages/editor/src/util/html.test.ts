@@ -117,8 +117,10 @@ describe("normalizeHTML", () => {
     ).toBe(`<div>alpha<strong>beta</strong></div><p><script data-role="x">alert(1)</script></p>`);
   });
 
-  it("removes transient text alignment and indent attributes", () => {
-    expect(normalizeHTML(`<p textalign="" data-mt-indent="2">alpha</p>`)).toBe("<p>alpha</p>");
+  it("removes transient text alignment attribute but preserves unrelated attributes", () => {
+    expect(normalizeHTML(`<p textalign="" data-mt-indent="2">alpha</p>`)).toBe(
+      `<p data-mt-indent="2">alpha</p>`
+    );
   });
 
   it("restores event attributes and embedded content payloads", () => {

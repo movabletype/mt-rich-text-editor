@@ -44,6 +44,7 @@ export interface ExtensionOptions {
     editor?: Editor;
     additionalGlobalAttributeTypes?: string[];
     tags?: string[];
+    excludedStyleProperties?: Record<string, string[]>;
   };
 }
 

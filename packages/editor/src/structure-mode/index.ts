@@ -1,6 +1,7 @@
 import { mount, unmount } from "svelte";
 import type { Editor } from "../editor";
 import type { EditorEvents } from "@tiptap/core";
+import type { Node as ProseMirrorNode } from "@tiptap/pm/model";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import type { StructureData } from "./StructureModal.svelte";
@@ -33,6 +34,37 @@ const attrsToSelectorSuffix = (attrs: Record<string, string | undefined>): strin
   (["id", "class", "style"] as const)
     .map((name) => (attrs[name] ? `[${name}="${attrs[name]}"]` : ""))
     .join("");
+
+/**
+ * Whether the node type manages the style attribute as its own dedicated node
+ * attribute (see the Global extension's dedicatedAttributeNames) instead of
+ * capturing it verbatim in MTRichTextEditorHTMLAttributes.
+ */
+const hasDedicatedStyleAttribute = (node: ProseMirrorNode): boolean =>
+  Boolean(node.type.spec.attrs && "style" in node.type.spec.attrs);
+
+/**
+ * Composes the effective style string presented for a node: the declarations
+ * backed by dedicated attributes (indent, textAlign and the table extensions'
+ * style attribute) followed by the verbatim MTRichTextEditorHTMLAttributes
+ * style. This is the inverse of the routing performed on modal submit.
+ */
+const buildEffectiveStyle = (node: ProseMirrorNode): string => {
+  const declarations: string[] = [];
+  if (node.attrs.indent) {
+    declarations.push(`padding-left: ${node.attrs.indent}`);
+  }
+  if (node.attrs.textAlign) {
+    declarations.push(`text-align: ${node.attrs.textAlign}`);
+  }
+  const verbatimStyle = hasDedicatedStyleAttribute(node)
+    ? node.attrs.style
+    : node.attrs.MTRichTextEditorHTMLAttributes?.style;
+  if (verbatimStyle) {
+    declarations.push(verbatimStyle);
+  }
+  return declarations.join("; ");
+};
 
 export class StructureMode {
   #editor: Editor;
@@ -71,7 +103,7 @@ export class StructureMode {
           structureData: {
             id: currentAttrs.id ?? "",
             className: currentAttrs.class ?? "",
-            style: currentAttrs.style ?? "",
+            style: buildEffectiveStyle(clickNode),
           },
           onSubmit: (structureData: StructureData) => {
             const node = this.#resolveNodeAtDom(domNode);
@@ -79,24 +111,86 @@ export class StructureMode {
               return;
             }
             const pos = this.#editor.tiptap.view.posAtDOM(domNode, 0) - 1;
+
+            // `indent`/`textAlign` are only present in the node's attrs when the
+            // corresponding extension manages that attribute for this node type
+            // (see Indent/TextAlign extension `types` options).
+            const hasIndentAttr = Object.prototype.hasOwnProperty.call(node.attrs, "indent");
+            const hasTextAlignAttr = Object.prototype.hasOwnProperty.call(node.attrs, "textAlign");
+            const textAlignExtension = this.#editor.tiptap.extensionManager.extensions.find(
+              (extension) => extension.name === "textAlign"
+            );
+            const alignments: string[] = (
+              textAlignExtension?.options as { alignments?: string[] } | undefined
+            )?.alignments ?? ["left", "center", "right", "justify"];
+
+            // padding-left / text-align are routed to the dedicated indent/textAlign
+            // attributes so they stay in sync with those extensions instead of being
+            // duplicated (and going stale) inside MTRichTextEditorHTMLAttributes.style.
+            let indentValue: string | null = null;
+            let textAlignValue: string | null = null;
+            const remainingDeclarations: string[] = [];
+
+            const declarations: string[] = (structureData.style || "")
+              .split(";")
+              .map((declaration: string) => declaration.trim())
+              .filter((declaration: string) => declaration.length > 0);
+
+            for (const declaration of declarations) {
+              const separatorIndex = declaration.indexOf(":");
+              if (separatorIndex === -1) {
+                remainingDeclarations.push(declaration);
+                continue;
+              }
+
+              const property = declaration.slice(0, separatorIndex).trim().toLowerCase();
+              const value = declaration.slice(separatorIndex + 1).trim();
+
+              if (!value) {
+                continue;
+              }
+
+              if (hasIndentAttr && property === "padding-left") {
+                indentValue = value;
+                continue;
+              }
+
+              if (hasTextAlignAttr && property === "text-align" && alignments.includes(value)) {
+                textAlignValue = value;
+                continue;
+              }
+
+              remainingDeclarations.push(declaration);
+            }
+
             const newAttrs = { ...node.attrs.MTRichTextEditorHTMLAttributes };
             const attrNameMap = {
               className: "class",
             } as Record<keyof StructureData, string>;
-            (["id", "className", "style"] as (keyof StructureData)[]).forEach((attr) => {
+            (["id", "className"] as (keyof StructureData)[]).forEach((attr) => {
               newAttrs[attrNameMap[attr] ?? attr] = structureData[attr] || undefined;
             });
+            // Like padding-left / text-align above, the remaining style is routed
+            // to the dedicated style attribute when the node type has one (see the
+            // Global extension's dedicatedAttributeNames), and kept verbatim in
+            // MTRichTextEditorHTMLAttributes otherwise.
+            const remainingStyle =
+              remainingDeclarations.length > 0 ? remainingDeclarations.join("; ") : undefined;
+            newAttrs.style = hasDedicatedStyleAttribute(node) ? undefined : remainingStyle;
+
             let transaction = this.#editor.tiptap.state.tr.setNodeAttribute(
               pos,
               "MTRichTextEditorHTMLAttributes",
               newAttrs
             );
-            if (node.type.spec.attrs && "style" in node.type.spec.attrs) {
-              transaction = transaction.setNodeAttribute(
-                pos,
-                "style",
-                structureData.style || undefined
-              );
+            if (hasDedicatedStyleAttribute(node)) {
+              transaction = transaction.setNodeAttribute(pos, "style", remainingStyle);
+            }
+            if (hasIndentAttr) {
+              transaction = transaction.setNodeAttribute(pos, "indent", indentValue);
+            }
+            if (hasTextAlignAttr) {
+              transaction = transaction.setNodeAttribute(pos, "textAlign", textAlignValue ?? "");
             }
             this.#editor.tiptap.view.dispatch(transaction);
 
@@ -132,8 +226,13 @@ export class StructureMode {
 
   #buildTableWrapperLabel(wrapperDomNode: HTMLElement): string {
     const tableNode = this.#resolveNodeAtDom(wrapperDomNode);
-    const attrs: Record<string, string | undefined> =
-      tableNode?.attrs.MTRichTextEditorHTMLAttributes ?? {};
+    if (!tableNode) {
+      return "table";
+    }
+    const attrs: Record<string, string | undefined> = {
+      ...tableNode.attrs.MTRichTextEditorHTMLAttributes,
+    };
+    attrs.style = buildEffectiveStyle(tableNode) || undefined;
     return `table${attrsToSelectorSuffix(attrs)}`;
   }
 
