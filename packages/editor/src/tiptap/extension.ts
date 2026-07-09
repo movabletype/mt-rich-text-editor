@@ -59,12 +59,14 @@ const defaultLinkOptions = {
   openOnClick: false,
 };
 
-// Properties that a dedicated extension (indent, textAlign) manages on its own attribute
-// must be excluded from the Global extension's verbatim style capture, otherwise the two
-// copies drift out of sync (see Indent/TextAlign extensions).
+// Properties that a dedicated extension (indent, textAlign, color, backgroundColor)
+// manages on its own attribute must be excluded from the Global extension's verbatim
+// style capture, otherwise the two copies drift out of sync.
 const computeDefaultExcludedStyleProperties = (options: {
   indent?: { types?: string[] } | false;
   textAlign?: { types?: string[] } | false;
+  color?: { types?: string[] } | false;
+  backgroundColor?: { types?: string[] } | false;
 }): Record<string, string[]> => {
   const excludedStyleProperties: Record<string, string[]> = {};
   const excludeStyleProperty = (types: string[], property: string) => {
@@ -79,6 +81,14 @@ const computeDefaultExcludedStyleProperties = (options: {
 
   if (options.textAlign !== false) {
     excludeStyleProperty(options.textAlign?.types ?? ["heading", "paragraph"], "text-align");
+  }
+
+  if (options.color !== false) {
+    excludeStyleProperty(options.color?.types ?? ["textStyle"], "color");
+  }
+
+  if (options.backgroundColor !== false) {
+    excludeStyleProperty(options.backgroundColor?.types ?? ["textStyle"], "background-color");
   }
 
   return excludedStyleProperties;
