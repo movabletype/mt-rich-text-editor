@@ -1,4 +1,5 @@
 import { Extension } from "@tiptap/core";
+import type { Attribute } from "@tiptap/core";
 
 export interface GlobalOptions {
   additionalGlobalAttributeTypes: string[];
@@ -64,6 +65,44 @@ const eventAttrNames = new Set([
   "action",
 ]);
 
+/**
+ * Builds the value stored in the MTRichTextEditorHTMLAttributes global attribute from a plain HTML attribute record.
+ */
+export const buildMTRichTextEditorHTMLAttributes = (
+  attributes: Record<string, string>
+): Record<string, string> => {
+  const attrs: Record<string, string> = {};
+  const eventAttrs: Record<string, string> = {};
+  for (const [name, value] of Object.entries(attributes)) {
+    if (/^data-mt-rich-text-editor-/i.test(name)) {
+      continue;
+    }
+    if (eventAttrNames.has(name.toLowerCase())) {
+      eventAttrs[name] = value;
+    } else {
+      attrs[name] = value;
+    }
+  }
+
+  if (Object.keys(eventAttrs).length > 0) {
+    attrs["data-mt-rich-text-editor-event-attributes"] = JSON.stringify(eventAttrs);
+  }
+  return attrs;
+};
+
+const createGlobalAttribute = (excludeAttributeNames: readonly string[] = []): Attribute => ({
+  default: {},
+  parseHTML: (element: HTMLElement) =>
+    buildMTRichTextEditorHTMLAttributes(
+      Object.fromEntries(
+        Array.from(element.attributes, (attr) => [attr.name, attr.value]).filter(
+          ([name]) => !excludeAttributeNames.includes(name)
+        )
+      )
+    ),
+  renderHTML: (attributes) => attributes.MTRichTextEditorHTMLAttributes,
+});
+
 export const Global = Extension.create<GlobalOptions>({
   name: "mt-rich-text-editor-global",
 
@@ -96,10 +135,7 @@ export const Global = Extension.create<GlobalOptions>({
           "textStyle",
           "script",
           "svg",
-          "table",
           "tableRow",
-          "tableCell",
-          "tableHeader",
           "link",
           "blockLink",
           "descriptionList",
@@ -107,29 +143,19 @@ export const Global = Extension.create<GlobalOptions>({
           "descriptionDetails",
         ].concat(this.options.additionalGlobalAttributeTypes),
         attributes: {
-          MTRichTextEditorHTMLAttributes: {
-            default: {},
-            parseHTML: (element: HTMLElement) => {
-              const attrs: Record<string, string> = {};
-              const eventAttrs: Record<string, string> = {};
-              for (const attr of element.attributes) {
-                if (/^data-mt-rich-text-editor-/.test(attr.name)) {
-                  continue;
-                }
-                if (eventAttrNames.has(attr.name.toLowerCase())) {
-                  eventAttrs[attr.name] = attr.value;
-                } else {
-                  attrs[attr.name] = attr.value;
-                }
-              }
-
-              if (Object.keys(eventAttrs).length > 0) {
-                attrs["data-mt-rich-text-editor-event-attributes"] = JSON.stringify(eventAttrs);
-              }
-              return attrs;
-            },
-            renderHTML: (attributes) => attributes.MTRichTextEditorHTMLAttributes,
-          },
+          MTRichTextEditorHTMLAttributes: createGlobalAttribute(),
+        },
+      },
+      {
+        types: ["table", "tableCell"],
+        attributes: {
+          MTRichTextEditorHTMLAttributes: createGlobalAttribute(["style"]),
+        },
+      },
+      {
+        types: ["tableHeader"],
+        attributes: {
+          MTRichTextEditorHTMLAttributes: createGlobalAttribute(["style", "scope"]),
         },
       },
     ];
