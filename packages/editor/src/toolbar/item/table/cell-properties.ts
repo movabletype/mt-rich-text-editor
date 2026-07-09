@@ -32,8 +32,8 @@ const getCurrentCellData = (tiptap: TiptapEditor): CellData => {
     scope: cellNode?.attrs.scope || "",
     horizontalAlign: el.style.textAlign || "",
     verticalAlign: el.style.verticalAlign || "",
-    borderColor: cssColorToHex(el.style.borderColor) || "",
-    backgroundColor: cssColorToHex(el.style.backgroundColor) || "",
+    borderColor: cssColorToHex(el.style.borderColor) ?? el.style.borderColor,
+    backgroundColor: cssColorToHex(el.style.backgroundColor) ?? el.style.backgroundColor,
   };
 };
 

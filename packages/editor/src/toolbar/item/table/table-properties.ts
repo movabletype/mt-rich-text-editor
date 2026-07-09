@@ -36,8 +36,8 @@ const getCurrentTableData = (tiptap: TiptapEditor): TableData => {
     cellPadding: el.style.padding || "",
     borderStyle: el.style.borderStyle || "",
     borderWidth: el.style.borderWidth || "",
-    borderColor: cssColorToHex(el.style.borderColor) || "",
-    backgroundColor: cssColorToHex(el.style.backgroundColor) || "",
+    borderColor: cssColorToHex(el.style.borderColor) ?? el.style.borderColor,
+    backgroundColor: cssColorToHex(el.style.backgroundColor) ?? el.style.backgroundColor,
   };
   // <table border="1" style="border-collapse: collapse; width: 100.097%; height: 200px; border-width: 1px; border-spacing: 1px; margin-left: 0px; margin-right: auto;">
 };
