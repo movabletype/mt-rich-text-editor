@@ -127,10 +127,6 @@ export const normalizeHTML = (html: string): string => {
     element.removeAttribute("textalign");
   });
 
-  doc.body.querySelectorAll(`[data-mt-indent]`).forEach((element) => {
-    element.removeAttribute("data-mt-indent");
-  });
-
   doc.body
     .querySelectorAll<HTMLElement>(`[data-mt-rich-text-editor-event-attributes]`)
     .forEach((element) => {
