@@ -7,6 +7,7 @@ import type { Editor, Events } from "../../editor";
 export interface MovableTypeOptions {
   editor: Editor;
   additionalGlobalAttributeTypes?: string[];
+  excludedStyleProperties?: Record<string, string[]>;
   tags: string[];
 }
 
@@ -25,6 +26,7 @@ export const MovableType = Extension.create<MovableTypeOptions>({
     return [
       Global.configure({
         additionalGlobalAttributeTypes: this.options.additionalGlobalAttributeTypes || [],
+        excludedStyleProperties: this.options.excludedStyleProperties || {},
       }),
       MTTag.configure({
         tags: this.options.tags,

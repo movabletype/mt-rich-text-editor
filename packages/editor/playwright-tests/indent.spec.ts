@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 import type {} from "../src/mt-rich-text-editor";
-import { clickToolbarItem } from "./util";
+import { clickToolbarItem, open, save } from "./util";
 
 test.describe("indent extension", () => {
   test("apply indent", async ({ page }) => {
@@ -167,5 +167,16 @@ test.describe("indent extension", () => {
 <li>List item 1</li>
 </ul>
 <p>Paragraph</p>`);
+  });
+
+  test("outdent a previously saved padding-left back to no indent", async ({ page }) => {
+    await open(page, {
+      content: `<p style="padding-left: 80px">Indented row</p>`,
+    });
+
+    await page.locator('[data-mt-rich-text-editor-id="editor"]').getByText("Indented row").click();
+    await clickToolbarItem(page, "outdent");
+
+    await expect.poll(() => save(page)).toBe("<p>Indented row</p>");
   });
 });

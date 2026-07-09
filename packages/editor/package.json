@@ -12,6 +12,7 @@
     "lint:fix": "eslint --fix",
     "format": "prettier --check --cache \"src/**/*.ts\" \"playwright-tests/**/*.ts\"",
     "format:fix": "prettier --write --cache --cache-strategy metadata \"src/**/*.ts\" \"playwright-tests/**/*.ts\"",
+    "typecheck": "tsc --noEmit",
     "test:unit": "vitest",
     "test:playwright": "playwright test",
     "test:all": "npm run test:unit && npm run test:playwright"

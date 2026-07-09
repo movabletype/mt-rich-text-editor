@@ -6,13 +6,21 @@
 
 <script module lang="ts">
   import { extendToolbarItem } from "../svelte";
+  import type { TableToolbarOptions } from "./table-properties";
+
+  export interface Options extends TableToolbarOptions {
+    /**
+     * HTML attributes applied to a newly inserted table. Replaces the built-in default
+     * @example
+     * { border: "1", style: "border-collapse: collapse; width: 100%;" }
+     */
+    readonly initialAttributes?: Record<string, string>;
+  }
 </script>
 
 <script lang="ts">
   import { SvelteSet } from "svelte/reactivity";
   import { selectedRect } from "@tiptap/pm/tables";
-  import { createTable } from "@tiptap/extension-table";
-  import { TextSelection } from "@tiptap/pm/state";
   import type { Transaction } from "@tiptap/pm/state";
   import type { Node } from "@tiptap/pm/model";
   import type { Editor as TiptapEditor } from "@tiptap/core";
@@ -22,11 +30,11 @@
   import TableInsertPanel from "./TableInsertPanel.svelte";
   import type { ToolbarItemElement } from "../element";
   import { handleTableProperties } from "./table-properties";
-  import type { TableToolbarOptions } from "./table-properties";
   import { handleCellProperties } from "./cell-properties";
   import { handleRowProperties } from "./row-properties";
+  import { insertTable } from "./insert-table";
 
-  const element = $host<ToolbarItemElement<TableToolbarOptions>>();
+  const element = $host<ToolbarItemElement<Options>>();
   const { tiptap, options } = element;
 
   element.addEventListener("click", toggleTableInsertPanel);
@@ -73,21 +81,7 @@
       return;
     }
 
-    const table = createTable(tiptap.schema, rows, cols, false);
-    (table.attrs as {style: string}).style = "width: 100%;";
-
-    tiptap
-      .chain()
-      .command(({ tr }) => {
-        const offset = tr.selection.from + 1;
-
-        tr.replaceSelectionWith(table)
-          .scrollIntoView()
-          .setSelection(TextSelection.near(tr.doc.resolve(offset)));
-
-        return true;
-      })
-      .run();
+    insertTable(tiptap, rows, cols, options.initialAttributes);
 
     isOpen = false;
   }

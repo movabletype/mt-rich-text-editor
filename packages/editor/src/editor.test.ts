@@ -5,6 +5,7 @@ import type { EditorOptions } from "../src/editor";
 import type { EditorHarness } from "./test/helpers/editor";
 import {
   createEditorHarness,
+  flushMicrotasks,
   normalizeComparableHTML,
   setTextSelectionByText,
 } from "./test/helpers/editor";
@@ -35,6 +36,7 @@ const htmlRoundTripCases = [
   `<table style="width: 100%"><tbody><tr><td><div>b</div></td></tr></tbody></table>`,
   `<table style="border-style: dashed; border-color: red; width: 100%"><tbody><tr><td style="border-style: dashed; border-color: red">b</td></tr></tbody></table>`,
   `<table style="padding: 4px; background-color: blue; width: 100%"><tbody><tr><td style="padding: 4px; background-color: blue">b</td></tr></tbody></table>`,
+  `<table border="1" style="border-collapse: collapse; width: 100%"><tbody><tr><td>b</td></tr></tbody></table>`,
   `<div data-mt-rich-text-editor-embed-object=""><iframe width=" 200" height="113" src="https://www.youtube.com/embed/XUAnkKpHaCI?feature=oembed" frameborder="0" allowfullscreen="allowfullscreen"></iframe></div>`,
   `<div data-mt-rich-text-editor-embed-object=""><div>test</div></div>`,
   `<div data-mt-rich-text-editor-embed-object=""><script async src="https://example.com/embed.js"></script></div>`,
@@ -48,6 +50,12 @@ const htmlRoundTripCases = [
   `<section><div><span data-note="x">nested</span></div></section>`,
   `<div></div>`,
   "<p><button type='button'>Click</button></p>",
+  "<div>\n    <p>test</p>\n</div>",
+  "<blockquote>\n    <p>test</p>\n</blockquote>",
+  "<p style='padding-left: 80px'>test</p>",
+  "<p style='padding-left: 2em'>test</p>",
+  "<p style='text-align: center'>test</p>",
+  "<h2 style='text-align: center'>test</h2>",
 ] as const;
 
 const htmlConversionCases = [
@@ -212,6 +220,173 @@ describe("HTML round-trip", () => {
 
       expect(normalizeComparableHTML(editor.getContent())).toBe(normalizeComparableHTML(input));
     }
+  });
+
+  describe("indent/outdent commands", () => {
+    it("increases padding-left by 80px per indent call", () => {
+      editor.setContent("<p>t</p>");
+      setTextSelectionByText(editor, "t");
+
+      editor.tiptap.chain().focus().indent().run();
+      expect(normalizeComparableHTML(editor.getContent())).toBe(
+        normalizeComparableHTML("<p style='padding-left: 80px'>t</p>")
+      );
+
+      editor.tiptap.chain().focus().indent().run();
+      expect(normalizeComparableHTML(editor.getContent())).toBe(
+        normalizeComparableHTML("<p style='padding-left: 160px'>t</p>")
+      );
+    });
+
+    it("outdents a previously saved padding-left back to no indent (regression)", () => {
+      editor.setContent("<p style='padding-left: 80px'>t</p>");
+      setTextSelectionByText(editor, "t");
+
+      editor.tiptap.chain().focus().outdent().run();
+
+      expect(normalizeComparableHTML(editor.getContent())).toBe(
+        normalizeComparableHTML("<p>t</p>")
+      );
+    });
+
+    it("keeps outdent working after a round-trip through the HTML source modal", () => {
+      editor.setContent("<p style='padding-left: 80px'>t</p>");
+      editor.setContent(editor.getContent());
+      setTextSelectionByText(editor, "t");
+
+      editor.tiptap.chain().focus().outdent().run();
+
+      expect(normalizeComparableHTML(editor.getContent())).toBe(
+        normalizeComparableHTML("<p>t</p>")
+      );
+    });
+
+    it("treats non-pixel padding-left units as level 0 when indenting", () => {
+      editor.setContent("<p style='padding-left: 2em'>t</p>");
+      setTextSelectionByText(editor, "t");
+
+      editor.tiptap.chain().focus().indent().run();
+      expect(normalizeComparableHTML(editor.getContent())).toBe(
+        normalizeComparableHTML("<p style='padding-left: 80px'>t</p>")
+      );
+    });
+
+    it("treats non-pixel padding-left units as level 0 when outdenting", () => {
+      editor.setContent("<p style='padding-left: 2em'>t</p>");
+      setTextSelectionByText(editor, "t");
+
+      editor.tiptap.chain().focus().outdent().run();
+      expect(normalizeComparableHTML(editor.getContent())).toBe(
+        normalizeComparableHTML("<p>t</p>")
+      );
+    });
+
+    it("treats unitless zero padding-left as level 0 when indenting", () => {
+      editor.setContent("<p style='padding-left: 0'>t</p>");
+      setTextSelectionByText(editor, "t");
+
+      editor.tiptap.chain().focus().indent().run();
+      expect(normalizeComparableHTML(editor.getContent())).toBe(
+        normalizeComparableHTML("<p style='padding-left: 80px'>t</p>")
+      );
+    });
+
+    it("treats unitless zero padding-left as level 0 when outdenting", () => {
+      editor.setContent("<p style='padding-left: 0'>t</p>");
+      setTextSelectionByText(editor, "t");
+
+      editor.tiptap.chain().focus().outdent().run();
+      expect(normalizeComparableHTML(editor.getContent())).toBe(
+        normalizeComparableHTML("<p>t</p>")
+      );
+    });
+
+    it("outdents a non-multiple-of-80 padding-left by 80px", () => {
+      editor.setContent("<p style='padding-left: 120px'>t</p>");
+      setTextSelectionByText(editor, "t");
+
+      editor.tiptap.chain().focus().outdent().run();
+
+      expect(normalizeComparableHTML(editor.getContent())).toBe(
+        normalizeComparableHTML("<p style='padding-left: 40px'>t</p>")
+      );
+    });
+
+    it("does not leave a stale text-align after changing alignment", () => {
+      editor.setContent("<p style='text-align: center'>t</p>");
+      setTextSelectionByText(editor, "t");
+
+      editor.tiptap.chain().focus().setTextAlign("right").run();
+
+      const html = editor.getContent();
+      expect(html).not.toContain("text-align: center");
+      expect(normalizeComparableHTML(html)).toBe(
+        normalizeComparableHTML("<p style='text-align: right'>t</p>")
+      );
+    });
+  });
+});
+
+describe("dedicated attributes of table types", () => {
+  let editor: Editor;
+  let harness: EditorHarness;
+
+  beforeEach(() => {
+    harness = createEditorHarness();
+    ({ editor } = harness);
+  });
+
+  afterEach(() => {
+    harness.cleanup();
+  });
+
+  it("keeps dedicated attributes out of MTRichTextEditorHTMLAttributes for table, tableCell and tableHeader", () => {
+    editor.setContent(
+      `<table border="1" style="border-collapse: collapse; width: 100%"><tbody><tr><th scope="col" style="width: 30%">h</th><td class="cell" style="text-align: center">b</td></tr></tbody></table>`
+    );
+
+    const table = editor.tiptap.getJSON().content?.find((node) => node.type === "table");
+    expect(table?.attrs?.style).toBe("border-collapse: collapse; width: 100%");
+    expect(table?.attrs?.MTRichTextEditorHTMLAttributes).toEqual({ border: "1" });
+
+    const firstRow = table?.content?.[0];
+    const [header, cell] = (firstRow && "content" in firstRow ? firstRow.content : undefined) ?? [];
+    expect(header?.attrs?.style).toBe("width: 30%");
+    expect(header?.attrs?.scope).toBe("col");
+    expect(header?.attrs?.MTRichTextEditorHTMLAttributes).toEqual({});
+    expect(cell?.attrs?.style).toBe("text-align: center");
+    expect(cell?.attrs?.MTRichTextEditorHTMLAttributes).toEqual({ class: "cell" });
+  });
+
+  it("does not resurrect old style declarations when the dedicated style attribute is edited", () => {
+    editor.setContent(
+      `<table style="border-collapse: collapse; width: 100%"><tbody><tr><td>b</td></tr></tbody></table>`
+    );
+
+    // Mimic the table-properties panel: replace the dedicated style attribute.
+    let tablePos = -1;
+    editor.tiptap.state.doc.descendants((node, pos) => {
+      if (node.type.name === "table") {
+        tablePos = pos;
+      }
+    });
+    editor.tiptap
+      .chain()
+      .command(({ tr }) => {
+        const node = tr.doc.nodeAt(tablePos);
+        if (!node) {
+          return false;
+        }
+        tr.setNodeMarkup(tablePos, null, { ...node.attrs, style: "width: 50%;" });
+        return true;
+      })
+      .run();
+
+    expect(normalizeComparableHTML(editor.getContent())).toBe(
+      normalizeComparableHTML(
+        `<table style="width: 50%;"><tbody><tr><td>b</td></tr></tbody></table>`
+      )
+    );
   });
 });
 
@@ -517,5 +692,145 @@ describe("Editor lifecycle and public methods", () => {
     editor.tiptap.chain().focus().toggleBold().run();
 
     expect(editor.getContent()).toBe("<p>alpha <strong>beta</strong></p>");
+  });
+});
+
+describe("Structure mode", () => {
+  let editor: Editor;
+  let harness: EditorHarness;
+
+  const initEditor = (options: Partial<EditorOptions> = {}) => {
+    harness?.cleanup();
+    harness = createEditorHarness(options);
+    ({ editor } = harness);
+  };
+
+  const getStructureModeStyleText = (): string => {
+    const root = editor.tiptap.view.dom.getRootNode() as Document | ShadowRoot;
+    const styles = root.querySelectorAll("style");
+    return styles[styles.length - 1]?.textContent ?? "";
+  };
+
+  const setModalValue = (id: string, value: string) => {
+    const input = document.querySelector<HTMLInputElement>(`#${id}`);
+    expect(input).not.toBeNull();
+    input!.value = value;
+    input!.dispatchEvent(new Event("input"));
+    input!.dispatchEvent(new Event("change"));
+  };
+
+  const submitModal = async () => {
+    document.querySelector<HTMLButtonElement>(".modal button.primary")?.click();
+    await flushMicrotasks();
+  };
+
+  const clickStructureTarget = async (domNode: HTMLElement) => {
+    domNode.dispatchEvent(new MouseEvent("click", { bubbles: true, cancelable: true }));
+    await flushMicrotasks();
+  };
+
+  beforeEach(() => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    initEditor();
+  });
+
+  afterEach(() => {
+    harness.cleanup();
+    vi.restoreAllMocks();
+  });
+
+  it("targets the tableWrapper NodeView wrapper (not the inner table element), labeling it with the table node's own attributes and keeping its outline visible", () => {
+    editor.setContent(
+      "<table id='t1' class='fancy' style='color: red'><tbody><tr><td>b</td></tr></tbody></table>"
+    );
+
+    editor.setStructureMode(true);
+
+    const styleText = getStructureModeStyleText();
+    // The rule's selector still targets the wrapper div's own DOM attributes.
+    expect(styleText).toMatch(/div\[class="tableWrapper"\]\s*\{/);
+    // The inner <table> element itself is not a structure-mode target.
+    expect(styleText).not.toMatch(/^table \{/m);
+    // ...but its outline label describes the table node it wraps.
+    expect(styleText).toContain('content: "table[id=\\"t1\\"]');
+    expect(styleText).toContain('[class=\\"fancy\\"]');
+    expect(styleText).toContain('[style=\\"color: red\\"]"');
+    // content.css's .tableWrapper sets `overflow-x: auto`, which clips the
+    // label positioned above the wrapper's top edge unless structure mode
+    // restores `overflow: visible` for the duration.
+    expect(styleText).toContain("overflow: visible;");
+  });
+
+  it("opens the modal for the tableWrapper NodeView wrapper, prefilled from the table node's attributes, and does nothing for the inner table element", async () => {
+    editor.setContent(
+      "<table id='t1' class='fancy' style='color: red'><tbody><tr><td>b</td></tr></tbody></table>"
+    );
+    editor.setStructureMode(true);
+
+    const tableEl = editor.tiptap.view.dom.querySelector<HTMLElement>("table");
+    await clickStructureTarget(tableEl!);
+    expect(document.querySelector(".modal")).toBeNull();
+
+    const wrapperDiv = editor.tiptap.view.dom.querySelector<HTMLElement>("div.tableWrapper");
+    expect(wrapperDiv).not.toBeNull();
+    await clickStructureTarget(wrapperDiv!);
+
+    expect(document.querySelector(".modal")).not.toBeNull();
+    // The wrapper NodeView doesn't mirror id/class onto its DOM (see
+    // isTableWrapperNodeView), so this also verifies the modal is prefilled
+    // from the table document node's attrs, not the clicked wrapper DOM's.
+    expect(document.querySelector<HTMLInputElement>("#structure-id")!.value).toBe("t1");
+    expect(document.querySelector<HTMLInputElement>("#structure-class-name")!.value).toBe("fancy");
+    expect(document.querySelector<HTMLInputElement>("#structure-style")!.value).toBe("color: red");
+  });
+
+  it("updates table attributes, including the dedicated style attribute, through the structure modal", async () => {
+    editor.setContent("<table style='top: 0'><tbody><tr><td>b</td></tr></tbody></table>");
+    editor.setStructureMode(true);
+
+    const wrapperDiv = editor.tiptap.view.dom.querySelector<HTMLElement>("div.tableWrapper");
+    await clickStructureTarget(wrapperDiv!);
+
+    setModalValue("structure-id", "my-table");
+    setModalValue("structure-class-name", "fancy");
+    setModalValue("structure-style", "color: red");
+    await submitModal();
+
+    expect(normalizeComparableHTML(editor.getContent())).toBe(
+      normalizeComparableHTML(
+        "<table id='my-table' class='fancy' style='color: red'><tbody><tr><td>b</td></tr></tbody></table>"
+      )
+    );
+  });
+
+  it("clears the dedicated style attribute (not just MTRichTextEditorHTMLAttributes) when the modal style field is emptied", async () => {
+    editor.setContent("<table style='top: 0'><tbody><tr><td>b</td></tr></tbody></table>");
+    editor.setStructureMode(true);
+
+    const wrapperDiv = editor.tiptap.view.dom.querySelector<HTMLElement>("div.tableWrapper");
+    await clickStructureTarget(wrapperDiv!);
+
+    setModalValue("structure-style", "");
+    await submitModal();
+
+    expect(normalizeComparableHTML(editor.getContent())).toBe(
+      normalizeComparableHTML("<table><tbody><tr><td>b</td></tr></tbody></table>")
+    );
+  });
+
+  it("still allows editing a plain div through the structure modal", async () => {
+    editor.setContent("<div>text</div>");
+    editor.setStructureMode(true);
+
+    const divEl = editor.tiptap.view.dom.querySelector<HTMLElement>("div");
+    await clickStructureTarget(divEl!);
+
+    setModalValue("structure-id", "my-div");
+    setModalValue("structure-class-name", "highlighted");
+    await submitModal();
+
+    expect(normalizeComparableHTML(editor.getContent())).toBe(
+      normalizeComparableHTML("<div id='my-div' class='highlighted'>text</div>")
+    );
   });
 });

@@ -44,6 +44,7 @@ export interface ExtensionOptions {
     editor?: Editor;
     additionalGlobalAttributeTypes?: string[];
     tags?: string[];
+    excludedStyleProperties?: Record<string, string[]>;
   };
 }
 
@@ -505,6 +506,7 @@ export class Editor {
     this.#statusbar.destroy();
     this.#pasteMenu.destroy();
     this.#structureMode?.destroy();
+    this.#structureMode = undefined;
     this.#quickAction.destroy();
     this.tiptap.destroy();
     this.#containerEl.remove();

@@ -59,6 +59,31 @@ const defaultLinkOptions = {
   openOnClick: false,
 };
 
+// Properties that a dedicated extension (indent, textAlign) manages on its own attribute
+// must be excluded from the Global extension's verbatim style capture, otherwise the two
+// copies drift out of sync (see Indent/TextAlign extensions).
+const computeDefaultExcludedStyleProperties = (options: {
+  indent?: { types?: string[] } | false;
+  textAlign?: { types?: string[] } | false;
+}): Record<string, string[]> => {
+  const excludedStyleProperties: Record<string, string[]> = {};
+  const excludeStyleProperty = (types: string[], property: string) => {
+    for (const type of types) {
+      (excludedStyleProperties[type] ??= []).push(property);
+    }
+  };
+
+  if (options.indent !== false) {
+    excludeStyleProperty(options.indent?.types ?? ["paragraph"], "padding-left");
+  }
+
+  if (options.textAlign !== false) {
+    excludeStyleProperty(options.textAlign?.types ?? ["heading", "paragraph"], "text-align");
+  }
+
+  return excludedStyleProperties;
+};
+
 export const Extension = TiptapExtension.create({
   name: "mt-rich-text-editor",
 
@@ -66,7 +91,19 @@ export const Extension = TiptapExtension.create({
     const extensions = [];
 
     if (this.options.movableType !== false) {
-      extensions.push(MovableType.configure(this.options?.movableType));
+      // A caller passing `extensionOptions.movableType.excludedStyleProperties` explicitly
+      // takes full responsibility for it - the default computation is skipped, so it must
+      // also account for whatever indent/textAlign would otherwise have contributed.
+      const excludedStyleProperties: Record<string, string[]> =
+        this.options?.movableType?.excludedStyleProperties ??
+        computeDefaultExcludedStyleProperties(this.options);
+
+      extensions.push(
+        MovableType.configure({
+          ...this.options?.movableType,
+          excludedStyleProperties,
+        })
+      );
     }
 
     if (this.options.undoRedo !== false) {
