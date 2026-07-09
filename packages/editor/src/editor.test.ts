@@ -347,7 +347,8 @@ describe("dedicated attributes of table types", () => {
     expect(table?.attrs?.style).toBe("border-collapse: collapse; width: 100%");
     expect(table?.attrs?.MTRichTextEditorHTMLAttributes).toEqual({ border: "1" });
 
-    const [header, cell] = table?.content?.[0]?.content ?? [];
+    const firstRow = table?.content?.[0];
+    const [header, cell] = (firstRow && "content" in firstRow ? firstRow.content : undefined) ?? [];
     expect(header?.attrs?.style).toBe("width: 30%");
     expect(header?.attrs?.scope).toBe("col");
     expect(header?.attrs?.MTRichTextEditorHTMLAttributes).toEqual({});
@@ -703,7 +704,8 @@ describe("Structure mode", () => {
   };
 
   const getStructureModeStyleText = (): string => {
-    const styles = editor.tiptap.view.dom.getRootNode().querySelectorAll("style");
+    const root = editor.tiptap.view.dom.getRootNode() as Document | ShadowRoot;
+    const styles = root.querySelectorAll("style");
     return styles[styles.length - 1]?.textContent ?? "";
   };
 
