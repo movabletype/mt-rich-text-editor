@@ -88,6 +88,9 @@ jobs:
       - name: Build editor
         run: npm run build:editor
 
+      - name: Run type check
+        run: npm run typecheck -ws
+
       - name: Run lint
         run: npm run lint -ws
 
