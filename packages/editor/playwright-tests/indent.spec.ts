@@ -174,10 +174,7 @@ test.describe("indent extension", () => {
       content: `<p style="padding-left: 80px">Indented row</p>`,
     });
 
-    await page
-      .locator('[data-mt-rich-text-editor-id="editor"]')
-      .getByText("Indented row")
-      .click();
+    await page.locator('[data-mt-rich-text-editor-id="editor"]').getByText("Indented row").click();
     await clickToolbarItem(page, "outdent");
 
     await expect.poll(() => save(page)).toBe("<p>Indented row</p>");

@@ -45,6 +45,8 @@ test.describe("source and structure editing", () => {
     await page.locator("#structure-style").fill("color:red");
     await page.locator(".modal button.primary").click();
 
-    await expect.poll(() => save(page)).toBe(`<div id="hero" class="lead" style="color: red;">alpha</div>`);
+    await expect
+      .poll(() => save(page))
+      .toBe(`<div id="hero" class="lead" style="color: red;">alpha</div>`);
   });
 });

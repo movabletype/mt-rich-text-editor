@@ -6,8 +6,9 @@
 
 <script module lang="ts">
   import { extendToolbarItem } from "../svelte";
+  import type { TableToolbarOptions } from "./table-properties";
 
-  export interface Options {
+  export interface Options extends TableToolbarOptions {
     /**
      * HTML attributes applied to a newly inserted table. Replaces the built-in default
      * @example
@@ -34,7 +35,7 @@
   import { insertTable } from "./insert-table";
 
   const element = $host<ToolbarItemElement<Options>>();
-  const { tiptap } = element;
+  const { tiptap, options } = element;
 
   element.addEventListener("click", toggleTableInsertPanel);
 
@@ -80,7 +81,7 @@
       return;
     }
 
-    insertTable(tiptap, rows, cols, element.options.initialAttributes);
+    insertTable(tiptap, rows, cols, options.initialAttributes);
 
     isOpen = false;
   }
@@ -220,7 +221,7 @@
               class="button-menu-item"
               disabled={!isTableActive}
               onclick={() => {
-                handleCellProperties(tiptap!);
+                handleCellProperties(tiptap!, options);
               }}>{t("Cell properties")}</button
             >
           </div>
@@ -324,7 +325,7 @@
           class="button-menu-item"
           disabled={!isTableActive}
           onclick={() => {
-            handleTableProperties(tiptap!);
+            handleTableProperties(tiptap!, options);
           }}
         >
           {t("Table properties")}

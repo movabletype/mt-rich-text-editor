@@ -1,11 +1,16 @@
 import { mount, unmount } from "svelte";
 import type { Editor as TiptapEditor } from "@tiptap/core";
 import { selectedRect } from "@tiptap/pm/tables";
-import { cssSize } from "../../../util/html";
+import { cssColorToHex, cssSize } from "../../../util/html";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import type { TableData } from "./TablePropertiesPanel.svelte";
 import TablePropertiesPanel from "./TablePropertiesPanel.svelte";
+
+export interface TableToolbarOptions {
+  readonly borderPresetColors?: string[];
+  readonly backgroundPresetColors?: string[];
+}
 
 const getCurrentTableData = (tiptap: TiptapEditor): TableData => {
   const { state } = tiptap;
@@ -28,7 +33,11 @@ const getCurrentTableData = (tiptap: TiptapEditor): TableData => {
     width: el.style.width || "100%",
     height: el.style.height || "",
     cellSpacing: el.style.borderSpacing || "",
+    cellPadding: el.style.padding || "",
+    borderStyle: el.style.borderStyle || "",
     borderWidth: el.style.borderWidth || "",
+    borderColor: cssColorToHex(el.style.borderColor) ?? el.style.borderColor,
+    backgroundColor: cssColorToHex(el.style.backgroundColor) ?? el.style.backgroundColor,
   };
   // <table border="1" style="border-collapse: collapse; width: 100.097%; height: 200px; border-width: 1px; border-spacing: 1px; margin-left: 0px; margin-right: auto;">
 };
@@ -48,11 +57,13 @@ const getTableNodePos = (tiptap: TiptapEditor): number | null => {
 };
 
 let tablePropertiesModal: ReturnType<typeof mount> | undefined;
-export const handleTableProperties = (tiptap: TiptapEditor) => {
+export const handleTableProperties = (tiptap: TiptapEditor, options?: TableToolbarOptions) => {
   tablePropertiesModal = mount(TablePropertiesPanel, {
     target: document.body,
     props: {
       tableData: getCurrentTableData(tiptap),
+      borderPresetColors: options?.borderPresetColors,
+      backgroundPresetColors: options?.backgroundPresetColors,
       onSubmit: (tableData: TableData) => {
         const tablePos = getTableNodePos(tiptap);
         if (tablePos !== null) {
@@ -68,7 +79,11 @@ export const handleTableProperties = (tiptap: TiptapEditor) => {
                 el.style.width = cssSize(tableData.width);
                 el.style.height = cssSize(tableData.height);
                 el.style.borderSpacing = tableData.cellSpacing;
+                el.style.padding = cssSize(tableData.cellPadding);
+                el.style.borderStyle = tableData.borderStyle;
                 el.style.borderWidth = cssSize(tableData.borderWidth);
+                el.style.borderColor = tableData.borderColor;
+                el.style.backgroundColor = tableData.backgroundColor;
 
                 tr.setNodeMarkup(tablePos, null, {
                   ...node.attrs,
@@ -82,7 +97,10 @@ export const handleTableProperties = (tiptap: TiptapEditor) => {
                     if (cell) {
                       const el = document.createElement("div");
                       el.style.cssText = cell.attrs.style || "";
+                      el.style.padding = cssSize(tableData.cellPadding);
+                      el.style.borderStyle = tableData.borderStyle;
                       el.style.borderWidth = cssSize(tableData.borderWidth);
+                      el.style.borderColor = tableData.borderColor;
 
                       tr.setNodeMarkup(rect.tableStart + i, null, {
                         ...cell.attrs,

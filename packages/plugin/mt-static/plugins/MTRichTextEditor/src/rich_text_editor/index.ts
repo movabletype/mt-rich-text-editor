@@ -162,6 +162,10 @@ if (customSettings?.colors) {
   toolbarOptions.backgroundColor = {
     presetColors: customSettings.colors,
   };
+  toolbarOptions.table = {
+    borderPresetColors: customSettings.colors,
+    backgroundPresetColors: customSettings.colors,
+  };
 }
 
 if (customSettings?.link) {
