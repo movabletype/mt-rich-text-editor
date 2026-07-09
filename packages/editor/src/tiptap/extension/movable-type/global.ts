@@ -1,4 +1,5 @@
 import { Extension } from "@tiptap/core";
+import type { Attribute } from "@tiptap/core";
 
 export interface GlobalOptions {
   additionalGlobalAttributeTypes: string[];
@@ -68,7 +69,32 @@ const eventAttrNames = new Set([
   "action",
 ]);
 
-const removeStyleProperties = (style: string, properties: string[]): string => {
+/**
+ * Builds the value stored in the MTRichTextEditorHTMLAttributes global attribute from a plain HTML attribute record.
+ */
+export const buildMTRichTextEditorHTMLAttributes = (
+  attributes: Record<string, string>
+): Record<string, string> => {
+  const attrs: Record<string, string> = {};
+  const eventAttrs: Record<string, string> = {};
+  for (const [name, value] of Object.entries(attributes)) {
+    if (/^data-mt-rich-text-editor-/i.test(name)) {
+      continue;
+    }
+    if (eventAttrNames.has(name.toLowerCase())) {
+      eventAttrs[name] = value;
+    } else {
+      attrs[name] = value;
+    }
+  }
+
+  if (Object.keys(eventAttrs).length > 0) {
+    attrs["data-mt-rich-text-editor-event-attributes"] = JSON.stringify(eventAttrs);
+  }
+  return attrs;
+};
+
+const removeStyleProperties = (style: string, properties: readonly string[]): string => {
   const excluded = new Set(properties.map((property) => property.toLowerCase()));
 
   return style
@@ -81,37 +107,40 @@ const removeStyleProperties = (style: string, properties: string[]): string => {
     .join("; ");
 };
 
-const parseHTMLAttributes = (
-  element: HTMLElement,
-  excludedStyleProperties: string[] = []
-): Record<string, string> => {
-  const attrs: Record<string, string> = {};
-  const eventAttrs: Record<string, string> = {};
-
-  for (const attr of element.attributes) {
-    if (/^data-mt-rich-text-editor-/.test(attr.name)) {
-      continue;
-    }
-    if (eventAttrNames.has(attr.name.toLowerCase())) {
-      eventAttrs[attr.name] = attr.value;
-      continue;
-    }
-    if (excludedStyleProperties.length > 0 && attr.name.toLowerCase() === "style") {
-      const style = removeStyleProperties(attr.value, excludedStyleProperties);
-      if (style) {
-        attrs[attr.name] = style;
-      }
-      continue;
-    }
-    attrs[attr.name] = attr.value;
-  }
-
-  if (Object.keys(eventAttrs).length > 0) {
-    attrs["data-mt-rich-text-editor-event-attributes"] = JSON.stringify(eventAttrs);
-  }
-
-  return attrs;
+// Attribute names that a dedicated node attribute already manages (see
+// tiptap/extension/table.ts, table-cell.ts and table-header.ts), keyed by node
+// type. They must stay out of the verbatim MTRichTextEditorHTMLAttributes
+// capture, otherwise the two copies drift out of sync.
+const dedicatedAttributeNames: Record<string, string[]> = {
+  table: ["style"],
+  tableCell: ["style"],
+  tableHeader: ["style", "scope"],
 };
+
+const createGlobalAttribute = (
+  excludeAttributeNames: readonly string[] = [],
+  excludedStyleProperties: readonly string[] = []
+): Attribute => ({
+  default: {},
+  parseHTML: (element: HTMLElement) => {
+    const attributes: Record<string, string> = {};
+    for (const attr of element.attributes) {
+      if (excludeAttributeNames.includes(attr.name)) {
+        continue;
+      }
+      if (excludedStyleProperties.length > 0 && attr.name.toLowerCase() === "style") {
+        const style = removeStyleProperties(attr.value, excludedStyleProperties);
+        if (style) {
+          attributes[attr.name] = style;
+        }
+        continue;
+      }
+      attributes[attr.name] = attr.value;
+    }
+    return buildMTRichTextEditorHTMLAttributes(attributes);
+  },
+  renderHTML: (attributes) => attributes.MTRichTextEditorHTMLAttributes,
+});
 
 export const Global = Extension.create<GlobalOptions>({
   name: "mt-rich-text-editor-global",
@@ -155,36 +184,38 @@ export const Global = Extension.create<GlobalOptions>({
       "descriptionDetails",
     ].concat(this.options.additionalGlobalAttributeTypes);
 
-    // Group types by their (sorted) set of excluded style properties so that types
-    // sharing the same exclusion set can reuse a single global attribute definition,
-    // while types with no exclusions keep the original verbatim behavior.
-    const groups = new Map<string, string[]>();
+    // Group types by their set of excluded attribute names and (sorted) excluded
+    // style properties so that types sharing the same exclusions can reuse a single
+    // global attribute definition, while types with no exclusions keep the original
+    // verbatim behavior.
+    const groups = new Map<
+      string,
+      { types: string[]; excludeAttributeNames: string[]; excludedStyleProperties: string[] }
+    >();
     for (const type of types) {
+      const excludeAttributeNames = dedicatedAttributeNames[type] ?? [];
       const excludedStyleProperties = [
         ...(this.options.excludedStyleProperties[type] ?? []),
       ].sort();
-      const key = excludedStyleProperties.join(",");
+      const key = JSON.stringify([excludeAttributeNames, excludedStyleProperties]);
       const group = groups.get(key);
       if (group) {
-        group.push(type);
+        group.types.push(type);
       } else {
-        groups.set(key, [type]);
+        groups.set(key, { types: [type], excludeAttributeNames, excludedStyleProperties });
       }
     }
 
-    return [...groups.entries()].map(([key, groupTypes]) => {
-      const excludedStyleProperties = key ? key.split(",") : [];
-      return {
+    return [...groups.values()].map(
+      ({ types: groupTypes, excludeAttributeNames, excludedStyleProperties }) => ({
         types: groupTypes,
         attributes: {
-          MTRichTextEditorHTMLAttributes: {
-            default: {},
-            parseHTML: (element: HTMLElement) =>
-              parseHTMLAttributes(element, excludedStyleProperties),
-            renderHTML: (attributes) => attributes.MTRichTextEditorHTMLAttributes,
-          },
+          MTRichTextEditorHTMLAttributes: createGlobalAttribute(
+            excludeAttributeNames,
+            excludedStyleProperties
+          ),
         },
-      };
-    });
+      })
+    );
   },
 });
