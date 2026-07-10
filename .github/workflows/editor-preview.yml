@@ -7,7 +7,7 @@ on:
       - "!docs"
       - "!pages-content"
   pull_request_target:
-    types: [opened, reopened]
+    types: [opened, reopened, synchronize]
   delete:
   schedule:
     - cron: "17 18 * * *"
@@ -34,9 +34,7 @@ jobs:
     permissions:
       contents: write
       id-token: write
-      issues: write
       pages: write
-      pull-requests: read
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -177,46 +175,7 @@ jobs:
           PREVIEW_PATH: ${{ steps.content.outputs.preview_path }}
         run: echo "[Open editor preview](${PAGE_URL}${PREVIEW_PATH})" >> "$GITHUB_STEP_SUMMARY"
 
-      - name: Find pull request
-        id: pull-request
-        if: ${{ github.event_name == 'push' }}
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          number="$(gh pr list \
-            --repo "$GITHUB_REPOSITORY" \
-            --head "$GITHUB_REF_NAME" \
-            --state open \
-            --json number \
-            --jq '.[0].number // empty')"
-          echo "number=$number" >> "$GITHUB_OUTPUT"
-          echo "short_sha=${GITHUB_SHA::8}" >> "$GITHUB_OUTPUT"
-
-      - name: Find preview comment
-        id: find-comment
-        if: ${{ steps.pull-request.outputs.number != '' }}
-        uses: peter-evans/find-comment@b30e6a3c0ed37e7c023ccd3f1db5c6c0b0c23aad # v4.0.0
-        with:
-          issue-number: ${{ steps.pull-request.outputs.number }}
-          comment-author: github-actions[bot]
-          body-includes: "<!-- mt-rich-text-editor-preview -->"
-
-      - name: Create or update pull request preview comment
-        if: ${{ steps.pull-request.outputs.number != '' }}
-        uses: peter-evans/create-or-update-comment@e8674b075228eee787fea43ef493e45ece1004c9 # v5.0.0
-        with:
-          issue-number: ${{ steps.pull-request.outputs.number }}
-          comment-id: ${{ steps.find-comment.outputs.comment-id }}
-          edit-mode: replace
-          body: |
-            <!-- mt-rich-text-editor-preview -->
-            ### Editor preview
-
-            [Open preview](${{ steps.deployment.outputs.page_url }}${{ steps.content.outputs.preview_path }})
-
-            Latest commit: [`${{ steps.pull-request.outputs.short_sha }}`](${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }})
-
-  comment-on-open:
+  comment-on-pull-request:
     if: >-
       ${{
         github.event.repository.name != 'mt-rich-text-editor' &&
