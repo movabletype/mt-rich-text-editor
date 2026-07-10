@@ -5,7 +5,7 @@ import svelte from "eslint-plugin-svelte";
 
 export default [
   { files: ["**/*.{js,mjs,cjs,ts}"] },
-  { ignores: ["dist/**"] },
+  { ignores: ["dist/**", "preview-dist/**"] },
   { languageOptions: { globals: globals.browser } },
   pluginJs.configs.recommended,
   ...tseslint.configs.recommended,
@@ -14,11 +14,11 @@ export default [
     files: ["**/*.svelte"],
     languageOptions: {
       parserOptions: {
-        parser: tseslint.parser
-      }
+        parser: tseslint.parser,
+      },
     },
     rules: {
       "svelte/no-at-html-tags": "off",
-    }
+    },
   },
 ];
