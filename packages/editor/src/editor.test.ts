@@ -40,6 +40,7 @@ const htmlRoundTripCases = [
   `<table style="border-style: dashed; border-color: red; width: 100%"><tbody><tr><td style="border-style: dashed; border-color: red">b</td></tr></tbody></table>`,
   `<table style="padding: 4px; background-color: blue; width: 100%"><tbody><tr><td style="padding: 4px; background-color: blue">b</td></tr></tbody></table>`,
   `<table border="1" style="border-collapse: collapse; width: 100%"><tbody><tr><td>b</td></tr></tbody></table>`,
+  `<table><tbody><tr><th scope="col">h</th><td scope="row">b</td></tr></tbody></table>`,
   `<div data-mt-rich-text-editor-embed-object=""><iframe width=" 200" height="113" src="https://www.youtube.com/embed/XUAnkKpHaCI?feature=oembed" frameborder="0" allowfullscreen="allowfullscreen"></iframe></div>`,
   `<div data-mt-rich-text-editor-embed-object=""><div>test</div></div>`,
   `<div data-mt-rich-text-editor-embed-object=""><script async src="https://example.com/embed.js"></script></div>`,
@@ -360,7 +361,7 @@ describe("dedicated attributes of table types", () => {
 
   it("keeps dedicated attributes out of MTRichTextEditorHTMLAttributes for table, tableCell and tableHeader", () => {
     editor.setContent(
-      `<table border="1" style="border-collapse: collapse; width: 100%"><tbody><tr><th scope="col" style="width: 30%">h</th><td class="cell" style="text-align: center">b</td></tr></tbody></table>`
+      `<table border="1" style="border-collapse: collapse; width: 100%"><tbody><tr><th scope="col" style="width: 30%">h</th><td class="cell" scope="row" style="text-align: center">b</td></tr></tbody></table>`
     );
 
     const table = editor.tiptap.getJSON().content?.find((node) => node.type === "table");
@@ -373,6 +374,7 @@ describe("dedicated attributes of table types", () => {
     expect(header?.attrs?.scope).toBe("col");
     expect(header?.attrs?.MTRichTextEditorHTMLAttributes).toEqual({});
     expect(cell?.attrs?.style).toBe("text-align: center");
+    expect(cell?.attrs?.scope).toBe("row");
     expect(cell?.attrs?.MTRichTextEditorHTMLAttributes).toEqual({ class: "cell" });
   });
 
