@@ -6,6 +6,8 @@
   import type { ToolbarItemElement } from "../toolbar/item/element";
   import { getPanelItem } from "../ui/item/registry";
 
+  const TOOLBAR_ARROW_EDGE_MARGIN = 12;
+
   const {
     editor,
     condition,
@@ -39,6 +41,7 @@
   let isOpen = $state(false);
   let top = $state(0);
   let left = $state(0);
+  let arrowOffset = $state(0);
   let toolbarElement: HTMLElement;
   let showInBottom = $state(false);
 
@@ -132,8 +135,6 @@
 
       const toolbarWidth = toolbarElement?.offsetWidth || 0;
       const toolbarHeight = toolbarElement?.offsetHeight || 0;
-      const targetWidth = targetDom.offsetWidth;
-
       const topPosition = targetRect.top - viewRect.top - toolbarHeight - 10;
       const bottomPosition = targetRect.bottom - viewRect.top + 10;
 
@@ -141,14 +142,25 @@
 
       top = showInBottom ? bottomPosition : topPosition;
 
-      const tmpLeft = targetRect.left - viewRect.left + targetWidth / 2 - toolbarWidth / 2;
-      if (tmpLeft + viewRect.left < WINDOW_EDGE_MARGIN) {
-        left = WINDOW_EDGE_MARGIN - viewRect.left;
-      } else if (tmpLeft + viewRect.left + targetWidth > window.innerWidth - WINDOW_EDGE_MARGIN) {
-        left = window.innerWidth - WINDOW_EDGE_MARGIN - viewRect.left - targetWidth;
-      } else {
-        left = tmpLeft;
-      }
+      const centeredLeft =
+        targetRect.left - viewRect.left + targetRect.width / 2 - toolbarWidth / 2;
+      const minimumLeft = Math.max(0, WINDOW_EDGE_MARGIN - viewRect.left);
+      const maximumRight = Math.min(
+        viewRect.width,
+        window.innerWidth - WINDOW_EDGE_MARGIN - viewRect.left
+      );
+      const maximumLeft = maximumRight - toolbarWidth;
+
+      left =
+        maximumLeft < minimumLeft
+          ? minimumLeft
+          : Math.min(Math.max(centeredLeft, minimumLeft), maximumLeft);
+
+      const maximumArrowOffset = Math.max(0, toolbarWidth / 2 - TOOLBAR_ARROW_EDGE_MARGIN);
+      arrowOffset = Math.min(
+        Math.max(centeredLeft - left, -maximumArrowOffset),
+        maximumArrowOffset
+      );
     })();
   };
   const updatePosition = () => {
@@ -192,6 +204,7 @@
     background-color: #fff;
     top: ${top}px; 
     left: ${left}px;
+    --arrow-offset: ${arrowOffset}px;
   `}
 >
   {#each buttons as group, groupIndex (groupIndex)}
@@ -218,7 +231,7 @@
   .toolbar::before {
     content: "";
     position: absolute;
-    left: 50%;
+    left: calc(50% + var(--arrow-offset));
     transform: translateX(-50%);
     width: 0;
     height: 0;

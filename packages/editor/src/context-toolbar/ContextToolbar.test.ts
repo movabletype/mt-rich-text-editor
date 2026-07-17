@@ -38,6 +38,30 @@ describe("ContextToolbar", () => {
     },
   };
 
+  const createRect = ({
+    top,
+    left,
+    width,
+    height,
+  }: {
+    top: number;
+    left: number;
+    width: number;
+    height: number;
+  }): DOMRect => ({
+    top,
+    left,
+    right: left + width,
+    bottom: top + height,
+    width,
+    height,
+    x: left,
+    y: top,
+    toJSON() {
+      return this;
+    },
+  });
+
   beforeEach(() => {
     vi.spyOn(Element.prototype, "getBoundingClientRect").mockReturnValue(rect);
   });
@@ -57,6 +81,29 @@ describe("ContextToolbar", () => {
     const from = editor.tiptap.state.doc.textContent.indexOf("Link") + 2;
     setTextSelection(editor, from, empty ? from : from + 2);
     await flushMicrotasks();
+  };
+
+  const setupPosition = (targetLeft: number) => {
+    const viewDom = editor.tiptap.view.dom;
+    const targetDom = viewDom.querySelector("a");
+    const toolbar = getContextToolbar();
+    if (!targetDom || !toolbar) {
+      throw new Error("Context toolbar test elements not found");
+    }
+
+    const viewRect = createRect({ top: 100, left: 100, width: 500, height: 300 });
+    const targetRect = createRect({ top: 200, left: targetLeft, width: 40, height: 20 });
+    vi.mocked(Element.prototype.getBoundingClientRect).mockImplementation(function (this: Element) {
+      if (this === viewDom) {
+        return viewRect;
+      }
+      if (this === targetDom) {
+        return targetRect;
+      }
+      return rect;
+    });
+    Object.defineProperty(toolbar, "offsetWidth", { configurable: true, value: 200 });
+    Object.defineProperty(toolbar, "offsetHeight", { configurable: true, value: 40 });
   };
 
   it("shows the toolbar for a non-empty selection in non-inline mode", async () => {
@@ -86,4 +133,20 @@ describe("ContextToolbar", () => {
 
     expect(getContextToolbar()?.style.display).toBe("none");
   });
+
+  it.each([
+    ["left", 100, "0px", "-80px"],
+    ["right", 560, "300px", "80px"],
+  ])(
+    "keeps the toolbar inside the editor and points its arrow at the target at the %s edge",
+    async (_edge, targetLeft, expectedLeft, expectedArrowOffset) => {
+      await setupLink();
+      setupPosition(targetLeft);
+      await selectWithinLink(true);
+
+      const toolbar = getContextToolbar();
+      expect(toolbar?.style.left).toBe(expectedLeft);
+      expect(toolbar?.style.getPropertyValue("--arrow-offset")).toBe(expectedArrowOffset);
+    }
+  );
 });
