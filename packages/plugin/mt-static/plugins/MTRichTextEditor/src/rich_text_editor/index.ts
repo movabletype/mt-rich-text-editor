@@ -6,11 +6,52 @@ import { Editor } from "@movabletype/mt-rich-text-editor";
 import { currentLanguage } from "../l10n";
 import { convertToolbar } from "../util/tinymce";
 import { getCustomSettings } from "../util/settings";
+import { toUploadResults } from "./upload_session";
 import editorCss from "../../css/rich-text-editor.css?inline";
 
 import { openDialog } from "../util/dialog";
 
 const MTRichTextEditorManager = window.MTRichTextEditor;
+
+const getAssetUploader = (): MTAssetUploader | undefined =>
+  (
+    window.MT as typeof window.MT & {
+      AssetUploader?: MTAssetUploader;
+    }
+  )?.AssetUploader;
+
+const openLegacyImageUploader = (field: string, files: File[]): boolean => {
+  const blogId = document.querySelector<HTMLInputElement>("[name=blog_id]")?.value || "0";
+  const params = new URLSearchParams();
+  params.set("__mode", "dialog_asset_modal");
+  params.set("_type", "asset");
+  params.set("edit_field", field);
+  params.set("blog_id", blogId);
+  params.set("dialog_view", "1");
+  params.set("can_multi", "1");
+  params.set("filter", "class");
+  params.set("filter_val", "image");
+  openDialog(params);
+
+  const dialogIframe = document.querySelector<HTMLIFrameElement>("#mt-dialog-iframe");
+  if (!dialogIframe) {
+    return false;
+  }
+
+  const intervalId = setInterval(() => {
+    const win = dialogIframe.contentWindow;
+    if (!win?.uploadFiles || win.document.readyState === "loading" || !win.jQuery) {
+      return;
+    }
+
+    clearInterval(intervalId);
+    win.uploadFiles(files);
+    const uploadForm = win.document.querySelector<HTMLFormElement>("#upload");
+    uploadForm?.style.setProperty("display", "none", "important");
+  }, 100);
+
+  return true;
+};
 
 const inlineToolbar: EditorCreateOptions["toolbar"] = [
   [
@@ -68,8 +109,8 @@ const toolbarOptions: Record<string, unknown> = {
       openDialog(params);
     },
     edit: ({ editor, element }: { editor: Editor; element: HTMLElement }) => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      if ((window.MT as any).AssetUploader) {
+      const assetUploader = getAssetUploader();
+      if (assetUploader) {
         // new uploader
 
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -110,8 +151,7 @@ const toolbarOptions: Record<string, unknown> = {
           }
         }
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (window.MT as any).AssetUploader.open({
+        assetUploader.open({
           selectMetaData: true,
           multiSelect: true,
           params: {},
@@ -282,12 +322,11 @@ class MTRichTextEditor extends MTEditor {
           return;
         }
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        if ((window.MT as any).AssetUploader) {
+        const assetUploader = getAssetUploader();
+        if (assetUploader) {
           // new uploader
 
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          (window.MT as any).AssetUploader.open({
+          assetUploader.open({
             selectMetaData: true,
             multiSelect: true,
             params: {},
@@ -297,53 +336,55 @@ class MTRichTextEditor extends MTEditor {
           });
         } else {
           // legacy uploader
-
-          const blogId = document.querySelector<HTMLInputElement>("[name=blog_id]")?.value || "0";
-          const params = new URLSearchParams();
-          params.set("__mode", "dialog_asset_modal");
-          params.set("_type", "asset");
-          params.set("edit_field", this.id);
-          params.set("blog_id", blogId);
-          params.set("dialog_view", "1");
-          params.set("can_multi", "1");
-          params.set("filter", "class");
-          params.set("filter_val", "image");
-          openDialog(params);
-
-          const dialogIframe = document.querySelector<HTMLIFrameElement>("#mt-dialog-iframe");
-          if (!dialogIframe) {
-            return;
-          }
-          const intervalId = setInterval(() => {
-            if (!(
-              dialogIframe.contentWindow &&
-              // new dialog page has been loaded
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              (dialogIframe.contentWindow as any).uploadFiles &&
-              // content has been loaded
-              dialogIframe.contentWindow.document.readyState !== "loading" &&
-              // jQuery(initFunc) has been finished
-              dialogIframe.contentWindow.jQuery
-            )) {
-              return;
-            }
-
-            clearInterval(intervalId);
-            const win = dialogIframe.contentWindow;
-            const uploadForm = win.document.querySelector<HTMLFormElement>("#upload");
-            win.uploadFiles(files);
-            uploadForm?.style.setProperty("display", "none", "important");
-          }, 100);
+          openLegacyImageUploader(this.id, files);
         }
       };
       options.extensionOptions ||= {};
-      options.extensionOptions.fileHandler = Object.assign(
-        options.extensionOptions.fileHandler || {},
-        {
-          onDrop: fileHandler,
-          onPaste: fileHandler,
-        }
-      );
+      const fileHandlerOptions = Object.assign(options.extensionOptions.fileHandler || {}, {
+        onDrop: fileHandler,
+        onPaste: (
+          tiptap: Editor["tiptap"],
+          files: File[],
+          _pasteContent?: string,
+          sessionId?: string
+        ) => {
+          if (sessionId === undefined) {
+            // Raw clipboard files not related to "upload-session"
+            fileHandler(tiptap, files);
+            return;
+          }
+
+          const assetUploader = getAssetUploader();
+          const canUpload = document.querySelector<HTMLScriptElement>(
+            "[data-mt-rich-text-editor-can-upload]"
+          )?.dataset.mtRichTextEditorCanUpload;
+          if (!canUpload) {
+            tiptap.commands.cancelUploadSession(sessionId);
+            return;
+          }
+
+          if (!assetUploader) {
+            tiptap.commands.cancelUploadSession(sessionId);
+            return;
+          }
+
+          assetUploader.open({
+            selectMetaData: false,
+            multiSelect: true,
+            params: {},
+            initialSelectedData: [],
+            field: this.id,
+            files,
+            insert: (data) => {
+              tiptap.commands.applyUploadSessionResults(sessionId, toUploadResults(data, files));
+            },
+            close: () => {
+              tiptap.commands.cancelUploadSession(sessionId);
+            },
+          });
+        },
+      });
+      options.extensionOptions.fileHandler = fileHandlerOptions;
     }
     if (MTEditor.defaultCommonOptions.body_class_list) {
       options.classNames = MTEditor.defaultCommonOptions.body_class_list;

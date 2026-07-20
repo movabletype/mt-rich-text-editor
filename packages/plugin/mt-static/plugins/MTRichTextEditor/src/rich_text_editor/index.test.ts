@@ -28,18 +28,51 @@ type MTRichTextEditorInstance = {
   initEditor: (format: string, content?: string, height?: number) => Promise<void>;
 };
 
-describe("MTRichTextEditor content_css_list handling", () => {
+type TiptapEditorMock = {
+  on: ReturnType<typeof vi.fn>;
+  commands: {
+    applyUploadSessionResults: ReturnType<typeof vi.fn>;
+    cancelUploadSession: ReturnType<typeof vi.fn>;
+  };
+};
+
+type FileHandlerOptions = {
+  onDrop?: (...args: unknown[]) => void;
+  onPaste?: (
+    editor: TiptapEditorMock,
+    files: File[],
+    pasteContent?: string,
+    sessionId?: string
+  ) => void;
+};
+
+describe("MTRichTextEditor", () => {
   let createMock: ReturnType<typeof vi.fn>;
+  let applyUploadSessionResultsMock: ReturnType<typeof vi.fn>;
+  let cancelUploadSessionMock: ReturnType<typeof vi.fn>;
+  let tiptapMock: TiptapEditorMock;
 
   beforeEach(async () => {
     vi.resetModules();
     registerMock.mockClear();
     MockMTEditor.defaultCommonOptions = {};
     (window as unknown as { Lexicon: Record<string, string> }).Lexicon = {};
+    window.MT = {} as typeof window.MT;
+    document.body.innerHTML = "";
+
+    applyUploadSessionResultsMock = vi.fn();
+    cancelUploadSessionMock = vi.fn();
+    tiptapMock = {
+      on: vi.fn(),
+      commands: {
+        applyUploadSessionResults: applyUploadSessionResultsMock,
+        cancelUploadSession: cancelUploadSessionMock,
+      },
+    };
 
     createMock = vi.fn(async (options: Record<string, unknown>) => ({
       ...options,
-      tiptap: { on: vi.fn() },
+      tiptap: tiptapMock,
     }));
 
     window.MTRichTextEditor = {
@@ -103,5 +136,91 @@ describe("MTRichTextEditor content_css_list handling", () => {
     await createInstance("test-editor").initEditor("wysiwyg");
 
     expect(createMock.mock.calls[0][0]).not.toHaveProperty("stylesheets");
+  });
+
+  it("cancels a pasted upload session when AssetUploader is unavailable", async () => {
+    await createInstance("test-editor").initEditor("wysiwyg");
+
+    const options = createMock.mock.calls[0][0] as {
+      extensionOptions: { fileHandler: FileHandlerOptions };
+    };
+    expect(options.extensionOptions.fileHandler.onDrop).toEqual(expect.any(Function));
+
+    const files = [new File(["image"], "pasted-image-1.png", { type: "image/png" })];
+    options.extensionOptions.fileHandler.onPaste?.(tiptapMock, files, undefined, "session-1");
+
+    expect(cancelUploadSessionMock).toHaveBeenCalledWith("session-1");
+    expect(applyUploadSessionResultsMock).not.toHaveBeenCalled();
+  });
+
+  it("routes clipboard files without a session through the drop flow", async () => {
+    const openMock = vi.fn();
+    window.MT = {
+      AssetUploader: { open: openMock },
+    } as unknown as typeof window.MT;
+    const canUpload = document.createElement("script");
+    canUpload.dataset.mtRichTextEditorCanUpload = "1";
+    document.body.appendChild(canUpload);
+
+    await createInstance("test-editor").initEditor("wysiwyg");
+
+    const options = createMock.mock.calls[0][0] as {
+      extensionOptions: { fileHandler: FileHandlerOptions };
+    };
+    const files = [new File(["image"], "screenshot.png", { type: "image/png" })];
+    options.extensionOptions.fileHandler.onPaste?.(tiptapMock, files, undefined, undefined);
+
+    expect(openMock).toHaveBeenCalledWith(expect.objectContaining({ selectMetaData: true, files }));
+    expect(applyUploadSessionResultsMock).not.toHaveBeenCalled();
+    expect(cancelUploadSessionMock).not.toHaveBeenCalled();
+  });
+
+  it("applies results and cancels upload session images through AssetUploader", async () => {
+    const openMock = vi.fn();
+    window.MT = {
+      AssetUploader: { open: openMock },
+    } as unknown as typeof window.MT;
+    const canUpload = document.createElement("script");
+    canUpload.dataset.mtRichTextEditorCanUpload = "1";
+    document.body.appendChild(canUpload);
+
+    await createInstance("test-editor").initEditor("wysiwyg");
+
+    const options = createMock.mock.calls[0][0] as {
+      extensionOptions: { fileHandler: FileHandlerOptions };
+    };
+    const files = [new File(["image"], "pasted-image-1.png", { type: "image/png" })];
+    options.extensionOptions.fileHandler.onPaste?.(tiptapMock, files, undefined, "session-1");
+
+    expect(openMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        selectMetaData: false,
+        multiSelect: true,
+        params: {},
+        initialSelectedData: [],
+        field: "test-editor",
+        files,
+        insert: expect.any(Function),
+        close: expect.any(Function),
+      })
+    );
+
+    const uploaderOptions = openMock.mock.calls[0][0] as MTAssetUploaderOpenOptions;
+    uploaderOptions.insert?.([
+      {
+        assetId: "101",
+        assetUrl: "/assets/image.png",
+        html: '<img data-mt-asset-id="101" src="/assets/image.png"/>',
+      },
+    ]);
+    expect(applyUploadSessionResultsMock).toHaveBeenCalledWith("session-1", [
+      {
+        index: 0,
+        attributes: { src: "/assets/image.png", "data-mt-asset-id": "101" },
+      },
+    ]);
+
+    uploaderOptions.close?.();
+    expect(cancelUploadSessionMock).toHaveBeenCalledWith("session-1");
   });
 });
