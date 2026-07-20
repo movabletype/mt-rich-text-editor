@@ -84,6 +84,7 @@
   import HtmlModal from "./HtmlModal.svelte";
   import type { PasteMenuItemElement } from "./element";
   import { INTERNAL_PASTE_CONTENT_TYPE } from ".";
+  import { PRESERVED_DATA_ATTRIBUTE_KEYS } from "./data-attribute";
 
   const element = $host<PasteMenuItemElement>();
   element.addEventListener("click", toggleDetailPanel);
@@ -102,7 +103,9 @@
       if (htmlDocument && !options.keepDataAttributes) {
         htmlDocument.body.querySelectorAll<HTMLElement>("*").forEach((e) => {
           for (const key in e.dataset) {
-            delete e.dataset[key];
+            if (!PRESERVED_DATA_ATTRIBUTE_KEYS.has(key)) {
+              delete e.dataset[key];
+            }
           }
         });
       }

@@ -115,6 +115,50 @@ describe("Html", () => {
   });
 
   describe("apply", () => {
+    it("preserves MT asset IDs while stripping other data attributes on auto-apply", () => {
+      element.content = createPasteContent(
+        "image",
+        new DOMParser().parseFromString(
+          '<p><img src="/asset.png" data-mt-asset-id="123" data-other="x"></p>',
+          "text/html"
+        )
+      );
+
+      element.onEditorPaste();
+
+      const doc = new DOMParser().parseFromString(editor.getContent(), "text/html");
+      const image = doc.body.querySelector('img[src="/asset.png"]');
+      expect(image?.getAttribute("data-mt-asset-id")).toBe("123");
+      expect(image?.hasAttribute("data-other")).toBe(false);
+    });
+
+    it("preserves data-mt-asset-id without showing it in the data attribute checklist", async () => {
+      const handler = vi.fn();
+      element.options.handler = handler;
+      element.content = createPasteContent(
+        "image",
+        new DOMParser().parseFromString(
+          '<p data-mt-indent="2"><img src="/asset.png" data-mt-asset-id="123" data-source="clipboard"></p>',
+          "text/html"
+        )
+      );
+
+      element.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+      await flushMicrotasks();
+
+      expect(document.querySelector('input[name="mtAssetId"]')).toBeNull();
+      expect(document.querySelector('input[name="mtIndent"]')).not.toBeNull();
+      expect(document.querySelector('input[name="source"]')).not.toBeNull();
+
+      document.querySelector<HTMLElement>(".modal button.primary")?.click();
+
+      const handledDocument = handler.mock.calls[0]?.[0] as Document | undefined;
+      const image = handledDocument?.body.querySelector("img");
+      expect(image?.getAttribute("data-mt-asset-id")).toBe("123");
+      expect(handledDocument?.body.querySelector("p")?.hasAttribute("data-mt-indent")).toBe(false);
+      expect(image?.hasAttribute("data-source")).toBe(false);
+    });
+
     it("clicking the item applies plain-text HTML immediately without opening the modal", async () => {
       editor.setContent("<p>ab</p>");
       setTextSelection(editor, findTextPosition(editor, "ab", 1));
