@@ -40,6 +40,19 @@ export interface ExtensionOptions {
   span?: {
     elements?: string[];
   };
+  fileHandler?:
+    | false
+    | {
+        onPaste?: (
+          editor: TiptapEditor,
+          files: File[],
+          pasteContent?: string,
+          sessionId?: string
+        ) => void;
+        onDrop?: (editor: TiptapEditor, files: File[], pos: number) => void;
+        allowedMimeTypes?: string[];
+      };
+  uploadSession?: false | Record<string, never>;
   movableType?: {
     editor?: Editor;
     additionalGlobalAttributeTypes?: string[];

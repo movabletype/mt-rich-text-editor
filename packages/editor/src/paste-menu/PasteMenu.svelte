@@ -6,6 +6,7 @@
   import clipboardIcon from "../ui/icon/clipboard.svg?raw";
   import normalizeExternalHTML from "quill/modules/normalizeExternalHTML";
   import { INTERNAL_PASTE_CONTENT_TYPE } from "./item";
+  import { uploadSessionMetaKey } from "../tiptap/extension/upload-session";
 
   function getText(clipboardData: DataTransfer): string | undefined {
     const text = clipboardData.getData("text/plain") || clipboardData.getData("Text");
@@ -57,8 +58,8 @@
   });
 
   // svelte-ignore state_referenced_locally (editor is stable for this component's whole mounted lifetime; one PasteMenu per Editor instance)
-  editor.tiptap.on("update", () => {
-    if (!isInTransaction) {
+  editor.tiptap.on("update", ({ transaction }) => {
+    if (!isInTransaction && !transaction.getMeta(uploadSessionMetaKey)) {
       isOpen = false;
     }
   });

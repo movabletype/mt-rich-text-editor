@@ -1,3 +1,8 @@
+import {
+  UPLOAD_SESSION_ID_ATTRIBUTE,
+  UPLOAD_SESSION_INDEX_ATTRIBUTE,
+} from "../tiptap/extension/upload-session/util";
+
 const isEditable = (element: HTMLElement): boolean =>
   !element.closest("div[data-mt-rich-text-editor-embed-object]");
 
@@ -112,6 +117,17 @@ export const normalizeHTML = (html: string): string => {
 
   const parser = new DOMParser();
   const doc = parser.parseFromString(html, "text/html");
+
+  doc.body
+    .querySelectorAll(`img[${UPLOAD_SESSION_ID_ATTRIBUTE}], img[${UPLOAD_SESSION_INDEX_ATTRIBUTE}]`)
+    .forEach((image) => image.remove());
+
+  doc.body
+    .querySelectorAll(`[${UPLOAD_SESSION_ID_ATTRIBUTE}], [${UPLOAD_SESSION_INDEX_ATTRIBUTE}]`)
+    .forEach((element) => {
+      element.removeAttribute(UPLOAD_SESSION_ID_ATTRIBUTE);
+      element.removeAttribute(UPLOAD_SESSION_INDEX_ATTRIBUTE);
+    });
 
   doc.body.querySelectorAll("mt-text-block").forEach((textBlock) => {
     const parent = textBlock.parentNode;
