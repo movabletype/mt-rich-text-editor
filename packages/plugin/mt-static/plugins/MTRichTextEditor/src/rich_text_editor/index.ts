@@ -6,7 +6,11 @@ import { Editor } from "@movabletype/mt-rich-text-editor";
 import { currentLanguage } from "../l10n";
 import { convertToolbar } from "../util/tinymce";
 import { getCustomSettings } from "../util/settings";
-import { toUploadResults } from "./upload_session";
+import {
+  type LegacyUploadReference,
+  toLegacyUploadResultsFromHTML,
+  toUploadResults,
+} from "./upload_session";
 import editorCss from "../../css/rich-text-editor.css?inline";
 
 import { openDialog } from "../util/dialog";
@@ -20,7 +24,53 @@ const getAssetUploader = (): MTAssetUploader | undefined =>
     }
   )?.AssetUploader;
 
-const openLegacyImageUploader = (field: string, files: File[]): boolean => {
+interface LegacyUploaderOptions {
+  directInsert?: boolean;
+  onClose?: () => void;
+  onInsert?: (html: string, references: LegacyUploadReference[]) => void;
+}
+
+const interceptInsertHTML = (
+  references: LegacyUploadReference[],
+  onInsert: (html: string, references: LegacyUploadReference[]) => void
+) => {
+  const app = window.app;
+  if (!app || typeof app.insertHTML !== "function") {
+    return undefined;
+  }
+
+  const originalInsertHTML = app.insertHTML;
+  const restore = () => {
+    if (app.insertHTML === interceptedInsertHTML) {
+      app.insertHTML = originalInsertHTML;
+    }
+  };
+
+  const interceptedInsertHTML: typeof originalInsertHTML = (...args) => {
+    const [html] = args;
+    try {
+      return onInsert(html, references);
+    } finally {
+      restore();
+    }
+  };
+  app.insertHTML = interceptedInsertHTML;
+  return restore;
+};
+
+const openLegacyImageUploader = (
+  field: string,
+  files: File[],
+  options: LegacyUploaderOptions = {}
+): boolean => {
+  const references: LegacyUploadReference[] = [];
+  const restoreInsertHTML = options.onInsert
+    ? interceptInsertHTML(references, options.onInsert)
+    : undefined;
+  if (options.onInsert && !restoreInsertHTML) {
+    return false;
+  }
+
   const blogId = document.querySelector<HTMLInputElement>("[name=blog_id]")?.value || "0";
   const params = new URLSearchParams();
   params.set("__mode", "dialog_asset_modal");
@@ -31,24 +81,78 @@ const openLegacyImageUploader = (field: string, files: File[]): boolean => {
   params.set("can_multi", "1");
   params.set("filter", "class");
   params.set("filter_val", "image");
-  openDialog(params);
+  if (options.directInsert) {
+    params.set("asset_select", "1");
+  }
+  try {
+    openDialog(params);
+  } catch (error) {
+    restoreInsertHTML?.();
+    throw error;
+  }
 
   const dialogIframe = document.querySelector<HTMLIFrameElement>("#mt-dialog-iframe");
   if (!dialogIframe) {
+    restoreInsertHTML?.();
     return false;
   }
 
+  let closed = false;
+  let uploadObserver: MutationObserver | undefined;
   const intervalId = setInterval(() => {
     const win = dialogIframe.contentWindow;
-    if (!win?.uploadFiles || win.document.readyState === "loading" || !win.jQuery) {
+    if (closed || !win?.uploadFiles || win.document.readyState === "loading" || !win.jQuery) {
       return;
     }
 
     clearInterval(intervalId);
+    const uploadProgress = win.document.querySelector("#upload-progress");
+    const existingBlocks = new Set(
+      uploadProgress?.querySelectorAll<HTMLElement>(".upload-status-block") || []
+    );
     win.uploadFiles(files);
+
+    const uploadBlocks = Array.from(
+      uploadProgress?.querySelectorAll<HTMLElement>(".upload-status-block") || []
+    ).filter((block) => !existingBlocks.has(block));
+    uploadBlocks.forEach((_, index) => {
+      references.push({ index });
+    });
+    const refreshReferences = () => {
+      uploadBlocks.forEach((block, index) => {
+        const reference = references[index];
+        if (!reference) {
+          return;
+        }
+        reference.assetId = block.dataset.assetId || undefined;
+        reference.assetUrl =
+          block.querySelector<HTMLAnchorElement>(".upload-thumbnail a[href]")?.href || undefined;
+      });
+    };
+    refreshReferences();
+    if (uploadProgress) {
+      const observer = new MutationObserver(refreshReferences);
+      observer.observe(uploadProgress, {
+        attributes: true,
+        childList: true,
+        subtree: true,
+      });
+      uploadObserver = observer;
+    }
+
     const uploadForm = win.document.querySelector<HTMLFormElement>("#upload");
     uploadForm?.style.setProperty("display", "none", "important");
   }, 100);
+
+  if (options.onClose || restoreInsertHTML) {
+    window.jQuery(window).one("dialogDisposed", () => {
+      closed = true;
+      clearInterval(intervalId);
+      uploadObserver?.disconnect();
+      restoreInsertHTML?.();
+      options.onClose?.();
+    });
+  }
 
   return true;
 };
@@ -363,25 +467,40 @@ class MTRichTextEditor extends MTEditor {
             return;
           }
 
-          if (!assetUploader) {
-            tiptap.commands.cancelUploadSession(sessionId);
+          if (assetUploader) {
+            assetUploader.open({
+              selectMetaData: false,
+              multiSelect: true,
+              params: {},
+              initialSelectedData: [],
+              field: this.id,
+              files,
+              insert: (data) => {
+                tiptap.commands.applyUploadSessionResults(sessionId, toUploadResults(data, files));
+              },
+              close: () => {
+                tiptap.commands.cancelUploadSession(sessionId);
+              },
+            });
             return;
           }
 
-          assetUploader.open({
-            selectMetaData: false,
-            multiSelect: true,
-            params: {},
-            initialSelectedData: [],
-            field: this.id,
-            files,
-            insert: (data) => {
-              tiptap.commands.applyUploadSessionResults(sessionId, toUploadResults(data, files));
+          const opened = openLegacyImageUploader(this.id, files, {
+            directInsert: true,
+            onInsert: (html, references) => {
+              const results = toLegacyUploadResultsFromHTML(html, references);
+              if (!results.length) {
+                return;
+              }
+              tiptap.commands.applyUploadSessionResults(sessionId, results);
             },
-            close: () => {
+            onClose: () => {
               tiptap.commands.cancelUploadSession(sessionId);
             },
           });
+          if (!opened) {
+            tiptap.commands.cancelUploadSession(sessionId);
+          }
         },
       });
       options.extensionOptions.fileHandler = fileHandlerOptions;

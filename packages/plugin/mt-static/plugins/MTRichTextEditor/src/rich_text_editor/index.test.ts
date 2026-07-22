@@ -1,3 +1,11 @@
+const { openDialogMock } = vi.hoisted(() => ({
+  openDialogMock: vi.fn(),
+}));
+
+vi.mock("../util/dialog", () => ({
+  openDialog: openDialogMock,
+}));
+
 vi.mock("@movabletype/mt-rich-text-editor/mt-rich-text-editor", () => ({}));
 
 class MockMTEditor {
@@ -55,9 +63,11 @@ describe("MTRichTextEditor", () => {
   beforeEach(async () => {
     vi.resetModules();
     registerMock.mockClear();
+    openDialogMock.mockReset();
     MockMTEditor.defaultCommonOptions = {};
     (window as unknown as { Lexicon: Record<string, string> }).Lexicon = {};
     window.MT = {} as typeof window.MT;
+    window.app = null;
     document.body.innerHTML = "";
 
     applyUploadSessionResultsMock = vi.fn();
@@ -138,7 +148,11 @@ describe("MTRichTextEditor", () => {
     expect(createMock.mock.calls[0][0]).not.toHaveProperty("stylesheets");
   });
 
-  it("cancels a pasted upload session when AssetUploader is unavailable", async () => {
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it("cancels a pasted upload session when uploads are not permitted", async () => {
     await createInstance("test-editor").initEditor("wysiwyg");
 
     const options = createMock.mock.calls[0][0] as {
@@ -151,6 +165,176 @@ describe("MTRichTextEditor", () => {
 
     expect(cancelUploadSessionMock).toHaveBeenCalledWith("session-1");
     expect(applyUploadSessionResultsMock).not.toHaveBeenCalled();
+  });
+
+  it("applies upload results to pasted images when the legacy uploader inserts HTML", async () => {
+    vi.useFakeTimers();
+    const canUpload = document.createElement("script");
+    canUpload.dataset.mtRichTextEditorCanUpload = "1";
+    document.body.appendChild(canUpload);
+
+    const dialogIframe = document.createElement("iframe");
+    dialogIframe.id = "mt-dialog-iframe";
+    document.body.appendChild(dialogIframe);
+    const win = dialogIframe.contentWindow!;
+    Object.defineProperty(win.document, "readyState", {
+      configurable: true,
+      value: "complete",
+    });
+    win.document.body.innerHTML = `
+      <form id="upload"></form>
+      <div id="upload-progress"></div>
+    `;
+    const uploadFilesMock = vi.fn<(files: File[]) => void>((files) => {
+      const uploadProgress = win.document.querySelector("#upload-progress")!;
+      files.forEach(() => {
+        uploadProgress.insertAdjacentHTML(
+          "beforeend",
+          '<div class="upload-status-block"><div class="upload-thumbnail"></div></div>'
+        );
+      });
+    });
+    win.uploadFiles = uploadFilesMock;
+    win.jQuery = {} as typeof window.jQuery;
+
+    const originalInsertHTMLMock = vi.fn();
+    const app = {
+      getIndirectMethod: vi.fn(),
+      insertHTML: originalInsertHTMLMock,
+    };
+    window.app = app as unknown as NonNullable<typeof window.app>;
+
+    let dialogDisposed: (() => void) | undefined;
+    window.jQuery = vi.fn(() => ({
+      one: (event: string, callback: () => void) => {
+        expect(event).toBe("dialogDisposed");
+        dialogDisposed = callback;
+      },
+    })) as unknown as typeof window.jQuery;
+
+    await createInstance("test-editor").initEditor("wysiwyg");
+
+    const options = createMock.mock.calls[0][0] as {
+      extensionOptions: { fileHandler: FileHandlerOptions };
+    };
+    const files = [
+      new File(["first"], "pasted-image-1.png", { type: "image/png" }),
+      new File(["second"], "pasted-image-2.png", { type: "image/png" }),
+      new File(["third"], "pasted-image-3.png", { type: "image/png" }),
+      new File(["fourth"], "pasted-image-4.png", { type: "image/png" }),
+    ];
+    options.extensionOptions.fileHandler.onPaste?.(tiptapMock, files, undefined, "session-1");
+
+    const params = openDialogMock.mock.calls[0][0] as URLSearchParams;
+    expect(params.get("__mode")).toBe("dialog_asset_modal");
+    expect(params.get("edit_field")).toBe("test-editor");
+    expect(params.get("asset_select")).toBe("1");
+    expect(params.has("no_insert")).toBe(false);
+
+    await vi.advanceTimersByTimeAsync(100);
+
+    expect(uploadFilesMock).toHaveBeenCalledWith(files);
+    const uploadForm = win.document.querySelector<HTMLFormElement>("#upload")!;
+    expect(uploadForm.style.getPropertyValue("display")).toBe("none");
+    expect(uploadForm.style.getPropertyPriority("display")).toBe("important");
+    expect(applyUploadSessionResultsMock).not.toHaveBeenCalled();
+
+    const uploadBlocks = Array.from(
+      win.document.querySelectorAll<HTMLElement>(".upload-status-block")
+    );
+    [
+      [3, "104", "/assets/4.png"],
+      [0, "101", "/assets/1.png"],
+      [2, "103", "/assets/3.png"],
+      [1, "102", "/assets/2.png"],
+    ].forEach(([index, assetId, assetUrl]) => {
+      const block = uploadBlocks[Number(index)];
+      block.dataset.assetId = String(assetId);
+      block.querySelector(".upload-thumbnail")!.innerHTML = `<a href="${assetUrl}">uploaded</a>`;
+    });
+    await Promise.resolve();
+
+    const interceptedInsertHTML = app.insertHTML;
+    expect(interceptedInsertHTML).not.toBe(originalInsertHTMLMock);
+    interceptedInsertHTML(
+      [
+        '<a href="/assets/4.png">edited fourth label</a>',
+        '<a href="/assets/1.png">edited first label</a>',
+        '<a href="/assets/3.png">edited third label</a>',
+        '<a href="/assets/2.png">edited second label</a>',
+      ].join(""),
+      // The legacy app ignores this argument, so it is not guaranteed to match the editor id.
+      "content"
+    );
+    expect(applyUploadSessionResultsMock).toHaveBeenCalledWith("session-1", [
+      {
+        index: 3,
+        attributes: { src: "/assets/4.png", "data-mt-asset-id": "104" },
+      },
+      {
+        index: 0,
+        attributes: { src: "/assets/1.png", "data-mt-asset-id": "101" },
+      },
+      {
+        index: 2,
+        attributes: { src: "/assets/3.png", "data-mt-asset-id": "103" },
+      },
+      {
+        index: 1,
+        attributes: { src: "/assets/2.png", "data-mt-asset-id": "102" },
+      },
+    ]);
+    expect(originalInsertHTMLMock).not.toHaveBeenCalled();
+    expect(app.insertHTML).toBe(originalInsertHTMLMock);
+    expect(cancelUploadSessionMock).not.toHaveBeenCalled();
+
+    dialogDisposed?.();
+    expect(cancelUploadSessionMock).toHaveBeenCalledWith("session-1");
+  });
+
+  it("restores insertHTML and cancels an upload session when the legacy uploader closes", async () => {
+    vi.useFakeTimers();
+    const canUpload = document.createElement("script");
+    canUpload.dataset.mtRichTextEditorCanUpload = "1";
+    document.body.appendChild(canUpload);
+
+    const dialogIframe = document.createElement("iframe");
+    dialogIframe.id = "mt-dialog-iframe";
+    document.body.appendChild(dialogIframe);
+    const uploadFilesMock = vi.fn<(files: File[]) => void>();
+    dialogIframe.contentWindow!.uploadFiles = uploadFilesMock;
+    dialogIframe.contentWindow!.jQuery = {} as typeof window.jQuery;
+
+    const originalInsertHTMLMock = vi.fn();
+    const app = {
+      getIndirectMethod: vi.fn(),
+      insertHTML: originalInsertHTMLMock,
+    };
+    window.app = app as unknown as NonNullable<typeof window.app>;
+
+    let dialogDisposed: (() => void) | undefined;
+    window.jQuery = vi.fn(() => ({
+      one: (event: string, callback: () => void) => {
+        expect(event).toBe("dialogDisposed");
+        dialogDisposed = callback;
+      },
+    })) as unknown as typeof window.jQuery;
+
+    await createInstance("test-editor").initEditor("wysiwyg");
+    const options = createMock.mock.calls[0][0] as {
+      extensionOptions: { fileHandler: FileHandlerOptions };
+    };
+    const files = [new File(["image"], "image.png", { type: "image/png" })];
+    options.extensionOptions.fileHandler.onPaste?.(tiptapMock, files, undefined, "session-1");
+
+    expect(app.insertHTML).not.toBe(originalInsertHTMLMock);
+    dialogDisposed?.();
+    await vi.advanceTimersByTimeAsync(100);
+
+    expect(app.insertHTML).toBe(originalInsertHTMLMock);
+    expect(uploadFilesMock).not.toHaveBeenCalled();
+    expect(applyUploadSessionResultsMock).not.toHaveBeenCalled();
+    expect(cancelUploadSessionMock).toHaveBeenCalledWith("session-1");
   });
 
   it("routes clipboard files without a session through the drop flow", async () => {
