@@ -113,7 +113,7 @@ const removeStyleProperties = (style: string, properties: readonly string[]): st
 // capture, otherwise the two copies drift out of sync.
 const dedicatedAttributeNames: Record<string, string[]> = {
   table: ["style"],
-  tableCell: ["style"],
+  tableCell: ["style", "scope"],
   tableHeader: ["style", "scope"],
 };
 
