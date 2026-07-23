@@ -1,6 +1,5 @@
 <script lang="ts">
   import { tick } from "svelte";
-  import { SvelteSet } from "svelte/reactivity";
   import { dndzone } from "svelte-dnd-action";
   import { flipDurationMs, dropTargetStyle } from "./common";
   import { parseToolbarData, parseToolbarItemIds, serializeToolbarData } from "./toolbar-data";
@@ -32,7 +31,8 @@
   }
 
   function uniqueToolbarItems(items: ToolbarItem[]): ToolbarItem[] {
-    const ids = new SvelteSet<string>();
+    // eslint-disable-next-line svelte/prefer-svelte-reactivity
+    const ids = new Set<string>();
     return items.filter((item) => {
       if (ids.has(item.id)) {
         return false;
@@ -169,7 +169,8 @@
   }
 
   function getUsedItemIds(items: ToolbarItem[][][][]): Set<string> {
-    const usedIds = new SvelteSet<string>();
+    // eslint-disable-next-line svelte/prefer-svelte-reactivity
+    const usedIds = new Set<string>();
     items.forEach((groupSides) => {
       groupSides.forEach((row) => {
         row.forEach((group) => {
