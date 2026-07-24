@@ -71,7 +71,7 @@ MTRichTextEditor.on("create", (options) => {
 
 ## 新しいアイテムの追加
 
-[PasteMenuItemElement](https://github.com/movabletype/mt-rich-text-editor/blob/main/packages/editor/src/paste-menu/item/element.ts)を拡張したクラスを[カスタム要素](https://developer.mozilla.org/ja/docs/Web/API/Web_components/Using_custom_elements)として登録することで、貼り付け形式として指定できるようになります。
+[PasteMenuItemElement](https://github.com/movabletype/mt-rich-text-editor/blob/main/packages/editor/src/paste-menu/item/element.ts)を拡張したクラスを[カスタム要素](https://developer.mozilla.org/ja/docs/Web/API/Web_components/Using_custom_elements)として登録することで、貼り付け形式として指定できるようになります。`PasteMenuItemElement` は `MTRichTextEditor.Component` から取得できます。
 
 ### PasteMenuItemElementの `content` プロパティ
 
@@ -110,6 +110,8 @@ MTRichTextEditor.on("create", (options) => {
 以下が簡単な実装例です。`mt-rich-text-editor-paste-menu-item-${itemName}` という名前でカスタム要素を登録することで、`itemName` をアイテム名として貼り付けメニューに指定できるようになります。
 
 ```typescript
+const { PasteMenuItemElement } = MTRichTextEditor.Component;
+
 customElements.define(
   "mt-rich-text-editor-paste-menu-item-myitem",
   class extends PasteMenuItemElement {
