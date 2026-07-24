@@ -53,7 +53,7 @@ MTRichTextEditor.on("create", (options) => {
 
 ## 新しいアイテムの追加
 
-[QuickActionItemElement](https://github.com/movabletype/mt-rich-text-editor/blob/main/packages/editor/src/quick-action/item/element.ts#L9-L74)を拡張したクラスを[カスタム要素](https://developer.mozilla.org/ja/docs/Web/API/Web_components/Using_custom_elements)として登録することで、クイックアクションのアイテムとして指定できるようになります。
+[QuickActionItemElement](https://github.com/movabletype/mt-rich-text-editor/blob/main/packages/editor/src/quick-action/item/element.ts)を拡張したクラスを[カスタム要素](https://developer.mozilla.org/ja/docs/Web/API/Web_components/Using_custom_elements)として登録することで、クイックアクションのアイテムとして指定できるようになります。
 
 ### QuickActionItemElementのメソッド
 

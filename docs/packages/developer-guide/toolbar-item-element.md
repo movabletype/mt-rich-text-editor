@@ -133,7 +133,7 @@ MTRichTextEditor.on("create", (options) => {
 
 ## 新しいアイテムの追加
 
-[ToolbarItemElement](https://github.com/movabletype/mt-rich-text-editor-internal/blob/main/packages/editor/src/toolbar/item/element.ts#L8-L48)を拡張したクラスを[カスタム要素](https://developer.mozilla.org/ja/docs/Web/API/Web_components/Using_custom_elements)として登録することで、ツールバーのアイテムとして指定できるようになります。
+[ToolbarItemElement](https://github.com/movabletype/mt-rich-text-editor/blob/main/packages/editor/src/toolbar/item/element.ts)を拡張したクラスを[カスタム要素](https://developer.mozilla.org/ja/docs/Web/API/Web_components/Using_custom_elements)として登録することで、ツールバーのアイテムとして指定できるようになります。
 
 以下が簡単な実装例です。`mt-rich-text-editor-toolbar-item-${itemName}` という名前でカスタム要素を登録することで、`itemName` をアイテム名としてツールバーに指定できるようになります。
 

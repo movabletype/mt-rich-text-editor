@@ -104,6 +104,6 @@ MTRichTextEditor.on("create", (options) => {
 
 ## ソースコード
 
-より具体的には以下のコードを参照してください。
+より具体的には以下のコードの `EditorOptions` インターフェイスを参照してください。
 
-https://github.com/movabletype/mt-rich-text-editor/blob/develop/packages/editor/src/editor.ts#L35-L93
+https://github.com/movabletype/mt-rich-text-editor/blob/main/packages/editor/src/editor.ts

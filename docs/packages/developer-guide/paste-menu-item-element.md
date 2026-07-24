@@ -71,7 +71,7 @@ MTRichTextEditor.on("create", (options) => {
 
 ## 新しいアイテムの追加
 
-[PasteMenuItemElement](https://github.com/movabletype/mt-rich-text-editor-internal/blob/main/packages/editor/src/paste-menu/item/element.ts#L15-L95)を拡張したクラスを[カスタム要素](https://developer.mozilla.org/ja/docs/Web/API/Web_components/Using_custom_elements)として登録することで、貼り付け形式として指定できるようになります。
+[PasteMenuItemElement](https://github.com/movabletype/mt-rich-text-editor/blob/main/packages/editor/src/paste-menu/item/element.ts)を拡張したクラスを[カスタム要素](https://developer.mozilla.org/ja/docs/Web/API/Web_components/Using_custom_elements)として登録することで、貼り付け形式として指定できるようになります。
 
 ### PasteMenuItemElementの `content` プロパティ
 

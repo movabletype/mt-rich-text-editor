@@ -55,7 +55,7 @@ MTRichTextEditor.on("create", (options) => {
 
 ## 新しいアイテムの追加
 
-[StatusbarItemElement](https://github.com/movabletype/mt-rich-text-editor-internal/blob/main/packages/editor/src/statusbar/item/element.ts#L3-L27)を拡張したクラスを[カスタム要素](https://developer.mozilla.org/ja/docs/Web/API/Web_components/Using_custom_elements)として登録することで、ステータスバーのアイテムとして指定できるようになります。
+[StatusbarItemElement](https://github.com/movabletype/mt-rich-text-editor/blob/main/packages/editor/src/statusbar/item/element.ts)を拡張したクラスを[カスタム要素](https://developer.mozilla.org/ja/docs/Web/API/Web_components/Using_custom_elements)として登録することで、ステータスバーのアイテムとして指定できるようになります。
 
 以下が簡単な実装例です。`mt-rich-text-editor-statusbar-item-${itemName}` という名前でカスタム要素を登録することで、`itemName` をアイテム名としてステータスバーに指定できるようになります。
 
