@@ -96,7 +96,7 @@ MTRichTextEditor.on("create", (options) => {
 <dl>
 <dt>isEditorItemAvailable(): <code>boolean</code></dt>
 <dd>現在の貼付けデータに対してその貼り付け形式が利用可能かどうかを返します</dd>
-<dt>onEditorPaste(): <code>Promise&lg;void&gt;</code></dt>
+<dt>onEditorPaste(): <code>Promise&lt;void&gt;</code></dt>
 <dd>貼り付けの操作を実行します</dd>
 </dl>
 
