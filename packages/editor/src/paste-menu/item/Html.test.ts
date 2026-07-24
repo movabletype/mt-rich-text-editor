@@ -310,6 +310,38 @@ describe("Html", () => {
       expect(outputImage).toBeNull();
     });
 
+    it("processes data URL images in HTML-like plain text through the upload handler", () => {
+      const onPaste = vi.fn();
+      editor.options.extensionOptions = {
+        ...editor.options.extensionOptions,
+        fileHandler: { onPaste },
+      };
+      const sourceHTML = `<p>before<img src="data:image/png;base64,${PNG_1X1_BASE64}">after</p>`;
+      editor.setContent("<p>ab</p>");
+      setTextSelection(editor, findTextPosition(editor, "ab", 2));
+      element.content = createPasteContent(sourceHTML);
+
+      element.onEditorPaste();
+
+      expect(onPaste).toHaveBeenCalledTimes(1);
+      const [, files, pasteContent, sessionId] = onPaste.mock.calls[0] as OnPasteArgs;
+      expect(files).toHaveLength(1);
+      expect(files[0].type).toBe("image/png");
+      expect(pasteContent).toContain(`${UPLOAD_SESSION_ID_ATTRIBUTE}="${sessionId}"`);
+      expect(pasteContent).toContain(`${UPLOAD_SESSION_INDEX_ATTRIBUTE}="0"`);
+      expect(editor.getContent()).toContain("before");
+      expect(editor.getContent()).toContain("after");
+      expect(editor.getContent()).not.toContain("<img");
+
+      editor.tiptap.commands.applyUploadSessionResults(sessionId, [
+        { index: 0, attributes: { src: "/plain-text.png", "data-mt-asset-id": "91" } },
+      ]);
+
+      const document = new DOMParser().parseFromString(editor.getContent(), "text/html");
+      const image = document.body.querySelector('img[src="/plain-text.png"]');
+      expect(image?.getAttribute("data-mt-asset-id")).toBe("91");
+    });
+
     it("re-applies updated uploads from the synchronized source without uploading again", () => {
       const { onPaste, sessionId } = pasteDataURLImages(
         `<p><img src="data:image/png;base64,${PNG_1X1_BASE64}"></p>`
@@ -642,6 +674,18 @@ describe("Html", () => {
 
       expect(() => element.onEditorPaste()).not.toThrow();
 
+      expect(editor.tiptap.getHTML()).not.toContain("<img");
+    });
+
+    it("removes data URL images from HTML-like plain text when fileHandler is not configured", () => {
+      element.content = createPasteContent(
+        `<p>before<img src="data:image/png;base64,${PNG_1X1_BASE64}">after</p>`
+      );
+
+      expect(() => element.onEditorPaste()).not.toThrow();
+
+      expect(editor.tiptap.getHTML()).toContain("before");
+      expect(editor.tiptap.getHTML()).toContain("after");
       expect(editor.tiptap.getHTML()).not.toContain("<img");
     });
 

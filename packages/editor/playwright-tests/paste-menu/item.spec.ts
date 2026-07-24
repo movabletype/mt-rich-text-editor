@@ -184,6 +184,38 @@ test.describe("Paste Menu", () => {
     await expect.poll(() => save(page)).toBe("<p>Hello</p>");
   });
 
+  test("resolves data url images in HTML-like plain text through fileHandler", async ({ page }) => {
+    const dataURL = `data:image/png;base64,${PNG_1X1_BASE64}`;
+
+    await page.goto("/");
+    await page.evaluate(() => {
+      const editor = window.MTRichTextEditor.get({ id: "editor" });
+      if (!editor) {
+        throw new Error("Editor not found");
+      }
+      window.pasteImageUploadCallCount = 0;
+      editor.options.extensionOptions = {
+        ...editor.options.extensionOptions,
+        fileHandler: {
+          onPaste: (_tiptap, _files, _pasteContent, sessionId) => {
+            window.pasteImageUploadCallCount += 1;
+            editor.tiptap.commands.applyUploadSessionResults(sessionId, [
+              { index: 0, attributes: { src: "/plain-text.png", "data-mt-asset-id": "91" } },
+            ]);
+          },
+        },
+      };
+    });
+    await page.locator('[data-mt-rich-text-editor-id="editor"]').click();
+
+    await dispatchPaste(page, "", `<p>before<img src="${dataURL}">after</p>`);
+
+    await expect
+      .poll(() => saveWithSortedAttributes(page))
+      .toBe('<p>before<img data-mt-asset-id="91" src="/plain-text.png">after</p>');
+    expect(await page.evaluate(() => window.pasteImageUploadCallCount)).toBe(1);
+  });
+
   test("resolves pasted data url images through fileHandler", async ({ page }) => {
     const expectedResolvedContent =
       '<p>before</p><p><img data-mt-asset-id="11" src="/one.png"></p><p>middle</p><p><img data-mt-asset-id="22" src="/two.png"></p><p>after</p>';

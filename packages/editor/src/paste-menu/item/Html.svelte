@@ -217,11 +217,7 @@
     let files: File[] = [];
     let sessionId: string | null = null;
     let reuseUploadSession = false;
-    if (
-      htmlDocument &&
-      sourceHtmlDocument &&
-      !sourceHtmlDocument.body.querySelector("[data-pm-slice]")
-    ) {
+    if (htmlDocument && !sourceHtmlDocument?.body.querySelector("[data-pm-slice]")) {
       reuseUploadSession = uploadSessionId !== null && content === uploadSessionContent;
       sessionId = reuseUploadSession ? uploadSessionId : createUploadSessionId();
       files = collectDataURLImageFiles(htmlDocument.body, {
