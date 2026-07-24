@@ -23,6 +23,7 @@ export default defineConfig({
             link: "/mt-plugin",
           },
           { text: "エディタの初期化オプション", link: "/editor-options" },
+          { text: "エディタのイベント", link: "/editor-events" },
           { text: "ツールバーのカスタマイズ", link: "/toolbar-item-element" },
           {
             text: "ステータスバーのカスタマイズ",

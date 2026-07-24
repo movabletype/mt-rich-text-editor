@@ -11,6 +11,7 @@ Movable Typeのプラグインを使って、エディタの初期化オプシ�
 
 * [エディタを拡張するプラグインの作成の基本](mt-plugin)
 * [エディタの初期化オプション](editor-options)
+* [エディタのイベント](editor-events)
 * [ツールバーのカスタマイズ](toolbar-item-element)
 * [ステータスバーのカスタマイズ](statusbar-item-element)
 * [貼り付け形式の追加](paste-menu-item-element)
