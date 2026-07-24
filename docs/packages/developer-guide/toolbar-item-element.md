@@ -31,6 +31,7 @@ description: ツールバーのカスタマイズ方法について説明しま�
 * `file` アセットの挿入
 * `image` 画像の挿入
 * `table` 表
+  * <dl><dt>initialAttributes : <code>Record&lt;string, string&gt;</code></dt><dd>挿入される表に設定するHTML属性。指定するとデフォルト値（<code>{ border: "1", style: "border-collapse: collapse; width: 100%;" }</code>）を置き換えます</dd><dt>borderPresetColors : <code>string[]</code></dt><dd>表・セルのプロパティダイアログの枠線の色のパレットに表示する色の配列</dd><dt>backgroundPresetColors : <code>string[]</code></dt><dd>表・セルのプロパティダイアログの背景色のパレットに表示する色の配列</dd></dl>
 * `source` HTML編集モードへの切り替え
 * `undo` 元に戻す
 * `redo` やり直す
