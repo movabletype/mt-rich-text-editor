@@ -106,6 +106,21 @@ MTRichTextEditor.on("create", (options) => {
 })
 ```
 
+<!--
+独自のExtensionは内部のプラグイン向けの性格が強く、頻繁に変更される可能性があり、現時点では利用は推奨しないので、コメントアウトしています
+
+### MTRichTextEditor独自のExtensionのオプション
+
+MTRichTextEditor独自のExtensionのうち、以下のものはMovable Typeが提供する処理をプラグインで差し替えることができます。
+
+<dl>
+<dt>embedObject.resolver : <code>(data: { url: string; maxwidth?: number; maxheight?: number }) =&gt; Promise&lt;{ html: string }&gt;</code></dt>
+<dd>URLから埋め込みデータ（oEmbed）を解決する処理を指定します。通常はMovable Typeの管理画面を経由して解決する処理が設定されています。サーバー側で取得URLを制御する方法については<a href="embed-url">ウェブページの埋め込み機能のカスタマイズ</a>を参照してください。</dd>
+<dt>markdown.toHtml : <code>(data: { content: string }) =&gt; Promise&lt;{ content: string }&gt;</code></dt>
+<dd>貼り付けメニューの「Markdownから変換」で利用されるMarkdownからHTMLへの変換処理を指定します。通常はMovable Typeのテキストフォーマットを利用した変換処理が設定されています（Markdownのテキストフォーマットが利用できない環境では未設定となり、メニューには表示されません）。</dd>
+</dl>
+-->
+
 ## ソースコード
 
 より具体的には以下のコードの `EditorOptions` インターフェイスを参照してください。
