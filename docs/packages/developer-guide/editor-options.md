@@ -68,6 +68,10 @@ Tiptapの<a href="https://tiptap.dev/docs/editor/core-concepts/extensions">Exten
 <dd>フォーマットしないタグのリストを指定します。デフォルトは <code>['pre', 'style', 'script']</code> です。</dd>
 </dl>
 </dd>
+<dt>additionalBlockElements : <code>string[]</code></dt>
+<dd>ブロック要素（div相当）として扱う要素名を追加します（例: <code>["abbr", "address"]</code>）。デフォルトでインライン要素として扱われる要素（例: <code>button</code>）を指定した場合には、ブロック要素としての扱いに変更されます。</dd>
+<dt>additionalInlineElements : <code>string[]</code></dt>
+<dd>インライン要素（span相当）として扱う要素名を追加します（例: <code>["time", "var"]</code>）。デフォルトでブロック要素として扱われる要素を指定した場合には、インライン要素としての扱いに変更されます。</dd>
 </dl>
 
 ## extensionOptionsの利用例<a id="extension-options"></a>
