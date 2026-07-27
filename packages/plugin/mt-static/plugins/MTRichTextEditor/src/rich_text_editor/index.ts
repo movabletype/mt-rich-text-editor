@@ -485,7 +485,7 @@ class MTRichTextEditor extends MTEditor {
             return;
           }
 
-          const opened = openLegacyImageUploader(this.id, files, {
+          const opened = openLegacyImageUploader(this.id, files.reverse(), {
             directInsert: true,
             onInsert: (html, references) => {
               const results = toLegacyUploadResultsFromHTML(html, references);
