@@ -75,4 +75,4 @@ MT::Plugin::MTRichTextEditor::Util->add_toolbar_items({
 });
 ```
 
-同梱プラグインの[FormattedTextForMTRichTextEditor](https://github.com/movabletype/mt-rich-text-editor/tree/develop/packages/plugin/plugins/FormattedTextForMTRichTextEditor)のconfig.yamlが実装例として参考になります。
+同梱プラグインの[FormattedTextForMTRichTextEditor](https://github.com/movabletype/mt-rich-text-editor/blob/main/packages/plugin/plugins/FormattedTextForMTRichTextEditor)のconfig.yamlが実装例として参考になります。
