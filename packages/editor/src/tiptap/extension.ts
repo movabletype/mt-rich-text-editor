@@ -54,6 +54,7 @@ import { EmbedObject } from "./extension/embed-object";
 import { Markdown } from "./extension/markdown";
 import { UndoRedo } from "./extension/undo-redo";
 import { MovableType } from "./extension/movable-type";
+import { UploadSession } from "./extension/upload-session";
 
 const defaultLinkOptions = {
   openOnClick: false,
@@ -146,6 +147,10 @@ export const Extension = TiptapExtension.create({
           }
         )
       );
+    }
+
+    if (this.options.uploadSession !== false) {
+      extensions.push(UploadSession.configure(this.options?.uploadSession));
     }
 
     if (this.options.hardBreak !== false) {

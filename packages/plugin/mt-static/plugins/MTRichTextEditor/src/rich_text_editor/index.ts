@@ -6,11 +6,170 @@ import { Editor } from "@movabletype/mt-rich-text-editor";
 import { currentLanguage } from "../l10n";
 import { convertToolbar } from "../util/tinymce";
 import { getCustomSettings } from "../util/settings";
+import {
+  type LegacyUploadReference,
+  toLegacyUploadResultsFromHTML,
+  toUploadResults,
+} from "./upload_session";
 import editorCss from "../../css/rich-text-editor.css?inline";
 
 import { openDialog } from "../util/dialog";
 
 const MTRichTextEditorManager = window.MTRichTextEditor;
+
+const getAssetUploader = (): MTAssetUploader | undefined =>
+  (
+    window.MT as typeof window.MT & {
+      AssetUploader?: MTAssetUploader;
+    }
+  )?.AssetUploader;
+
+interface LegacyUploaderOptions {
+  directInsert?: boolean;
+  onClose?: () => void;
+  onInsert?: (html: string, references: LegacyUploadReference[]) => void;
+}
+
+const interceptInsertHTML = (
+  references: LegacyUploadReference[],
+  onInsert: (html: string, references: LegacyUploadReference[]) => void
+) => {
+  const app = window.app;
+  if (!app || typeof app.insertHTML !== "function") {
+    return undefined;
+  }
+
+  const originalInsertHTML = app.insertHTML;
+  const restore = () => {
+    if (app.insertHTML === interceptedInsertHTML) {
+      app.insertHTML = originalInsertHTML;
+    }
+  };
+
+  const interceptedInsertHTML: typeof originalInsertHTML = (...args) => {
+    const [html] = args;
+    try {
+      return onInsert(html, references);
+    } finally {
+      restore();
+    }
+  };
+  app.insertHTML = interceptedInsertHTML;
+  return restore;
+};
+
+const openLegacyImageUploader = (
+  field: string,
+  files: File[],
+  options: LegacyUploaderOptions = {}
+): boolean => {
+  const references: LegacyUploadReference[] = [];
+  const restoreInsertHTML = options.onInsert
+    ? interceptInsertHTML(references, options.onInsert)
+    : undefined;
+  if (options.onInsert && !restoreInsertHTML) {
+    return false;
+  }
+
+  const blogId = document.querySelector<HTMLInputElement>("[name=blog_id]")?.value || "0";
+  const params = new URLSearchParams();
+  params.set("__mode", "dialog_asset_modal");
+  params.set("_type", "asset");
+  params.set("edit_field", field);
+  params.set("blog_id", blogId);
+  params.set("dialog_view", "1");
+  params.set("can_multi", "1");
+  params.set("filter", "class");
+  params.set("filter_val", "image");
+  if (options.directInsert) {
+    params.set("asset_select", "1");
+  }
+  try {
+    openDialog(params);
+  } catch (error) {
+    restoreInsertHTML?.();
+    throw error;
+  }
+
+  const dialogIframe = document.querySelector<HTMLIFrameElement>("#mt-dialog-iframe");
+  if (!dialogIframe) {
+    restoreInsertHTML?.();
+    return false;
+  }
+
+  let closed = false;
+  let uploadObserver: MutationObserver | undefined;
+  const intervalId = setInterval(() => {
+    const win = dialogIframe.contentWindow;
+    if (closed || !win?.uploadFiles || win.document.readyState === "loading" || !win.jQuery) {
+      return;
+    }
+
+    clearInterval(intervalId);
+    const uploadProgress = win.document.querySelector("#upload-progress");
+    const existingBlocks = new Set(
+      uploadProgress?.querySelectorAll<HTMLElement>(".upload-status-block") || []
+    );
+    win.uploadFiles(files);
+
+    const uploadBlocks = Array.from(
+      uploadProgress?.querySelectorAll<HTMLElement>(".upload-status-block") || []
+    ).filter((block) => !existingBlocks.has(block));
+    uploadBlocks.forEach((_, index) => {
+      references.push({ index });
+    });
+    const refreshReferences = () => {
+      uploadBlocks.forEach((block, index) => {
+        const reference = references[index];
+        if (!reference) {
+          return;
+        }
+        reference.assetId = block.dataset.assetId || undefined;
+        reference.assetUrl =
+          block.querySelector<HTMLAnchorElement>(".upload-thumbnail a[href]")?.href || undefined;
+      });
+    };
+    refreshReferences();
+    if (uploadProgress) {
+      const observer = new MutationObserver(refreshReferences);
+      observer.observe(uploadProgress, {
+        attributes: true,
+        childList: true,
+        subtree: true,
+      });
+      uploadObserver = observer;
+    }
+
+    // Hide the upload form and adjust the modal height to prevent the modal from shrinking
+    const uploadForm = win.document.querySelector<HTMLFormElement>("#upload");
+    uploadForm?.style.setProperty("display", "none", "important");
+
+    let maxAdjustAttempts = 10;
+    const adjustModalHeightIntervalId = setInterval(() => {
+      const modalBody = win.document.querySelector<HTMLElement>(".modal-body");
+      const contentBody = win.document.querySelector<HTMLElement>("#content-body-right-body");
+      if (modalBody && contentBody && modalBody.style.maxHeight) {
+        contentBody.style.minHeight = contentBody.style.maxHeight = modalBody.style.maxHeight;
+        window.dispatchEvent(new Event("resize"));
+        clearInterval(adjustModalHeightIntervalId);
+      } else if (maxAdjustAttempts-- <= 0) {
+        clearInterval(adjustModalHeightIntervalId);
+      }
+    }, 100);
+  }, 100);
+
+  if (options.onClose || restoreInsertHTML) {
+    window.jQuery(window).one("dialogDisposed", () => {
+      closed = true;
+      clearInterval(intervalId);
+      uploadObserver?.disconnect();
+      restoreInsertHTML?.();
+      options.onClose?.();
+    });
+  }
+
+  return true;
+};
 
 const inlineToolbar: EditorCreateOptions["toolbar"] = [
   [
@@ -68,8 +227,8 @@ const toolbarOptions: Record<string, unknown> = {
       openDialog(params);
     },
     edit: ({ editor, element }: { editor: Editor; element: HTMLElement }) => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      if ((window.MT as any).AssetUploader) {
+      const assetUploader = getAssetUploader();
+      if (assetUploader) {
         // new uploader
 
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -110,8 +269,7 @@ const toolbarOptions: Record<string, unknown> = {
           }
         }
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (window.MT as any).AssetUploader.open({
+        assetUploader.open({
           selectMetaData: true,
           multiSelect: true,
           params: {},
@@ -282,12 +440,11 @@ class MTRichTextEditor extends MTEditor {
           return;
         }
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        if ((window.MT as any).AssetUploader) {
+        const assetUploader = getAssetUploader();
+        if (assetUploader) {
           // new uploader
 
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          (window.MT as any).AssetUploader.open({
+          assetUploader.open({
             selectMetaData: true,
             multiSelect: true,
             params: {},
@@ -297,53 +454,70 @@ class MTRichTextEditor extends MTEditor {
           });
         } else {
           // legacy uploader
-
-          const blogId = document.querySelector<HTMLInputElement>("[name=blog_id]")?.value || "0";
-          const params = new URLSearchParams();
-          params.set("__mode", "dialog_asset_modal");
-          params.set("_type", "asset");
-          params.set("edit_field", this.id);
-          params.set("blog_id", blogId);
-          params.set("dialog_view", "1");
-          params.set("can_multi", "1");
-          params.set("filter", "class");
-          params.set("filter_val", "image");
-          openDialog(params);
-
-          const dialogIframe = document.querySelector<HTMLIFrameElement>("#mt-dialog-iframe");
-          if (!dialogIframe) {
-            return;
-          }
-          const intervalId = setInterval(() => {
-            if (!(
-              dialogIframe.contentWindow &&
-              // new dialog page has been loaded
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              (dialogIframe.contentWindow as any).uploadFiles &&
-              // content has been loaded
-              dialogIframe.contentWindow.document.readyState !== "loading" &&
-              // jQuery(initFunc) has been finished
-              dialogIframe.contentWindow.jQuery
-            )) {
-              return;
-            }
-
-            clearInterval(intervalId);
-            const win = dialogIframe.contentWindow;
-            const uploadForm = win.document.querySelector<HTMLFormElement>("#upload");
-            win.uploadFiles(files);
-            uploadForm?.style.setProperty("display", "none", "important");
-          }, 100);
+          openLegacyImageUploader(this.id, files);
         }
       };
       options.extensionOptions ||= {};
-      options.extensionOptions.fileHandler = Object.assign(
-        options.extensionOptions.fileHandler || {},
-        {
-          onDrop: fileHandler,
-          onPaste: fileHandler,
-        }
-      );
+      const fileHandlerOptions = Object.assign(options.extensionOptions.fileHandler || {}, {
+        onDrop: fileHandler,
+        onPaste: (
+          tiptap: Editor["tiptap"],
+          files: File[],
+          _pasteContent?: string,
+          sessionId?: string
+        ) => {
+          if (sessionId === undefined) {
+            // Raw clipboard files not related to "upload-session"
+            fileHandler(tiptap, files);
+            return;
+          }
+
+          const assetUploader = getAssetUploader();
+          const canUpload = document.querySelector<HTMLScriptElement>(
+            "[data-mt-rich-text-editor-can-upload]"
+          )?.dataset.mtRichTextEditorCanUpload;
+          if (!canUpload) {
+            tiptap.commands.cancelUploadSession(sessionId);
+            return;
+          }
+
+          if (assetUploader) {
+            assetUploader.open({
+              selectMetaData: false,
+              multiSelect: true,
+              params: {},
+              initialSelectedData: [],
+              field: this.id,
+              files,
+              insert: (data) => {
+                tiptap.commands.applyUploadSessionResults(sessionId, toUploadResults(data, files));
+              },
+              close: () => {
+                tiptap.commands.cancelUploadSession(sessionId);
+              },
+            });
+            return;
+          }
+
+          const opened = openLegacyImageUploader(this.id, files.reverse(), {
+            directInsert: true,
+            onInsert: (html, references) => {
+              const results = toLegacyUploadResultsFromHTML(html, references);
+              if (!results.length) {
+                return;
+              }
+              tiptap.commands.applyUploadSessionResults(sessionId, results);
+            },
+            onClose: () => {
+              tiptap.commands.cancelUploadSession(sessionId);
+            },
+          });
+          if (!opened) {
+            tiptap.commands.cancelUploadSession(sessionId);
+          }
+        },
+      });
+      options.extensionOptions.fileHandler = fileHandlerOptions;
     }
     if (MTEditor.defaultCommonOptions.body_class_list) {
       options.classNames = MTEditor.defaultCommonOptions.body_class_list;

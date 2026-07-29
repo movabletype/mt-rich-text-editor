@@ -81,9 +81,22 @@
 <script lang="ts">
   import { t } from "../../i18n";
   import { mount, unmount } from "svelte";
+  import type { EditorEvents } from "@tiptap/core";
   import HtmlModal from "./HtmlModal.svelte";
   import type { PasteMenuItemElement } from "./element";
   import { INTERNAL_PASTE_CONTENT_TYPE } from ".";
+  import { PRESERVED_DATA_ATTRIBUTE_KEYS } from "./data-attribute";
+  import {
+    uploadSessionMetaKey,
+    type UploadSessionMeta,
+  } from "../../tiptap/extension/upload-session";
+  import {
+    collectDataURLImageFiles,
+    createUploadSessionId,
+    UPLOAD_SESSION_ID_ATTRIBUTE,
+    UPLOAD_SESSION_INDEX_ATTRIBUTE,
+    removeUploadSessionImages,
+  } from "../../tiptap/extension/upload-session/util";
 
   const element = $host<PasteMenuItemElement>();
   element.addEventListener("click", toggleDetailPanel);
@@ -91,18 +104,90 @@
   const { options, tiptap, editor } = element;
 
   let modalComponent: ReturnType<typeof mount> | null = null;
+  let uploadSessionId: string | null = null;
+  let uploadSessionContent: PasteMenuItemElement["content"];
+  let uploadSessionHTMLDocument: Document | null = null;
+
+  const clearUploadSession = () => {
+    uploadSessionId = null;
+    uploadSessionContent = undefined;
+    uploadSessionHTMLDocument = null;
+  };
+
+  const handleUploadSessionUpdated = ({
+    sessionId,
+    results,
+    remaining,
+  }: Extract<UploadSessionMeta, { type: "apply" }>) => {
+    if (sessionId !== uploadSessionId || !uploadSessionHTMLDocument) {
+      return;
+    }
+
+    for (const result of results) {
+      const image = uploadSessionHTMLDocument.body.querySelector<HTMLImageElement>(
+        `img[${UPLOAD_SESSION_ID_ATTRIBUTE}="${sessionId}"][${UPLOAD_SESSION_INDEX_ATTRIBUTE}="${result.index}"]`
+      );
+      if (!image) {
+        continue;
+      }
+
+      for (const [name, value] of Object.entries(result.attributes)) {
+        image.setAttribute(name, value);
+      }
+      image.removeAttribute(UPLOAD_SESSION_ID_ATTRIBUTE);
+      image.removeAttribute(UPLOAD_SESSION_INDEX_ATTRIBUTE);
+    }
+
+    if (remaining === 0) {
+      if (element.content === uploadSessionContent) {
+        element.content.htmlDocument = uploadSessionHTMLDocument;
+      }
+      clearUploadSession();
+    }
+  };
+
+  const handleUploadSessionCancelled = ({
+    sessionId,
+  }: Extract<UploadSessionMeta, { type: "cancel" }>) => {
+    if (sessionId !== uploadSessionId || !uploadSessionHTMLDocument) {
+      return;
+    }
+
+    removeUploadSessionImages(uploadSessionHTMLDocument.body, sessionId);
+
+    if (element.content === uploadSessionContent) {
+      element.content.htmlDocument = uploadSessionHTMLDocument;
+    }
+    clearUploadSession();
+  };
+
+  const handleUploadSessionTransaction = ({ transaction }: EditorEvents["transaction"]) => {
+    const meta = transaction.getMeta(uploadSessionMetaKey) as UploadSessionMeta | undefined;
+    if (meta?.type === "apply") {
+      handleUploadSessionUpdated(meta);
+    } else if (meta?.type === "cancel") {
+      handleUploadSessionCancelled(meta);
+    }
+  };
+
+  tiptap?.on("transaction", handleUploadSessionTransaction);
 
   const apply = (htmlDocument: Document | null | undefined = null) => {
     if (!tiptap || !editor) {
       return;
     }
 
+    const content = element.content;
+    const sourceHtmlDocument = content?.htmlDocument;
+
     if (!htmlDocument) {
       htmlDocument = element.content?.htmlDocument?.cloneNode(true) as Document | undefined;
       if (htmlDocument && !options.keepDataAttributes) {
         htmlDocument.body.querySelectorAll<HTMLElement>("*").forEach((e) => {
           for (const key in e.dataset) {
-            delete e.dataset[key];
+            if (!PRESERVED_DATA_ATTRIBUTE_KEYS.has(key)) {
+              delete e.dataset[key];
+            }
           }
         });
       }
@@ -127,6 +212,31 @@
     if (htmlDocument) {
       (options.handler as ((doc: Document) => void) | undefined)?.(htmlDocument);
     }
+
+    const fileHandler = editor.options.extensionOptions?.fileHandler;
+    let files: File[] = [];
+    let sessionId: string | null = null;
+    let reuseUploadSession = false;
+    if (htmlDocument && !sourceHtmlDocument?.body.querySelector("[data-pm-slice]")) {
+      reuseUploadSession = uploadSessionId !== null && content === uploadSessionContent;
+      sessionId = reuseUploadSession ? uploadSessionId : createUploadSessionId();
+      files = collectDataURLImageFiles(htmlDocument.body, {
+        sessionId,
+        shouldUpload: (file) =>
+          !!fileHandler &&
+          !!fileHandler.onPaste &&
+          !content?.clipboardData.files?.length &&
+          (!fileHandler.allowedMimeTypes || fileHandler.allowedMimeTypes.includes(file.type)),
+      });
+      if (files.length > 0) {
+        uploadSessionHTMLDocument = htmlDocument.cloneNode(true) as Document;
+        if (!reuseUploadSession) {
+          uploadSessionId = sessionId;
+          uploadSessionContent = content;
+        }
+      }
+    }
+
     const html = editor.preprocessHTML(htmlDocument?.body.innerHTML ?? "");
 
     const event = new ClipboardEvent("paste", {
@@ -149,6 +259,17 @@
         tiptap.view.dispatch(tr);
       }
     });
+
+    if (
+      files.length > 0 &&
+      fileHandler &&
+      fileHandler.onPaste &&
+      sessionId &&
+      !reuseUploadSession
+    ) {
+      fileHandler.onPaste(tiptap, files, html, sessionId);
+    }
+
     element.parentElement?.dispatchEvent(new Event("paste-menu-item-applied"));
 
     unmountModal();
@@ -191,7 +312,12 @@
     }
   }
 
-  $effect(() => unmountModal);
+  $effect(() => {
+    return () => {
+      unmountModal();
+      tiptap?.off("transaction", handleUploadSessionTransaction);
+    };
+  });
 </script>
 
 <button>{`${t("Paste as HTML")}...`}</button>

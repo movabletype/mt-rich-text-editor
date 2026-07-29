@@ -32,6 +32,7 @@ const htmlRoundTripCases = [
   "<p><sub>test1</sub>test2<sup>test3</sup></p>",
   "<p><strong>te<span>st</span></strong></p>",
   "<p><iframe frameborder='v' height='v' src='v' width='v'></iframe></p>",
+  '<p><img src="data:image/png;base64,AAAA"></p>',
   "<p><span class='v1'>a</span><span class='v2'>b</span></p>",
   "<figure style='display: inline-block' class='mt-figure'><img src='http://example.com/image.jpg' width='800' height='657' alt='alternative text' class='asset asset-image at-xid-1'/><figcaption>caption text</figcaption></figure>",
   "<hgroup><h1>Title</h1><h2>Subtitle</h2><p>Description</p></hgroup>",
@@ -106,6 +107,10 @@ const htmlConversionCases = [
   [
     "<ul><li style='top:0'><ul class='v'><li><a href='v'>t</a></li></ul></li></ul>",
     "<ul><li style='top:0px'><ul class='v'><li><a href='v'>t</a></li></ul></li></ul>",
+  ],
+  [
+    '<p><img src="/a.png" data-mt-rich-text-editor-upload-session="s1" data-mt-rich-text-editor-upload-session-index="0"></p>',
+    "",
   ],
   ["<div>\n\n\n</div>", "<div></div>"],
 ] as const;

@@ -1,3 +1,19 @@
+const createMockFileList = (files: File[] = []): FileList => {
+  const fileList: Record<number, File> & {
+    length: number;
+    item: (index: number) => File | null;
+    [Symbol.iterator]: () => IterableIterator<File>;
+  } = {
+    length: files.length,
+    item: (index: number) => files[index] ?? null,
+    [Symbol.iterator]: () => files[Symbol.iterator](),
+  };
+  files.forEach((file, index) => {
+    fileList[index] = file;
+  });
+  return fileList as unknown as FileList;
+};
+
 class MockDataTransfer implements DataTransfer {
   private data: Map<string, string>;
   dropEffect: "none" | "copy" | "link" | "move" = "none";
@@ -11,7 +27,7 @@ class MockDataTransfer implements DataTransfer {
     | "linkMove"
     | "all"
     | "uninitialized" = "none";
-  files: FileList = Object.create(FileList.prototype);
+  files: FileList = createMockFileList();
   items: DataTransferItemList = [] as unknown as DataTransferItemList; // TODO: implement mock DataTransferItemList
   types: readonly string[] = [];
 

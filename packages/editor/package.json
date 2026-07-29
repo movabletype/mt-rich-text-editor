@@ -60,6 +60,7 @@
   "dependencies": {
     "@movabletype/app": "../../@movabletype/movabletype-app-0.0.1.tgz",
     "@movabletype/svelte-components": "../../@movabletype/movabletype-svelte-components-0.0.4.tgz",
+    "@noble/hashes": "^2.2.0",
     "@tiptap/core": "^3.27.1",
     "@tiptap/extension-blockquote": "^3.27.1",
     "@tiptap/extension-bold": "^3.27.1",

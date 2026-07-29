@@ -1,5 +1,10 @@
 <script module lang="ts">
-  const ignoredAttributes: Set<string> = new Set(["mtIndent", "pmSlice"]);
+  import { PRESERVED_DATA_ATTRIBUTE_KEYS } from "./data-attribute";
+
+  const ignoredAttributes: Set<string> = new Set([
+    ...PRESERVED_DATA_ATTRIBUTE_KEYS,
+    "pmSlice",
+  ]);
 </script>
 
 <script lang="ts">

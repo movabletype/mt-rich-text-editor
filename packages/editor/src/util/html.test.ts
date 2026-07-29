@@ -123,6 +123,14 @@ describe("normalizeHTML", () => {
     );
   });
 
+  it("removes upload session images but preserves existing data URL images", () => {
+    expect(
+      normalizeHTML(
+        `<p><img src="data:image/png;base64,EXISTING"></p><p>before<img src="data:image/png;base64,PENDING" data-mt-rich-text-editor-upload-session="session-1" data-mt-rich-text-editor-upload-session-index="0">after</p>`
+      )
+    ).toBe(`<p><img src="data:image/png;base64,EXISTING"></p><p>beforeafter</p>`);
+  });
+
   it("restores event attributes and embedded content payloads", () => {
     expect(
       normalizeHTML(
