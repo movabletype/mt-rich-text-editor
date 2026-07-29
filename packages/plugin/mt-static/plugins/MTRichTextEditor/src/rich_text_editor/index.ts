@@ -140,8 +140,22 @@ const openLegacyImageUploader = (
       uploadObserver = observer;
     }
 
+    // Hide the upload form and adjust the modal height to prevent the modal from shrinking
     const uploadForm = win.document.querySelector<HTMLFormElement>("#upload");
     uploadForm?.style.setProperty("display", "none", "important");
+
+    let maxAdjustAttempts = 10;
+    const adjustModalHeightIntervalId = setInterval(() => {
+      const modalBody = win.document.querySelector<HTMLElement>(".modal-body");
+      const contentBody = win.document.querySelector<HTMLElement>("#content-body-right-body");
+      if (modalBody && contentBody && modalBody.style.maxHeight) {
+        contentBody.style.minHeight = contentBody.style.maxHeight = modalBody.style.maxHeight;
+        window.dispatchEvent(new Event("resize"));
+        clearInterval(adjustModalHeightIntervalId);
+      } else if (maxAdjustAttempts-- <= 0) {
+        clearInterval(adjustModalHeightIntervalId);
+      }
+    }, 100);
   }, 100);
 
   if (options.onClose || restoreInsertHTML) {
