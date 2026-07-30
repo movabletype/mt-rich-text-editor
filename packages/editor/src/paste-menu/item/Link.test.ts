@@ -1,39 +1,23 @@
-import { Editor } from "../../editor";
 import type { EditorOptions } from "../../editor";
+import { flushMicrotasks, mountEditorElement } from "../../test/helpers/editor";
+import type { MountedEditorElement } from "../../test/helpers/editor";
 import type { PasteMenuItemElement } from "../item/element";
 import Link from "./Link.svelte";
 
-window.customElements.define("mt-paste-menu-item-link", Link.element!);
-
 describe("Link", () => {
   let element: HTMLElement & PasteMenuItemElement;
-  let textarea: HTMLTextAreaElement;
-  let editor: Editor;
+  let harness: MountedEditorElement<HTMLElement & PasteMenuItemElement>;
 
   const initElement = (options: Partial<EditorOptions> = {}) => {
-    if (element && element.parentNode) {
-      element.remove();
-    }
-    element = document.createElement("mt-paste-menu-item-link") as HTMLElement &
-      PasteMenuItemElement;
-
-    if (textarea && textarea.parentNode) {
-      editor.destroy();
-      textarea.remove();
-    }
-    textarea = document.createElement("textarea");
-    document.body.appendChild(textarea);
-    editor = new Editor(textarea, {
-      toolbar: [],
-      inline: false,
-      ...options,
+    harness?.cleanup();
+    harness = mountEditorElement<HTMLElement & PasteMenuItemElement>({
+      tagName: "mt-paste-menu-item-link",
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      elementClass: Link.element!,
+      editorOptions: options,
     });
-
-    if ("onEditorInit" in element) {
-      element.onEditorInit(editor, {});
-    }
-
-    document.body.appendChild(element);
+    ({ element } = harness);
   };
 
   beforeEach(() => {
@@ -41,10 +25,7 @@ describe("Link", () => {
   });
 
   afterEach(() => {
-    document.querySelector<HTMLElement>(".modal")?.remove();
-    element.remove();
-    editor.destroy();
-    textarea.remove();
+    harness.cleanup();
   });
 
   describe("isEditorItemAvailable", () => {
@@ -103,7 +84,7 @@ describe("Link", () => {
           },
         },
       });
-      await Promise.resolve(); // wait for custom element to be initialized
+      await flushMicrotasks();
 
       const mockInsertContent = vi.fn();
       element.insertContent = mockInsertContent;
@@ -125,7 +106,7 @@ describe("Link", () => {
 
   describe("edit", () => {
     it("should open modal without default target", async () => {
-      await Promise.resolve();
+      await flushMicrotasks();
 
       element.content = {
         plainText: "https://example.com",
@@ -138,7 +119,7 @@ describe("Link", () => {
       const clickEvent = new MouseEvent("click");
       element.dispatchEvent(clickEvent);
 
-      await Promise.resolve();
+      await flushMicrotasks();
 
       expect(document.querySelector<HTMLSelectElement>(`select[id="link-target"]`)?.value).toBe(
         "_self"
@@ -154,7 +135,7 @@ describe("Link", () => {
         },
       });
 
-      await Promise.resolve();
+      await flushMicrotasks();
 
       element.content = {
         plainText: "https://example.com",
@@ -167,7 +148,7 @@ describe("Link", () => {
       const clickEvent = new MouseEvent("click");
       element.dispatchEvent(clickEvent);
 
-      await Promise.resolve();
+      await flushMicrotasks();
 
       expect(document.querySelector<HTMLSelectElement>(`select[id="link-target"]`)?.value).toBe(
         "_blank"

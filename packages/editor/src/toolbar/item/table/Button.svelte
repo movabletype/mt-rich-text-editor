@@ -6,12 +6,21 @@
 
 <script module lang="ts">
   import { extendToolbarItem } from "../svelte";
+  import type { TableToolbarOptions } from "./table-properties";
+
+  export interface Options extends TableToolbarOptions {
+    /**
+     * HTML attributes applied to a newly inserted table. Replaces the built-in default
+     * @example
+     * { border: "1", style: "border-collapse: collapse; width: 100%;" }
+     */
+    readonly initialAttributes?: Record<string, string>;
+  }
 </script>
 
 <script lang="ts">
+  import { SvelteSet } from "svelte/reactivity";
   import { selectedRect } from "@tiptap/pm/tables";
-  import { createTable } from "@tiptap/extension-table";
-  import { TextSelection } from "@tiptap/pm/state";
   import type { Transaction } from "@tiptap/pm/state";
   import type { Node } from "@tiptap/pm/model";
   import type { Editor as TiptapEditor } from "@tiptap/core";
@@ -23,9 +32,10 @@
   import { handleTableProperties } from "./table-properties";
   import { handleCellProperties } from "./cell-properties";
   import { handleRowProperties } from "./row-properties";
+  import { insertTable } from "./insert-table";
 
-  const element = $host<ToolbarItemElement>();
-  const { tiptap } = element;
+  const element = $host<ToolbarItemElement<Options>>();
+  const { tiptap, options } = element;
 
   element.addEventListener("click", toggleTableInsertPanel);
 
@@ -43,7 +53,7 @@
     isTableActive = tiptap.isActive("table");
     const tableRect = isTableActive ? selectedRect(tiptap.state) : null;
     if (tableRect) {
-      const selectedCells = new Set();
+      const selectedCells = new SvelteSet();
       let canSplitCellSelected = false;
       const map = tableRect.map;
       RECT_LOOP: for (let row = tableRect.top; row < tableRect.bottom; row++) {
@@ -71,27 +81,7 @@
       return;
     }
 
-    const table = createTable(
-      tiptap.schema,
-      rows,
-      cols,
-      false,
-      tiptap.schema.nodes.textBlock.create()
-    );
-    (table.attrs as {style: string}).style = "width: 100%;";
-
-    tiptap
-      .chain()
-      .command(({ tr }) => {
-        const offset = tr.selection.from + 1;
-
-        tr.replaceSelectionWith(table)
-          .scrollIntoView()
-          .setSelection(TextSelection.near(tr.doc.resolve(offset)));
-
-        return true;
-      })
-      .run();
+    insertTable(tiptap, rows, cols, options.initialAttributes);
 
     isOpen = false;
   }
@@ -128,7 +118,7 @@
   });
 
   const getCurrentCells = (tiptap: TiptapEditor) => {
-    const cells: Set<Node> = new Set();
+    const cells: Set<Node> = new SvelteSet();
     const table = tiptap.state.doc.nodeAt(tiptap.state.selection.$anchor.before(1));
     if (table && table.type.name === "table") {
       table.forEach((rowNode) => {
@@ -156,15 +146,11 @@
           rowNode.forEach((cellNode, cellOffset) => {
             if (!existingCells.has(cellNode)) {
               const cellPos = basePos + rowOffset + cellOffset + 2; // +2 for table and row nodes
-              const cellStart = cellPos + 1;
-              const cellEnd = cellPos + cellNode.nodeSize - 1;
 
               tr.setNodeMarkup(cellPos, undefined, {
                 ...cellNode.attrs,
                 style: cellStyle,
               });
-
-              tr.replaceWith(cellStart, cellEnd, tiptap.schema.nodes.textBlock.create());
             }
           });
         });
@@ -235,7 +221,7 @@
               class="button-menu-item"
               disabled={!isTableActive}
               onclick={() => {
-                handleCellProperties(tiptap!);
+                handleCellProperties(tiptap!, options);
               }}>{t("Cell properties")}</button
             >
           </div>
@@ -339,7 +325,7 @@
           class="button-menu-item"
           disabled={!isTableActive}
           onclick={() => {
-            handleTableProperties(tiptap!);
+            handleTableProperties(tiptap!, options);
           }}
         >
           {t("Table properties")}

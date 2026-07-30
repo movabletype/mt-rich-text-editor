@@ -20,8 +20,11 @@
     onClose: () => void;
   } = $props();
 
+  // svelte-ignore state_referenced_locally (structureData is a one-time snapshot seeded when the modal is mounted)
   let id = $state(structureData.id);
+  // svelte-ignore state_referenced_locally (structureData is a one-time snapshot seeded when the modal is mounted)
   let className = $state(structureData.className);
+  // svelte-ignore state_referenced_locally (structureData is a one-time snapshot seeded when the modal is mounted)
   let style = $state(structureData.style);
 
   let idInput: HTMLInputElement;
@@ -31,7 +34,6 @@
 
   let self: Modal;
 
-  // eslint-disable-next-line svelte/no-unused-svelte-ignore
   // svelte-ignore non_reactive_update FIXME:
   let close: () => void;
 </script>

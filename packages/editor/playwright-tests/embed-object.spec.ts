@@ -1,6 +1,6 @@
 import { test, expect, Page } from "@playwright/test";
 import type {} from "../src/mt-rich-text-editor";
-import { mockEmbedObjectResolver } from "./util";
+import { mockEmbedObjectResolver, nextFrame, open, save } from "./util";
 
 const insertEmbedObject = async (page: Page) => {
   await mockEmbedObjectResolver(page, async () => ({
@@ -56,6 +56,7 @@ test.describe("embedObject", () => {
         ?.shadowRoot?.querySelector<HTMLElement>("iframe[data-mt-rich-text-editor-iframe]")
         ?.click();
     });
+    await nextFrame(page);
 
     await page.keyboard.press("Backspace");
 
@@ -72,8 +73,9 @@ test.describe("embedObject", () => {
     await insertEmbedObject(page);
 
     await page.keyboard.type("x");
-    await new Promise((r) => setTimeout(r, 50)); // wait for paste menu show
+    await nextFrame(page);
     await page.keyboard.press("ArrowLeft");
+    await nextFrame(page);
     await page.keyboard.press("Backspace"); // press backspace with a paragraph having some
 
     await page.evaluate(async () => {
@@ -90,6 +92,7 @@ test.describe("embedObject", () => {
 
     await page.keyboard.type("x");
     await page.keyboard.press("Backspace"); // make blank paragraph
+    await nextFrame(page);
     await page.keyboard.press("Backspace"); // press backspace with a blank paragraph
 
     await page.evaluate(async () => {
@@ -99,6 +102,89 @@ test.describe("embedObject", () => {
     const content = await textarea.evaluate((el: HTMLTextAreaElement) => el.value);
     expect(content).toBe(
       `<div data-mt-rich-text-editor-embed-object=""><iframe width="500" height="281" src="https://www.youtube.com/embed/y1doGV8WZzM?feature=oembed" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen="" title="MTDDC Meetup TOKYO 2021 基調講演"></iframe></div>`
+    );
+  });
+
+  test("open editor with embedObject content", async ({ page }) => {
+    await open(page, {
+      content: `<div data-mt-rich-text-editor-embed-object=""><iframe width="500" height="281" src="https://www.youtube.com/embed/y1doGV8WZzM?feature=oembed" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen="" title="MTDDC Meetup TOKYO 2021 基調講演"></iframe></div>`,
+    });
+
+    await page.evaluate(() => {
+      return document
+        .querySelector('[data-mt-rich-text-editor-id="editor"]')
+        ?.shadowRoot?.querySelector(".mt-rich-text-editor-content")
+        ?.shadowRoot?.querySelector<HTMLElement>("iframe[data-mt-rich-text-editor-iframe]")
+        ?.click();
+    });
+    await nextFrame(page);
+    await page.keyboard.press("ArrowRight");
+    await nextFrame(page);
+    await page.keyboard.type("Some text after embed!");
+
+    const content = await save(page);
+    expect(content).toBe(
+      `<div data-mt-rich-text-editor-embed-object=""><iframe width="500" height="281" src="https://www.youtube.com/embed/y1doGV8WZzM?feature=oembed" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen="" title="MTDDC Meetup TOKYO 2021 基調講演"></iframe></div>
+<p>Some text after embed!</p>`
+    );
+  });
+
+  test("press left arrow at embedObject content", async ({ page }) => {
+    await open(page, {
+      content: `<div data-mt-rich-text-editor-embed-object=""><iframe width="500" height="281" src="https://www.youtube.com/embed/y1doGV8WZzM?feature=oembed" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen="" title="MTDDC Meetup TOKYO 2021 基調講演"></iframe></div>`,
+    });
+
+    await page.evaluate(() => {
+      return document
+        .querySelector('[data-mt-rich-text-editor-id="editor"]')
+        ?.shadowRoot?.querySelector(".mt-rich-text-editor-content")
+        ?.shadowRoot?.querySelector<HTMLElement>("iframe[data-mt-rich-text-editor-iframe]")
+        ?.click();
+    });
+    await nextFrame(page);
+    await page.keyboard.press("ArrowLeft");
+    await nextFrame(page);
+    await page.keyboard.type("Some text before embed!");
+    await page.keyboard.press("ArrowRight");
+    await nextFrame(page);
+    await page.keyboard.press("ArrowLeft");
+    await nextFrame(page);
+    await page.keyboard.type("And more text!");
+
+    const content = await save(page);
+    expect(content).toBe(
+      `<p>Some text before embed!And more text!</p>
+<div data-mt-rich-text-editor-embed-object=""><iframe width="500" height="281" src="https://www.youtube.com/embed/y1doGV8WZzM?feature=oembed" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen="" title="MTDDC Meetup TOKYO 2021 基調講演"></iframe></div>`
+    );
+  });
+
+  test("press right arrow at embedObject content", async ({ page }) => {
+    await open(page, {
+      content: `<div data-mt-rich-text-editor-embed-object=""><iframe width="500" height="281" src="https://www.youtube.com/embed/y1doGV8WZzM?feature=oembed" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen="" title="MTDDC Meetup TOKYO 2021 基調講演"></iframe></div>`,
+    });
+
+    await page.evaluate(() => {
+      return document
+        .querySelector('[data-mt-rich-text-editor-id="editor"]')
+        ?.shadowRoot?.querySelector(".mt-rich-text-editor-content")
+        ?.shadowRoot?.querySelector<HTMLElement>("iframe[data-mt-rich-text-editor-iframe]")
+        ?.click();
+    });
+    await nextFrame(page);
+    await page.keyboard.press("ArrowRight");
+    await nextFrame(page);
+    await page.keyboard.type("!");
+    await page.keyboard.press("ArrowLeft");
+    await page.keyboard.press("ArrowLeft");
+    await nextFrame(page); // now select embed object
+    await page.keyboard.press("ArrowRight");
+    await nextFrame(page);
+    await page.keyboard.type("Some text after embed"); // insert before "!"
+
+    const content = await save(page);
+    expect(content).toBe(
+      `<div data-mt-rich-text-editor-embed-object=""><iframe width="500" height="281" src="https://www.youtube.com/embed/y1doGV8WZzM?feature=oembed" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen="" title="MTDDC Meetup TOKYO 2021 基調講演"></iframe></div>
+<p>Some text after embed!</p>`
     );
   });
 });

@@ -1,11 +1,32 @@
+import {
+  UPLOAD_SESSION_ID_ATTRIBUTE,
+  UPLOAD_SESSION_INDEX_ATTRIBUTE,
+} from "../tiptap/extension/upload-session/util";
+
 const isEditable = (element: HTMLElement): boolean =>
   !element.closest("div[data-mt-rich-text-editor-embed-object]");
 
-export const preprocessHTML = (html: string, blockElements: string[]): string => {
+const isInlineNode = (node: Node, inlineElementSet: Set<string>): boolean =>
+  !(
+    // a[data-mt-rich-text-editor-block="true"] should be treated as block element even if it contains text nodes or images
+    node instanceof HTMLElement && node.dataset.mtRichTextEditorBlock === "true"
+  ) &&
+  ((node.nodeType === Node.TEXT_NODE && !!node.textContent?.trim()) ||
+    (node.nodeType === Node.ELEMENT_NODE && inlineElementSet.has(node.nodeName)));
+
+export const preprocessHTML = (
+  html: string,
+  blockElements: string[],
+  inlineElements: string[]
+): string => {
   const parser = new DOMParser();
   const doc = parser.parseFromString(`<body>${html}</body>`, "text/html");
   const body = doc.body;
   const blockElementSelector = blockElements.join(",");
+  const inlineElementSet = new Set(inlineElements.map((el) => el.toUpperCase()));
+  if (inlineElementSet.has("SCRIPT")) {
+    inlineElementSet.add("MT-RICH-TEXT-EDITOR-SCRIPT");
+  }
 
   body.querySelectorAll("a").forEach((a) => {
     if (!isEditable(a)) {
@@ -42,23 +63,14 @@ export const preprocessHTML = (html: string, blockElements: string[]): string =>
         return;
       }
 
-      const hasDirectTextNode = Array.from(div.childNodes).some(
-        (node) =>
-          node instanceof HTMLImageElement ||
-          (node.nodeType === Node.TEXT_NODE && node.textContent?.trim()) ||
-          (node.nodeType === Node.ELEMENT_NODE && node.nodeName === "BR")
-      );
-
-      if (hasDirectTextNode) {
+      const childNode = Array.from(div.childNodes);
+      const hasDirectInlineNode = childNode.some((node) => isInlineNode(node, inlineElementSet));
+      if (hasDirectInlineNode) {
         const encoder = document.createElement("div");
 
         for (let i = 0; i < div.childNodes.length; i++) {
           const headChild = div.childNodes[i];
-          if (
-            headChild instanceof HTMLImageElement ||
-            headChild.nodeType === Node.TEXT_NODE ||
-            (headChild.nodeType === Node.ELEMENT_NODE && headChild.nodeName === "BR")
-          ) {
+          if (isInlineNode(headChild, inlineElementSet)) {
             const textBlock = document.createElement("mt-text-block");
             let content = "";
             while (i < div.childNodes.length) {
@@ -66,9 +78,7 @@ export const preprocessHTML = (html: string, blockElements: string[]): string =>
               if (child.nodeType === Node.TEXT_NODE) {
                 encoder.textContent = child.textContent;
                 content += encoder.innerHTML;
-              } else if (child.nodeName === "BR") {
-                content += "<br>";
-              } else if (child instanceof HTMLImageElement) {
+              } else if (child instanceof HTMLElement && inlineElementSet.has(child.nodeName)) {
                 content += child.outerHTML;
               } else {
                 break;
@@ -80,6 +90,20 @@ export const preprocessHTML = (html: string, blockElements: string[]): string =>
             i--;
           }
         }
+      } else if (
+        childNode.every((node) => node.nodeType === Node.TEXT_NODE && !node.textContent?.trim())
+      ) {
+        const textBlock = document.createElement("mt-text-block");
+        while (div.firstChild) {
+          textBlock.appendChild(div.firstChild);
+        }
+        div.appendChild(textBlock);
+      } else {
+        childNode.forEach((node) => {
+          if (node.nodeType === Node.TEXT_NODE && !node.textContent?.trim()) {
+            node.remove();
+          }
+        });
       }
     });
 
@@ -94,6 +118,17 @@ export const normalizeHTML = (html: string): string => {
   const parser = new DOMParser();
   const doc = parser.parseFromString(html, "text/html");
 
+  doc.body
+    .querySelectorAll(`img[${UPLOAD_SESSION_ID_ATTRIBUTE}], img[${UPLOAD_SESSION_INDEX_ATTRIBUTE}]`)
+    .forEach((image) => image.remove());
+
+  doc.body
+    .querySelectorAll(`[${UPLOAD_SESSION_ID_ATTRIBUTE}], [${UPLOAD_SESSION_INDEX_ATTRIBUTE}]`)
+    .forEach((element) => {
+      element.removeAttribute(UPLOAD_SESSION_ID_ATTRIBUTE);
+      element.removeAttribute(UPLOAD_SESSION_INDEX_ATTRIBUTE);
+    });
+
   doc.body.querySelectorAll("mt-text-block").forEach((textBlock) => {
     const parent = textBlock.parentNode;
     if (!parent) return;
@@ -106,10 +141,6 @@ export const normalizeHTML = (html: string): string => {
 
   doc.body.querySelectorAll(`[textalign=""]`).forEach((element) => {
     element.removeAttribute("textalign");
-  });
-
-  doc.body.querySelectorAll(`[data-mt-indent]`).forEach((element) => {
-    element.removeAttribute("data-mt-indent");
   });
 
   doc.body
@@ -152,4 +183,21 @@ export const cssSize = (value: string): string => {
     return `${value}px`;
   }
   return value;
+};
+
+export const cssColorToHex = (value: string): string | null => {
+  const el = document.createElement("div");
+  el.style.color = value;
+  if (!el.style.color) {
+    return null;
+  }
+
+  const canvas = document.createElement("canvas");
+  const ctx = canvas.getContext("2d");
+  if (!ctx) {
+    return null;
+  }
+  ctx.fillStyle = el.style.color;
+
+  return /^#[0-9a-f]{6}$/i.test(ctx.fillStyle) ? ctx.fillStyle : null;
 };

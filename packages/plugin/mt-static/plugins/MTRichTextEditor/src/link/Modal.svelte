@@ -22,6 +22,7 @@
     urlInput?.focus();
   });
 
+  // svelte-ignore state_referenced_locally (text is a one-time initial prop seeded when the modal is mounted)
   let hasTextValue = text !== "";
   const onLinkTextChange = () => {
     hasTextValue = true;
@@ -33,7 +34,6 @@
   });
 
   let self: Modal;
-  // eslint-disable-next-line svelte/no-unused-svelte-ignore
   // svelte-ignore non_reactive_update FIXME:
   let close: () => void;
 </script>

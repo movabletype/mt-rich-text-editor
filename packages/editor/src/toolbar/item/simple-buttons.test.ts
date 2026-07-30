@@ -1,18 +1,18 @@
 import { Editor } from "../../editor";
 import type { Events } from "../../editor";
+import type { EditorHarness } from "../../test/helpers/editor";
+import { createEditorHarness } from "../../test/helpers/editor";
 
 describe("SourceButton", () => {
-  let textarea: HTMLTextAreaElement;
   let editor: Editor;
   let sourceButton: HTMLElement;
+  let harness: EditorHarness;
 
   beforeEach(() => {
-    textarea = document.createElement("textarea");
-    document.body.appendChild(textarea);
-    editor = new Editor(textarea, {
+    harness = createEditorHarness({
       toolbar: [[[["source"]]]],
-      inline: false,
     });
+    ({ editor } = harness);
 
     const editorEl = document.querySelector<HTMLElement>(".mt-rich-text-editor");
     const toolbarEl = editorEl!.shadowRoot?.querySelector<HTMLElement>(
@@ -24,9 +24,7 @@ describe("SourceButton", () => {
   });
 
   afterEach(() => {
-    document.querySelector<HTMLElement>(".modal")?.remove();
-    editor.destroy();
-    textarea.remove();
+    harness.cleanup();
   });
 
   describe("update", () => {
@@ -52,6 +50,20 @@ describe("SourceButton", () => {
       expect(setContentData?.source).toBe("sourceEditor");
       expect(setContentData?.content).toBe(newContent);
       expect(editor.getContent()).toBe(newContent);
+    });
+
+    it("should not insert whitespace inside ruby tags when opening the modal", () => {
+      const content = "<p><ruby>漢字<rp>(</rp><rt>かんじ</rt><rp>)</rp></ruby></p>";
+      editor.setContent(content);
+
+      sourceButton?.click();
+      const sourceModalTextarea = document.querySelector<HTMLTextAreaElement>(".modal textarea");
+      expect(sourceModalTextarea?.value).toBe(editor.getContent());
+
+      const submitButton = document.querySelector<HTMLButtonElement>(".modal button.primary");
+      submitButton?.click();
+
+      expect(editor.getContent()).toBe(content);
     });
   });
 });

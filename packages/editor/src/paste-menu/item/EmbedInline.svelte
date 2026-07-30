@@ -9,6 +9,7 @@
   import { extendPasteMenuItem } from "./svelte";
   import { PasteMenuItemElement } from "./element";
   import { getObject } from "./embed/util";
+  // eslint-disable-next-line no-useless-assignment -- extend is read by the <svelte:options customElement={{ extend }}> tag above, which this rule's control-flow analysis does not see
   const extend = (customElementConstructor: typeof HTMLElement): new () => PasteMenuItemElement =>
     class extends extendPasteMenuItem(customElementConstructor) {
       async isEditorItemAvailable() {

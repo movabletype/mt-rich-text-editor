@@ -15,15 +15,17 @@ type Message =
 const postMessageHandlers: Record<string, (ev: MessageEvent<Message>) => void> = {};
 const createPostMessageHandler = (editor: TiptapEditor) => {
   const uniqueId = Math.random().toString(36).substring(2, 15);
-  const container: HTMLElement = editor.view.dom;
   const handler = (ev: MessageEvent<Message>) => {
-    const iframe = container.querySelector<HTMLIFrameElement>(
-      `iframe[data-mt-rich-text-editor-iframe="${uniqueId}"]`
+    const message = ev.data;
+    if (message?.id !== uniqueId) {
+      return;
+    }
+    const iframe = editor.view.dom.querySelector<HTMLIFrameElement>(
+      `iframe[data-mt-rich-text-editor-iframe="${message.id}"]`
     );
     if (!iframe) {
       return;
     }
-    const message = ev.data;
     if (message.method === "click") {
       iframe.click();
     } else if (message.method === "resize") {
@@ -171,9 +173,12 @@ export const createPreviewIframe = (editor: TiptapEditor, content: string): HTML
       </html>
       `;
     }
-    const data = new TextEncoder().encode(html);
-    const base64Html = btoa(String.fromCharCode(...data));
-    iframe.src = `data:text/html;base64,${base64Html}`;
+    const blob = new Blob([html], { type: "text/html" });
+    const reader = new FileReader();
+    reader.readAsDataURL(blob);
+    reader.onload = () => {
+      iframe.src = reader.result?.toString() || "";
+    };
   } else if (options.sourceType === "blob") {
     iframe.src = URL.createObjectURL(
       new Blob([html], {

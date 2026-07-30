@@ -1,5 +1,10 @@
 <script module lang="ts">
-  const ignoredAttributes: Set<string> = new Set(["mtIndent", "pmSlice"]);
+  import { PRESERVED_DATA_ATTRIBUTE_KEYS } from "./data-attribute";
+
+  const ignoredAttributes: Set<string> = new Set([
+    ...PRESERVED_DATA_ATTRIBUTE_KEYS,
+    "pmSlice",
+  ]);
 </script>
 
 <script lang="ts">
@@ -24,6 +29,7 @@
     name: string;
     checked: boolean;
   }[] = $state([]);
+  // svelte-ignore state_referenced_locally (htmlDocument is a one-time snapshot Document scanned synchronously to seed the checkbox lists)
   htmlDocument.body.querySelectorAll<HTMLElement>("*").forEach((e) => {
     const data = e.dataset;
     for (const key in data) {
@@ -39,6 +45,7 @@
     name: string;
     checked: boolean;
   }[] = $state([]);
+  // svelte-ignore state_referenced_locally (htmlDocument is a one-time snapshot Document scanned synchronously to seed the checkbox lists)
   htmlDocument.body.querySelectorAll<HTMLElement>("[style]").forEach((e) => {
     const styleAttr = e.getAttribute("style");
     if (!styleAttr) return;
@@ -85,7 +92,6 @@
 
   let self: Modal;
 
-  // eslint-disable-next-line svelte/no-unused-svelte-ignore
   // svelte-ignore non_reactive_update FIXME:
   let close: () => void;
 </script>

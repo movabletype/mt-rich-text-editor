@@ -6,6 +6,7 @@
 
 <script module lang="ts">
   import { extendPasteMenuItem } from "./svelte";
+  // eslint-disable-next-line no-useless-assignment -- extend is read by the <svelte:options customElement={{ extend }}> tag above, which this rule's control-flow analysis does not see
   const extend = (customElementConstructor: typeof HTMLElement) =>
     class extends extendPasteMenuItem(customElementConstructor) {
       isEditorItemAvailable() {
@@ -38,7 +39,7 @@
     }
 
     if (linkData) {
-      linkTextMap.set(content, linkData.text);
+      linkTextMap.set(content, linkData.text || linkData.url);
     } else {
       if (!linkTextMap.has(content)) {
         linkTextMap.set(
@@ -62,7 +63,7 @@
       anchor.title = linkData.title;
     }
     anchor.target = linkData.target;
-    anchor.textContent = linkData.text;
+    anchor.textContent = linkData.text || linkData.url;
 
     element.insertContent(anchor.outerHTML);
 

@@ -22,6 +22,7 @@
     return items.map((item) => item.value);
   }
 
+  // svelte-ignore state_referenced_locally (textarea is a hidden config-holding DOM element read once at mount)
   let colorsItems = $state(convertToItems(JSON.parse(textarea.value)));
   let newColor = $state("#000000");
 

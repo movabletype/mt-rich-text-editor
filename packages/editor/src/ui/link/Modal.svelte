@@ -1,7 +1,7 @@
 <script lang="ts" module>
   export interface LinkData {
     readonly url: string;
-    readonly text: string;
+    readonly text: string | undefined;
     readonly title: string;
     readonly target: "_self" | "_blank";
   }
@@ -21,9 +21,13 @@
     onClose: () => void;
   } = $props();
 
+  // svelte-ignore state_referenced_locally (linkData is a one-time snapshot seeded when the modal is mounted)
   let url = $state(linkData.url);
+  // svelte-ignore state_referenced_locally (linkData is a one-time snapshot seeded when the modal is mounted)
   let text = $state(linkData.text);
+  // svelte-ignore state_referenced_locally (linkData is a one-time snapshot seeded when the modal is mounted)
   let title = $state(linkData.title);
+  // svelte-ignore state_referenced_locally (linkData is a one-time snapshot seeded when the modal is mounted)
   let target = $state(linkData.target);
 
   let urlInput: HTMLInputElement;
@@ -31,18 +35,18 @@
     urlInput?.focus();
   });
 
-  let hasTextValue = linkData.text !== "";
+  // svelte-ignore state_referenced_locally (linkData is a one-time snapshot seeded when the modal is mounted)
+  let hasTextValue = linkData.text !== undefined && linkData.text !== "";
   const onLinkTextChange = () => {
     hasTextValue = true;
   };
   $effect(() => {
-    if (!hasTextValue) {
+    if (linkData.text !== undefined && !hasTextValue) {
       text = url;
     }
   });
 
   let self: Modal;
-  // eslint-disable-next-line svelte/no-unused-svelte-ignore
   // svelte-ignore non_reactive_update FIXME:
   let close: () => void;
 </script>
@@ -61,16 +65,18 @@
           bind:this={urlInput}
         />
       </div>
-      <div class="form-group mb-3">
-        <label for="link-text" class="form-label">{t("Link Text")}</label>
-        <input
-          type="text"
-          id="link-text"
-          class="form-control"
-          bind:value={text}
-          onchange={onLinkTextChange}
-        />
-      </div>
+      {#if linkData.text !== undefined}
+        <div class="form-group mb-3">
+          <label for="link-text" class="form-label">{t("Link Text")}</label>
+          <input
+            type="text"
+            id="link-text"
+            class="form-control"
+            bind:value={text}
+            onchange={onLinkTextChange}
+          />
+        </div>
+      {/if}
       <div class="form-group mb-3">
         <label for="link-title" class="form-label">{t("Title")}</label>
         <input type="text" id="link-title" class="form-control" bind:value={title} />

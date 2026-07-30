@@ -1,7 +1,3 @@
-.tiptap {
-  overflow: auto;
-}
-
 .mt-rich-text-editor-editor {
   border: 1px solid #ccc;
   border-radius: 4px;
@@ -26,12 +22,35 @@
 
 .mt-rich-text-editor-content-root,
 .mt-rich-text-editor-content-root > .tiptap {
-  height: calc(100% - 10px);
+  border: 0 !important;
+  box-sizing: content-box !important;
+  flex: 1 1 auto !important;
+  height: calc(100% - 10px) !important;
+  margin: 0 !important;
+  max-height: none !important;
+  max-width: none !important;
+  min-height: 0 !important;
+  min-width: 0 !important;
+  width: auto !important;
+}
+
+.mt-rich-text-editor-content-root {
+  display: flex !important;
+  flex-direction: column !important;
+  float: none !important;
+  overflow: visible !important;
+  padding: 0 !important;
+  position: static !important;
 }
 
 .mt-rich-text-editor-content-root > .tiptap {
-  padding: 10px;
-  outline: none;
+  display: block !important;
+  outline: none !important;
+  overflow: auto !important;
+  padding: 10px !important;
+  position: relative !important;
+  white-space: pre-wrap !important;
+  white-space: break-spaces !important;
 }
 
 .mt-rich-text-editor-content-root > .tiptap:after {
@@ -76,14 +95,9 @@
  */
 
 .mt-rich-text-editor-editor--inline,
-.mt-rich-text-editor-editor--inline .mt-rich-text-editor-content,
-.mt-rich-text-editor-content-root {
+.mt-rich-text-editor-editor--inline .mt-rich-text-editor-content {
   display: flex;
   flex-direction: column;
-  flex-grow: 1;
-}
-
-.tiptap {
   flex-grow: 1;
 }
 

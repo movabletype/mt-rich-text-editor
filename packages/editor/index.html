@@ -20,6 +20,14 @@
   <body>
     <div id="editor-container">
       <textarea id="editor"></textarea>
+      <script>
+        (() => {
+          const content = sessionStorage.getItem("MTRichTextEditorInitialContent");
+          if (content) {
+            document.querySelector("#editor").value = content;
+          }
+        })();
+      </script>
 
       <!--
         <textarea id="editor">
@@ -275,6 +283,9 @@
             [["structure"]],
           ],
         ],
+        stylesheets: [
+          ".red { color: red; }",
+        ],
         toolbarOptions: {
           file: {
             select: (options) => {
@@ -311,7 +322,7 @@
           boilerplate: {
             boilerplates: [
               { title: "Example", url: "data:text/plain,Example boilerplate content", description: "Example boilerplate" },
-              { title: "Example2", url: "data:text/plain,Example2 boilerplate content", description: "Example2 boilerplate" },
+              { title: "Example2", url: "data:text/plain,<p class='red'>Example2 boilerplate content</p>", description: "Example2 boilerplate" },
             ],
           },
           link: {

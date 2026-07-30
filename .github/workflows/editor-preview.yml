@@ -1,0 +1,240 @@
+name: Deploy editor previews
+
+on:
+  push:
+    branches:
+      - "**"
+      - "!docs"
+      - "!pages-content"
+  pull_request_target:
+    types: [opened, reopened, synchronize]
+  delete:
+  schedule:
+    - cron: "17 18 * * *"
+  workflow_dispatch:
+
+permissions: {}
+
+# This matches the existing docs workflow so the two Pages deployments cannot race.
+concurrency:
+  group: ${{ github.event_name == 'pull_request_target' && format('preview-comment-{0}', github.event.pull_request.number) || 'pages' }}
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    # The public mirror publishes documentation only; previews belong to the
+    # internal repository and must not create or update /previews there.
+    if: >-
+      ${{
+        github.event.repository.name != 'mt-rich-text-editor' &&
+        github.event_name != 'pull_request_target' &&
+        (github.event_name != 'delete' || github.event.ref_type == 'branch')
+      }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+      pages: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    env:
+      PAGES_BRANCH: pages-content
+      PAGES_DIR: ${{ github.workspace }}/pages-content
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          path: source
+
+      - name: Checkout documentation
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          ref: docs
+          path: docs-source
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          cache: npm
+          cache-dependency-path: |
+            source/package-lock.json
+            docs-source/docs/packages/developer-guide/package-lock.json
+          node-version: "24"
+
+      - name: Prepare generated Pages branch
+        working-directory: source
+        run: |
+          if git ls-remote --exit-code --heads origin "$PAGES_BRANCH" >/dev/null; then
+            git fetch --depth=1 origin "$PAGES_BRANCH:refs/remotes/origin/$PAGES_BRANCH"
+            git worktree add -B "$PAGES_BRANCH" "$PAGES_DIR" "origin/$PAGES_BRANCH"
+          else
+            git worktree add --detach "$PAGES_DIR"
+            git -C "$PAGES_DIR" switch --orphan "$PAGES_BRANCH"
+            git -C "$PAGES_DIR" rm -rf --ignore-unmatch .
+          fi
+
+      - name: Install editor dependencies
+        if: ${{ github.event_name == 'push' }}
+        working-directory: source
+        run: npm ci --include=dev --workspaces
+
+      - name: Install locale build dependencies
+        if: ${{ github.event_name == 'push' }}
+        run: sudo apt-get install --no-install-recommends -y libjson-perl libyaml-perl
+
+      - name: Build editor locales
+        if: ${{ github.event_name == 'push' }}
+        working-directory: source
+        run: npm run build:locales
+
+      - name: Build editor preview
+        if: ${{ github.event_name == 'push' }}
+        working-directory: source
+        run: npm run build:preview -w @movabletype/mt-rich-text-editor
+
+      - name: Build documentation
+        env:
+          VITE_PRESS_BASE_URL: /developer-guide
+        run: |
+          npm ci --prefix docs-source/docs/packages/developer-guide
+          npm run docs:build --prefix docs-source/docs/packages/developer-guide
+
+      - name: Update Pages content and clean deleted branches
+        id: content
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+        run: |
+          mkdir -p "$PAGES_DIR/developer-guide" "$PAGES_DIR/previews"
+          rsync -a --delete \
+            docs-source/docs/packages/developer-guide/.vitepress/dist/ \
+            "$PAGES_DIR/developer-guide/"
+          cp docs-source/docs/index.html "$PAGES_DIR/index.html"
+          touch "$PAGES_DIR/.nojekyll"
+
+          if [ "$EVENT_NAME" = "push" ]; then
+            slug="$(node source/.github/scripts/preview-pages.mjs slug "$GITHUB_REF_NAME")"
+            target="$PAGES_DIR/previews/$slug"
+            rm -rf "$target"
+            mkdir -p "$target"
+            cp -a source/packages/editor/preview-dist/. "$target/"
+            node source/.github/scripts/preview-pages.mjs record \
+              "$PAGES_DIR/previews" \
+              "$GITHUB_REF_NAME" \
+              "$GITHUB_SHA" \
+              "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/commit/$GITHUB_SHA"
+            echo "preview_path=previews/$slug/" >> "$GITHUB_OUTPUT"
+          fi
+
+          git -C source ls-remote --heads origin \
+            | cut -f2 \
+            | sed 's#^refs/heads/##' \
+            > "$RUNNER_TEMP/active-branches"
+          node source/.github/scripts/preview-pages.mjs cleanup \
+            "$PAGES_DIR/previews" \
+            "$RUNNER_TEMP/active-branches"
+          node source/.github/scripts/preview-pages.mjs render "$PAGES_DIR/previews"
+
+      - name: Save generated Pages content
+        working-directory: source
+        run: |
+          git -C "$PAGES_DIR" config user.name github-actions[bot]
+          git -C "$PAGES_DIR" config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git -C "$PAGES_DIR" add -A
+
+          if git -C "$PAGES_DIR" diff --cached --quiet; then
+            exit 0
+          fi
+
+          # The branch contains generated files only. Replacing it with a new
+          # root commit keeps obsolete preview assets out of Git history too.
+          tree="$(git -C "$PAGES_DIR" write-tree)"
+          commit="$(printf '%s\n' 'Update generated Pages content' | git -C "$PAGES_DIR" commit-tree "$tree")"
+          git -C "$PAGES_DIR" reset --hard "$commit"
+          git -C "$PAGES_DIR" push --force origin "HEAD:$PAGES_BRANCH"
+
+      - name: Remove Git metadata from Pages artifact
+        run: rm -f "$PAGES_DIR/.git"
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: ${{ github.workspace }}/pages-content
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+      - name: Add preview link to the job summary
+        if: ${{ github.event_name == 'push' }}
+        env:
+          PAGE_URL: ${{ steps.deployment.outputs.page_url }}
+          PREVIEW_PATH: ${{ steps.content.outputs.preview_path }}
+        run: echo "[Open editor preview](${PAGE_URL}${PREVIEW_PATH})" >> "$GITHUB_STEP_SUMMARY"
+
+  comment-on-pull-request:
+    if: >-
+      ${{
+        github.event.repository.name != 'mt-rich-text-editor' &&
+        github.event_name == 'pull_request_target' &&
+        github.event.pull_request.head.repo.full_name == github.repository
+      }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+      pull-requests: write
+      pages: read
+
+    steps:
+      - name: Checkout trusted preview scripts
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          ref: ${{ github.event.pull_request.base.sha }}
+          path: source
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      - name: Configure Pages
+        id: pages
+        uses: actions/configure-pages@v5
+
+      - name: Resolve preview URL
+        id: preview
+        env:
+          PREVIEW_BRANCH: ${{ github.event.pull_request.head.ref }}
+          PREVIEW_BASE_URL: ${{ steps.pages.outputs.base_url }}
+          PREVIEW_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          slug="$(node source/.github/scripts/preview-pages.mjs slug "$PREVIEW_BRANCH")"
+          echo "url=${PREVIEW_BASE_URL%/}/previews/$slug/" >> "$GITHUB_OUTPUT"
+          echo "short_sha=${PREVIEW_SHA::8}" >> "$GITHUB_OUTPUT"
+
+      - name: Find preview comment
+        id: find-comment
+        uses: peter-evans/find-comment@b30e6a3c0ed37e7c023ccd3f1db5c6c0b0c23aad # v4.0.0
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          comment-author: github-actions[bot]
+          body-includes: "<!-- mt-rich-text-editor-preview -->"
+
+      - name: Create or update pull request preview comment
+        uses: peter-evans/create-or-update-comment@e8674b075228eee787fea43ef493e45ece1004c9 # v5.0.0
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          comment-id: ${{ steps.find-comment.outputs.comment-id }}
+          edit-mode: replace
+          body: |
+            <!-- mt-rich-text-editor-preview -->
+            ### Editor preview
+
+            [Open preview](${{ steps.preview.outputs.url }})
+
+            Latest commit: [`${{ steps.preview.outputs.short_sha }}`](${{ github.server_url }}/${{ github.repository }}/commit/${{ github.event.pull_request.head.sha }})

@@ -6,29 +6,46 @@
     readonly scope: string;
     readonly horizontalAlign: string;
     readonly verticalAlign: string;
+    readonly borderColor: string;
+    readonly backgroundColor: string;
   }
 </script>
 
 <script lang="ts">
   import { t } from "../../../i18n";
   import { Modal, ModalContent } from "@movabletype/svelte-components";
+  import ColorField from "./ColorField.svelte";
 
   let {
     cellData,
+    borderPresetColors,
+    backgroundPresetColors,
     onSubmit,
     onClose,
   }: {
     cellData: CellData;
+    borderPresetColors?: string[];
+    backgroundPresetColors?: string[];
     onSubmit: (cellData: CellData) => void;
     onClose: () => void;
   } = $props();
 
+  // svelte-ignore state_referenced_locally (cellData is a one-time snapshot seeded when the modal is mounted)
   let width = $state(cellData.width);
+  // svelte-ignore state_referenced_locally (cellData is a one-time snapshot seeded when the modal is mounted)
   let height = $state(cellData.height);
+  // svelte-ignore state_referenced_locally (cellData is a one-time snapshot seeded when the modal is mounted)
   let element = $state(cellData.element);
+  // svelte-ignore state_referenced_locally (cellData is a one-time snapshot seeded when the modal is mounted)
   let scope = $state(cellData.scope);
+  // svelte-ignore state_referenced_locally (cellData is a one-time snapshot seeded when the modal is mounted)
   let horizontalAlign = $state(cellData.horizontalAlign);
+  // svelte-ignore state_referenced_locally (cellData is a one-time snapshot seeded when the modal is mounted)
   let verticalAlign = $state(cellData.verticalAlign);
+  // svelte-ignore state_referenced_locally (cellData is a one-time snapshot seeded when the modal is mounted)
+  let borderColor = $state(cellData.borderColor);
+  // svelte-ignore state_referenced_locally (cellData is a one-time snapshot seeded when the modal is mounted)
+  let backgroundColor = $state(cellData.backgroundColor);
 
   let widthInput: HTMLInputElement;
   $effect(() => {
@@ -36,7 +53,6 @@
   });
 
   let self: Modal;
-  // eslint-disable-next-line svelte/no-unused-svelte-ignore
   // svelte-ignore non_reactive_update FIXME:
   let close: () => void;
 </script>
@@ -45,55 +61,75 @@
   <ModalContent bind:close>
     <svelte:fragment slot="title">{t("Cell Properties")}</svelte:fragment>
     <svelte:fragment slot="body">
-      <div class="form-group mb-3">
-        <label for="width" class="form-label">{t("Width")}</label>
-        <input
-          type="text"
-          id="width"
-          class="form-control"
-          bind:value={width}
-          bind:this={widthInput}
-        />
+      <div class="row">
+        <div class="form-group col-6 mb-3">
+          <label for="width" class="form-label">{t("Width")}</label>
+          <input
+            type="text"
+            id="width"
+            class="form-control"
+            bind:value={width}
+            bind:this={widthInput}
+          />
+        </div>
+        <div class="form-group col-6 mb-3">
+          <label for="height" class="form-label">{t("Height")}</label>
+          <input type="text" id="height" class="form-control" bind:value={height} />
+        </div>
       </div>
-      <div class="form-group mb-3">
-        <label for="width" class="form-label">{t("Height")}</label>
-        <input type="text" id="height" class="form-control" bind:value={height} />
+      <div class="row">
+        <div class="form-group col-6 mb-3">
+          <label for="element" class="form-label">{t("Cell type")}</label>
+          <select id="element" class="form-control" bind:value={element}>
+            <option value="td">{t("Cell")}</option>
+            <option value="th">{t("Header cell")}</option>
+          </select>
+        </div>
+        <div class="form-group col-6 mb-3">
+          <label for="scope" class="form-label">{t("Scope")}</label>
+          <select id="scope" class="form-control" bind:value={scope}>
+            <option value="">{t("None")}</option>
+            <option value="row">{t("Row")}</option>
+            <option value="col">{t("Column")}</option>
+            <option value="rowgroup">{t("Row group")}</option>
+            <option value="colgroup">{t("Column group")}</option>
+          </select>
+        </div>
       </div>
-      <div class="form-group mb-3">
-        <label for="element" class="form-label">{t("Cell type")}</label>
-        <select id="element" class="form-control" bind:value={element}>
-          <option value="td">{t("Cell")}</option>
-          <option value="th">{t("Header cell")}</option>
-        </select>
+      <div class="row">
+        <div class="form-group col-6 mb-3">
+          <label for="horizontalAlign" class="form-label">{t("Horizontal align")}</label>
+          <select id="horizontalAlign" class="form-control" bind:value={horizontalAlign}>
+            <option value="">{t("None")}</option>
+            <option value="left">{t("HORIZONTAL_ALIGN_LEFT")}</option>
+            <option value="center">{t("HORIZONTAL_ALIGN_CENTER")}</option>
+            <option value="right">{t("HORIZONTAL_ALIGN_RIGHT")}</option>
+            <option value="justify">{t("HORIZONTAL_ALIGN_JUSTIFY")}</option>
+          </select>
+        </div>
+        <div class="form-group col-6 mb-3">
+          <label for="verticalAlign" class="form-label">{t("Vertical align")}</label>
+          <select id="verticalAlign" class="form-control" bind:value={verticalAlign}>
+            <option value="">{t("None")}</option>
+            <option value="top">{t("VERTICAL_ALIGN_TOP")}</option>
+            <option value="middle">{t("VERTICAL_ALIGN_MIDDLE")}</option>
+            <option value="bottom">{t("VERTICAL_ALIGN_BOTTOM")}</option>
+          </select>
+        </div>
       </div>
-      <div class="form-group mb-3">
-        <label for="scope" class="form-label">{t("Scope")}</label>
-        <select id="scope" class="form-control" bind:value={scope}>
-          <option value="">{t("None")}</option>
-          <option value="row">{t("Row")}</option>
-          <option value="col">{t("Column")}</option>
-          <option value="rowgroup">{t("Row group")}</option>
-          <option value="colgroup">{t("Column group")}</option>
-        </select>
-      </div>
-      <div class="form-group mb-3">
-        <label for="horizontalAlign" class="form-label">{t("Horizontal align")}</label>
-        <select id="horizontalAlign" class="form-control" bind:value={horizontalAlign}>
-          <option value="">{t("None")}</option>
-          <option value="left">{t("HORIZONTAL_ALIGN_LEFT")}</option>
-          <option value="center">{t("HORIZONTAL_ALIGN_CENTER")}</option>
-          <option value="right">{t("HORIZONTAL_ALIGN_RIGHT")}</option>
-          <option value="justify">{t("HORIZONTAL_ALIGN_JUSTIFY")}</option>
-        </select>
-      </div>
-      <div class="form-group mb-3">
-        <label for="verticalAlign" class="form-label">{t("Vertical align")}</label>
-        <select id="verticalAlign" class="form-control" bind:value={verticalAlign}>
-          <option value="">{t("None")}</option>
-          <option value="top">{t("VERTICAL_ALIGN_TOP")}</option>
-          <option value="middle">{t("VERTICAL_ALIGN_MIDDLE")}</option>
-          <option value="bottom">{t("VERTICAL_ALIGN_BOTTOM")}</option>
-        </select>
+      <div class="row">
+        <div class="form-group col-6 mb-3">
+          <label for="cell-border-color" class="form-label">{t("Border Color")}</label>
+          <ColorField id="cell-border-color" bind:value={borderColor} colors={borderPresetColors} />
+        </div>
+        <div class="form-group col-6 mb-3">
+          <label for="cell-background-color" class="form-label">{t("Background Color")}</label>
+          <ColorField
+            id="cell-background-color"
+            bind:value={backgroundColor}
+            colors={backgroundPresetColors}
+          />
+        </div>
       </div>
     </svelte:fragment>
     <svelte:fragment slot="footer">
@@ -102,7 +138,16 @@
         title={t("Insert (s)")}
         class="action primary button btn btn-primary"
         onclick={() => {
-          onSubmit({ width, height, element, scope, horizontalAlign, verticalAlign });
+          onSubmit({
+            width,
+            height,
+            element,
+            scope,
+            horizontalAlign,
+            verticalAlign,
+            borderColor,
+            backgroundColor,
+          });
           close();
         }}
       >
@@ -119,3 +164,9 @@
     </svelte:fragment>
   </ModalContent>
 </Modal>
+
+<style>
+  :global(.modal-body) {
+    overflow: visible !important;
+  }
+</style>

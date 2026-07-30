@@ -36,6 +36,7 @@ export const DEFAULT_INLINE_ELEMENTS = [
   "ruby",
   "rt",
   "rp",
+  "button",
 
   // Not added because it is rarely used, but may be a candidate to add in the future
   // "time",

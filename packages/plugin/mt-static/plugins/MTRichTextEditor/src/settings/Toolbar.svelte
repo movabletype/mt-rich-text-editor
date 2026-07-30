@@ -2,6 +2,7 @@
   import { tick } from "svelte";
   import { dndzone } from "svelte-dnd-action";
   import { flipDurationMs, dropTargetStyle } from "./common";
+  import { parseToolbarData, parseToolbarItemIds, serializeToolbarData } from "./toolbar-data";
 
   const { textarea } = $props<{
     textarea: HTMLTextAreaElement;
@@ -11,9 +12,10 @@
 
   let isDragging = $state(false);
 
-  const availableItems: ToolbarItem[] = JSON.parse(
+  // svelte-ignore state_referenced_locally (textarea is a hidden config-holding DOM element read once at mount)
+  const availableItems: ToolbarItem[] = parseToolbarItemIds(
     textarea.getAttribute("data-available-items") ?? "[]"
-  ).map((id: string) => ({
+  ).map((id) => ({
     id: `toolbar-item-${id}`,
     element: window.MTRichTextEditor.Component.getPanelItem("toolbar", id),
     isToolbarItem: true,
@@ -26,6 +28,18 @@
       isSentinel: true,
       isToolbarItem: true,
     };
+  }
+
+  function uniqueToolbarItems(items: ToolbarItem[]): ToolbarItem[] {
+    // eslint-disable-next-line svelte/prefer-svelte-reactivity
+    const ids = new Set<string>();
+    return items.filter((item) => {
+      if (ids.has(item.id)) {
+        return false;
+      }
+      ids.add(item.id);
+      return true;
+    });
   }
 
   function convertToItems(data: string[][][][]): ToolbarItem[][][][] {
@@ -64,10 +78,11 @@
       .filter((groupSides) => groupSides.length > 0);
   }
 
-  const toolbarItems = $state(convertToItems(JSON.parse(textarea.value)));
+  // svelte-ignore state_referenced_locally (textarea is a hidden config-holding DOM element read once at mount)
+  const toolbarItems = $state(convertToItems(parseToolbarData(textarea.value)));
 
   $effect(() => {
-    textarea.value = JSON.stringify(convertToData(toolbarItems));
+    textarea.value = serializeToolbarData(convertToData(toolbarItems));
   });
 
   let tmpUnusedItems = $state<ToolbarItem[] | undefined>(undefined);
@@ -115,17 +130,14 @@
       return;
     }
 
-    const newItems = items;
+    let newItems = uniqueToolbarItems(items);
     const hasSentinel = newItems.some((item) => item.isSentinel);
 
     if (!hasSentinel) {
-      newItems.push(createSentinel());
+      newItems = [...newItems, createSentinel()];
     }
 
-    // Remove duplicates because items are sometimes passed in duplicate, causing errors
-    toolbarItems[rowIndex][sideIndex][groupIndex] = newItems.filter(
-      (item, index, self) => self.findIndex((i) => i.element === item.element) === index
-    );
+    toolbarItems[rowIndex][sideIndex][groupIndex] = newItems;
 
     if (on === "consider" && !isDragging) {
       isDragging = true;
@@ -157,6 +169,7 @@
   }
 
   function getUsedItemIds(items: ToolbarItem[][][][]): Set<string> {
+    // eslint-disable-next-line svelte/prefer-svelte-reactivity
     const usedIds = new Set<string>();
     items.forEach((groupSides) => {
       groupSides.forEach((row) => {
@@ -306,7 +319,7 @@
         dropFromOthersDisabled: true,
       }}
       onconsider={({ detail: { items } }: CustomEvent<{ items: ToolbarItem[] }>) => {
-        tmpUnusedItems = items;
+        tmpUnusedItems = uniqueToolbarItems(items);
 
         if (!isDragging) {
           isDragging = true;

@@ -1,42 +1,25 @@
-import { Editor } from "../../editor";
 import type { EditorOptions } from "../../editor";
+import { mountEditorElement } from "../../test/helpers/editor";
+import type { MountedEditorElement } from "../../test/helpers/editor";
 import { PasteMenuItemElement } from "./element";
 import Markdown from "./Markdown.svelte";
 
-window.customElements.define("mt-paste-menu-item-markdown", Markdown.element!);
-
 describe("Markdown", () => {
   let element: HTMLElement & PasteMenuItemElement;
-  let textarea: HTMLTextAreaElement;
-  let editor: Editor;
+  let harness: MountedEditorElement<HTMLElement & PasteMenuItemElement>;
 
   const initElement = (options: Partial<EditorOptions> = {}) => {
-    if (element && element.parentNode) {
-      element.remove();
-    }
-    element = document.createElement("mt-paste-menu-item-markdown") as HTMLElement &
-      PasteMenuItemElement;
-
-    if (textarea && textarea.parentNode) {
-      editor.destroy();
-      textarea.remove();
-    }
-    textarea = document.createElement("textarea");
-    document.body.appendChild(textarea);
-    editor = new Editor(textarea, {
-      toolbar: [],
-      inline: false,
-      ...options,
+    harness?.cleanup();
+    harness = mountEditorElement<HTMLElement & PasteMenuItemElement>({
+      tagName: "mt-paste-menu-item-markdown",
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      elementClass: Markdown.element!,
+      editorOptions: options,
+      getInitOptions: (mountedEditor) =>
+        (mountedEditor.options.toolbarOptions?.link || {}) as Record<string, unknown>,
     });
-
-    if ("onEditorInit" in element) {
-      element.onEditorInit(
-        editor,
-        (editor.options.toolbarOptions?.link || {}) as Record<string, unknown>
-      );
-    }
-
-    document.body.appendChild(element);
+    ({ element } = harness);
   };
 
   beforeEach(() => {
@@ -44,10 +27,7 @@ describe("Markdown", () => {
   });
 
   afterEach(() => {
-    document.querySelector<HTMLElement>(".modal")?.remove();
-    element.remove();
-    editor.destroy();
-    textarea.remove();
+    harness.cleanup();
   });
 
   describe("isEditorItemAvailable", () => {

@@ -31,6 +31,6 @@
     width: max-content;
     white-space: nowrap;
     font-size: 90%;
-    z-index: 2000;
+    z-index: 1038;
   }
 </style>
