@@ -1,3 +1,4 @@
+import { mergeAttributes } from "@tiptap/core";
 import { Bold as TiptapBold } from "@tiptap/extension-bold";
 
 export const Bold = TiptapBold.extend({
@@ -7,4 +8,20 @@ export const Bold = TiptapBold.extend({
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-expect-error
   content: "inline*",
+
+  addAttributes() {
+    return {
+      ...this.parent?.(),
+      // Keep the source tag so that <b> is not rewritten to <strong>.
+      tag: {
+        default: "strong",
+        parseHTML: (element) => element.tagName.toLowerCase(),
+        renderHTML: () => ({}),
+      },
+    };
+  },
+
+  renderHTML({ mark, HTMLAttributes }) {
+    return [mark.attrs.tag, mergeAttributes(this.options.HTMLAttributes, HTMLAttributes), 0];
+  },
 });

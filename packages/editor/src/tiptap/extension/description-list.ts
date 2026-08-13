@@ -4,7 +4,7 @@ export const DescriptionList = Node.create({
   name: "descriptionList",
   priority: 1000,
   group: "block",
-  content: "(descriptionTerm|descriptionDetails)+",
+  content: "(descriptionTerm|descriptionDetails|div)+",
   defining: true,
 
   parseHTML() {
