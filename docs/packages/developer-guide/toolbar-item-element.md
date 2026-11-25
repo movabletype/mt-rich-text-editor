@@ -31,6 +31,7 @@ description: ツールバーのカスタマイズ方法について説明しま�
 * `file` アセットの挿入
 * `image` 画像の挿入
 * `table` 表
+  * <dl><dt>initialAttributes : <code>Record&lt;string, string&gt;</code></dt><dd>挿入される表に設定するHTML属性。指定するとデフォルト値（<code>{ border: "1", style: "border-collapse: collapse; width: 100%;" }</code>）を置き換えます</dd><dt>borderPresetColors : <code>string[]</code></dt><dd>表・セルのプロパティダイアログの枠線の色のパレットに表示する色の配列</dd><dt>backgroundPresetColors : <code>string[]</code></dt><dd>表・セルのプロパティダイアログの背景色のパレットに表示する色の配列</dd></dl>
 * `source` HTML編集モードへの切り替え
 * `undo` 元に戻す
 * `redo` やり直す
@@ -133,11 +134,13 @@ MTRichTextEditor.on("create", (options) => {
 
 ## 新しいアイテムの追加
 
-[ToolbarItemElement](https://github.com/movabletype/mt-rich-text-editor-internal/blob/main/packages/editor/src/toolbar/item/element.ts#L8-L48)を拡張したクラスを[カスタム要素](https://developer.mozilla.org/ja/docs/Web/API/Web_components/Using_custom_elements)として登録することで、ツールバーのアイテムとして指定できるようになります。
+[ToolbarItemElement](https://github.com/movabletype/mt-rich-text-editor/blob/main/packages/editor/src/toolbar/item/element.ts)を拡張したクラスを[カスタム要素](https://developer.mozilla.org/ja/docs/Web/API/Web_components/Using_custom_elements)として登録することで、ツールバーのアイテムとして指定できるようになります。`ToolbarItemElement` は `MTRichTextEditor.Component` から取得できます。
 
 以下が簡単な実装例です。`mt-rich-text-editor-toolbar-item-${itemName}` という名前でカスタム要素を登録することで、`itemName` をアイテム名としてツールバーに指定できるようになります。
 
 ```typescript
+const { ToolbarItemElement } = MTRichTextEditor.Component;
+
 customElements.define(
   "mt-rich-text-editor-toolbar-item-myitem",
   class extends ToolbarItemElement {

@@ -53,7 +53,7 @@ MTRichTextEditor.on("create", (options) => {
 
 ## 新しいアイテムの追加
 
-[QuickActionItemElement](https://github.com/movabletype/mt-rich-text-editor/blob/main/packages/editor/src/quick-action/item/element.ts#L9-L74)を拡張したクラスを[カスタム要素](https://developer.mozilla.org/ja/docs/Web/API/Web_components/Using_custom_elements)として登録することで、クイックアクションのアイテムとして指定できるようになります。
+[QuickActionItemElement](https://github.com/movabletype/mt-rich-text-editor/blob/main/packages/editor/src/quick-action/item/element.ts)を拡張したクラスを[カスタム要素](https://developer.mozilla.org/ja/docs/Web/API/Web_components/Using_custom_elements)として登録することで、クイックアクションのアイテムとして指定できるようになります。`QuickActionItemElement` は `MTRichTextEditor.Component` から取得できます。
 
 ### QuickActionItemElementのメソッド
 
@@ -67,6 +67,8 @@ MTRichTextEditor.on("create", (options) => {
 以下が簡単な実装例です。`mt-rich-text-editor-quick-action-${itemName}` という名前でカスタム要素を登録することで、`itemName` をアイテム名としてクイックアクションに指定できるようになります。
 
 ```typescript
+const { QuickActionItemElement } = MTRichTextEditor.Component;
+
 customElements.define(
   "mt-rich-text-editor-quick-action-item-myitem",
   class extends QuickActionItemElement {

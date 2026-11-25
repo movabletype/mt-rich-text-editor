@@ -51,3 +51,28 @@ editors:
   </script>
 </mt:setvarblock>
 ```
+
+## 追加したツールバーアイテムの登録
+
+プラグインで[新しいツールバーアイテムを追加](toolbar-item-element#新しいアイテムの追加)した場合、config.yamlの `toolbar_items` にアイテム名を指定すると、管理画面の「リッチテキストエディタの設定」の利用可能なアイテムの一覧にそのアイテムが表示されるようになります。
+
+```yaml
+editors:
+  mt_rich_text_editor:
+    extension: extension.tmpl
+    toolbar_items:
+      - myitem
+```
+
+また、`MT::Plugin::MTRichTextEditor::Util` の `add_toolbar_items` を利用すると、保存されているツールバーの設定にアイテムを追加することができます。プラグインのインストール時（アップグレード時）のコールバックから呼び出すことで、インストールと同時にツールバーへボタンを追加できます。
+
+```perl
+MT::Plugin::MTRichTextEditor::Util->add_toolbar_items({
+    items  => ['myitem'],  # 追加するアイテム名の配列（1つのグループとして挿入されます）
+    row    => 0,           # 挿入先の行
+    side   => 'left',      # 'left' または 'right'（省略時は 'left'）
+    column => undef,       # グループの挿入位置（省略時は末尾）
+});
+```
+
+同梱プラグインの[FormattedTextForMTRichTextEditor](https://github.com/movabletype/mt-rich-text-editor/blob/main/packages/plugin/plugins/FormattedTextForMTRichTextEditor)のconfig.yamlが実装例として参考になります。

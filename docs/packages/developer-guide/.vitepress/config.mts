@@ -1,5 +1,9 @@
 import { defineConfig } from "vitepress";
 
+const projectRepositoryUrl = `https://github.com/${
+  process.env.GITHUB_REPOSITORY || "movabletype/mt-rich-text-editor"
+}`;
+
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
   base: process.env.VITE_PRESS_BASE_URL || "",
@@ -19,6 +23,7 @@ export default defineConfig({
             link: "/mt-plugin",
           },
           { text: "エディタの初期化オプション", link: "/editor-options" },
+          { text: "エディタのイベント", link: "/editor-events" },
           { text: "ツールバーのカスタマイズ", link: "/toolbar-item-element" },
           {
             text: "ステータスバーのカスタマイズ",
@@ -41,6 +46,14 @@ export default defineConfig({
   markdown: {
     languageAlias: {
       mtml: "html",
+    },
+    config(md) {
+      md.core.ruler.after("normalize", "project-repository-url", (state) => {
+        state.src = state.src.replace(
+          /https:\/\/github\.com\/movabletype\/mt-rich-text-editor(?=\/)/g,
+          projectRepositoryUrl
+        );
+      });
     },
   },
 });
