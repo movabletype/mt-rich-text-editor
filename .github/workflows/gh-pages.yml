@@ -27,15 +27,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7.0.1
         with:
           persist-credentials: false
       - name: Setup Node.js
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@v7.1.0
       - name: Install dependencies
         run: npm ci --prefix docs/packages/developer-guide
       - name: Setup Pages
-        uses: actions/configure-pages@v5
+        uses: actions/configure-pages@v6.0.0
       - name: Build with VitePress
         env:
           VITE_PRESS_BASE_URL: "/${{ github.event.repository.name == 'mt-rich-text-editor' && 'mt-rich-text-editor/developer-guide' || 'developer-guide' }}"
@@ -46,7 +46,7 @@ jobs:
           cp docs/index.html _site/index.html
           cp -r docs/packages/developer-guide/.vitepress/dist _site/developer-guide
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v5.0.0
 
   # Deployment job
   deploy:
@@ -58,4 +58,4 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5.0.1
